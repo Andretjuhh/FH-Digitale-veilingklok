@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "FpaTrhtktb4=",
+  "dgSpecHash": "XXzHtvAqEEU=",
   "success": true,
-  "projectFilePath": "C:\\Users\\sebas\\Documents\\WebApplication\\WebApplication_Klas1_Groep2\\WebApplication_Klas1_Groep2\\WebApplication_Klas1_Groep2.csproj",
+  "projectFilePath": "C:\\Users\\sebas\\Documents\\GitHub\\FH-Digitale-veilingklok\\backend\\WebApplication_Klas1_Groep2\\WebApplication_Klas1_Groep2\\WebApplication_Klas1_Groep2.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\sebas\\.nuget\\packages\\azure.core\\1.47.1\\azure.core.1.47.1.nupkg.sha512",
     "C:\\Users\\sebas\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",
