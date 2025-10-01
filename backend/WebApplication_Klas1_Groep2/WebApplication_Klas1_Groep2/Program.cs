@@ -25,10 +25,17 @@ namespace WebApplication_Klas1_Groep2
 
             app.UseAuthorization();
 
-            app.MapGet("/", () => "This is the start of the project!!!!");
-
-
             app.MapControllers();
+
+
+            app.MapGet("/", (HttpContext http) =>
+            {
+                http.Response.Redirect("/api/test/hello");
+                return Task.CompletedTask;
+            });
+
+
+
 
             app.Run();
         }

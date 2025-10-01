@@ -178,4 +178,3 @@ C:\Users\sebas\Documents\GitHub\FH-Digitale-veilingklok\backend\WebApplication_K
 C:\Users\sebas\Documents\GitHub\FH-Digitale-veilingklok\backend\WebApplication_Klas1_Groep2\WebApplication_Klas1_Groep2\obj\Debug\net9.0\WebApplication_Klas1_Groep2.pdb
 C:\Users\sebas\Documents\GitHub\FH-Digitale-veilingklok\backend\WebApplication_Klas1_Groep2\WebApplication_Klas1_Groep2\obj\Debug\net9.0\WebApplication_Klas1_Groep2.genruntimeconfig.cache
 C:\Users\sebas\Documents\GitHub\FH-Digitale-veilingklok\backend\WebApplication_Klas1_Groep2\WebApplication_Klas1_Groep2\obj\Debug\net9.0\ref\WebApplication_Klas1_Groep2.dll
-C:\Users\sebas\Documents\GitHub\FH-Digitale-veilingklok\backend\WebApplication_Klas1_Groep2\WebApplication_Klas1_Groep2\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

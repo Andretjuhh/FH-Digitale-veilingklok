@@ -9,7 +9,7 @@ namespace WebApplication_Klas1_Groep2.Controllers
         [HttpGet("hello")]
         public IActionResult GetHello()
         {
-            return Ok("Hello from the API!");
+            return Ok("Dit is een text! Hello World!");
         }
     }
 }
