@@ -1,0 +1,6 @@
+@WebApplication_Klas1_Groep2_HostAddress = http://localhost:5014
+
+GET {{WebApplication_Klas1_Groep2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
