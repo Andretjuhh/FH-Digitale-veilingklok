@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VeilingKlokKlas1Groep2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9d86d333d99236b92d8d22e355059ee67d3246d5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+27d826afd35a51d8bb762e819312f8382d6dd646")]
 [assembly: System.Reflection.AssemblyProductAttribute("VeilingKlokKlas1Groep2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VeilingKlokKlas1Groep2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
