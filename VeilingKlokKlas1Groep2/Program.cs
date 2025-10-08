@@ -1,3 +1,4 @@
+﻿
 using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -5,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddRouting();
 
-// Add Swagger services
+//Add Swagger services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -14,7 +15,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -30,5 +31,6 @@ app.UseRouting();
 app.MapControllers();
 
 app.MapGet("/", () => "✅ API is running. Go to /swagger to see available endpoints.");
+
 
 app.Run();
