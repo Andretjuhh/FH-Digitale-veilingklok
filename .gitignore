@@ -1,0 +1,44 @@
+# Build and debug output
+bin/
+obj/
+out/
+
+# Visual Studio temporary files, build results, etc.
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider IDE
+.idea/
+
+# VS Code settings folder
+.vscode/
+
+# NuGet packages
+*.nupkg
+packages/
+# Include the packages folder if you use packages.config
+# Otherwise, modern SDK-style projects restore from nuget.org
+
+# Rider project files
+*.sln.iml
+
+# ASP.NET temporary files
+*.log
+*.vspscc
+*.vssscc
+
+# OS generated files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Publish output
+publish/
+*.publishsettings
