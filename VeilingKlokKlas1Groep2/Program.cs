@@ -1,6 +1,8 @@
 ﻿using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Http; // Added for HttpContext, if needed, though often implicit
 using System.IO; // <-- NEW: Required for reading files
+using Microsoft.EntityFrameworkCore;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddRouting();
 
 // Add Swagger services
+builder.Services.AddDbContext<WebProject_Klas1_Groep2.Data.VeilingKlokContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("VeilingKlokDb")));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
