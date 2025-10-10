@@ -46,7 +46,7 @@ public class KwekerController : ControllerBase
             _db.Accounts.Add(account);
             await _db.SaveChangesAsync(); // account.Id gets populated
 
-            // Create Koper; AccountId is PK/FK for Koper
+            // Create Kweker; AccountId is PK/FK for Kweker
             var kweker = new Kweker
             {
                 AccountId = account.Id,
