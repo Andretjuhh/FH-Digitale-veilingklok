@@ -7,7 +7,7 @@ using System.Linq;
 namespace WebProject_Klas1_Groep2.Data;
 
 using WebProject_Klas1_Groep2.Models;
-    
+
 [ApiController]
 [Route("[controller]")]
 public class KoperController : ControllerBase
@@ -104,5 +104,76 @@ public class KoperController : ControllerBase
         return Ok(koperDetails);
     }
 
-    
+    //Update Koper account (Currently does not create if it doesnt exist)
+    [HttpPut("koper/{accountId}")]
+    public async Task<IActionResult> UpdateKoperAccount(int accountId, [FromBody] UpdateKoperProfile updateKoper)
+    {
+        // 1. Basic validation
+        if (updateKoper == null)
+        {
+            return BadRequest("Missing payload.");
+        }
+
+        // 2. Start Transaction for atomic update of Account and Koper
+        // Crucial for modifying data across two related tables (Account and Koper)
+        using var transaction = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            // 3. Retrieve existing Account and Koper records
+            // Use Include to load the base Account entity with the Koper entity
+            var koper = await _db.Kopers
+                .Include(k => k.Account)
+                .FirstOrDefaultAsync(k => k.AccountId == accountId);
+
+            // 4. Check if the resource exists
+            if (koper == null)
+            {
+                await transaction.RollbackAsync();
+                return NotFound($"FAILURE: Koper account with ID {accountId} not found. Cannot update.");
+            }
+
+            var account = koper.Account;
+
+            // 5. Check for Email collision if the email is being changed
+            if (account.Email != updateKoper.Email)
+            {
+                // Check if the new email is already in use by a *different* account
+                if (await _db.Accounts.AnyAsync(a => a.Email == updateKoper.Email && a.Id != accountId))
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest("FAILURE: Another account already uses this email address.");
+                }
+            }
+
+            // 6. Update Account details (Email)
+            account.Email = updateKoper.Email;
+            // NOTE: The Password field is NOT updated here for security reasons.
+
+            // 7. Update Koper details (Profile fields)
+            koper.FirstName = updateKoper.FirstName;
+            koper.LastName = updateKoper.LastName;
+            koper.Adress = updateKoper.Adress;
+            koper.PostCode = updateKoper.PostCode;
+            koper.Regio = updateKoper.Regio;
+
+            // EF Core tracks the changes, but we ensure they are saved
+            await _db.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            // Standard response for a successful PUT update
+            return Ok(new { message = $"SUCCESS: Koper Account {accountId} updated successfully." });
+        }
+        catch (DbUpdateException ex)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(500, $"FAILURE: Database error during update (rolled back). Error: {ex.InnerException?.Message ?? ex.Message}");
+        }
+        catch (System.Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(500, $"FAILURE: Account update failed (rolled back). Error: {ex.Message}");
+        }
+
+
+    }
 }
