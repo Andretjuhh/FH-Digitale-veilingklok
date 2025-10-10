@@ -3,14 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebProject_Klas1_Groep2.Models
 {
+    // Koper Model, represents the Koper table in the database
     public class Koper
     {
-        // [Key]
-        // [Column("id")]
-        // public int Id { get; set; }
-
+        //Since this is a specialization of Account, AccountId is both PK and FK
         [Column("account_id")]
-        //[ForeignKey(nameof(Account))]
         public int AccountId { get; set; }
 
         [Column("first_name")]
