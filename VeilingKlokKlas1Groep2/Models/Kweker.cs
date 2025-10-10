@@ -28,6 +28,6 @@ namespace WebProject_Klas1_Groep2.Models
         [MaxLength(50)]
         public string? KvkNumber { get; set; }
 
-        public Account? Account { get; set; }
+        public Account Account { get; set; }
     }
 }

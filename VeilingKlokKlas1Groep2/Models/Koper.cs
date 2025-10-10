@@ -30,6 +30,6 @@ namespace WebProject_Klas1_Groep2.Models
         [Column("regio")]
         public string? Regio { get; set; }
 
-        public Account? Account { get; set; }
+        public Account Account { get; set; }
     }
 }
