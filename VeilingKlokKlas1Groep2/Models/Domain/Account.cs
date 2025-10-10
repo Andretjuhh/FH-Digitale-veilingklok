@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebProject_Klas1_Groep2.Models
 {
+
+    //Account Model, represents the Account table in the database
+    [Table("account")]
     public class Account
     {
         [Key]

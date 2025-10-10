@@ -3,8 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebProject_Klas1_Groep2.Models
 {
+    // Kweker Model, represents the Kweker table in the database
     public class Kweker
     {
+        //Since this is a specialization of Account, AccountId is both PK and FK
         [Column("account_id")]
         public int AccountId { get; set; }
 
