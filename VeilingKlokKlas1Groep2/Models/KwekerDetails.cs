@@ -1,12 +1,12 @@
 namespace WebProject_Klas1_Groep2.Models
 {
-    public class KoperDetails
+    public class KwekerDetails
     {
         public int AccountId { get; set; }
-        public string Email { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string Name { get; set; }
+        public string Telephone { get; set; }
         public string? Adress { get; set; }
         public string? Regio { get; set; }
+        public string? KvkNumber { get; set; }
     }
 }

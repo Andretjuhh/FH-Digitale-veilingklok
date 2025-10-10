@@ -17,6 +17,8 @@ namespace WebProject_Klas1_Groep2.Models
         [Required, MaxLength(255)]
         public string Password { get; set; }
 
-        public Koper Koper { get; set; }
+        public Koper Koper { get; set; } // Navigation property to Kweker
+
+        public Kweker Kweker { get; set; } // Navigation property to Kweker
     }
 }

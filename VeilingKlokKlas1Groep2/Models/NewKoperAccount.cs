@@ -6,7 +6,7 @@ namespace WebProject_Klas1_Groep2.Models
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string Address { get; set; }
+        public string Adress { get; set; }
         public string PostCode { get; set; }
         public string Regio { get; set; }
     }

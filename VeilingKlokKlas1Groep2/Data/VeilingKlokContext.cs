@@ -10,6 +10,7 @@ namespace WebProject_Klas1_Groep2.Data
 
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Koper> Kopers { get; set; }
+        public DbSet<Kweker> Kwekers { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -20,7 +21,7 @@ namespace WebProject_Klas1_Groep2.Data
                 entity.SetTableName(entity.DisplayName());
             }
 
-            // 2. Configure Shared Primary Key (One-to-One Specialization)
+            // 2. Configure Shared Primary Key (One-to-One Specialization) for Koper
 
             // A. Define the Primary Key for Koper: It uses the AccountId property.
             modelBuilder.Entity<Koper>()
@@ -33,6 +34,20 @@ namespace WebProject_Klas1_Groep2.Data
                 // C. Define the Foreign Key: It is the same column used for the PK.
                 .HasForeignKey<Koper>(k => k.AccountId)
                 .IsRequired();
+
+            // 3. Configure Shared Primary Key (One-to-One Specialization) for Kweker
+            // A. Define the Primary Key for Koper: It uses the AccountId property.
+            modelBuilder.Entity<Kweker>()
+                .HasKey(k => k.AccountId); // This is the PK definition that was missing earlier
+
+            // B. Define the One-to-One Relationship
+            modelBuilder.Entity<Account>()
+                .HasOne(a => a.Kweker)
+                .WithOne(k => k.Account)
+                // C. Define the Foreign Key: It is the same column used for the PK.
+                .HasForeignKey<Kweker>(k => k.AccountId)
+                .IsRequired();
+
         }
     }
 }
