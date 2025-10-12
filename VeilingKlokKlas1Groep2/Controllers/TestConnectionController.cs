@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
 
-namespace WebProject_Klas1_Groep2.Data;
-using WebProject_Klas1_Groep2.Models;
+namespace VeilingKlokKlas1Groep2.Data;
+using VeilingKlokKlas1Groep2.Models.Domain;
 
 [ApiController]
 [Route("[controller]")]

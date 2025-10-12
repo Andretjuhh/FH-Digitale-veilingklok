@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WebProject_Klas1_Groep2.Models
+namespace VeilingKlokKlas1Groep2.Models.Domain
 {
     // Kweker Model, represents the Kweker table in the database
     public class Kweker

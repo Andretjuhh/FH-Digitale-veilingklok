@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using WebProject_Klas1_Groep2.Models;
+using VeilingKlokKlas1Groep2.Models.Domain;
 
-namespace WebProject_Klas1_Groep2.Data
+namespace VeilingKlokKlas1Groep2.Data
 {
     public class VeilingKlokContext : DbContext
     {

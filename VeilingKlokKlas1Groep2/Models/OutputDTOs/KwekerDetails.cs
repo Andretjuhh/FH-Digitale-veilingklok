@@ -1,4 +1,4 @@
-namespace WebProject_Klas1_Groep2.Models
+namespace VeilingKlokKlas1Groep2.Models
 {
     public class KwekerDetails
     {

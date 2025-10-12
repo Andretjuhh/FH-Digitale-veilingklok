@@ -12,7 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddRouting();
 
 // Add Swagger services
-builder.Services.AddDbContext<WebProject_Klas1_Groep2.Data.VeilingKlokContext>(options =>
+builder.Services.AddDbContext<VeilingKlokKlas1Groep2.Data.VeilingKlokContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("VeilingKlokDb")));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
