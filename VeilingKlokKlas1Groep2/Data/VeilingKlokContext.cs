@@ -11,6 +11,8 @@ namespace VeilingKlokKlas1Groep2.Data
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Koper> Kopers { get; set; }
         public DbSet<Kweker> Kwekers { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -36,6 +38,7 @@ namespace VeilingKlokKlas1Groep2.Data
                 .IsRequired();
 
             // 3. Configure Shared Primary Key (One-to-One Specialization) for Kweker
+
             // A. Define the Primary Key for Koper: It uses the AccountId property.
             modelBuilder.Entity<Kweker>()
                 .HasKey(k => k.AccountId); // This is the PK definition that was missing earlier
@@ -46,6 +49,19 @@ namespace VeilingKlokKlas1Groep2.Data
                 .WithOne(k => k.Account)
                 // C. Define the Foreign Key: It is the same column used for the PK.
                 .HasForeignKey<Kweker>(k => k.AccountId)
+                .IsRequired();
+
+            // 4. Configure One-to-Many Relationship between Koper and Order
+
+            // A. Define the PRimary Key for Order
+            modelBuilder.Entity<Order>()
+                .HasKey(o => o.Id); // This is the PK definition that was missing earlier
+            // B. Define the One-to-Many Relationship
+            modelBuilder.Entity<Koper>()
+                .HasMany(k => k.Orders)
+                .WithOne(o => o.Koper)
+                // C. Define the Foreign Key
+                .HasForeignKey(o => o.KoperId)
                 .IsRequired();
 
         }

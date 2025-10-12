@@ -28,5 +28,8 @@ namespace VeilingKlokKlas1Groep2.Models.Domain
         public string? Regio { get; set; }
 
         public Account Account { get; set; }
+
+        // Navigation property for the one-to-many relationship with Order
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }
