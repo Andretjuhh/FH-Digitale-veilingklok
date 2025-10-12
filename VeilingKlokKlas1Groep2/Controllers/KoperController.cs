@@ -177,4 +177,37 @@ public class KoperController : ControllerBase
 
 
     }
+    // 4) Get Orders of koper
+    [HttpGet("koper/{accountId}/order")]
+    public async Task<ActionResult<KoperDetailsWithOrders>> GetKoperOrders(int accountId)
+    {
+        var koperDetails = await _db.Kopers
+            .Where(k => k.AccountId == accountId)
+            .Select(k => new KoperDetailsWithOrders
+            {
+                AccountId = k.AccountId,
+                Email = k.Account.Email,     // uses navigation to Account
+                FirstName = k.FirstName,
+                LastName = k.LastName,
+                Adress = k.Adress,
+                Regio = k.Regio,
+                // CHANGE 3: Project the related Orders collection
+                Orders = k.Orders.Select(o => new OrderDetails // Use a lightweight Order DTO
+                {
+                    Id = o.Id,
+                    Quantity = o.Quantity,
+                    BoughtAt = o.BoughtAt
+                    // Include other necessary order fields here
+                }).ToList()
+            })
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+
+        if (koperDetails == null)
+            return NotFound($"Koper account with ID {accountId} not found.");
+
+        return Ok(koperDetails);
+    }
+
+
 }
