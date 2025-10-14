@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VeilingKlokKlas1Groep2.Models.Domain
+namespace VeilingKlok.Models.Domain
 {
     //TODO: Once we have products, uncomment the ProductId and Product navigation property
     public class Order

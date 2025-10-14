@@ -1,4 +1,4 @@
-namespace VeilingKlokKlas1Groep2.Models
+namespace VeilingKlok.Models
 {
     public class KwekerDetails
     {

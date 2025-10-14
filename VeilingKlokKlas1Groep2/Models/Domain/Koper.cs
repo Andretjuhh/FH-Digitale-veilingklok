@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VeilingKlokKlas1Groep2.Models.Domain
+namespace VeilingKlok.Models.Domain
 {
     // Koper Model, represents the Koper table in the database
     public class Koper

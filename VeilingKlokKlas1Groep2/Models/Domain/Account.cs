@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VeilingKlokKlas1Groep2.Models.Domain
+namespace VeilingKlok.Models.Domain
 {
 
     //Account Model, represents the Account table in the database

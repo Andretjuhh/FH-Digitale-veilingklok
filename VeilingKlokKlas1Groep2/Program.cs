@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http; // Added for HttpContext, if needed, though oft
 using System.IO; // <-- NEW: Required for reading files
 using Microsoft.EntityFrameworkCore;
 
-
+using VeilingKlok.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,14 +12,13 @@ builder.Services.AddControllers();
 builder.Services.AddRouting();
 
 // Add Swagger services
-builder.Services.AddDbContext<VeilingKlokKlas1Groep2.Data.VeilingKlokContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("VeilingKlokDb")));
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-});
+builder.Services.AddSwaggerGen(c =>  c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" }));
 
+// Register the DbContext with SQL Server provider
+builder.Services.AddDbContext<VeilingKlokContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Build server application
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,11 +26,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
-    {
+    { 
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
     });
 }
 
+// Server Middleware configuration 
 // Re-enabled HTTPS redirection, as it was in the original code.
 app.UseHttpsRedirection(); 
 app.UseAuthorization();

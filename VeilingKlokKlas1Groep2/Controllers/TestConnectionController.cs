@@ -3,34 +3,36 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
 
-namespace VeilingKlokKlas1Groep2.Data;
-using VeilingKlokKlas1Groep2.Models.Domain;
+using VeilingKlok.Data;
 
-[ApiController]
-[Route("[controller]")]
-public class TestController : ControllerBase
+namespace VeilingKlok.Controllers
 {
-    private readonly VeilingKlokContext _db;
-
-    public TestController(VeilingKlokContext db)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class TestController : ControllerBase
     {
-        _db = db;
-    }
+        private readonly VeilingKlokContext _db;
 
-    // 1) Connection test
-    [HttpGet("test")]
-    public IActionResult TestConnection()
-    {
-        try
+        public TestController(VeilingKlokContext db)
         {
-            if (_db.Database.CanConnect())
-                return Ok("SUCCESS: Connected to VeilingKlok database via VeilingKlokDB catalog!");
-            else
-                return StatusCode(500, "FAILURE: Cannot connect to database.");
+            _db = db;
         }
-        catch (System.Exception ex)
+
+        // 1) Connection test
+        [HttpGet("test")]
+        public IActionResult TestConnection()
         {
-            return StatusCode(500, $"FAILURE: Connection failed. Error: {ex.Message}");
+            try
+            {
+                if (_db.Database.CanConnect())
+                    return Ok("SUCCESS: Connected to VeilingKlok database via VeilingKlokDB catalog!");
+                else
+                    return StatusCode(500, "FAILURE: Cannot connect to database.");
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, $"FAILURE: Connection failed. Error: {ex.Message}");
+            }
         }
     }
 }

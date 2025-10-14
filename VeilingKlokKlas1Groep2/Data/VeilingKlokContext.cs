@@ -1,22 +1,21 @@
 using Microsoft.EntityFrameworkCore;
-using VeilingKlokKlas1Groep2.Models.Domain;
+using VeilingKlok.Models.Domain;
 
-namespace VeilingKlokKlas1Groep2.Data
+namespace VeilingKlok.Data
 {
-    public class VeilingKlokContext : DbContext
+    public class VeilingKlokContext(DbContextOptions<VeilingKlokContext> options) : DbContext(options)
     {
-        public VeilingKlokContext(DbContextOptions<VeilingKlokContext> options)
-            : base(options) { }
-
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Koper> Kopers { get; set; }
         public DbSet<Kweker> Kwekers { get; set; }
         public DbSet<Order> Orders { get; set; }
-        
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Top level call to base method
+            base.OnModelCreating(modelBuilder);
+
             // 1. Singularization Fix (Correct)
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
