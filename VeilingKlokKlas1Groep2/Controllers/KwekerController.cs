@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
 
-using VeilingKlok.Data;
-using VeilingKlok.Models;
-using VeilingKlok.Models.Domain;
+using VeilingKlokApp.Data;
+using VeilingKlokApp.Models;
+using VeilingKlokApp.Models.Domain;
 
 
-namespace VeilingKlok.Controllers
+namespace VeilingKlokApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -31,13 +31,6 @@ namespace VeilingKlok.Controllers
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
-                // Create Account
-                var account = new Account
-                {
-                    Email = newKweker.Email,
-                    Password = newKweker.Password
-                };
-
                 // NOTE: Check for existing account by email here to provide a better error message 
                 // than letting the DB unique constraint fail.
                 if (await _db.Accounts.AnyAsync(a => a.Email == newKweker.Email))
@@ -46,13 +39,11 @@ namespace VeilingKlok.Controllers
                     return BadRequest("FAILURE: An account with this email already exists.");
                 }
 
-                _db.Accounts.Add(account);
-                await _db.SaveChangesAsync(); // account.Id gets populated
-
-                // Create Kweker; AccountId is PK/FK for Kweker
+                // Create Kweker directly (Account is abstract and base of Kweker)
                 var kweker = new Kweker
                 {
-                    AccountId = account.Id,
+                    Email = newKweker.Email,
+                    Password = newKweker.Password,
                     Name = newKweker.Name,
                     Telephone = newKweker.Telephone,
                     Adress = newKweker.Adress,
@@ -65,7 +56,7 @@ namespace VeilingKlok.Controllers
 
                 await transaction.CommitAsync();
 
-                return Ok(new { message = "SUCCESS: Kweker Account created", accountId = account.Id });
+                return Ok(new { message = "SUCCESS: Kweker Account created", accountId = kweker.Id });
             }
             // 👇 CATCH SPECIFIC DATABASE ERRORS
             catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
@@ -87,12 +78,12 @@ namespace VeilingKlok.Controllers
         public async Task<ActionResult<KwekerDetails>> GetKwekerAccount(int accountId)
         {
             var kwekerDetails = await _db.Kwekers
-                .Where(k => k.AccountId == accountId)
+                .Where(k => k.Id == accountId)
                 .Select(k => new KwekerDetails
                 {
-                    AccountId = k.AccountId,
+                    AccountId = k.Id,
                     Name = k.Name,
-                    Email = k.Account.Email,     // uses navigation to Account
+                    Email = k.Email,     // base property from Account
                     Telephone = k.Telephone,
                     Adress = k.Adress,
                     Regio = k.Regio,

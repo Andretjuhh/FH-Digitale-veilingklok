@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
 
-using VeilingKlok.Data;
-using VeilingKlok.Models; 
-using VeilingKlok.Models.Domain;
+using VeilingKlokApp.Data;
+using VeilingKlokApp.Models; 
+using VeilingKlokApp.Models.Domain;
 
-namespace VeilingKlok.Controllers
+namespace VeilingKlokApp.Controllers
 {
 
     [ApiController]
@@ -31,13 +31,6 @@ namespace VeilingKlok.Controllers
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
-                // Create Account
-                var account = new Account
-                {
-                    Email = newKoper.Email,
-                    Password = newKoper.Password
-                };
-
                 // NOTE: Check for existing account by email here to provide a better error message 
                 // than letting the DB unique constraint fail.
                 if (await _db.Accounts.AnyAsync(a => a.Email == newKoper.Email))
@@ -46,13 +39,11 @@ namespace VeilingKlok.Controllers
                     return BadRequest("FAILURE: An account with this email already exists.");
                 }
 
-                _db.Accounts.Add(account);
-                await _db.SaveChangesAsync(); // account.Id gets populated
-
-                // Create Koper; AccountId is PK/FK for Koper
+                // Create Koper directly (Account is abstract and base of Koper)
                 var koper = new Koper
                 {
-                    AccountId = account.Id,
+                    Email = newKoper.Email,
+                    Password = newKoper.Password,
                     FirstName = newKoper.FirstName,
                     LastName = newKoper.LastName,
                     Adress = newKoper.Adress,
@@ -66,7 +57,7 @@ namespace VeilingKlok.Controllers
                 await transaction.CommitAsync();
 
                 // Return the standard 201 Created response with a success message and the new account ID
-                return CreatedAtAction(nameof(GetKoperAccount), new { accountId = account.Id });
+                return CreatedAtAction(nameof(GetKoperAccount), new { accountId = koper.Id });
             }
             // 👇 CATCH SPECIFIC DATABASE ERRORS
             catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
@@ -88,11 +79,11 @@ namespace VeilingKlok.Controllers
         public async Task<ActionResult<KoperDetails>> GetKoperAccount(int accountId)
         {
             var koperDetails = await _db.Kopers
-                .Where(k => k.AccountId == accountId)
+                .Where(k => k.Id == accountId)
                 .Select(k => new KoperDetails
                 {
-                    AccountId = k.AccountId,
-                    Email = k.Account.Email,     // uses navigation to Account
+                    AccountId = k.Id,
+                    Email = k.Email,     // base property from Account
                     FirstName = k.FirstName,
                     LastName = k.LastName,
                     Adress = k.Adress,
@@ -122,11 +113,9 @@ namespace VeilingKlok.Controllers
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
-                // 3. Retrieve existing Account and Koper records
-                // Use Include to load the base Account entity with the Koper entity
+                // 3. Retrieve existing Koper record
                 var koper = await _db.Kopers
-                    .Include(k => k.Account)
-                    .FirstOrDefaultAsync(k => k.AccountId == accountId);
+                    .FirstOrDefaultAsync(k => k.Id == accountId);
 
                 // 4. Check if the resource exists
                 if (koper == null)
@@ -135,10 +124,8 @@ namespace VeilingKlok.Controllers
                     return NotFound($"FAILURE: Koper account with ID {accountId} not found. Cannot update.");
                 }
 
-                var account = koper.Account;
-
                 // 5. Check for Email collision if the email is being changed
-                if (account.Email != updateKoper.Email)
+                if (koper.Email != updateKoper.Email)
                 {
                     // Check if the new email is already in use by a *different* account
                     if (await _db.Accounts.AnyAsync(a => a.Email == updateKoper.Email && a.Id != accountId))
@@ -149,7 +136,7 @@ namespace VeilingKlok.Controllers
                 }
 
                 // 6. Update Account details (Email)
-                account.Email = updateKoper.Email;
+                koper.Email = updateKoper.Email;
                 // NOTE: The Password field is NOT updated here for security reasons.
 
                 // 7. Update Koper details (Profile fields)
@@ -185,11 +172,11 @@ namespace VeilingKlok.Controllers
         public async Task<ActionResult<KoperDetailsWithOrders>> GetKoperOrders(int accountId)
         {
             var koperDetails = await _db.Kopers
-                .Where(k => k.AccountId == accountId)
+                .Where(k => k.Id == accountId)
                 .Select(k => new KoperDetailsWithOrders
                 {
-                    AccountId = k.AccountId,
-                    Email = k.Account.Email,     // uses navigation to Account
+                    AccountId = k.Id,
+                    Email = k.Email,     // base property from Account
                     FirstName = k.FirstName,
                     LastName = k.LastName,
                     Adress = k.Adress,

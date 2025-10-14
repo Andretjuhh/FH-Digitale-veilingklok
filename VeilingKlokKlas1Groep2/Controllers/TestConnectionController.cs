@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
 
-using VeilingKlok.Data;
+using VeilingKlokApp.Data;
 
-namespace VeilingKlok.Controllers
+namespace VeilingKlokApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http; // Added for HttpContext, if needed, though oft
 using System.IO; // <-- NEW: Required for reading files
 using Microsoft.EntityFrameworkCore;
 
-using VeilingKlok.Data;
+using VeilingKlokApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,4 +1,4 @@
-namespace VeilingKlok.Models
+namespace VeilingKlokApp.Models
 {
     public class NewOrder
     {
