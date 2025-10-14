@@ -19,8 +19,13 @@ namespace VeilingKlokKlas1Groep2.Models.Domain
         [Required, MaxLength(255)]
         public string Password { get; set; }
 
+        [Column("created_at")]
+        [Required]
+        public DateTime CreatedAt { get; set; }
         public Koper Koper { get; set; } // Navigation property to Kweker
 
         public Kweker Kweker { get; set; } // Navigation property to Kweker
+
+        public Veilingmeester Veilingmeester { get; set; } // Navigation property to Veilingmeester
     }
 }

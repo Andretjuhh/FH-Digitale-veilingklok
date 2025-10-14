@@ -34,7 +34,8 @@ public class KoperController : ControllerBase
             var account = new Account
             {
                 Email = newKoper.Email,
-                Password = newKoper.Password
+                Password = newKoper.Password,
+                CreatedAt = DateTime.UtcNow
             };
 
             // NOTE: Check for existing account by email here to provide a better error message 

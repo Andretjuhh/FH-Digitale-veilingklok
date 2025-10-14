@@ -51,7 +51,21 @@ namespace VeilingKlokKlas1Groep2.Data
                 .HasForeignKey<Kweker>(k => k.AccountId)
                 .IsRequired();
 
-            // 4. Configure One-to-Many Relationship between Koper and Order
+            // 4. Configure Shared Primary Key (One-to-One Specialization) for Koper
+
+            // A. Define the Primary Key for Koper: It uses the AccountId property.
+            modelBuilder.Entity<Veilingmeester>()
+                .HasKey(v => v.AccountId); // This is the PK definition that was missing earlier
+
+            // B. Define the One-to-One Relationship
+            modelBuilder.Entity<Account>()
+                .HasOne(a => a.Veilingmeester)
+                .WithOne(v => v.Account)
+                // C. Define the Foreign Key: It is the same column used for the PK.
+                .HasForeignKey<Veilingmeester>(v => v.AccountId)
+                .IsRequired();
+
+            // 5. Configure One-to-Many Relationship between Koper and Order
 
             // A. Define the PRimary Key for Order
             modelBuilder.Entity<Order>()

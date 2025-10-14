@@ -33,7 +33,8 @@ public class KwekerController : ControllerBase
             var account = new Account
             {
                 Email = newKweker.Email,
-                Password = newKweker.Password
+                Password = newKweker.Password,
+                CreatedAt = DateTime.UtcNow
             };
 
             // NOTE: Check for existing account by email here to provide a better error message 
