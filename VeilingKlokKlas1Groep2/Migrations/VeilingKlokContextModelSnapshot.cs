@@ -31,6 +31,10 @@ namespace VeilingKlokKlas1Groep2.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -48,7 +52,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("accounts");
+                    b.ToTable("Account");
 
                     b.UseTptMappingStrategy();
                 });
@@ -84,7 +88,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
 
                     b.HasIndex("KwekerId");
 
-                    b.ToTable("orders");
+                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.VeilingKlok", b =>
@@ -126,7 +130,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
 
                     b.HasIndex("VeilingmeesterId");
 
-                    b.ToTable("veilingklokken");
+                    b.ToTable("Veilingklok");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.Koper", b =>
@@ -157,7 +161,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("regio");
 
-                    b.ToTable("kopers");
+                    b.ToTable("Koper");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.Kweker", b =>
@@ -191,7 +195,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasColumnName("telephone");
 
-                    b.ToTable("kwekers");
+                    b.ToTable("Kweker");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.Veilingmeester", b =>
@@ -210,7 +214,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasColumnName("soort_veiling");
 
-                    b.ToTable("veilingmeesters");
+                    b.ToTable("Veilingmeester");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.Order", b =>

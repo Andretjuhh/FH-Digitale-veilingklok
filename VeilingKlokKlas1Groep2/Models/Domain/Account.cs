@@ -6,7 +6,7 @@ namespace VeilingKlokApp.Models.Domain
 
     //Account Model, represents the Account table in the database
     // Its abstract because we never create an Account directly it is always a Koper or Kweker
-    [Table("accounts")]
+    [Table("Account")]
     public abstract class Account
     {
         [Key]
@@ -21,5 +21,9 @@ namespace VeilingKlokApp.Models.Domain
         [Column("password")]
         [Required, MaxLength(255)]
         public string Password { get; set; }
+
+        [Column("created_at")]
+        [Required]
+        public DateTime CreatedAt { get; set; }
     }
 }

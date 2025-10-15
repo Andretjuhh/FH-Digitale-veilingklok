@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace VeilingKlokApp.Models.Domain
 {
     //TODO: Once we have products, uncomment the ProductId and Product navigation property
-    [Table("orders")]
+    [Table("Order")]
     public class Order
     {
         [Key]

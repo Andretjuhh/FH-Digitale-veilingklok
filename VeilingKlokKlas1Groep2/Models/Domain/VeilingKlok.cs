@@ -4,7 +4,7 @@ using VeilingKlokApp.Models.Domain;
 
 namespace VeilingKlokApp.Models.Domain
 {
-    [Table("veilingklokken")]
+    [Table("Veilingklok")]
     public class VeilingKlok
     {
         [Key]

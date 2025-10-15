@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace VeilingKlokApp.Models.Domain
 {
     // Koper Model, represents the Koper table in the database
-    [Table("kopers")]
+    [Table("Koper")]
     public class Koper : Account
     {
         [Column("first_name")]

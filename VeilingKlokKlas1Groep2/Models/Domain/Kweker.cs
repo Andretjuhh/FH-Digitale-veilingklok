@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace VeilingKlokApp.Models.Domain
 {
     // Kweker Model, represents the Kweker table in the database
-    [Table("kwekers")]
+    [Table("Kweker")]
     public class Kweker: Account
     {
         [Column("name")]
