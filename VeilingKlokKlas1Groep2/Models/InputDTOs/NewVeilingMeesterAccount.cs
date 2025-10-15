@@ -6,6 +6,8 @@ namespace VeilingKlokKlas1Groep2.Models
     {
         public string Email { get; set; }
         public string Password { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string Regio { get; set; }
         public string SoortVeiling { get; set; }
     }
 }

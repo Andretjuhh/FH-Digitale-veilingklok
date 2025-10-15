@@ -97,8 +97,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     quantity = table.Column<int>(type: "int", nullable: false),
                     bought_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    koper_id = table.Column<int>(type: "int", nullable: false),
-                    kweker_id = table.Column<int>(type: "int", nullable: false)
+                    koper_id = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,12 +108,6 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         principalTable: "Koper",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Order_Kweker_kweker_id",
-                        column: x => x.kweker_id,
-                        principalTable: "Kweker",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -153,11 +146,6 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 column: "koper_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Order_kweker_id",
-                table: "Order",
-                column: "kweker_id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Veilingklok_veilingmeester_id",
                 table: "Veilingklok",
                 column: "veilingmeester_id");
@@ -167,6 +155,9 @@ namespace VeilingKlokKlas1Groep2.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Kweker");
+
+            migrationBuilder.DropTable(
                 name: "Order");
 
             migrationBuilder.DropTable(
@@ -174,9 +165,6 @@ namespace VeilingKlokKlas1Groep2.Migrations
 
             migrationBuilder.DropTable(
                 name: "Koper");
-
-            migrationBuilder.DropTable(
-                name: "Kweker");
 
             migrationBuilder.DropTable(
                 name: "Veilingmeester");

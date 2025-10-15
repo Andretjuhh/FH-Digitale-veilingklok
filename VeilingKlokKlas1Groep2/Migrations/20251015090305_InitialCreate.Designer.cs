@@ -12,7 +12,7 @@ using VeilingKlokApp.Data;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     [DbContext(typeof(VeilingKlokContext))]
-    [Migration("20251015085743_InitialCreate")]
+    [Migration("20251015090305_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -77,10 +77,6 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasColumnType("int")
                         .HasColumnName("koper_id");
 
-                    b.Property<int>("KwekerId")
-                        .HasColumnType("int")
-                        .HasColumnName("kweker_id");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int")
                         .HasColumnName("quantity");
@@ -88,8 +84,6 @@ namespace VeilingKlokKlas1Groep2.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("KoperId");
-
-                    b.HasIndex("KwekerId");
 
                     b.ToTable("Order");
                 });
@@ -228,15 +222,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("VeilingKlokApp.Models.Domain.Kweker", "Kweker")
-                        .WithMany()
-                        .HasForeignKey("KwekerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Koper");
-
-                    b.Navigation("Kweker");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.VeilingKlok", b =>
