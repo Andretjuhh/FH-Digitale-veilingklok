@@ -1,15 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VeilingKlokKlas1Groep2.Models.Domain
+namespace VeilingKlokApp.Models.Domain
 {
     // Koper Model, represents the Koper table in the database
-    public class Koper
+    [Table("kopers")]
+    public class Koper : Account
     {
-        //Since this is a specialization of Account, AccountId is both PK and FK
-        [Column("account_id")]
-        public int AccountId { get; set; }
-
         [Column("first_name")]
         [Required, MaxLength(100)]
         public string FirstName { get; set; }
@@ -26,8 +23,6 @@ namespace VeilingKlokKlas1Groep2.Models.Domain
         
         [Column("regio")]
         public string? Regio { get; set; }
-
-        public Account Account { get; set; }
 
         // Navigation property for the one-to-many relationship with Order
         public ICollection<Order> Orders { get; set; } = new List<Order>();
