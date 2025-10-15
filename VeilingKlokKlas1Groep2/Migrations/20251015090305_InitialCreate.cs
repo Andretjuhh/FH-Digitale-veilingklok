@@ -12,21 +12,22 @@ namespace VeilingKlokKlas1Groep2.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "accounts",
+                name: "Account",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                    password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_accounts", x => x.id);
+                    table.PrimaryKey("PK_Account", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "kopers",
+                name: "Koper",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false),
@@ -38,17 +39,17 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_kopers", x => x.id);
+                    table.PrimaryKey("PK_Koper", x => x.id);
                     table.ForeignKey(
-                        name: "FK_kopers_accounts_id",
+                        name: "FK_Koper_Account_id",
                         column: x => x.id,
-                        principalTable: "accounts",
+                        principalTable: "Account",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "kwekers",
+                name: "Kweker",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false),
@@ -60,17 +61,17 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_kwekers", x => x.id);
+                    table.PrimaryKey("PK_Kweker", x => x.id);
                     table.ForeignKey(
-                        name: "FK_kwekers_accounts_id",
+                        name: "FK_Kweker_Account_id",
                         column: x => x.id,
-                        principalTable: "accounts",
+                        principalTable: "Account",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "veilingmeesters",
+                name: "Veilingmeester",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false),
@@ -79,45 +80,38 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_veilingmeesters", x => x.id);
+                    table.PrimaryKey("PK_Veilingmeester", x => x.id);
                     table.ForeignKey(
-                        name: "FK_veilingmeesters_accounts_id",
+                        name: "FK_Veilingmeester_Account_id",
                         column: x => x.id,
-                        principalTable: "accounts",
+                        principalTable: "Account",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "orders",
+                name: "Order",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     quantity = table.Column<int>(type: "int", nullable: false),
                     bought_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    koper_id = table.Column<int>(type: "int", nullable: false),
-                    kweker_id = table.Column<int>(type: "int", nullable: false)
+                    koper_id = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_orders", x => x.id);
+                    table.PrimaryKey("PK_Order", x => x.id);
                     table.ForeignKey(
-                        name: "FK_orders_kopers_koper_id",
+                        name: "FK_Order_Koper_koper_id",
                         column: x => x.koper_id,
-                        principalTable: "kopers",
+                        principalTable: "Koper",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_orders_kwekers_kweker_id",
-                        column: x => x.kweker_id,
-                        principalTable: "kwekers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "veilingklokken",
+                name: "Veilingklok",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -131,34 +125,29 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_veilingklokken", x => x.id);
+                    table.PrimaryKey("PK_Veilingklok", x => x.id);
                     table.ForeignKey(
-                        name: "FK_veilingklokken_veilingmeesters_veilingmeester_id",
+                        name: "FK_Veilingklok_Veilingmeester_veilingmeester_id",
                         column: x => x.veilingmeester_id,
-                        principalTable: "veilingmeesters",
+                        principalTable: "Veilingmeester",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_accounts_email",
-                table: "accounts",
+                name: "IX_Account_email",
+                table: "Account",
                 column: "email",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_orders_koper_id",
-                table: "orders",
+                name: "IX_Order_koper_id",
+                table: "Order",
                 column: "koper_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_orders_kweker_id",
-                table: "orders",
-                column: "kweker_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_veilingklokken_veilingmeester_id",
-                table: "veilingklokken",
+                name: "IX_Veilingklok_veilingmeester_id",
+                table: "Veilingklok",
                 column: "veilingmeester_id");
         }
 
@@ -166,22 +155,22 @@ namespace VeilingKlokKlas1Groep2.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "orders");
+                name: "Kweker");
 
             migrationBuilder.DropTable(
-                name: "veilingklokken");
+                name: "Order");
 
             migrationBuilder.DropTable(
-                name: "kopers");
+                name: "Veilingklok");
 
             migrationBuilder.DropTable(
-                name: "kwekers");
+                name: "Koper");
 
             migrationBuilder.DropTable(
-                name: "veilingmeesters");
+                name: "Veilingmeester");
 
             migrationBuilder.DropTable(
-                name: "accounts");
+                name: "Account");
         }
     }
 }

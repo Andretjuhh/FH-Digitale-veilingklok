@@ -6,58 +6,55 @@ using System.Linq;
 using VeilingKlokApp.Data;
 using VeilingKlokApp.Models;
 using VeilingKlokApp.Models.Domain;
-
+using VeilingKlokKlas1Groep2.Models;
 
 namespace VeilingKlokApp.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class KwekerController : ControllerBase
+    [Route("api/veilingmeester")]
+    public class VeilingmeesterController : ControllerBase
     {
         private readonly VeilingKlokContext _db;
 
-        public KwekerController(VeilingKlokContext db)
+        public VeilingmeesterController(VeilingKlokContext db)
         {
             _db = db;
         }
 
-        // 1) Create Kweker account (transactional)
+        // 1) Create Veilingmeester account (transactional)
         [HttpPost("create")]
-        public async Task<IActionResult> CreateKwekerAccount([FromBody] NewKwekerAccount newKweker)
+        public async Task<IActionResult> CreateVeilingmeesterAccount([FromBody] NewVeilingMeesterAccount newVeilingmeester)
         {
             // Validate input minimally
-            if (newKweker == null) return BadRequest("Missing payload.");
+            if (newVeilingmeester == null) return BadRequest("Missing payload.");
 
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
                 // NOTE: Check for existing account by email here to provide a better error message 
                 // than letting the DB unique constraint fail.
-                if (await _db.Accounts.AnyAsync(a => a.Email == newKweker.Email))
+                if (await _db.Accounts.AnyAsync(a => a.Email == newVeilingmeester.Email))
                 {
                     await transaction.RollbackAsync();
                     return BadRequest("FAILURE: An account with this email already exists.");
                 }
 
-                // Create Kweker directly (Account is abstract and base of Kweker)
-                var kweker = new Kweker
+                // Create Veilingmeester directly (Account is abstract and base of Kweker)
+                var veilingmeester = new Veilingmeester
                 {
-                    Email = newKweker.Email,
-                    Password = newKweker.Password,
+                    Email = newVeilingmeester.Email,
+                    Password = newVeilingmeester.Password,
                     CreatedAt = DateTime.UtcNow,
-                    Name = newKweker.Name,
-                    Telephone = newKweker.Telephone,
-                    Adress = newKweker.Adress,
-                    Regio = newKweker.Regio,
-                    KvkNumber = newKweker.KvkNumber
+                    Regio = newVeilingmeester.Regio,
+                    SoortVeiling = newVeilingmeester.SoortVeiling
                 };
 
-                _db.Kwekers.Add(kweker);
+                _db.Veilingmeesters.Add(veilingmeester);
                 await _db.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 
-                return Ok(new { message = "SUCCESS: Kweker Account created", accountId = kweker.Id });
+                return Ok(new { message = "SUCCESS: Veilingmeester Account created", accountId = veilingmeester.Id });
             }
             // 👇 CATCH SPECIFIC DATABASE ERRORS
             catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
@@ -74,29 +71,26 @@ namespace VeilingKlokApp.Controllers
             }
         }
 
-        // 2) Get Kweker account
+        // 2) Get Veilingmeester account
         [HttpGet("{accountId}")]
-        public async Task<ActionResult<KwekerDetails>> GetKwekerAccount(int accountId)
+        public async Task<ActionResult<VeilingmeesterDetails>> GetVeilingmeesterAccount(int accountId)
         {
-            var kwekerDetails = await _db.Kwekers
-                .Where(k => k.Id == accountId)
-                .Select(k => new KwekerDetails
+            var veilingmeesterDetails = await _db.Veilingmeesters
+                .Where(v => v.Id == accountId)
+                .Select(v => new VeilingmeesterDetails
                 {
-                    AccountId = k.Id,
-                    Name = k.Name,
-                    Email = k.Email,     // base property from Account
-                    Telephone = k.Telephone,
-                    Adress = k.Adress,
-                    Regio = k.Regio,
-                    KvkNumber = k.KvkNumber,
+                    AccountId = v.Id,
+                    Email = v.Email,     // base property from Account
+                    Regio = v.Regio,   
+                    SoortVeiling = v.SoortVeiling
                 })
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
 
-            if (kwekerDetails == null)
-                return NotFound($"Koper account with ID {accountId} not found.");
+            if (veilingmeesterDetails == null)
+                return NotFound($"Velingmeester account with ID {accountId} not found.");
 
-            return Ok(kwekerDetails);
+            return Ok(veilingmeesterDetails);
         }
 
     }
