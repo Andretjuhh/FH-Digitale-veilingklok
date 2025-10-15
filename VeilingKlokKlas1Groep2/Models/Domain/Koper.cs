@@ -21,8 +21,8 @@ namespace VeilingKlokApp.Models.Domain
         [Column("post_code")]
         public string? PostCode { get; set; }
         
-        [Column("regio")]
-        public string? Regio { get; set; }
+        // [Column("regio")]
+        // public string? Regio { get; set; }
 
         // Navigation property for the one-to-many relationship with Order
         public ICollection<Order> Orders { get; set; } = new List<Order>();

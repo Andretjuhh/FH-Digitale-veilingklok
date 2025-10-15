@@ -81,7 +81,7 @@ namespace VeilingKlokApp.Controllers
                 {
                     AccountId = v.Id,
                     Email = v.Email,     // base property from Account
-                    Regio = v.Regio,   
+                    Regio = v.Regio,
                     SoortVeiling = v.SoortVeiling
                 })
                 .AsNoTracking()
@@ -92,6 +92,74 @@ namespace VeilingKlokApp.Controllers
 
             return Ok(veilingmeesterDetails);
         }
+
+        //Update Veilingmeester account (Currently does not create if it doesnt exist)
+        [HttpPut("{accountId}")]
+        public async Task<IActionResult> UpdateVeilingmeesterAccount(int accountId, [FromBody] UpdateVeilingMeester updateVeilingmeester)
+        {
+            // 1. Basic validation
+            if (updateVeilingmeester == null)
+            {
+                return BadRequest("Missing payload.");
+            }
+
+            // 2. Start Transaction for atomic update of Account and Veilingmeester
+            // Crucial for modifying data across two related tables (Account and Veilingmeester)
+            using var transaction = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                // 3. Retrieve existing Koper record
+                var veilingmeester = await _db.Veilingmeesters
+                    .FirstOrDefaultAsync(v => v.Id == accountId);
+
+                // 4. Check if the resource exists
+                if (veilingmeester == null)
+                {
+                    await transaction.RollbackAsync();
+                    return NotFound($"FAILURE: Veiliingmeester account with ID {accountId} not found. Cannot update.");
+                }
+
+                // 5. Check for Email collision if the email is being changed
+                if (veilingmeester.Email != updateVeilingmeester.Email)
+                {
+                    // Check if the new email is already in use by a *different* account
+                    if (await _db.Accounts.AnyAsync(a => a.Email == updateVeilingmeester.Email && a.Id != accountId))
+                    {
+                        await transaction.RollbackAsync();
+                        return BadRequest("FAILURE: Another account already uses this email address.");
+                    }
+                }
+
+                // 6. Update Account details (Email)
+                veilingmeester.Email = updateVeilingmeester.Email;
+                // NOTE: The Password field is NOT updated here for security reasons.
+
+                // 7. Update Koper details (Profile fields)
+                veilingmeester.Password = updateVeilingmeester.Password;
+                veilingmeester.SoortVeiling = updateVeilingmeester.SoortVeiling;
+                veilingmeester.Regio = updateVeilingmeester.Regio;
+
+                // EF Core tracks the changes, but we ensure they are saved
+                await _db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                // Standard response for a successful PUT update
+                return Ok(new { message = $"SUCCESS: Veilingmeester Account {accountId} updated successfully." });
+            }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"FAILURE: Database error during update (rolled back). Error: {ex.InnerException?.Message ?? ex.Message}");
+            }
+            catch (System.Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"FAILURE: Account update failed (rolled back). Error: {ex.Message}");
+            }
+
+
+        }
+
 
     }
 }
