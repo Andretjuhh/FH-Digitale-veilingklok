@@ -1,83 +1,56 @@
 using Microsoft.EntityFrameworkCore;
-using VeilingKlokKlas1Groep2.Models.Domain;
+using VeilingKlokApp.Models.Domain;
 
-namespace VeilingKlokKlas1Groep2.Data
+namespace VeilingKlokApp.Data
 {
-    public class VeilingKlokContext : DbContext
+    public class VeilingKlokContext(DbContextOptions<VeilingKlokContext> options) : DbContext(options)
     {
-        public VeilingKlokContext(DbContextOptions<VeilingKlokContext> options)
-            : base(options) { }
-
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Koper> Kopers { get; set; }
         public DbSet<Kweker> Kwekers { get; set; }
         public DbSet<Order> Orders { get; set; }
-        
+        public DbSet<Veilingmeester> Veilingmeesters { get; set; }
+        public DbSet<VeilingKlok> Veilingklokken { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // 1. Singularization Fix (Correct)
-            foreach (var entity in modelBuilder.Model.GetEntityTypes())
-            {
-                entity.SetTableName(entity.DisplayName());
-            }
+            // Top level call to base method
+            base.OnModelCreating(modelBuilder);
 
-            // 2. Configure Shared Primary Key (One-to-One Specialization) for Koper
-
-            // A. Define the Primary Key for Koper: It uses the AccountId property.
-            modelBuilder.Entity<Koper>()
-                .HasKey(k => k.AccountId); // This is the PK definition that was missing earlier
-
-            // B. Define the One-to-One Relationship
+            // 1. Specialization Strategy: Table-Per-Type (TPT)
+            // This ensures separate tables for Account, Kopers, and Kwekers,
+            // linked by the primary key, enforcing the specialization naturally.
             modelBuilder.Entity<Account>()
-                .HasOne(a => a.Koper)
-                .WithOne(k => k.Account)
-                // C. Define the Foreign Key: It is the same column used for the PK.
-                .HasForeignKey<Koper>(k => k.AccountId)
-                .IsRequired();
+                .UseTptMappingStrategy();
 
-            // 3. Configure Shared Primary Key (One-to-One Specialization) for Kweker
-
-            // A. Define the Primary Key for Koper: It uses the AccountId property.
-            modelBuilder.Entity<Kweker>()
-                .HasKey(k => k.AccountId); // This is the PK definition that was missing earlier
-
-            // B. Define the One-to-One Relationship
+            // 2. Unique Email Constraint
+            // Make it easier to find accounts by email and enforce uniqueness.
+            // Creates a unique index on the 'email' column in the base 'Account' table.
             modelBuilder.Entity<Account>()
-                .HasOne(a => a.Kweker)
-                .WithOne(k => k.Account)
-                // C. Define the Foreign Key: It is the same column used for the PK.
-                .HasForeignKey<Kweker>(k => k.AccountId)
-                .IsRequired();
+                .HasIndex(a => a.Email)
+                .IsUnique();
 
-            // 4. Configure Shared Primary Key (One-to-One Specialization) for Koper
-
-            // A. Define the Primary Key for Koper: It uses the AccountId property.
-            modelBuilder.Entity<Veilingmeester>()
-                .HasKey(v => v.AccountId); // This is the PK definition that was missing earlier
-
-            // B. Define the One-to-One Relationship
-            modelBuilder.Entity<Account>()
-                .HasOne(a => a.Veilingmeester)
-                .WithOne(v => v.Account)
-                // C. Define the Foreign Key: It is the same column used for the PK.
-                .HasForeignKey<Veilingmeester>(v => v.AccountId)
-                .IsRequired();
-
-            // 5. Configure One-to-Many Relationship between Koper and Order
-
-            // A. Define the PRimary Key for Order
-            modelBuilder.Entity<Order>()
-                .HasKey(o => o.Id); // This is the PK definition that was missing earlier
-            // B. Define the One-to-Many Relationship
+            // 3. Define the One-to-Many Relationship Koper to Orders
             modelBuilder.Entity<Koper>()
                 .HasMany(k => k.Orders)
                 .WithOne(o => o.Koper)
-                // C. Define the Foreign Key
                 .HasForeignKey(o => o.KoperId)
                 .IsRequired();
 
+            // 4. One-to-many Relationship for Buyer orders 
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Koper)             // Order has one Koper
+                .WithMany(k => k.Orders)          // Koper has many Orders
+                .HasForeignKey(o => o.KoperId)    // Uses the KoperId field as the Foreign Key
+                .OnDelete(DeleteBehavior.Restrict); // Important: Prevents cascading delete issues
+
+            // 5. One-to-many Relationship for Veilingmeester veilingklokken
+            modelBuilder.Entity<VeilingKlok>()
+                .HasOne(vk => vk.Veilingmeester)
+                .WithMany(vm => vm.Veilingklokken)
+                .HasForeignKey(vk => vk.VeilingmeesterId)
+                .IsRequired();
         }
     }
 }

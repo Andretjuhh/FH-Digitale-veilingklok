@@ -1,4 +1,4 @@
-namespace VeilingKlokKlas1Groep2.Models
+namespace VeilingKlokApp.Models
 {
     public class NewKwekerAccount
     {

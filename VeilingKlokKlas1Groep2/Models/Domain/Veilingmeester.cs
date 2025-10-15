@@ -1,17 +1,21 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using VeilingKlokKlas1Groep2.Models.Domain;
-namespace VeilingKlokKlas1Groep2
+using VeilingKlokApp.Models.Domain;
+
+namespace VeilingKlokApp.Models.Domain
 {
-    public class Veilingmeester
+    [Table("veilingmeesters")]
+    public class Veilingmeester : Account
     {
-        //Since this is a specialization of Account, AccountId is both PK and FK
-        [Column("account_id")]
-        public int AccountId { get; set; }
-
         [Column("soort_veiling")]
-        public string? SoortVeiling { get; set; }
+        [Required, MaxLength(20)]
+        public string SoortVeiling { get; set; }
 
-        public Account Account { get; set; }
+        [Column("regio")]
+        [MaxLength(100)]
+        public string Regio { get; set; }
+
+        // Navigation property for the Veilingklokken managed by this Veilingmeester
+        public ICollection<VeilingKlok> Veilingklokken { get; set; } = new List<VeilingKlok>();
     }
 }

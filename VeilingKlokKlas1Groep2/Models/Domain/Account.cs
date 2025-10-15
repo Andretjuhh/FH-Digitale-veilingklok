@@ -1,31 +1,25 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace VeilingKlokKlas1Groep2.Models.Domain
+namespace VeilingKlokApp.Models.Domain
 {
 
     //Account Model, represents the Account table in the database
-    public class Account
+    // Its abstract because we never create an Account directly it is always a Koper or Kweker
+    [Table("accounts")]
+    public abstract class Account
     {
         [Key]
         [Column("id")]
         public int Id { get; set; } // The PK
 
         [Column("email")]
+        [EmailAddress]
         [Required, MaxLength(255)]
         public string Email { get; set; }
 
         [Column("password")]
         [Required, MaxLength(255)]
         public string Password { get; set; }
-
-        [Column("created_at")]
-        [Required]
-        public DateTime CreatedAt { get; set; }
-        public Koper Koper { get; set; } // Navigation property to Kweker
-
-        public Kweker Kweker { get; set; } // Navigation property to Kweker
-
-        public Veilingmeester Veilingmeester { get; set; } // Navigation property to Veilingmeester
     }
 }
