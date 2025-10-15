@@ -4,7 +4,7 @@ using VeilingKlokApp.Models.Domain;
 
 namespace VeilingKlokApp.Models.Domain
 {
-    [Table("veilingmeesters")]
+    [Table("Veilingmeester")]
     public class Veilingmeester : Account
     {
         [Column("soort_veiling")]

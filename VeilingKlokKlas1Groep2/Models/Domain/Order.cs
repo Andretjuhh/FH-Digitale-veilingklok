@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace VeilingKlokApp.Models.Domain
 {
     //TODO: Once we have products, uncomment the ProductId and Product navigation property
-    [Table("orders")]
+    [Table("Order")]
     public class Order
     {
         [Key]
@@ -29,15 +29,7 @@ namespace VeilingKlokApp.Models.Domain
         // Navigation property to the Koper (Buyer) object
         public Koper Koper { get; set; } = default!;
 
-        // --- Seller (Kweker) Relationship ---
-        [Column("kweker_id")]
-        [Required]
-        // Foreign Key to the Kweker (Seller) table
-        public int KwekerId { get; set; }
-
-        // Navigation property to the Kweker (Seller) object
-        public Kweker Kweker { get; set; } = default!;
-
+        
         // --- Product Relationship ---
         // [Column("product_id")]
         // [Required]

@@ -44,6 +44,7 @@ namespace VeilingKlokApp.Controllers
                 {
                     Email = newKoper.Email,
                     Password = newKoper.Password,
+                    CreatedAt = DateTime.UtcNow,
                     FirstName = newKoper.FirstName,
                     LastName = newKoper.LastName,
                     Adress = newKoper.Adress,

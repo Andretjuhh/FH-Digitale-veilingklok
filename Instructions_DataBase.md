@@ -30,34 +30,33 @@ Vul de volgende verbindingsgegevens in:
 ### SQL Code:
 
 ```sql
--- 1. Check if the database exists and drop it to ensure a clean slate
+-- 1. Clean up existing database
 IF DB_ID(N'VeilingKlokDB') IS NOT NULL
 BEGIN
-    -- Force connections to close before dropping the database
     ALTER DATABASE VeilingKlokDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE; 
     DROP DATABASE VeilingKlokDB;
 END
 GO
 
--- 2. Create the new database
 CREATE DATABASE VeilingKlokDB;
 GO
-
--- 3. Switch context to the new database
 USE VeilingKlokDB;
 GO
 
--- 4. Drop tables if they exist (voor veiligheid/opruimen)
+-- Drop old tables if they exist
 DROP TABLE IF EXISTS [Order];
-DROP TABLE IF EXISTS Veilingmeester;
-DROP TABLE IF EXISTS Product;
-DROP TABLE IF EXISTS Koper;
-DROP TABLE IF EXISTS Kweker;
 DROP TABLE IF EXISTS VeilingKlok;
+DROP TABLE IF EXISTS Product;
+DROP TABLE IF EXISTS Veilingmeester;
+DROP TABLE IF EXISTS Kweker;
+DROP TABLE IF EXISTS Koper;
 DROP TABLE IF EXISTS Account;
 GO
 
--- 5. CREATE TABLE statements (Het kernschema)
+
+-- ==============================
+-- TABLES
+-- ==============================
 
 CREATE TABLE Account (
     id INT PRIMARY KEY IDENTITY(1,1),
@@ -66,19 +65,9 @@ CREATE TABLE Account (
     created_at DATETIME NOT NULL DEFAULT GETDATE()
 );
 
-CREATE TABLE Kweker ( -- Grower
-    account_id INT PRIMARY KEY, -- PK en FK naar Account
-    name NVARCHAR(255) NOT NULL,
-    telephone NVARCHAR(20),
-    adress NVARCHAR(255),
-    regio NVARCHAR(100),
-    kvk_nmr NVARCHAR(50), -- Kamer van Koophandel nummer
-    
-    FOREIGN KEY (account_id) REFERENCES Account(id)
-);
-
-CREATE TABLE Koper ( -- Buyer
-    account_id INT PRIMARY KEY, -- PK en FK naar Account
+-- KOPER (Buyer)
+CREATE TABLE Koper (
+    account_id INT PRIMARY KEY,  -- FK to Account
     first_name NVARCHAR(100) NOT NULL,
     last_name NVARCHAR(100) NOT NULL,
     adress NVARCHAR(255),
@@ -88,51 +77,70 @@ CREATE TABLE Koper ( -- Buyer
     FOREIGN KEY (account_id) REFERENCES Account(id)
 );
 
-CREATE TABLE Product (
-    id INT PRIMARY KEY IDENTITY(1,1),
-    kweker_id INT NOT NULL, -- FK naar Kweker
-    name NVARCHAR(255) NOT NULL,
-    description NVARCHAR(MAX),
-    price DECIMAL(10, 2) NOT NULL,
-    minimum_price DECIMAL(10, 2),
-    quantity INT NOT NULL,
-    image_url NVARCHAR(MAX),
-    size NVARCHAR(50),
-    
-    FOREIGN KEY (kweker_id) REFERENCES Kweker(account_id)
+-- VEILINGMEESTER (Auction master)
+CREATE TABLE Veilingmeester (
+    account_id INT PRIMARY KEY, -- FK to Account
+    soort_veiling NVARCHAR(100),
+
+    FOREIGN KEY (account_id) REFERENCES Account(id)
 );
 
-CREATE TABLE VeilingKlok ( -- Auction Clock
+-- KWEKER (Grower)
+CREATE TABLE Kweker (
+    account_id INT PRIMARY KEY, -- FK to Account
+    name NVARCHAR(255) NOT NULL,
+    telephone NVARCHAR(20),
+    adress NVARCHAR(255),
+    regio NVARCHAR(100),
+    kvk_nmr NVARCHAR(50),
+
+    FOREIGN KEY (account_id) REFERENCES Account(id)
+);
+
+-- VEILINGKLOK (Auction clock)
+CREATE TABLE VeilingKlok (
     id INT PRIMARY KEY IDENTITY(1,1),
+    veilingmeester_id INT NOT NULL,  -- FK naar Veilingmeester
     name NVARCHAR(255) NOT NULL,
     sequence_id INT,
     sequence_duration INT,
     location NVARCHAR(255),
     live_views INT DEFAULT 0,
     started_at DATETIME,
-    ended_at DATETIME
+    ended_at DATETIME,
+
+    FOREIGN KEY (veilingmeester_id) REFERENCES Veilingmeester(account_id)
 );
 
-CREATE TABLE Veilingmeester ( -- Auction Master/Relation
-    veilingklok_id INT NOT NULL,
-    kweker_id INT NOT NULL,
-    soort_veiling NVARCHAR(50), -- Type veiling
-    
-    PRIMARY KEY (veilingklok_id, kweker_id),
-    FOREIGN KEY (veilingklok_id) REFERENCES VeilingKlok(id),
-    FOREIGN KEY (kweker_id) REFERENCES Kweker(account_id)
-);
-
-CREATE TABLE [Order] ( -- Let op: 'Order' is een gereserveerd SQL-keyword, dus [ ] is nodig
+-- PRODUCT
+CREATE TABLE Product (
     id INT PRIMARY KEY IDENTITY(1,1),
-    koper_id INT NOT NULL, -- FK naar Koper
-    product_id INT NOT NULL, -- FK naar Product
+    kweker_id INT NOT NULL,  -- FK naar Kweker
+    veilingklok_id INT NOT NULL, -- FK naar VeilingKlok
+    name NVARCHAR(255) NOT NULL,
+    description NVARCHAR(MAX),
+    price DECIMAL(10,2) NOT NULL,
+    minimum_price DECIMAL(10,2),
+    quantity INT NOT NULL,
+    image_url NVARCHAR(MAX),
+    size NVARCHAR(50),
+
+    FOREIGN KEY (kweker_id) REFERENCES Kweker(account_id),
+    FOREIGN KEY (veilingklok_id) REFERENCES VeilingKlok(id)
+);
+
+-- ORDER
+CREATE TABLE [Order] (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    koper_id INT NOT NULL,    -- FK naar Koper
+    product_id INT NOT NULL,  -- FK naar Product
     quantity INT NOT NULL,
     bought_at DATETIME NOT NULL DEFAULT GETDATE(),
 
     FOREIGN KEY (koper_id) REFERENCES Koper(account_id),
     FOREIGN KEY (product_id) REFERENCES Product(id)
 );
+
 ```
 ## Stap 4: Verander Naam Van DataBase
 Nu dat de database is aangemaakt moeten we de naam veranderen. 
