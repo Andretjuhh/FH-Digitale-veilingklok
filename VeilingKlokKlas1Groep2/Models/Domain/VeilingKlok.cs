@@ -15,7 +15,22 @@ namespace VeilingKlokApp.Models.Domain
         [Required, MaxLength(100)]
         public string Naam { get; set; }
 
-        // --- Seller (Veilingmeester) Relationship ---
+        [Column("duration_in_seconds")]
+        [Required]
+        public int DurationInSeconds { get; set; }
+
+        [Column("live_views")]
+        public int LiveViews { get; set; } = 0;
+
+        [Column("start_time")]
+        [Required]
+        public DateTime StartTime { get; set; }
+
+        [Column("end_time")]
+        [Required]
+        public DateTime EndTime { get; set; }
+
+        // --- Veilingmeester Relationship ---
         [Column("veilingmeester_id")]
         [Required]
          public int VeilingmeesterId { get; set; }

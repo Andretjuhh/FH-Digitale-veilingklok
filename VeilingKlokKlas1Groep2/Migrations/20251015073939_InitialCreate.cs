@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDatabase : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -123,6 +123,10 @@ namespace VeilingKlokKlas1Groep2.Migrations
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     naam = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    duration_in_seconds = table.Column<int>(type: "int", nullable: false),
+                    live_views = table.Column<int>(type: "int", nullable: false),
+                    start_time = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    end_time = table.Column<DateTime>(type: "datetime2", nullable: false),
                     veilingmeester_id = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

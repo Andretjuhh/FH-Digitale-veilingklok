@@ -96,11 +96,27 @@ namespace VeilingKlokKlas1Groep2.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("DurationInSeconds")
+                        .HasColumnType("int")
+                        .HasColumnName("duration_in_seconds");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("end_time");
+
+                    b.Property<int>("LiveViews")
+                        .HasColumnType("int")
+                        .HasColumnName("live_views");
+
                     b.Property<string>("Naam")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("naam");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("start_time");
 
                     b.Property<int>("VeilingmeesterId")
                         .HasColumnType("int")

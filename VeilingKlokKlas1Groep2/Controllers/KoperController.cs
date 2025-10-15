@@ -11,7 +11,7 @@ namespace VeilingKlokApp.Controllers
 {
 
     [ApiController]
-    [Route("api/[controller]")] // Is a convetion to route is everything before "Controller"
+    [Route("api/koper")] // Is a convetion to route is everything before "Controller"
     public class KoperController : ControllerBase
     {
         private readonly VeilingKlokContext _db;
@@ -57,7 +57,7 @@ namespace VeilingKlokApp.Controllers
                 await transaction.CommitAsync();
 
                 // Return the standard 201 Created response with a success message and the new account ID
-                return CreatedAtAction(nameof(GetKoperAccount), new { accountId = koper.Id });
+                return CreatedAtAction(nameof(CreateKoperAccount), new { accountId = koper.Id });
             }
             // 👇 CATCH SPECIFIC DATABASE ERRORS
             catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
