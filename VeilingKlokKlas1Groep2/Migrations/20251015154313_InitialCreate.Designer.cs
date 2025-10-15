@@ -12,7 +12,7 @@ using VeilingKlokApp.Data;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     [DbContext(typeof(VeilingKlokContext))]
-    [Migration("20251015090305_InitialCreate")]
+    [Migration("20251015154313_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
