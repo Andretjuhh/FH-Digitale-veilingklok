@@ -17,7 +17,7 @@ namespace VeilingKlokApp.Models.Domain
 
         [Column("duration_in_seconds")]
         [Required]
-        public int DurationInSeconds { get; set; }
+        public int DurationInSeconds { get; set; } =0;
 
         [Column("live_views")]
         public int LiveViews { get; set; } = 0;

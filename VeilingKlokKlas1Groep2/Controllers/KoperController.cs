@@ -57,7 +57,7 @@ namespace VeilingKlokApp.Controllers
                 await transaction.CommitAsync();
 
                 // Return the standard 201 Created response with a success message and the new account ID
-                return CreatedAtAction(nameof(CreateKoperAccount), new { accountId = koper.Id });
+                 return Ok(new { message= "SUCCESS: Kweker Account Created.", accountId = koper.Id });)
             }
             // 👇 CATCH SPECIFIC DATABASE ERRORS
             catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
