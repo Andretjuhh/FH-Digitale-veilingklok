@@ -11,5 +11,4 @@ public class ProductDetails
     public string? ImageUrl { get; set; }
     public string? Size { get; set; }
     public int KwekerId { get; set; }
-    public string? KwekerName { get; set; }
 }
