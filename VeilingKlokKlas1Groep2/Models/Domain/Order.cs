@@ -31,9 +31,9 @@ namespace VeilingKlokApp.Models.Domain
 
         
         // --- Product Relationship ---
-        // [Column("product_id")]
-        // [Required]
-        // public int ProductId { get; set; } // FK to Product
-        //public Product Product { get; set; } // Navigation property to Product
+         [Column("product_id")]
+         [Required]
+         public int ProductId { get; set; } // FK to Product
+        public Product Product { get; set; } // Navigation property to Product
     }
 }
