@@ -11,6 +11,7 @@ namespace VeilingKlokApp.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<Veilingmeester> Veilingmeesters { get; set; }
         public DbSet<VeilingKlok> Veilingklokken { get; set; }
+        public DbSet<Product> Products { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -51,6 +52,9 @@ namespace VeilingKlokApp.Data
                 .WithMany(vm => vm.Veilingklokken)
                 .HasForeignKey(vk => vk.VeilingmeesterId)
                 .IsRequired();
+
+            modelBuilder.Entity<Product>().HasOne(pd => pd.Kweker).WithMany(kw => kw.Products)
+                .HasForeignKey(pd => pd.KwekerId).IsRequired();
         }
     }
 }
