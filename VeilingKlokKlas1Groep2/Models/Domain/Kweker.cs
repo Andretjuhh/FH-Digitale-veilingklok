@@ -27,6 +27,8 @@ namespace VeilingKlokApp.Models.Domain
         [Column("kvk_nmr")]
         [MaxLength(50)]
         public string? KvkNumber { get; set; }
+        
+         public ICollection<Product> Products { get; set; } = new List<Product>();
 
     }
 }

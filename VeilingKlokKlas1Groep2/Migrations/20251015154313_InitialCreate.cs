@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class ProductMigrane : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -90,24 +90,29 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Order",
+                name: "Product",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    minimum_price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     quantity = table.Column<int>(type: "int", nullable: false),
-                    bought_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    koper_id = table.Column<int>(type: "int", nullable: false)
+                    image_url = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    size = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    kweker_id = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Order", x => x.id);
+                    table.PrimaryKey("PK_Product", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Order_Koper_koper_id",
-                        column: x => x.koper_id,
-                        principalTable: "Koper",
+                        name: "FK_Product_Kweker_kweker_id",
+                        column: x => x.kweker_id,
+                        principalTable: "Kweker",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -134,6 +139,34 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Order",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    quantity = table.Column<int>(type: "int", nullable: false),
+                    bought_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    koper_id = table.Column<int>(type: "int", nullable: false),
+                    product_id = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Order", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Order_Koper_koper_id",
+                        column: x => x.koper_id,
+                        principalTable: "Koper",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Order_Product_product_id",
+                        column: x => x.product_id,
+                        principalTable: "Product",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Account_email",
                 table: "Account",
@@ -146,6 +179,16 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 column: "koper_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Order_product_id",
+                table: "Order",
+                column: "product_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Product_kweker_id",
+                table: "Product",
+                column: "kweker_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Veilingklok_veilingmeester_id",
                 table: "Veilingklok",
                 column: "veilingmeester_id");
@@ -154,9 +197,6 @@ namespace VeilingKlokKlas1Groep2.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Kweker");
-
             migrationBuilder.DropTable(
                 name: "Order");
 
@@ -167,7 +207,13 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 name: "Koper");
 
             migrationBuilder.DropTable(
+                name: "Product");
+
+            migrationBuilder.DropTable(
                 name: "Veilingmeester");
+
+            migrationBuilder.DropTable(
+                name: "Kweker");
 
             migrationBuilder.DropTable(
                 name: "Account");
