@@ -22,9 +22,13 @@
   },
   "include": [
     "src",
-    "src/index"
+    "src/index",
+    "declaration.d.ts"
   ],
-  "exclude": ["node_modules", "build", "dist" , "scripts" ,
-    "src/declaration.d.ts"
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist",
+    "scripts"
   ]
 }

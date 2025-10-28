@@ -2,20 +2,15 @@
 import React from 'react';
 
 // Internal imports
+import Page from "../components/screens/Page";
 
 function Home() {
 	return (
-		<div className="App !bg-red-300">
-			<header className="App-header">
-				<img src={'/svg/logo.svg'} className="App-logo" alt="logo" />
-				<p>
-					Edit <code>src/Home.tsx</code> and save to reload.
-				</p>
-				<a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-					Learn React
-				</a>
-			</header>
-		</div>
+		<Page enableHeader>
+			<a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
+				Learn React
+			</a>
+		</Page>
 	);
 }
 
