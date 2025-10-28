@@ -141,6 +141,7 @@ namespace VeilingKlokApp.Controllers
                 // NOTE: The Password field is NOT updated here for security reasons.
 
                 // 7. Update Koper details (Profile fields)
+                koper.Password = updateKoper.Password;
                 koper.FirstName = updateKoper.FirstName;
                 koper.LastName = updateKoper.LastName;
                 koper.Adress = updateKoper.Adress;

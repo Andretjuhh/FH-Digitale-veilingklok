@@ -4,7 +4,7 @@ namespace VeilingKlokApp.Models
     {
         public int AccountId { get; set; }
         public string Email { get; set; }
-        public string Regio { get; set; }
+        public string? Regio { get; set; }
         public string SoortVeiling { get; set; }
     }
 }
