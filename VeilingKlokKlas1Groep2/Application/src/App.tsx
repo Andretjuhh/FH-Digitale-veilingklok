@@ -3,8 +3,7 @@ import React from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
 // Internal imports
-import Home from "./pages/Home";
-import './styles/app.css';
+import Home from './pages/Home';
 
 function App() {
 	const location = useLocation();
@@ -13,7 +12,7 @@ function App() {
 		<Routes location={location} key={location.pathname}>
 			<Route path="/" element={<Home />} />
 		</Routes>
-  );
+	);
 }
 
 export default App;
