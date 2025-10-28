@@ -38,6 +38,18 @@
     }
 }
 
+.Button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #61dafb;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    transition: background-color 0.3s ease;
+}   
+
 
 
 /*#endregion */

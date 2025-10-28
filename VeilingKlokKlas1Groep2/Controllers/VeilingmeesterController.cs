@@ -46,7 +46,7 @@ namespace VeilingKlokApp.Controllers
                     Password = newVeilingmeester.Password,
                     CreatedAt = DateTime.UtcNow,
                     Regio = newVeilingmeester.Regio,
-                    SoortVeiling = newVeilingmeester.SoortVeiling
+                    AurthorisatieCode = newVeilingmeester.AurthorisatieCode
                 };
 
                 _db.Veilingmeesters.Add(veilingmeester);
@@ -82,7 +82,7 @@ namespace VeilingKlokApp.Controllers
                     AccountId = v.Id,
                     Email = v.Email,     // base property from Account
                     Regio = v.Regio,
-                    SoortVeiling = v.SoortVeiling
+                    AurthorisatieCode = v.AurthorisatieCode
                 })
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
@@ -136,7 +136,7 @@ namespace VeilingKlokApp.Controllers
 
                 // 7. Update Koper details (Profile fields)
                 veilingmeester.Password = updateVeilingmeester.Password;
-                veilingmeester.SoortVeiling = updateVeilingmeester.SoortVeiling;
+                veilingmeester.AurthorisatieCode = updateVeilingmeester.AuthorisatieCode;
                 veilingmeester.Regio = updateVeilingmeester.Regio;
 
                 // EF Core tracks the changes, but we ensure they are saved

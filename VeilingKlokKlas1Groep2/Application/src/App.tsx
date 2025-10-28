@@ -5,6 +5,7 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 // Internal imports
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import './styles/app.css';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
 		<Routes location={location} key={location.pathname}>
 			<Route path="/" element={<Home />} />
 			<Route path="/login" element={<Login />} />
+			<Route path='/register' element={<Register />} />
 		</Routes>
   );
 }
