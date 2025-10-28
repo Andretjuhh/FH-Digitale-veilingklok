@@ -8,9 +8,14 @@ function Home() {
 		<div className="App">
 			<nav className="App-nav">
 				<button
-					onClick={() => navigate('/login')}
+					onClick={() => navigate('/Login')}
 				>
 					Login
+				</button>
+				<button
+					onClick={() => navigate('/KlantDashboard')}
+				>
+					Dashboard
 				</button>
 			</nav>
 
