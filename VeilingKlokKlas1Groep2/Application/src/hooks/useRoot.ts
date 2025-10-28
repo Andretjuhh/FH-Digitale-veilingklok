@@ -1,9 +1,9 @@
 // External imports
 import {useCallback, useEffect, useState} from "react";
-import {useTranslation} from "react-i18next";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 // Internal imports
+import {useTranslation} from "../controllers/localization";
 import {SupportedLanguages} from "../controllers/localization";
 import LocalStorage from "../controllers/localStorage";
 import initializeApp from "../controllers/application";
@@ -11,7 +11,7 @@ import initializeApp from "../controllers/application";
 function useRoot() {
 	//  Router navigation
 	const navigate = useNavigate();
- 
+
 	// Application initialization status
 	const [initialized, setInitialized] = useState(false);
 
@@ -23,9 +23,11 @@ function useRoot() {
 
 	// Initialize Application & Global application functions
 	useEffect(() => {
-
 		// Initialize Application
-		initializeApp({t, navigate, changeLanguage}).then(() => setInitialized(true));
+		initializeApp({t, navigate, changeLanguage}).then(() => {
+			setInitialized(true);
+			setLoggedIn(false);
+		});
 
 		// Initialize User Agent Primary Language
 		i18n.changeLanguage(window.application.languageCode).then(null);

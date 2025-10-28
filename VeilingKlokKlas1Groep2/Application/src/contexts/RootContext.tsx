@@ -19,7 +19,7 @@ function RootContextProvider({children}: { children: React.ReactNode }) {
 
 	return (
 		<RootContext.Provider value={{loggedIn, initialized}}>
-			{children}
+			{initialized && children}
 		</RootContext.Provider>
 	);
 }

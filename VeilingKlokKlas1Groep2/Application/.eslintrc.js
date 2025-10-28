@@ -1,7 +1,8 @@
 module.exports = {
 	"extends": "react-app",
 	"rules": {
-		"import/no-anonymous-default-export": "off"
+		"import/no-anonymous-default-export": "off",
+		eqeqeq: "off"
 	}
 }
 

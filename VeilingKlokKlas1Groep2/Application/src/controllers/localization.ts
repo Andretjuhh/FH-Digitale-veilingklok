@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import {initReactI18next} from 'react-i18next';
+import {initReactI18next, useTranslation} from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -20,14 +20,15 @@ export const resources = {
 		translation: {},
 	},
 }
-export type LocalizationTexts = keyof typeof resources['en']['translation'];
-export type SupportedLanguages = keyof typeof resources;
-
 i18n.use(initReactI18next).init({
 	resources,
-	lng: 'en',// if you're using a language detector, do not define the lng option
-	fallbackLng: 'en',
+	lng: 'nl',// if you're using a language detector, do not define the lng option
+	fallbackLng: 'nl',
 	debug: false,
 	interpolation: {escapeValue: false},
 }).then(null);
 
+export type LocalizationResources = typeof resources['nl'] //keyof typeof resources['nl']['translation'];
+export type LocalizationTexts = keyof typeof resources['nl']['translation'];
+export type SupportedLanguages = keyof typeof resources;
+export {useTranslation};

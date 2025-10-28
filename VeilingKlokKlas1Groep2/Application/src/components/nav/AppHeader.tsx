@@ -11,7 +11,10 @@ function AppHeader() {
 
 			<nav className="header-nav">
 				<ul className={'nav-menu'}>
-					<Link to="/">{}</Link>
+					<Link className={'nav-menu-anchor'} to="/">{window.application.t('how_it_works')}</Link>
+					<Link className={'nav-menu-anchor'} to="/">{window.application.t('how_it_works')}</Link>
+					<Link className={'nav-menu-anchor'} to="/">{window.application.t('how_it_works')}</Link>
+					<Link className={'nav-menu-anchor'} to="/">{window.application.t('how_it_works')}</Link>
 				</ul>
 			</nav>
 		</div>
