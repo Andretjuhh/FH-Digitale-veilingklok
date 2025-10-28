@@ -7,7 +7,7 @@
 @tailwind components;
 @tailwind utilities;
 
-
+/*#region Global Element Styles */
 html, body {
     width: 100vw;
     height: 100dvh;
@@ -23,7 +23,7 @@ html, body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Montserrat';
+    /*font-family: 'Montserrat';*/
 }
 
 li {
@@ -46,6 +46,37 @@ img {
     cursor: none;
     user-select: none;
 }
+
+.base-btn {
+    width: auto;
+    height: auto;
+
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: var(--span4-size) var(--span1-size);
+    gap: var(--span4-size);
+
+    border-radius: 999999px;
+    background-color: theme(colors.secondary.main);
+    overflow: hidden;
+    transition: all 300ms ease-in-out;
+}
+
+.base-btn-icon {
+    color: white;
+    font-size: var(--span1-size);
+}
+
+.base-btn-txt {
+    color: white;
+    font-size: var(--span2-size);
+    font-weight: 600;
+}
+
+/*#endregion */
 
 :root {
     --logo-size: 62px;

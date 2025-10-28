@@ -11,8 +11,10 @@ export const resources = {
 			contact_us: 'Contacteer ons',
 			welcome_title: 'Welkom bij FloriClock',
 			welcome_description: `Bloemen en planten verkopen en kopen vanop nu nog makkelijker met FloriClock!
-			Een innovatief platform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen.
-			`,
+			Een innovatief platform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen.`,
+			welcome_cta_text: `Begin vandaag nog met het ontdekken van ons platform. Meld je aan of log in om toegang te krijgen tot onze diensten.`,
+			get_Started: 'Meld je aan',
+			login: 'Inloggen',
 		},
 	},
 	en: {

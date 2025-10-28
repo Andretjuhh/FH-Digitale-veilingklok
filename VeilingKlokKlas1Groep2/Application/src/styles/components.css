@@ -50,6 +50,7 @@
 
     vertical-align: bottom;
     color: theme(colors.secondary.main);
+    white-space: nowrap;
     font-size: var(--span1b-size);
     font-weight: 700;
 }
@@ -61,6 +62,7 @@
     width: 100%;
     height: 100vh;
 
+    position: relative;
     padding-top: var(--header-size);
     padding-bottom: var(--header-size);
 }
@@ -69,10 +71,12 @@
     width: 100%;
     height: 100%;
 
+    position: relative;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    z-index: 0;
 }
 
 .app-home-row {
@@ -97,6 +101,9 @@
 }
 
 .app-home-ex {
+    width: 100%;
+    height: 100%;
+
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -104,7 +111,6 @@
 
     padding: var(--top-pd) var(--side-pd);
     padding-right: 20%;
-    z-index: 2;
 }
 
 .app-home-title {
@@ -118,6 +124,129 @@
     font-size: var(--span1-size);
     font-weight: 500;
     color: theme(colors.secondary.main);
+}
+
+.app-home-cta {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--top-pd);
+    gap: calc(var(--top-pd) / 2);
+    margin-bottom: 20%;
+}
+
+.app-home-cta-text {
+    width: 80%;
+    font-size: var(--span2-size);
+    font-weight: 400;
+    color: theme(colors.primary.500);
+}
+
+.app-home-cta-btns {
+    display: flex;
+    flex-direction: row;
+    gap: var(--span3-size);
+}
+
+.app-home-p-btn {
+    --timing: 2s;
+    --width: 13vw;
+}
+
+.app-home-p-btn:hover {
+    background-color: theme(colors.secondary.400);
+}
+
+.app-home-p-btn:hover {
+    background-image: linear-gradient(
+            to right,
+            theme(colors.secondary.600) 16.65%,
+            rgb(190, 75, 219) 16.65%,
+            rgb(190, 75, 219) 33.3%,
+            rgb(76, 110, 245) 33.3%,
+            rgb(76, 110, 245) 49.95%,
+            theme(colors.primary.600) 49.95%,
+            theme(colors.primary.400) 66.6%,
+            rgb(250, 176, 5) 66.6%,
+            rgb(250, 176, 5) 83.25%,
+            rgb(253, 126, 20) 83.25%,
+            rgb(253, 126, 20) 100%,
+            rgb(250, 82, 82) 100%
+    );
+    animation: var(--timing) linear dance6123 infinite;
+    transform: scale(1.1) translateY(-1px);
+}
+
+.app-home-p-btn-txt {
+    font-weight: 700 !important;
+}
+
+.app-home-s-btn {
+    --color: theme(colors.primary.main);
+    border: solid 3px theme(colors.primary.main);
+    background-color: transparent !important;
+    color: white;
+    padding: var(--span4-size) var(--h4-size) !important;
+}
+
+.app-home-s-btn-txt,
+.app-home-s-btn-icon {
+    font-weight: 700 !important;
+    color: theme(colors.primary.main) !important;
+}
+
+.app-home-s-btn:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    background: var(--color);
+    height: 150px;
+    width: 200px;
+    border-radius: 50%;
+}
+
+.app-home-s-btn:hover > * {
+    color: #fff !important;
+    transition: color 0.7s;
+}
+
+.app-home-s-btn:before {
+    top: 100%;
+    left: 100%;
+    transition: all 0.5s;
+}
+
+.app-home-s-btn:hover:before {
+    top: -30px;
+    left: -30px;
+}
+
+.app-home-s-btn:active {
+    border-color: theme(colors.primary.800);
+}
+
+.app-home-s-btn:active:before {
+    background: theme(colors.primary.800);
+    transition: background 0s;
+}
+
+@keyframes dance6123 {
+    to {
+        background-position: var(--width);
+    }
+}
+
+.app-home-round-bt {
+    width: calc(100% - var(--side-pd));
+    height: var(--header-size);
+
+    position: absolute;
+    bottom: 0;
+    right: 0;
+
+    background-color: theme(colors.secondary.800);
+    box-shadow: 17px 10px 24px 3px theme(colors.primary.600), 20px -40px 44px 8px white;
+    border-radius: 99999px 0 0 0;
+    z-index: 1;
 }
 
 /*#endregion */
