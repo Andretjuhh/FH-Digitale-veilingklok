@@ -3,7 +3,9 @@
 	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
+		"framer-motion": "^12.23.24",
 		"i18next": "^23.16.8",
+		"lucide-react": "^0.548.0",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",
 		"react-router-dom": "^7.9.4",
