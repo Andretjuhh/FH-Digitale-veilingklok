@@ -6,6 +6,7 @@ using System.Linq;
 using VeilingKlokApp.Data;
 using VeilingKlokApp.Models;
 using VeilingKlokApp.Models.Domain;
+using VeilingKlokKlas1Groep2.Models.InputDTOs;
 
 
 namespace VeilingKlokApp.Controllers
@@ -98,6 +99,51 @@ namespace VeilingKlokApp.Controllers
 
             return Ok(kwekerDetails);
         }
+        [HttpPost("create-product")]
+        public async Task<IActionResult> CreateProduct([FromBody] NewProduct newProduct)
+        {
+            if (newProduct == null) return BadRequest("Missing payload.");
+
+            using var transaction = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                // Optional: Check for duplicate product name for the same kweker
+                if (await _db.Products.AnyAsync(p => p.Name == newProduct.Name && p.KwekerId == newProduct.KwekerId))
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest("FAILURE: Product with this name already exists for this kweker.");
+                }
+
+                var product = new Product
+                {
+                    Name = newProduct.Name,
+                    Description = newProduct.Description,
+                    Price = newProduct.Price,
+                    MinimumPrice = newProduct.MinimumPrice,
+                    Quantity = newProduct.Quantity,
+                    ImageUrl = newProduct.ImageUrl,
+                    Size = newProduct.Size,
+                    KwekerId = newProduct.KwekerId
+                };
+
+                _db.Products.Add(product);
+                await _db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok(new { message = "SUCCESS: Product created", productId = product.Id });
+            }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"FAILURE: Database constraint violation (rolled back). Error: {ex.InnerException?.Message ?? ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"FAILURE: Product creation failed (rolled back). Error: {ex.Message}");
+            }
+        }
+
 
     }
 }
