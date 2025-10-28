@@ -5,18 +5,13 @@ import React from 'react';
 
 function Home() {
 	return (
-		<div className="App">
+		<div className="App !bg-red-300">
 			<header className="App-header">
-				<img src={"/svg/logo.svg"} className="App-logo" alt="logo" />
+				<img src={'/svg/logo.svg'} className="App-logo" alt="logo" />
 				<p>
 					Edit <code>src/Home.tsx</code> and save to reload.
 				</p>
-				<a
-					className="App-link"
-					href="https://reactjs.org"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
+				<a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
 					Learn React
 				</a>
 			</header>
