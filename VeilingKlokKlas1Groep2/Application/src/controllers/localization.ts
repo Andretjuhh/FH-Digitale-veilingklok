@@ -6,8 +6,13 @@ export const resources = {
 		translation: {
 			what_is_flori_clock: "Wat is FloriClock?",
 			how_it_works: "Hoe werkt het?",
+			flower_types: "Bloemsoorten",
 			services: 'Diensten',
 			contact_us: 'Contacteer ons',
+			welcome_title: 'Welkom bij FloriClock',
+			welcome_description: `Bloemen en planten verkopen en kopen vanop nu nog makkelijker met FloriClock!
+			Een innovatief platform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen.
+			`,
 		},
 	},
 	en: {

@@ -1,13 +1,18 @@
 /*#region Header */
 .app-header {
+    position: sticky;
     width: 100%;
     height: auto;
+
+    top: 0;
+    margin-bottom: calc(-1 * var(--header-size));
     padding: var(--top-pd) var(--side-pd);
 
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    overflow: visible;
 }
 
 .header-logo {
@@ -18,6 +23,101 @@
 .header-logo-img {
     height: 100%;
     width: auto;
+}
+
+.header-nav {
+    width: auto;
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%) translateY(-10%);
+    padding: var(--top-pd) var(--side-pd);
+}
+
+.nav-menu {
+    width: auto;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: var(--top-pd);
+}
+
+.nav-menu-anchor {
+    width: auto;
+
+    vertical-align: bottom;
+    color: theme(colors.secondary.main);
+    font-size: var(--span1b-size);
+    font-weight: 700;
+}
+
+/*#endregion */
+
+/*#region Home */
+.app-home {
+    width: 100%;
+    height: 100vh;
+
+    padding-top: var(--header-size);
+    padding-bottom: var(--header-size);
+}
+
+.app-home-ctn {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-home-row {
+    width: auto;
+    height: 100%;
+
+    position: relative;
+    flex: 1;
+    overflow: visible;
+}
+
+.app-home-img {
+    width: auto;
+    max-width: unset;
+    height: 124%;
+
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    object-fit: cover;
+}
+
+.app-home-ex {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+
+    padding: var(--top-pd) var(--side-pd);
+    padding-right: 20%;
+    z-index: 2;
+}
+
+.app-home-title {
+    font-size: var(--h1-size);
+    font-weight: 800;
+    color: theme(colors.primary.main);
+    margin-bottom: calc(var(--top-pd) / 2);
+}
+
+.app-home-description {
+    font-size: var(--span1-size);
+    font-weight: 500;
+    color: theme(colors.secondary.main);
 }
 
 /*#endregion */

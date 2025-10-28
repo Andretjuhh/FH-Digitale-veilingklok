@@ -51,6 +51,22 @@ img {
     --logo-size: 62px;
     --side-pd: 60px;
     --top-pd: 24px;
+
+    --h1-size: 48px;
+    --h2-size: 42px;
+    --h3-size: 36px;
+    --h4-size: 32px;
+    --h5-size: 28px;
+    --span1-size: 24px;
+    --span1b-size: 20px;
+    --span2-size: 18px;
+    --span3-size: 16px;
+    --span4-size: 14px;
+    --span5-size: 12px;
+    --span6-size: 8px;
+
+
+    --header-size: calc(var(--top-pd) * 2 + var(--logo-size));
 }
 
 /* Mobile Potrait */
