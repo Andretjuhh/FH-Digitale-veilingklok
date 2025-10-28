@@ -40,7 +40,7 @@ function Register() {
     { label: "Email", type: "email", placeholder: "you@example.com" },
     { label: "Password", type: "password", placeholder: "••••••••" },
     { label: "Region", type: "select", options: ["Noord-Holland","Zuid-Holland","Utrecht","Gelderland","Overijssel","Limburg","Friesland","Drenthe","Flevoland","Groningen","Zeeland"] },
-    { label: "Employee Number", type: "text", placeholder: "123456" },  
+    { label: "Authorisation Code", type: "text", placeholder: "123456" },  
   ],
 };
 
