@@ -1,334 +1,207 @@
-import React, { useMemo, useState } from "react";
-import "../styles/login.css"; // reuse the same base styles
-import "../styles/Dashboard.css"; // specific dashboard styles
+import React, { useEffect, useMemo, useState } from "react";
+import "../styles/Dashboard.css";
 
-function KlantDashboard() {
-  const [activeTab, setActiveTab] = useState("overzicht");
+type AuctionItem = {
+  id: number;
+  name: string;
+  lotNumber: string;
+  price: number; // current price
+  unit: string;
+  endsAt: Date;  // countdown target
+};
 
-  const stats = useMemo(
-    () => [
-      { label: "Openstaande bestellingen", value: 3 },
-      { label: "Lopende biedingen", value: 7 },
-      { label: "Tegoed (EUR)", value: "€ 1.245,00" },
-      { label: "Favoriete aanvoerders", value: 5 },
-    ],
-    []
-  );
+type Bid = {
+  id: number;
+  lotNumber: string;
+  amount: number;
+  time: string;
+};
 
-  const recentOrders = [
-    { id: "#10234", product: "Rosa Avalanche+®", qty: 40, price: "€ 0,45", status: "Verzonden" },
-    { id: "#10221", product: "Phalaenopsis Mix", qty: 12, price: "€ 5,60", status: "Bevestigd" },
-    { id: "#10188", product: "Tulipa Paars", qty: 50, price: "€ 0,18", status: "Geannuleerd" },
-  ];
+const formatTimeLeft = (target: Date) => {
+  const diff = Math.max(0, target.getTime() - Date.now());
+  const s = Math.floor(diff / 1000);
+  const mm = String(Math.floor(s / 60)).padStart(2, "0");
+  const ss = String(s % 60).padStart(2, "0");
+  return `${mm}:${ss}`;
+};
 
-  const recentBids = [
-    { lot: "RFH-24-00098", product: "Gerbera Mix", myBid: "€ 0,12", result: "Gewonnen" },
-    { lot: "RFH-24-00091", product: "Ranonkel Wit", myBid: "€ 0,22", result: "Overboden" },
-    { lot: "RFH-24-00087", product: "Alstroemeria", myBid: "€ 0,09", result: "Open" },
-  ];
+const KlantDashboard: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<"live" | "bids" | "history">("live");
+  const [timeLeft, setTimeLeft] = useState<string>("00:00");
 
-  const upcomingAuctions = [
-    { time: "Vandaag 14:30", grower: "GreenBloom BV", product: "Rosa Avalanche+®", qty: 120 },
-    { time: "Vandaag 15:10", grower: "OrchidHouse", product: "Phalaenopsis 12cm", qty: 80 },
-    { time: "Morgen 09:00", grower: "TulipKing", product: "Tulipa Mix 40cm", qty: 500 },
-  ];
+  // --- demo data (replace with API) ---
+  const liveItem = useMemo<AuctionItem>(() => ({
+    id: 1,
+    name: "Rozen – Avalanche+",
+    lotNumber: "LOT-02451",
+    price: 0.42,
+    unit: "per steel",
+    endsAt: new Date(Date.now() + 3 * 60 * 1000), // +3 min
+  }), []);
+
+  const myBids = useMemo<Bid[]>(() => ([
+    { id: 1, lotNumber: "LOT-02412", amount: 0.39, time: "09:12" },
+    { id: 2, lotNumber: "LOT-02398", amount: 0.41, time: "08:55" },
+  ]), []);
+
+  const history = useMemo<Bid[]>(() => ([
+    { id: 11, lotNumber: "LOT-02310", amount: 0.37, time: "Gisteren 16:02" },
+    { id: 12, lotNumber: "LOT-02277", amount: 0.36, time: "Gisteren 11:47" },
+  ]), []);
+
+  // countdown
+  useEffect(() => {
+    if (activeTab !== "live") return;
+    const tick = () => setTimeLeft(formatTimeLeft(liveItem.endsAt));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [activeTab, liveItem.endsAt]);
 
   return (
     <div className="dashboard-page">
       {/* Top bar */}
-      <header className="dashboard-topbar">
-        <div className="topbar-left">
-          <div className="brand-mark">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="9" />
-              <path d="M8 12h8M12 8v8" />
-            </svg>
-          </div>
-          <div className="brand-copy">
-            <h1 className="app-title">Klant Dashboard</h1>
-            <span className="app-subtitle">Welkom terug — beheer je veilingen en bestellingen</span>
-          </div>
+      <header className="dashboard-topbar" role="banner">
+        <div className="brand-mark" aria-hidden>
+          {/* You can replace with an <img alt="Veilingplatform" src="/logo.svg" /> */}
+          <span>VK</span>
         </div>
+        <div className="app-title">Veilingplatform</div>
 
-        <div className="topbar-right">
-          <button className="btn-quiet" aria-label="Zoeken">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <nav className="dashboard-tabs" role="tablist" aria-label="Klant dashboard tabs">
+          <button
+            className={`tab-btn ${activeTab === "live" ? "is-active" : ""}`}
+            role="tab"
+            aria-selected={activeTab === "live"}
+            onClick={() => setActiveTab("live")}
+          >
+            Live
           </button>
-          <button className="btn-quiet has-dot" aria-label="Meldingen">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <button
+            className={`tab-btn ${activeTab === "bids" ? "is-active" : ""}`}
+            role="tab"
+            aria-selected={activeTab === "bids"}
+            onClick={() => setActiveTab("bids")}
+          >
+            Mijn biedingen
           </button>
-          <div className="avatar">
-            <span>KL</span>
-          </div>
-        </div>
+          <button
+            className={`tab-btn ${activeTab === "history" ? "is-active" : ""}`}
+            role="tab"
+            aria-selected={activeTab === "history"}
+            onClick={() => setActiveTab("history")}
+          >
+            Geschiedenis
+          </button>
+        </nav>
       </header>
 
-      {/* Tabs */}
-      <nav className="dashboard-tabs" role="tablist" aria-label="Dashboard tabs">
-        {[
-          { id: "overzicht", label: "Overzicht" },
-          { id: "bestellingen", label: "Bestellingen" },
-          { id: "biedingen", label: "Biedingen" },
-          { id: "profiel", label: "Profiel" },
-        ].map((t) => (
-          <button
-            key={t.id}
-            role="tab"
-            aria-selected={activeTab === t.id}
-            className={"tab-btn " + (activeTab === t.id ? "is-active" : "")}
-            onClick={() => setActiveTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </nav>
-
       {/* Content */}
-      <main className="dashboard-content">
-        {activeTab === "overzicht" && (
-          <section className="grid grid-12 gap-16">
-            {/* Stats cards */}
-            {stats.map((s) => (
-              <div key={s.label} className="card stat-card col-span-12 sm:col-span-6 lg:col-span-3">
-                <p className="stat-label">{s.label}</p>
-                <p className="stat-value">{s.value}</p>
-              </div>
-            ))}
+      <main className="dashboard-content" role="main">
+        {activeTab === "live" && (
+          <section aria-labelledby="live-heading">
+            <h2 id="live-heading" className="visually-hidden">Live veiling</h2>
 
-            {/* Recent Orders */}
-            <div className="card col-span-12 lg:col-span-7">
-              <div className="card-header">
-                <h3 className="card-title">Recente bestellingen</h3>
-                <button className="btn-link">Alles bekijken</button>
-              </div>
-              <div className="table-wrap">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>Order</th>
-                      <th>Product</th>
-                      <th>Aantal</th>
-                      <th>Prijs / st.</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentOrders.map((o) => (
-                      <tr key={o.id}>
-                        <td>{o.id}</td>
-                        <td>{o.product}</td>
-                        <td>{o.qty}</td>
-                        <td>{o.price}</td>
-                        <td>
-                          <span className={`badge ${badgeClass(o.status)}`}>{o.status}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Upcoming Auctions */}
-            <div className="card col-span-12 lg:col-span-5">
-              <div className="card-header">
-                <h3 className="card-title">Aankomende veilingen</h3>
-                <button className="btn-link">Schema</button>
-              </div>
-              <ul className="list relaxed">
-                {upcomingAuctions.map((a, idx) => (
-                  <li key={idx} className="list-row">
-                    <div className="list-leading">
-                      <div className="pill pill-muted">{a.time}</div>
-                    </div>
-                    <div className="list-content">
-                      <div className="list-title">{a.product}</div>
-                      <div className="list-subtitle">
-                        {a.grower} • {a.qty} stuks
-                      </div>
-                    </div>
-                    <div className="list-trailing">
-                      <button className="btn-secondary">Herinner mij</button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Recent Bids */}
-            <div className="card col-span-12">
-              <div className="card-header">
-                <h3 className="card-title">Mijn recente biedingen</h3>
-                <div className="actions">
-                  <button className="btn-secondary">Exporteren</button>
+            <div className="card">
+              <div className="card__header">
+                <div>
+                  <div className="eyebrow">Loting</div>
+                  <h3 className="card__title">
+                    {liveItem.name} <span className="muted">({liveItem.lotNumber})</span>
+                  </h3>
+                </div>
+                <div className="stat">
+                  <div className="stat__label">Tijd resterend</div>
+                  <div className="stat__value" aria-live="polite">{timeLeft}</div>
                 </div>
               </div>
-              <div className="table-wrap">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>Lot</th>
-                      <th>Product</th>
-                      <th>Mijn bod</th>
-                      <th>Resultaat</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentBids.map((b, i) => (
-                      <tr key={i}>
-                        <td>{b.lot}</td>
-                        <td>{b.product}</td>
-                        <td>{b.myBid}</td>
-                        <td>
-                          <span className={`badge ${badgeClass(b.result)}`}>{b.result}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+
+              <div className="card__body">
+                <div className="metric">
+                  <div className="metric__label">Huidige prijs</div>
+                  <div className="metric__value">€ {liveItem.price.toFixed(2)}</div>
+                  <div className="metric__sublabel">/{liveItem.unit}</div>
+                </div>
+
+                <div className="actions">
+                  <button className="btn-primary" onClick={() => alert("Bod geplaatst!")}>
+                    Plaats bod
+                  </button>
+                  <button className="btn-secondary" onClick={() => alert("Automatisch bieden geactiveerd")}>
+                    Auto-bid
+                  </button>
+                  <button className="btn-quiet" onClick={() => alert("Toegevoegd aan favorieten")}>
+                    Favoriet
+                  </button>
+                </div>
+              </div>
+
+              <div className="card__footer">
+                <small className="muted">
+                  Let op: Biedingen zijn bindend. Controleer hoeveelheid en prijs per eenheid.
+                </small>
               </div>
             </div>
           </section>
         )}
 
-        {activeTab === "bestellingen" && (
-          <EmptyState
-            title="Nog geen filter toegepast"
-            subtitle="Zoek of filter om specifieke bestellingen te vinden."
-            cta="Open zoekbalk"
-          />
-        )}
+        {activeTab === "bids" && (
+          <section aria-labelledby="bids-heading">
+            <h2 id="bids-heading" className="visually-hidden">Mijn biedingen</h2>
 
-        {activeTab === "biedingen" && (
-          <EmptyState
-            title="Geen actieve biedingen"
-            subtitle="Zodra je biedt op een veiling, verschijnen ze hier."
-            cta="Bekijk veilingen"
-          />
-        )}
-
-        {activeTab === "profiel" && (
-          <section className="grid grid-12 gap-16">
-            <div className="card col-span-12 lg:col-span-6">
-              <div className="card-header">
-                <h3 className="card-title">Accountgegevens</h3>
+            <div className="table">
+              <div className="table__row table__row--head">
+                <div>Lot</div>
+                <div>Bedrag</div>
+                <div>Tijd</div>
               </div>
-              <form className="form-grid">
-                <label>
-                  <span>Naam</span>
-                  <input type="text" className="input-field" defaultValue="Klant Lando" />
-                </label>
-                <label>
-                  <span>E-mail</span>
-                  <input type="email" className="input-field" defaultValue="klant@example.com" />
-                </label>
-                <label>
-                  <span>Telefoon</span>
-                  <input type="tel" className="input-field" placeholder="+31 6 1234 5678" />
-                </label>
-                <div className="form-actions">
-                  <button className="btn-primary" type="button">Opslaan</button>
-                  <button className="btn-secondary" type="button">Wachtwoord wijzigen</button>
+              {myBids.map(b => (
+                <div className="table__row" key={b.id}>
+                  <div>{b.lotNumber}</div>
+                  <div>€ {b.amount.toFixed(2)}</div>
+                  <div>{b.time}</div>
                 </div>
-              </form>
+              ))}
             </div>
+          </section>
+        )}
 
-            <div className="card col-span-12 lg:col-span-6">
-              <div className="card-header">
-                <h3 className="card-title">Meldingen</h3>
+        {activeTab === "history" && (
+          <section aria-labelledby="history-heading">
+            <h2 id="history-heading" className="visually-hidden">Geschiedenis</h2>
+
+            <div className="table">
+              <div className="table__row table__row--head">
+                <div>Lot</div>
+                <div>Bedrag</div>
+                <div>Tijd</div>
               </div>
-              <ul className="list compact">
-                <li className="list-row">
-                  <div className="list-content">
-                    <div className="list-title">Biedupdates</div>
-                    <div className="list-subtitle">Push en e-mail</div>
-                  </div>
-                  <div className="list-trailing">
-                    <Toggle defaultChecked />
-                  </div>
-                </li>
-                <li className="list-row">
-                  <div className="list-content">
-                    <div className="list-title">Orderstatus</div>
-                    <div className="list-subtitle">Alleen e-mail</div>
-                  </div>
-                  <div className="list-trailing">
-                    <Toggle />
-                  </div>
-                </li>
-                <li className="list-row">
-                  <div className="list-content">
-                    <div className="list-title">Nieuws & updates</div>
-                    <div className="list-subtitle">Maandelijks</div>
-                  </div>
-                  <div className="list-trailing">
-                    <Toggle />
-                  </div>
-                </li>
-              </ul>
+              {history.map(h => (
+                <div className="table__row" key={h.id}>
+                  <div>{h.lotNumber}</div>
+                  <div>€ {h.amount.toFixed(2)}</div>
+                  <div>{h.time}</div>
+                </div>
+              ))}
             </div>
           </section>
         )}
       </main>
 
+      {/* Footer */}
       <footer className="dashboard-footer">
-        <span>© {new Date().getFullYear()} — Jouw Veilingplatform</span>
         <div className="footer-actions">
-          <button className="btn-link">Support</button>
-          <button className="btn-link">Privacy</button>
-          <button className="btn-link">Voorwaarden</button>
+          <button className="btn-secondary" onClick={() => window.location.reload()}>
+            Ververs
+          </button>
+          <button className="btn-quiet" onClick={() => alert("Uitgelogd")}>
+            Uitloggen
+          </button>
         </div>
+        <div className="muted">© {new Date().getFullYear()} Veilingplatform</div>
       </footer>
     </div>
   );
-}
-
-/* ---------- Helpers & small UI atoms (pure CSS-driven) ---------- */
-function badgeClass(state: string) {
-  const s = (state ?? "").toString().toLowerCase();
-  if (s.includes("verzonden") || s.includes("gewonnen") || s.includes("bevestigd")) return "badge-success";
-  if (s.includes("open")) return "badge-warning";
-  if (s.includes("overboden") || s.includes("geannuleerd")) return "badge-danger";
-  return "badge-muted";
-}
-
-function EmptyState(
-  { title, subtitle, cta }: { title: string; subtitle: string; cta: string }
-): React.ReactElement {
-  return (
-    <div className="empty-state">
-      <div className="empty-emoji" aria-hidden={true}>🌿</div>
-      <h3 className="empty-title">{title}</h3>
-      <p className="empty-subtitle">{subtitle}</p>
-      <button className="btn-primary">{cta}</button>
-    </div>
-  );
-}
-
-
-function Toggle({ defaultChecked = false }) {
-  const [on, setOn] = useState(defaultChecked);
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      className={"toggle " + (on ? "is-on" : "")}
-      onClick={() => setOn(!on)}
-    >
-      <span className="thumb" />
-    </button>
-  );
-}
+};
 
 export default KlantDashboard;
