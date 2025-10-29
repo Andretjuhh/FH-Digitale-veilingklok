@@ -5,7 +5,7 @@ import TinyCardCounter from "../elements/TinyCardCounter";
 
 function AppBloemSoort() {
 	return (
-		<div className={'app-bloems'}>
+		<section id={'soort-bloemen'} className={'app-bloems'}>
 			<div className={'app-bloems-ctn'}>
 				<div className='app-bloems-hd'>
 					<h2 className={'app-bloems-hd-title'}>{window.application.t('flower_types')}</h2>
@@ -67,7 +67,7 @@ function AppBloemSoort() {
 					</div>
 				</div>
 			</div>
-		</div>
+		</section>
 	);
 }
 

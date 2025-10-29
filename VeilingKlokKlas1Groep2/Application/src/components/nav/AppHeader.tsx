@@ -14,10 +14,10 @@ function AppHeader() {
 
 			<nav className="header-nav">
 				<ul className={'nav-menu'}>
-					<Link className={'nav-menu-anchor'} to="/">{window.application.t('what_is_flori_clock')}</Link>
-					<Link className={'nav-menu-anchor'} to="/">{window.application.t('flower_types')}</Link>
-					<Link className={'nav-menu-anchor'} to="/">{window.application.t('how_it_works')}</Link>
-					<Link className={'nav-menu-anchor'} to="/">{window.application.t('contact_us')}</Link>
+					<a className={'nav-menu-anchor'} href={"#what-is-flori-clock"}>{window.application.t('what_is_flori_clock')}</a>
+					<a className={'nav-menu-anchor'} href={"#soort-bloemen"}>{window.application.t('flower_types')}</a>
+					<a className={'nav-menu-anchor'} href={"#what-is-flori-clock"}>{window.application.t('how_it_works')}</a>
+					<a className={'nav-menu-anchor'} href={"#what-is-flori-clock"}>{window.application.t('contact_us')}</a>
 				</ul>
 			</nav>
 

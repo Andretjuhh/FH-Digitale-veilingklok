@@ -5,7 +5,7 @@ import ButterflyParticles from "../../particles/ButterflyParticles";
 
 function AppHome() {
 	return (
-		<div className={'app-home'}>
+		<section id={'home'} className={'app-home'}>
 			<ButterflyParticles/>
 			<div className={'app-home-ctn'}>
 				<div className={'app-home-row z-10'}>
@@ -33,7 +33,7 @@ function AppHome() {
 				</div>
 			</div>
 			<div className={'app-home-round-bt'}/>
-		</div>
+		</section>
 	);
 }
 

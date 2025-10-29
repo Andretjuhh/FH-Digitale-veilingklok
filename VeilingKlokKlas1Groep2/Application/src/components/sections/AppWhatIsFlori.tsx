@@ -4,7 +4,7 @@ import WhatIsCard from "../elements/WhatIsCard";
 
 function AppWhatIsFlori() {
 	return (
-		<div className={'app-what-is'}>
+		<section id={'what-is-flori-clock'} className={'app-what-is'}>
 			<div className={'app-what-is-info-ctn'}>
 				<h2 className={'app-what-is-title'}>{window.application.t('what_is_flori_clock')}</h2>
 				<span className={'app-what-is-txt'}>{window.application.t('what_is_flori_clock_description')}</span>
@@ -32,7 +32,7 @@ function AppWhatIsFlori() {
 					icon={'bi-clock-history'}
 				/>
 			</div>
-		</div>
+		</section>
 	);
 }
 
