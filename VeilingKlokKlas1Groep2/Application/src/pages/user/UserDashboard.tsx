@@ -101,6 +101,16 @@ function UserDashboard() {
   });
   const [paused, setPaused] = useState<boolean>(false);
   const [resetToken, setResetToken] = useState<number>(0);
+  // Voorraad per product en aankoop hoeveelheid
+  const initialStock = useMemo<number[]>(() => products.map(p => {
+    const perBundle = parseInt(p.stemsPerBundle, 10) || 1;
+    return perBundle * 30; // start met 30 bossen
+  }), [products]);
+  const [stock, setStock] = useState<number[]>(initialStock);
+  const currentStock = stock[productIndex] ?? 0;
+  const [qty, setQty] = useState<number>(1);
+  const decQty = () => setQty(q => Math.max(1, q - 1));
+  const incQty = () => setQty(q => Math.min(999, q + 1));
 
   // prijs wordt gestuurd door de klok (onTick)
 
@@ -154,8 +164,8 @@ function UserDashboard() {
               resetToken={resetToken}
               round={1}
               coin={1}
-              totalLots={16}
-              amountPerLot={150}
+              totalLots={Math.max(0, Math.ceil((stock[productIndex] ?? 0) / (parseInt(current.stemsPerBundle,10) || 1)))}
+              amountPerLot={parseInt(current.stemsPerBundle,10) || 1}
               minAmount={1}
               price={price}
               onTick={(secs) => {
@@ -164,20 +174,37 @@ function UserDashboard() {
               }}
             />
 
+            <div className="stock-text">Voorraad: {currentStock} stuks</div>
+
             <div className="user-actions">
-              <Button
-                className="user-action-btn !bg-primary-main"
-                label="Koop product"
-                onClick={() => {
-                  setPaused(true);
-                  setTimeout(() => {
-                    // reset and resume
-                    setResetToken((v) => v + 1);
-                    setPrice(0.65);
-                    setPaused(false);
-                  }, 500);
-                }}
-              />
+              <div className="buy-controls">
+                <button className="qty-btn" onClick={decQty} disabled={qty <= 1}>-</button>
+                <div className="qty-val">{qty}</div>
+                <button className="qty-btn" onClick={incQty}>+</button>
+                <Button
+                  className="user-action-btn !bg-primary-main"
+                  label="Koop product"
+                  onClick={() => {
+                    setStock(prev => {
+                      const arr = [...prev];
+                      const cur = arr[productIndex] ?? 0;
+                      const delta = Math.min(qty, cur);
+                      arr[productIndex] = Math.max(0, cur - delta);
+                      return arr;
+                    });
+                    setPaused(true);
+                    setTimeout(() => {
+                      setResetToken((v) => v + 1);
+                      setPrice(0.65);
+                      setPaused(false);
+                      const newCur = Math.max(0, (stock[productIndex] ?? 0) - qty);
+                      if (newCur === 0) {
+                        setProductIndex((i) => (i + 1) % products.length);
+                      }
+                    }, 500);
+                  }}
+                />
+              </div>
               <Button
                 className="user-action-btn"
                 label="Ander product"
@@ -256,5 +283,3 @@ function UserDashboard() {
 }
 
 export default UserDashboard;
-
-
