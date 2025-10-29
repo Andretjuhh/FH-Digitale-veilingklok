@@ -1,9 +1,11 @@
 // External imports
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from "../buttons/Button";
 import ButterflyParticles from "../../particles/ButterflyParticles";
 
 function AppHome() {
+	const navigate = useNavigate();
 	return (
 		<section id={'home'} className={'app-home'}>
 			<ButterflyParticles/>
@@ -23,6 +25,7 @@ function AppHome() {
 								<Button
 									className={'app-home-s-btn'}
 									label={window.application.t('login')}
+									onClick={() => navigate('/user-dashboard')}
 								/>
 							</div>
 						</div>

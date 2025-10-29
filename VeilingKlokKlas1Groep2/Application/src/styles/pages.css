@@ -1,0 +1,47 @@
+/* User Dashboard layout (wireframe skeleton) */
+.user-dashboard { padding: var(--top-pd) var(--side-pd); }
+
+.user-hero { margin: calc(var(--header-size) + var(--top-pd)) 0 var(--top-pd); }
+.user-hero-title { font-size: var(--h2-size); font-weight: 800; color: theme(colors.primary.main); }
+.user-hero-sub { font-size: var(--span1b-size); color: theme(colors.secondary.main); margin-top: 6px; }
+
+.user-card-wrap { display: grid; place-items: center; margin-top: var(--top-pd); }
+.user-card {
+  width: min(1100px, 100%);
+  background: #f3f4f6;
+  border-radius: 16px;
+  padding: var(--top-pd);
+  border: 1px solid theme(colors.zinc.200);
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 80px;
+  gap: var(--top-pd);
+}
+.user-card-media {
+  height: 260px; border-radius: 12px; background: #e5e7eb; border: 1px solid theme(colors.zinc.300);
+  width: 100%; object-fit: cover;
+}
+.user-card-center { display: grid; justify-items: center; align-content: start; gap: 12px; }
+.user-avatar { width: 140px; aspect-ratio: 1/1; border-radius: 50%; border: 4px solid theme(colors.zinc.300); background: #fff; display:grid; place-items:center; }
+.user-price { font-weight: 800; color: theme(colors.secondary.main); }
+.user-name { height: 14px; width: 60%; background: #d1d5db; border-radius: 999px; }
+.user-meta { height: 12px; width: 40%; background: #e5e7eb; border-radius: 999px; }
+.user-actions { display: grid; gap: 10px; width: 100%; margin-top: 8px; }
+.user-action-btn { justify-content: center; }
+.user-card-aside { width: 48px; height: 48px; border-radius: 50%; background: #e5e7eb; place-self: start end; }
+
+.user-footer {
+  margin-top: calc(var(--top-pd) * 2);
+  border-top: 1px solid theme(colors.zinc.200);
+  padding: var(--top-pd) 0;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--side-pd);
+}
+.user-footer-col { display: grid; gap: 10px; }
+.user-footer-title { height: 16px; width: 60%; background: #e5e7eb; border-radius: 6px; }
+.user-footer-line { height: 12px; width: 80%; background: #f1f5f9; border-radius: 6px; }
+.user-footer-list { display: grid; gap: 8px; }
+.user-footer-list span { display: block; height: 12px; width: 75%; background: #eef2f7; border-radius: 6px; }
+
+@media (max-width: 1024px) {
+  .user-card { grid-template-columns: 1fr; }
+  .user-card-aside { place-self: end; }
+}
