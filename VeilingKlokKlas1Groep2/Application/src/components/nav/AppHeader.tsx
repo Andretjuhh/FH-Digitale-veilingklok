@@ -2,6 +2,9 @@
 import React from 'react';
 import {Link} from "react-router-dom";
 
+// Internal imports
+import LanguagePicker from "../buttons/LanguagePicker";
+
 function AppHeader() {
 	return (
 		<header className="app-header">
@@ -17,6 +20,8 @@ function AppHeader() {
 					<Link className={'nav-menu-anchor'} to="/">{window.application.t('contact_us')}</Link>
 				</ul>
 			</nav>
+
+			<LanguagePicker/>
 		</header>
 	);
 }

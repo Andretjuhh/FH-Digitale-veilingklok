@@ -13,6 +13,7 @@
     justify-content: flex-start;
     align-items: center;
     overflow: visible;
+    z-index: 100;
 }
 
 .header-logo {
@@ -247,6 +248,19 @@
     z-index: 1;
 }
 
+.app-header-s-btn-language {
+    --color: theme(colors.primary.800);
+
+    position: absolute !important;
+    right: var(--side-pd) !important;
+    z-index: 2 !important;
+}
+
+.app-header-s-btn-language-icon,
+.app-header-s-btn-language-txt {
+    color: white !important;
+}
+
 /*#endregion */
 
 /*#region Bloems */
@@ -385,7 +399,7 @@
     align-items: center;
     gap: var(--side-pd);
 
-    padding: 10vh var(--side-pd);
+    padding: 16vh var(--side-pd);
     z-index: 5;
 }
 
@@ -497,6 +511,49 @@
     font-size: var(--span2-size);
     font-weight: 500;
     color: black;
+}
+
+/*#endregion */
+
+/*#region Footer */
+.app-footer {
+    width: 100%;
+    height: 40vh;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    padding: var(--top-pd) var(--side-pd);
+    background-color: theme(colors.secondary.800);
+    border-radius: 8vh 8vh 0 0;
+}
+
+.app-footer-ln {
+    width: 100%;
+    height: 4px;
+    background-color: theme(colors.secondary.600);
+    border-radius: 999px;
+}
+
+.app-footer-ctn {
+    width: 100%;
+    height: auto;
+    flex: 3;
+    display: flex;
+}
+
+.app-footer-avg {
+    width: 100%;
+    height: auto;
+    flex: 1;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 /*#endregion */
