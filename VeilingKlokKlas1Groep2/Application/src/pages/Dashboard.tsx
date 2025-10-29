@@ -1,7 +1,4 @@
 import React, { useMemo, useState } from "react";
-// Zet dit boven je component die ze gebruikt (bijv. boven Dashboard_Veiling)
-
-// Kleine helpercomponenten
 const Stat: React.FC<{ label: string; value: string | number }> = ({
   label,
   value,
@@ -49,9 +46,6 @@ type BadgeProps = React.PropsWithChildren<{
   style?: React.CSSProperties;
 }>;
 
-// ------------------------------
-// Mini UI Componenten (met children getypt)
-// ------------------------------
 export function Card({ children, style, ...p }: DivProps) {
   return (
     <div
@@ -258,9 +252,6 @@ export function VStack({ children, style, ...p }: DivProps) {
   );
 }
 
-// ------------------------------
-// Emoji-Icons (geen extra dependencies)
-// ------------------------------
 const Icon = {
   Bell: () => <span>🔔</span>,
   Search: () => <span>🔎</span>,
@@ -276,8 +267,6 @@ const Icon = {
   Settings: () => <span>⚙️</span>,
 };
 
-// ------------------------------
-// Mock data
 // ------------------------------
 const MOCK_LOTS = [
   {
@@ -310,8 +299,7 @@ const MOCK_LOTS = [
 ];
 
 // ------------------------------
-// Hoofdcomponent
-// ------------------------------
+
 export default function Dashboard_Veiling() {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"actief" | "komend" | "verkocht">(
