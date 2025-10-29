@@ -128,6 +128,15 @@ body,
 	border-radius: 3px;
 }
 
+.register-form div {
+	display: flex;
+	flex-direction: column; /* Stack label above input */
+}
+
+.register-form label {
+	margin-bottom: 0.5rem; /* Add spacing between label and input */
+}
+
 /* Card hover polish */
 .register-card:hover {
 	transform: translateY(-4px);
