@@ -1,5 +1,5 @@
 ﻿// External imports
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 // Internal imports
 import Page from "../../components/screens/Page";
@@ -9,8 +9,58 @@ import AuctionClock from "../../components/elements/AuctionClock";
 function UserDashboard() {
   const CLOCK_SECONDS = 4;
   const [price, setPrice] = useState<number>(0.65);
-  // Gebruik lokale stock-foto 'plant 4.png', val terug op roses.svg en dan kweker.png
-  const [imgSrc, setImgSrc] = useState<string>("/pictures/plant 4.png");
+  // Productenlijst (dummy data)
+  type Product = {
+    supplier: string;
+    avr: string;
+    name: string;
+    land: string;
+    mps: string;
+    brief: string;
+    kwa: string;
+    qi: string;
+    minStemLen: string;
+    stemsPerBundle: string;
+    ripeness: string;
+    image: string;
+  };
+
+  const products = useMemo<Product[]>(() => [
+    {
+      supplier: 'Kees van Os',
+      avr: '4177',
+      name: 'R Gr Red Naomi!',
+      land: 'NL',
+      mps: 'A',
+      brief: '32214a',
+      kwa: 'A1',
+      qi: 'A',
+      minStemLen: '50 cm',
+      stemsPerBundle: '10',
+      ripeness: '3-3',
+      image: '/pictures/plant 4.png',
+    },
+    {
+      supplier: 'Flora BV',
+      avr: '5032',
+      name: 'Tulipa Yellow King',
+      land: 'NL',
+      mps: 'A',
+      brief: '11802b',
+      kwa: 'A2',
+      qi: 'B',
+      minStemLen: '40 cm',
+      stemsPerBundle: '20',
+      ripeness: '2-3',
+      image: '/pictures/plant 2.png',
+    },
+  ], []);
+
+  const [productIndex, setProductIndex] = useState<number>(0);
+  const current = products[productIndex];
+  // afbeelding bron per product
+  const [imgSrc, setImgSrc] = useState<string>(current.image);
+  useEffect(() => { setImgSrc(current.image); }, [current]);
   const [isDark, setIsDark] = useState<boolean>(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('theme') : null;
     return saved === 'dark';
@@ -52,12 +102,12 @@ function UserDashboard() {
               alt="Rozen"
             />
             <div className="product-info">
-              <div className="prod-row"><span className="prod-label">Aanvoerder</span><span className="prod-val">Kees van Os</span><span className="prod-label">avr nr</span><span className="prod-val">4177</span></div>
-              <div className="prod-row"><span className="prod-label">Product</span><span className="prod-val prod-val--wide">R Gr Red Naomi!</span><span className="prod-label">land</span><span className="prod-val">NL</span><span className="prod-label">mps</span><span className="prod-val">A</span></div>
-              <div className="prod-row"><span className="prod-label">brief</span><span className="prod-val">32214a</span><span className="prod-label">kwa</span><span className="prod-val">A1</span><span className="prod-label">qi</span><span className="prod-val">A</span></div>
-              <div className="prod-row"><span className="prod-label">minimum steellengte</span><span className="prod-val prod-val--wide">50 cm</span></div>
-              <div className="prod-row"><span className="prod-label">aantal stelen per bos</span><span className="prod-val prod-val--wide">10</span></div>
-              <div className="prod-row"><span className="prod-label">rijpheidstadium</span><span className="prod-val prod-val--wide">3-3</span></div>
+              <div className="prod-row"><span className="prod-label">Aanvoerder</span><span className="prod-val">{current.supplier}</span><span className="prod-label">avr nr</span><span className="prod-val">{current.avr}</span></div>
+              <div className="prod-row"><span className="prod-label">Product</span><span className="prod-val prod-val--wide">{current.name}</span><span className="prod-label">land</span><span className="prod-val">{current.land}</span><span className="prod-label">mps</span><span className="prod-val">{current.mps}</span></div>
+              <div className="prod-row"><span className="prod-label">brief</span><span className="prod-val">{current.brief}</span><span className="prod-label">kwa</span><span className="prod-val">{current.kwa}</span><span className="prod-label">qi</span><span className="prod-val">{current.qi}</span></div>
+              <div className="prod-row"><span className="prod-label">minimum steellengte</span><span className="prod-val prod-val--wide">{current.minStemLen}</span></div>
+              <div className="prod-row"><span className="prod-label">aantal stelen per bos</span><span className="prod-val prod-val--wide">{current.stemsPerBundle}</span></div>
+              <div className="prod-row"><span className="prod-label">rijpheidstadium</span><span className="prod-val prod-val--wide">{current.ripeness}</span></div>
             </div>
           </div>
 
@@ -94,7 +144,20 @@ function UserDashboard() {
                   }, 500);
                 }}
               />
-              <Button className="user-action-btn" label="Actie 2" />
+              <Button
+                className="user-action-btn"
+                label="Actie 2"
+                onClick={() => {
+                  setProductIndex((i) => (i + 1) % products.length);
+                  // reset price/clock for new product
+                  setPaused(true);
+                  setTimeout(() => {
+                    setResetToken((v) => v + 1);
+                    setPrice(0.65);
+                    setPaused(false);
+                  }, 300);
+                }}
+              />
             </div>
           </div>
 
