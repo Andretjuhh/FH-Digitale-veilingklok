@@ -140,7 +140,7 @@
     width: 80%;
     font-size: var(--span2-size);
     font-weight: 400;
-    color: theme(colors.primary.500);
+    color: theme(colors.primary.600);
 }
 
 .app-home-cta-btns {
