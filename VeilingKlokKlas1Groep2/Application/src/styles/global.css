@@ -7,6 +7,40 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --logo-size: 62px;
+    --side-pd: 60px;
+    --top-pd: 24px;
+
+    --h1-size: 48px;
+    --h2-size: 42px;
+    --h3-size: 36px;
+    --h4-size: 32px;
+    --h5-size: 28px;
+    --span1-size: 24px;
+    --span1b-size: 20px;
+    --span2-size: 18px;
+    --span3-size: 16px;
+    --span4-size: 14px;
+    --span5-size: 12px;
+    --span6-size: 8px;
+
+
+    --header-size: calc(var(--top-pd) * 2 + var(--logo-size));
+}
+
+/* Mobile Potrait */
+@media only screen and (max-width: 767px) and (min-height: 480px) {
+}
+
+/* Mobile Landscape */
+@media only screen and (max-width: 1023px) and (max-height: 480px) {
+}
+
+/* Tablets Potrait */
+@media only screen and (min-width: 768px) and (max-width: 1023px) and (min-height: 480px) {
+}
+
 /*#region Global Element Styles */
 html, body {
     width: 100vw;
@@ -128,7 +162,7 @@ img {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    
+
 }
 
 .tiny-card-data-txt {
@@ -158,37 +192,3 @@ img {
 
 
 /*#endregion */
-
-:root {
-    --logo-size: 62px;
-    --side-pd: 60px;
-    --top-pd: 24px;
-
-    --h1-size: 48px;
-    --h2-size: 42px;
-    --h3-size: 36px;
-    --h4-size: 32px;
-    --h5-size: 28px;
-    --span1-size: 24px;
-    --span1b-size: 20px;
-    --span2-size: 18px;
-    --span3-size: 16px;
-    --span4-size: 14px;
-    --span5-size: 12px;
-    --span6-size: 8px;
-
-
-    --header-size: calc(var(--top-pd) * 2 + var(--logo-size));
-}
-
-/* Mobile Potrait */
-@media only screen and (max-width: 767px) and (min-height: 480px) {
-}
-
-/* Mobile Landscape */
-@media only screen and (max-width: 1023px) and (max-height: 480px) {
-}
-
-/* Tablets Potrait */
-@media only screen and (min-width: 768px) and (max-width: 1023px) and (min-height: 480px) {
-}

@@ -12,7 +12,6 @@ function AppHome() {
 					<div className={'app-home-ex'}>
 						<h1 className={'app-home-title'}>{window.application.t('welcome_title')}</h1>
 						<h2 className={'app-home-description'}>{window.application.t('welcome_description')}</h2>
-
 						<div className={'app-home-cta'}>
 							<span className={'app-home-cta-text'}>{window.application.t('welcome_cta_text')}</span>
 							<div className={'app-home-cta-btns'}>

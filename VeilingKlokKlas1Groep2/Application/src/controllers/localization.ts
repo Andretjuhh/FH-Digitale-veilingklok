@@ -5,6 +5,7 @@ export const resources = {
 	nl: {
 		translation: {
 			what_is_flori_clock: "Wat is FloriClock?",
+			what_is_flori_clock_description: "FloriClock is een digitaal veilingplatform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen. Ons doel is om de veilinghandel in bloemen en planten te vereenvoudigen en te optimaliseren door middel van een gebruiksvriendelijke online marktplaats.",
 			how_it_works: "Hoe werkt het?",
 			flower_types: "Bloemsoorten",
 			flower_types_description: "Ontdek een breed scala aan bloemsoorten die beschikbaar zijn op ons platform. Van rozen tot tulpen, vind precies wat je zoekt.",
@@ -18,11 +19,23 @@ export const resources = {
 			login: 'Inloggen',
 
 			flowers: 'Bloemen',
-			growers: 'Kwekers',
 			transactions: 'Transacties',
 			flowers_description: 'Verschillende bloemsoorten',
 			growers_description: 'Groot aantal kwekers aangesloten',
 			transactions_description: 'Succesvolle transacties dagelijks',
+
+			growers: 'Kwekers',
+			what_do_growers: 'Plaatsen van hun producten en beheren van hun aanbod',
+
+			veilingmeesters: 'Veilingmeesters',
+			what_do_veilingmeesters: 'Beheren van veilingen en zorgen voor een vlotte afhandeling',
+
+			buyer: 'Kopers',
+			what_do_buyer: 'Zoeken en bieden op bloemen en planten van hun keuze',
+
+			veilingklok: 'Veilingklok',
+			what_is_veilingklok: 'Een geavanceerd systeem dat de tijd en volgorde van biedingen regelt tijdens veilingen',
+
 		},
 	},
 	en: {

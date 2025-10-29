@@ -203,17 +203,14 @@
     height: 150px;
     width: 200px;
     border-radius: 50%;
+    top: 100%;
+    left: 100%;
+    transition: all 0.5s;
 }
 
 .app-home-s-btn:hover > * {
     color: #fff !important;
     transition: color 0.7s;
-}
-
-.app-home-s-btn:before {
-    top: 100%;
-    left: 100%;
-    transition: all 0.5s;
 }
 
 .app-home-s-btn:hover:before {
@@ -373,5 +370,133 @@
 
 }
 
+
+/*#endregion */
+
+/*#region Wat is Flori*/
+.app-what-is {
+    width: 100%;
+    min-height: 50vh;
+
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--side-pd);
+
+    padding: 10vh var(--side-pd);
+    z-index: 5;
+}
+
+.app-what-is > div {
+    min-height: 100%;
+    flex: 1;
+}
+
+.app-what-is-info-ctn {
+    height: auto;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    z-index: 1;
+}
+
+.app-what-is-title {
+    font-size: var(--h1-size);
+    font-weight: 800;
+    color: theme(colors.primary.main);
+    margin-bottom: calc(var(--top-pd) / 2);
+
+}
+
+.app-what-is-txt {
+    font-size: var(--span1-size);
+    font-weight: 500;
+    color: theme(colors.secondary.main);
+}
+
+.app-what-is-btn {
+    margin-top: var(--top-pd);
+}
+
+.app-what-is-btn:before {
+    height: 150px;
+    width: 300px;
+}
+
+.app-what-is-steps-ctn {
+    /*width: auto;*/
+    /*height: 50vh;*/
+    flex: 2 !important;
+    /*display: flex;*/
+    /*flex-direction: column;*/
+    /*flex-wrap: wrap;*/
+    /*justify-content: center;*/
+    /*align-items: center;*/
+    /*gap: var(--top-pd);*/
+    /*align-content: center;*/
+    width: auto;
+    height: 50vh;
+    display: grid;
+    grid-template-rows: repeat(2, 1fr); /* Defines exactly 2 equal rows */
+    grid-auto-flow: column; /* Fills items vertically (2 rows) then wraps horizontally */
+    grid-template-columns: repeat(auto-fit, minmax(100px, 30%));
+    gap: var(--top-pd);
+    justify-content: center; /* Center the overall grid in the container */
+}
+
+.app-what-is-card {
+    height: 100%;
+
+    /*min-width: 26%;*/
+    /*max-width: 40%;*/
+    /*height: auto;*/
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
+    background: theme(colors.primary.main);
+    padding: var(--top-pd);
+
+    border-radius: 1rem;
+    border: 0.5vmin solid #05060f;
+    box-shadow: 0.4rem 0.4rem #05060f;
+    overflow: hidden;
+    color: black;
+}
+
+.app-what-is-card-h {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--span3-size);
+}
+
+.app-what-is-card-icon {
+    font-size: var(--h4-size);
+    color: theme(colors.secondary.main) !important;
+}
+
+.app-what-is-card-title {
+    white-space: wrap;
+    font-size: var(--h4-size);
+    font-weight: 700;
+    color: theme(colors.secondary.main) !important;
+}
+
+.app-what-is-card-txt {
+
+    white-space: wrap;
+    margin-top: var(--span2-size);
+    font-size: var(--span2-size);
+    font-weight: 500;
+    color: black;
+}
 
 /*#endregion */
