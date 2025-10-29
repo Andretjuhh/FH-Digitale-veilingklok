@@ -5,6 +5,7 @@ import Button from "../buttons/Button";
 import ButterflyParticles from "../../particles/ButterflyParticles";
 
 function AppHome() {
+	
 	const navigate = useNavigate();
 	return (
 		<section id={'home'} className={'app-home'}>

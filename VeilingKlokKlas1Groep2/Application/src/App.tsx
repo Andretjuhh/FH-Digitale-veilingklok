@@ -9,7 +9,6 @@ import Home from "./pages/general/Home";
 import Login from "./pages/general/Login";
 import KlantDashboard from "./pages/KlantDashboard";
 import './styles/app.css';
-import './styles/components.header.css';
 import UserDashboard from './pages/user/UserDashboard';
 
 function App() {
