@@ -1,10 +1,12 @@
 // External imports
 import React from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 // Internal imports
 import RootContext from "./contexts/RootContext";
 import Home from "./pages/general/Home";
+import Login from "./pages/general/Login";
+import Register from "./pages/general/Register";
 import Dashboard from "./pages/Dashboard";
 import "./styles/app.css";
 
@@ -12,10 +14,14 @@ function App() {
   const location = useLocation();
 
   return (
-    <Routes location={location} key={location.pathname}>
-      <Route path="/" element={<Home />} />
-      <Route path="/dash" element={<Dashboard />} />
-    </Routes>
+    <RootContext>
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </RootContext>
   );
 }
 

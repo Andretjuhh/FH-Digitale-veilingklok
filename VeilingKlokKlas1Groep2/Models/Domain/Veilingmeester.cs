@@ -9,11 +9,11 @@ namespace VeilingKlokApp.Models.Domain
     {
         [Column("soort_veiling")]
         [Required, MaxLength(20)]
-        public string SoortVeiling { get; set; }
+        public int AurthorisatieCode { get; set; }
 
-        [Column("regio")]
-        [MaxLength(100)]
-        public string Regio { get; set; }
+        // [Column("regio")]
+        // [MaxLength(100)]
+        // public string Regio { get; set; }
 
         // Navigation property for the Veilingklokken managed by this Veilingmeester
         public ICollection<VeilingKlok> Veilingklokken { get; set; } = new List<VeilingKlok>();
