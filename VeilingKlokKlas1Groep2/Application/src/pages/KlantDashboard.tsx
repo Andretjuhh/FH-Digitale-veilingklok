@@ -1,5 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/Dashboard.css";
+import "../styles/SiteFooter.css";
+import SiteFooter from "../components/SiteFooter";
+
+
+
 
 type AuctionItem = {
   id: number;
@@ -26,8 +32,31 @@ const formatTimeLeft = (target: Date) => {
 };
 
 const KlantDashboard: React.FC = () => {
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState<"live" | "bids" | "history">("live");
   const [timeLeft, setTimeLeft] = useState<string>("00:00");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    const stored = localStorage.getItem("theme");
+    if (stored === "light" || stored === "dark") return stored;
+    const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+    return prefersDark ? "dark" : "light";
+  });
+
+  // hoeveelheid (aantal) onder de klok
+  const [qty, setQty] = useState<number>(1);
+  const MIN_QTY = 1;
+  const MAX_QTY = 999;
+
+  const dec = () => setQty(q => Math.max(MIN_QTY, q - 1));
+  const inc = () => setQty(q => Math.min(MAX_QTY, q + 1));
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => (t === "dark" ? "light" : "dark"));
 
   // --- demo data (replace with API) ---
   const liveItem = useMemo<AuctionItem>(() => ({
@@ -62,12 +91,20 @@ const KlantDashboard: React.FC = () => {
     <div className="dashboard-page">
       {/* Top bar */}
       <header className="dashboard-topbar" role="banner">
-        <div className="brand-mark" aria-hidden>
-          {/* You can replace with an <img alt="Veilingplatform" src="/logo.svg" /> */}
-          <span>VK</span>
-        </div>
+        {/* LOGO → home */}
+        <button
+          type="button"
+          className="brand-mark brand-mark--button"
+          onClick={() => navigate("/")}
+          aria-label="Ga naar Home"
+          title="Home"
+        >
+          <span aria-hidden>VK</span>
+        </button>
+
         <div className="app-title">Veilingplatform</div>
 
+        {/* Tabs */}
         <nav className="dashboard-tabs" role="tablist" aria-label="Klant dashboard tabs">
           <button
             className={`tab-btn ${activeTab === "live" ? "is-active" : ""}`}
@@ -94,6 +131,23 @@ const KlantDashboard: React.FC = () => {
             Geschiedenis
           </button>
         </nav>
+
+        {/* Rechter acties: thema + login */}
+        <div className="topbar-actions">
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={toggleTheme}
+            aria-label={`Schakel naar ${theme === "dark" ? "dag" : "nacht"} modus`}
+            title={theme === "dark" ? "Schakel naar dag modus" : "Schakel naar nacht modus"}
+          >
+            <span aria-hidden>{theme === "dark" ? "☀️" : "🌙"}</span>
+          </button>
+
+          <Link to="/login" className="btn-primary btn-login">
+            Login
+          </Link>
+        </div>
       </header>
 
       {/* Content */}
@@ -116,6 +170,60 @@ const KlantDashboard: React.FC = () => {
                 </div>
               </div>
 
+{/* ===== GROTE RONDE KLOK + PRODUCTPANE ===== */}
+<div className="auction-layout">
+  {/* Linker kolom: productafbeelding + naam */}
+  <div className="product-pane">
+    <img
+      className="product-img"
+      src={`https://picsum.photos/seed/${liveItem.id}-flower/520/520`}
+      alt={liveItem.name}
+      loading="lazy"
+    />
+    <div className="product-name">{liveItem.name}</div>
+  </div>
+
+  {/* Rechter kolom: klok + aantal knoppen */}
+  <div className="clock-pane">
+    <div className="clock">
+      <div className="clock__face" aria-label={`Tijd resterend ${timeLeft}`} role="img">
+        <div className="clock__time">{timeLeft}</div>
+        <div className="clock__subtext">mm:ss</div>
+      </div>
+
+      <div className="qty-controls" aria-label="Kies hoeveelheid">
+        <button
+          type="button"
+          className="btn-round"
+          aria-label="Verlaag aantal"
+          onClick={dec}
+          disabled={qty <= MIN_QTY}
+        >
+          –
+        </button>
+
+        <div className="qty-display" aria-live="polite" aria-atomic="true">
+          {qty}
+        </div>
+
+        <button
+          type="button"
+          className="btn-round"
+          aria-label="Verhoog aantal"
+          onClick={inc}
+          disabled={qty >= MAX_QTY}
+        >
+          +
+        </button>
+      </div>
+
+      <div className="qty-hint muted">Prijs wordt berekend per {liveItem.unit}</div>
+    </div>
+  </div>
+</div>
+{/* ===== EINDE KLOK + PRODUCTPANE ===== */}
+
+
               <div className="card__body">
                 <div className="metric">
                   <div className="metric__label">Huidige prijs</div>
@@ -124,7 +232,10 @@ const KlantDashboard: React.FC = () => {
                 </div>
 
                 <div className="actions">
-                  <button className="btn-primary" onClick={() => alert("Bod geplaatst!")}>
+                  <button
+                    className="btn-primary"
+                    onClick={() => alert(`Bod geplaatst voor ${qty} × ${liveItem.name}`)}
+                  >
                     Plaats bod
                   </button>
                   <button className="btn-secondary" onClick={() => alert("Automatisch bieden geactiveerd")}>
@@ -203,5 +314,8 @@ const KlantDashboard: React.FC = () => {
     </div>
   );
 };
+
+
+<SiteFooter />
 
 export default KlantDashboard;
