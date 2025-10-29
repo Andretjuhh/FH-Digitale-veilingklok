@@ -178,9 +178,9 @@ function UserDashboard() {
 
             <div className="user-actions">
               <div className="buy-controls">
-                <button className="qty-btn" onClick={decQty} disabled={qty <= 1}>-</button>
-                <div className="qty-val">{qty}</div>
-                <button className="qty-btn" onClick={incQty}>+</button>
+                {/* <Button className={'qty-icon-btn'} icon={'bi-dash'} onClick={decQty} disabled={qty <= 1} /> */}
+                {/* <div className="qty-val">{qty}</div> */}
+                {/* <Button className={'qty-icon-btn'} icon={'bi-plus'} onClick={incQty} /> */}
                 <Button
                   className="user-action-btn !bg-primary-main"
                   label="Koop product"
@@ -283,3 +283,4 @@ function UserDashboard() {
 }
 
 export default UserDashboard;
+

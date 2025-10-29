@@ -1,4 +1,4 @@
-/* User Dashboard layout (wireframe skeleton) */
+﻿/* User Dashboard layout (wireframe skeleton) */
 .user-dashboard { padding: var(--top-pd) var(--side-pd); }
 
 .user-hero { margin: calc(var(--header-size) + var(--top-pd)) 0 var(--top-pd); }
@@ -54,10 +54,8 @@
 .user-action-btn { justify-content: center; }
 .user-card-aside { width: 48px; height: 48px; border-radius: 50%; background: #e5e7eb; place-self: start end; }
 .
-.buy-controls { display:flex; gap:8px; align-items:center; }
-.qty-btn { width:36px; height:36px; background:#fff; border:1px solid #e5e7eb; border-radius:8px; display:grid; place-items:center; cursor:pointer; }
-.qty-btn:disabled { opacity:.5; cursor:not-allowed; }
-.qty-val { min-width:42px; text-align:center; font-weight:800; }
+.buy-controls { display:flex; gap:10px; align-items:center; }
+.qty-val { min-width:48px; text-align:center; font-weight:800; }
 
 .user-footer {
   margin-top: calc(var(--top-pd) * 2);
@@ -122,3 +120,6 @@
 .dark .upcoming-side-name { color:#f3f4f6; }
 .dark .upcoming-side-meta { color:#cbd5e1; }
 .dark .upcoming-side-badge { background: theme(colors.primary.200); color:#111827; }
+
+.qty-icon-btn { height:40px; min-width:40px; padding:0 10px; }
+.qty-icon-btn-icon { font-size: 18px; }
