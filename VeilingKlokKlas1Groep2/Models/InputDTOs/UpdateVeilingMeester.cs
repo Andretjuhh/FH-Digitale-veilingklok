@@ -6,7 +6,7 @@ namespace VeilingKlokApp.Models
         public string Password { get; set; }
 
         public string Regio { get; set; }
-        public string SoortVeiling { get; set; }
+        public int AuthorisatieCode { get; set; }
     }
     
 }
