@@ -54,6 +54,34 @@ function UserDashboard() {
       ripeness: '2-3',
       image: '/pictures/plant 2.png',
     },
+    {
+      supplier: 'BloomCo',
+      avr: '6120',
+      name: 'Gerbera Mix',
+      land: 'NL',
+      mps: 'B',
+      brief: '90211c',
+      kwa: 'A1',
+      qi: 'A',
+      minStemLen: '45 cm',
+      stemsPerBundle: '15',
+      ripeness: '2-2',
+      image: '/pictures/plant 1.png',
+    },
+    {
+      supplier: 'GreenFields',
+      avr: '7102',
+      name: 'Chrysanthemum White',
+      land: 'DE',
+      mps: 'A',
+      brief: '55231a',
+      kwa: 'A2',
+      qi: 'A',
+      minStemLen: '55 cm',
+      stemsPerBundle: '12',
+      ripeness: '3-4',
+      image: '/pictures/plant 3.png',
+    },
   ], []);
 
   const [productIndex, setProductIndex] = useState<number>(0);
@@ -61,6 +89,12 @@ function UserDashboard() {
   // afbeelding bron per product
   const [imgSrc, setImgSrc] = useState<string>(current.image);
   useEffect(() => { setImgSrc(current.image); }, [current]);
+
+  const upcoming = useMemo(() => {
+    const after = products.slice(productIndex + 1);
+    const before = products.slice(0, productIndex);
+    return [...after, ...before];
+  }, [products, productIndex]);
   const [isDark, setIsDark] = useState<boolean>(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('theme') : null;
     return saved === 'dark';
@@ -146,7 +180,7 @@ function UserDashboard() {
               />
               <Button
                 className="user-action-btn"
-                label="Actie 2"
+                label="Ander product"
                 onClick={() => {
                   setProductIndex((i) => (i + 1) % products.length);
                   // reset price/clock for new product
@@ -164,6 +198,28 @@ function UserDashboard() {
           {/* Right side badge/indicator */}
           <div className="user-card-aside" aria-hidden />
         </div>
+      </section>
+
+      {/* Upcoming queue under the clock */}
+      <section className="upcoming">
+        <h3 className="upcoming-title">Volgende producten</h3>
+        <ul className="upcoming-list">
+          {upcoming.map((p, i) => (
+            <li className="upcoming-item" key={i}>
+              <img
+                className="upcoming-thumb"
+                src={p.image}
+                alt={p.name}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/pictures/kweker.png'; }}
+              />
+              <div className="upcoming-info">
+                <div className="upcoming-name">{p.name}</div>
+                <div className="upcoming-meta">Aanvoerder: {p.supplier} · Lengte: {p.minStemLen} · Bos: {p.stemsPerBundle}</div>
+              </div>
+              <div className="upcoming-badge">{p.kwa}</div>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <footer className="user-footer">
@@ -202,7 +258,6 @@ function UserDashboard() {
 }
 
 export default UserDashboard;
-
 
 
 
