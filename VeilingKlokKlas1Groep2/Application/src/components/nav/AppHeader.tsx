@@ -1,7 +1,6 @@
 // External imports
 import React from 'react';
-import {Link} from "react-router-dom";
-
+ 
 // Internal imports
 import LanguagePicker from "../buttons/LanguagePicker";
 
