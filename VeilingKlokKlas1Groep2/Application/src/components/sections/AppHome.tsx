@@ -8,7 +8,7 @@ function AppHome() {
 	const navigate = useNavigate();
 	return (
 		<section id={'home'} className={'app-home'}>
-			<ButterflyParticles/>
+			<ButterflyParticles />
 			<div className={'app-home-ctn'}>
 				<div className={'app-home-row z-10'}>
 					<div className={'app-home-ex'}>
@@ -32,12 +32,13 @@ function AppHome() {
 					</div>
 				</div>
 				<div className={'app-home-row'}>
-					<img className={'app-home-img'} src={'/pictures/kweker.png'} alt={'kweker'}/>
+					<img className={'app-home-img'} src={'/pictures/kweker.png'} alt={'kweker'} />
 				</div>
 			</div>
-			<div className={'app-home-round-bt'}/>
+			<div className={'app-home-round-bt'} />
 		</section>
 	);
 }
 
 export default AppHome;
+

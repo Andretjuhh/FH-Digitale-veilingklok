@@ -1,10 +1,15 @@
 // External imports
 import React from 'react';
-import {Routes, Route, useLocation} from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 
 // Internal imports
 import RootContext from './contexts/RootContext';
-import Home from './pages/general/Home';
+
+import Home from "./pages/general/Home";
+import Login from "./pages/general/Login";
+import KlantDashboard from "./pages/KlantDashboard";
+import './styles/app.css';
+import './styles/components.header.css';
 import UserDashboard from './pages/user/UserDashboard';
 
 function App() {
@@ -13,7 +18,10 @@ function App() {
 	return (
 		<RootContext>
 			<Routes location={location} key={location.pathname}>
-				<Route path="/" element={<Home/>}/>
+
+				<Route path="/" element={<Home />} />
+				<Route path="/login" element={<Login />} />
+				<Route path="/KlantDashboard" element={<KlantDashboard />} />
 				<Route path="/user-dashboard" element={<UserDashboard/>}/>
 			</Routes>
 		</RootContext>
