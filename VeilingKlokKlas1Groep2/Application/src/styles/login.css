@@ -24,6 +24,33 @@ body,
 	max-width: 90%;
 }
 
+.login-form {
+	flex: 1; /* take remaining height */
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto; /* scroll only this section */
+	padding: 0 2rem 2rem; /* padding inside scrollable area */
+}
+
+/* Optional: custom scrollbar for Webkit browsers */
+.login-form::-webkit-scrollbar {
+	width: 6px;
+}
+
+.login-form::-webkit-scrollbar-thumb {
+	background-color: rgba(100, 116, 139, 0.5);
+	border-radius: 3px;
+}
+
+.login-form div {
+	display: flex;
+	flex-direction: column; /* Stack label above input */
+}
+
+.login-form label {
+	margin-bottom: 0.5rem; /* Add spacing between label and input */
+}
+
 .back-button {
 	position: absolute;
 	top: 15px;
