@@ -347,6 +347,7 @@
 	display: flex;
 	flex-direction: row;
 	padding: var(--side-pd) var(--side-pd);
+	gap: var(--side-pd);
 }
 
 .app-bloems-bdy-row {
@@ -359,13 +360,11 @@
 	justify-content: center;
 	align-items: center;
 	gap: var(--top-pd);
-	padding-right: calc(var(--side-pd) + 16vw) !important;
-}
-
-.app-bloems-counter-card {
+	/* padding-right: calc(var(--side-pd) + 16vw) !important; */
 }
 
 .app-bloems-cardswap-ctn {
+	min-width: 16vw;
 	flex: 1;
 	position: relative;
 	padding-top: 0;
@@ -380,6 +379,7 @@
 
 .app-bloems-card {
 	position: relative;
+
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
@@ -388,24 +388,35 @@
 	padding: var(--top-pd);
 	border: solid 6px theme(colors.zinc.50) !important;
 	border-bottom-width: 0 !important;
+	padding-bottom: 0 !important;
 	background-color: white !important;
 	overflow: hidden;
 	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.52), 0 4px 6px -2px rgba(0, 0, 0, 0.61);
 }
 
 .app-bloems-card-title {
+	flex: 1;
 	color: theme(colors.primary.main) !important;
-	font-size: var(--h3-size) !important;
+	font-size: var(--h5-size) !important;
 	font-weight: 700 !important;
 }
 
+.app-bloems-card-txt {
+	font-size: var(--span4-size);
+	width: 100%;
+	height: auto;
+	overflow: hidden;
+}
+
 .app-bloems-card-img {
-	width: auto;
-	height: 100%;
+	flex: 3;
+	width: 100%;
+	height: auto;
 	max-width: unset !important;
 
 	object-fit: cover;
 	filter: drop-shadow(0 -3mm 3mm theme(colors.zinc.400));
+	overflow: hidden;
 }
 
 /*#endregion */
@@ -465,22 +476,13 @@
 }
 
 .app-what-is-steps-ctn {
-	/*width: auto;*/
-	/*height: 50vh;*/
 	flex: 2 !important;
-	/*display: flex;*/
-	/*flex-direction: column;*/
-	/*flex-wrap: wrap;*/
-	/*justify-content: center;*/
-	/*align-items: center;*/
-	/*gap: var(--top-pd);*/
-	/*align-content: center;*/
 	width: auto;
-	height: 50vh;
+	/* height: 50vh; */
 	display: grid;
 	grid-template-rows: repeat(2, 1fr); /* Defines exactly 2 equal rows */
 	grid-auto-flow: column; /* Fills items vertically (2 rows) then wraps horizontally */
-	grid-template-columns: repeat(auto-fit, minmax(100px, 30%));
+	grid-template-columns: repeat(auto-fit, minmax(100px, 50%));
 	gap: var(--top-pd);
 	justify-content: center; /* Center the overall grid in the container */
 }
