@@ -2,6 +2,7 @@
 .user-dashboard { padding: var(--top-pd) var(--side-pd); }
 
 .user-hero { margin: calc(var(--header-size) + var(--top-pd)) 0 var(--top-pd); }
+.user-hero-head { display:flex; align-items:flex-end; justify-content:space-between; gap: 16px; }
 .user-hero-title { font-size: var(--h2-size); font-weight: 800; color: theme(colors.primary.main); }
 .user-hero-sub { font-size: var(--span1b-size); color: theme(colors.secondary.main); margin-top: 6px; }
 
@@ -16,13 +17,36 @@
   grid-template-columns: 1fr 1.4fr 80px;
   gap: var(--top-pd);
 }
+.user-card-mediaBlock { display: grid; gap: 10px; }
 .user-card-media {
   height: 260px; border-radius: 12px; background: #e5e7eb; border: 1px solid theme(colors.zinc.300);
-  width: 100%; object-fit: cover;
+  width: 100%; object-fit: contain;
 }
+.product-info { display: grid; gap: 8px; background: #e8f5e9; padding: 10px; border-radius: 10px; border: 1px solid #cde7ce; }
+.prod-row { display: grid; grid-template-columns: auto 1fr auto auto auto auto; gap: 8px; align-items: center; }
+.prod-label { font-size: 12px; color: #1f2937; opacity: .8; }
+.prod-val { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-weight: 700; min-width: 48px; text-align: center; }
+.prod-val--wide { text-align: left; min-width: 120px; }
 .user-card-center { display: grid; justify-items: center; align-content: start; gap: 12px; }
 .user-avatar { width: 140px; aspect-ratio: 1/1; border-radius: 50%; border: 4px solid theme(colors.zinc.300); background: #fff; display:grid; place-items:center; }
 .user-price { font-weight: 800; color: theme(colors.secondary.main); }
+
+/* Auction clock styling */
+.auction-clock { width: 100%; max-width: 360px; }
+.clock-svg { width: 100%; height: auto; display: block; }
+.clock-dot { fill: #e5e7eb; }
+.clock-dot--active { fill: theme(colors.primary.main); }
+.clock-num { font-size: 10px; fill: #475569; font-weight: 700; }
+.clock-label { font-size: 10px; fill: #475569; }
+.clock-value { font-size: 12px; fill: #111827; font-weight: 800; }
+.clock-box { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1; }
+.clock-bottom { font-size: 10px; fill: #475569; }
+
+.dark .clock-dot { fill: #374151; }
+.dark .clock-dot--active { fill: theme(colors.primary.200); }
+.dark .clock-num, .dark .clock-label, .dark .clock-bottom { fill: #d1d5db; }
+.dark .clock-value { fill: #f8fafc; }
+.dark .clock-box { fill: #111827; stroke: #374151; }
 .user-name { height: 14px; width: 60%; background: #d1d5db; border-radius: 999px; }
 .user-meta { height: 12px; width: 40%; background: #e5e7eb; border-radius: 999px; }
 .user-actions { display: grid; gap: 10px; width: 100%; margin-top: 8px; }
@@ -36,12 +60,29 @@
   display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--side-pd);
 }
 .user-footer-col { display: grid; gap: 10px; }
-.user-footer-title { height: 16px; width: 60%; background: #e5e7eb; border-radius: 6px; }
-.user-footer-line { height: 12px; width: 80%; background: #f1f5f9; border-radius: 6px; }
-.user-footer-list { display: grid; gap: 8px; }
-.user-footer-list span { display: block; height: 12px; width: 75%; background: #eef2f7; border-radius: 6px; }
+.user-footer-title { font-weight: 700; color: theme(colors.secondary.main); }
+.user-footer-line { color: #64748b; }
+.user-footer-list { display: grid; gap: 6px; }
+.user-footer-list a { color: #475569; text-decoration: none; }
+.user-footer-list a:hover { text-decoration: underline; }
 
 @media (max-width: 1024px) {
   .user-card { grid-template-columns: 1fr; }
   .user-card-aside { place-self: end; }
 }
+
+/* Dark mode adjustments */
+.dark .user-dashboard { color: theme(colors.zinc.100); }
+.dark .user-hero-title { color: theme(colors.primary.200); }
+.dark .user-hero-sub { color: theme(colors.zinc.200); }
+.dark .user-card { background: theme(colors.zinc.800); border-color: theme(colors.zinc.700); }
+.dark .user-card-media { background: theme(colors.zinc.700); }
+.dark .product-info { background: #064e3b; border-color: #065f46; }
+.dark .prod-label { color: #d1fae5; opacity: .9; }
+.dark .prod-val { background: #0b1220; border-color: #374151; color: #e5e7eb; }
+.dark .user-avatar { background: theme(colors.zinc.900); border-color: theme(colors.zinc.600); }
+.dark .user-price { color: theme(colors.primary.200); }
+.dark .user-footer { border-color: theme(colors.zinc.700); }
+.dark .user-footer-title { color: theme(colors.primary.200); }
+.dark .user-footer-line { color: theme(colors.zinc.300); }
+.dark .user-footer-list a { color: theme(colors.zinc.200); }
