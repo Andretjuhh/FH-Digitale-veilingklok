@@ -1,5 +1,5 @@
 // External imports
-import i18n, {TFunction} from "i18next";
+import {TFunction} from "i18next";
 import {NavigateFunction} from "react-router-dom";
 
 // Internal imports

@@ -65,6 +65,7 @@
     position: relative;
     padding-top: var(--header-size);
     padding-bottom: var(--header-size);
+    z-index: 0;
 }
 
 .app-home-ctn {
@@ -245,8 +246,132 @@
 
     background-color: theme(colors.secondary.800);
     box-shadow: 17px 10px 24px 3px theme(colors.primary.600), 20px -40px 44px 8px white;
-    border-radius: 99999px 0 0 0;
+    border-radius: 6vw 0 0 0;
     z-index: 1;
 }
+
+/*#endregion */
+
+/*#region Bloems */
+.app-bloems {
+    width: 100%;
+    height: auto;
+    min-height: 50vh;
+
+    display: flex;
+    position: relative;
+    padding-left: var(--side-pd);
+    z-index: 2;
+}
+
+.app-bloems-ctn {
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    padding: 0 var(--side-pd);
+    background-color: theme(colors.secondary.800);
+    border-radius: 0 0 4vw 4vw;
+}
+
+.app-bloems-hd {
+    width: 40%;
+    height: auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    margin-top: calc(var(--top-pd) * -1);
+}
+
+.app-bloems-hd-title {
+    color: white;
+    font-size: var(--h1-size);
+    font-weight: 800;
+}
+
+.app-bloems-hd-description {
+    color: theme(colors.primary.200);
+    font-size: var(--span1b-size);
+    font-weight: 500;
+    text-align: center;
+    margin-top: var(--span3-size);
+}
+
+.app-bloems-bdy {
+    width: 100%;
+    height: auto;
+
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+}
+
+.app-bloems-bdy-row {
+    width: auto;
+    height: 100%;
+
+    flex: 2;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: var(--top-pd);
+}
+
+.app-bloems-counter-card {
+
+}
+
+.app-bloems-cardswap-ctn {
+    flex: 1;
+    position: relative;
+    padding-top: 0%;
+}
+
+.app-bloems-cardswap-ctn > .card-swapper {
+    right: 30% !important;
+    top: 0 !important;
+    transform: translateY(0%) !important;
+}
+
+.app-bloems-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    padding: var(--top-pd);
+    border: solid 6px theme(colors.zinc.50) !important;
+    border-bottom-width: 0 !important;
+    background-color: white !important;
+    overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.52), 0 4px 6px -2px rgba(0, 0, 0, 0.61);
+}
+
+.app-bloems-card-title {
+    color: theme(colors.primary.main) !important;
+    font-size: var(--h3-size) !important;
+    font-weight: 700 !important;
+}
+
+.app-bloems-card-img {
+    width: auto;
+    height: 100%;
+    max-width: unset !important;
+
+    object-fit: cover;
+    filter: drop-shadow(0 -3mm 3mm theme(colors.zinc.400));
+
+}
+
 
 /*#endregion */

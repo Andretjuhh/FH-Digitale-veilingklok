@@ -7,6 +7,7 @@ export const resources = {
 			what_is_flori_clock: "Wat is FloriClock?",
 			how_it_works: "Hoe werkt het?",
 			flower_types: "Bloemsoorten",
+			flower_types_description: "Ontdek een breed scala aan bloemsoorten die beschikbaar zijn op ons platform. Van rozen tot tulpen, vind precies wat je zoekt.",
 			services: 'Diensten',
 			contact_us: 'Contacteer ons',
 			welcome_title: 'Welkom bij FloriClock',
@@ -15,6 +16,13 @@ export const resources = {
 			welcome_cta_text: `Begin vandaag nog met het ontdekken van ons platform. Meld je aan of log in om toegang te krijgen tot onze diensten.`,
 			get_Started: 'Meld je aan',
 			login: 'Inloggen',
+
+			flowers: 'Bloemen',
+			growers: 'Kwekers',
+			transactions: 'Transacties',
+			flowers_description: 'Verschillende bloemsoorten',
+			growers_description: 'Groot aantal kwekers aangesloten',
+			transactions_description: 'Succesvolle transacties dagelijks',
 		},
 	},
 	en: {

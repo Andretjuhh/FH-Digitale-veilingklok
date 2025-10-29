@@ -78,6 +78,87 @@ img {
 
 /*#endregion */
 
+/*#region Elements Tiny Card */
+/* From Uiverse.io by Yaya12085 */
+.tiny-card {
+    padding: var(--span3-size) var(--span1-size);
+    background-color: #fff;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.52), 0 4px 6px -2px rgba(0, 0, 0, 0.61);
+    max-width: 20vw;
+    border-radius: 20px;
+}
+
+.tiny-card-hd {
+    display: flex;
+    align-items: center;
+}
+
+.tiny-card-hd span {
+    width: auto;
+    height: auto;
+
+    aspect-ratio: 1;
+    padding: var(--span3-size);
+
+    background-color: #10B981;
+    border-radius: 9999px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.tiny-card-hd i {
+    color: #ffffff;
+    font-size: var(--span1-size);
+}
+
+.tiny-card-title {
+    margin-left: var(--span3-size);
+    color: #374151;
+    font-size: var(--h5-size);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tiny-card-data {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    
+}
+
+.tiny-card-data-txt {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+
+    color: #1F2937;
+    font-size: var(--h1-size);
+    line-height: var(--h1-size);
+    font-weight: 700;
+    text-align: left;
+}
+
+.tiny-card-description {
+    color: theme(colors.secondary.main);
+    font-size: var(--span2-size);
+    font-weight: 500;
+    margin-top: 1rem;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+}
+
+
+/*#endregion */
+
 :root {
     --logo-size: 62px;
     --side-pd: 60px;
