@@ -195,32 +195,30 @@ function UserDashboard() {
             </div>
           </div>
 
-          {/* Right side badge/indicator */}
-          <div className="user-card-aside" aria-hidden />
+          {/* Right side: compacte wachtrij */}
+          <aside className="upcoming-side">
+            <h4 className="upcoming-side-title">Volgende</h4>
+            <ul className="upcoming-side-list">
+              {upcoming.map((p, i) => (
+                <li className="upcoming-side-item" key={i}>
+                  <img
+                    className="upcoming-side-thumb"
+                    src={p.image}
+                    alt={p.name}
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/pictures/kweker.png'; }}
+                  />
+                  <div className="upcoming-side-info">
+                    <div className="upcoming-side-name">{p.name}</div>
+                    <div className="upcoming-side-meta">{p.supplier} · {p.minStemLen} · bos {p.stemsPerBundle}</div>
+                  </div>
+                  <span className="upcoming-side-badge">{p.kwa}</span>
+                </li>
+              ))}
+            </ul>
+          </aside>
         </div>
       </section>
 
-      {/* Upcoming queue under the clock */}
-      <section className="upcoming">
-        <h3 className="upcoming-title">Volgende producten</h3>
-        <ul className="upcoming-list">
-          {upcoming.map((p, i) => (
-            <li className="upcoming-item" key={i}>
-              <img
-                className="upcoming-thumb"
-                src={p.image}
-                alt={p.name}
-                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/pictures/kweker.png'; }}
-              />
-              <div className="upcoming-info">
-                <div className="upcoming-name">{p.name}</div>
-                <div className="upcoming-meta">Aanvoerder: {p.supplier} · Lengte: {p.minStemLen} · Bos: {p.stemsPerBundle}</div>
-              </div>
-              <div className="upcoming-badge">{p.kwa}</div>
-            </li>
-          ))}
-        </ul>
-      </section>
 
       <footer className="user-footer">
         <div className="user-footer-col">
@@ -258,6 +256,5 @@ function UserDashboard() {
 }
 
 export default UserDashboard;
-
 
 

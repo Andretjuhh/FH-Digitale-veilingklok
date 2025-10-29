@@ -14,7 +14,7 @@
   padding: var(--top-pd);
   border: 1px solid theme(colors.zinc.200);
   display: grid;
-  grid-template-columns: 1fr 1.4fr 80px;
+  grid-template-columns: 1fr 1.4fr 0.9fr;
   gap: var(--top-pd);
 }
 .user-card-mediaBlock { display: grid; gap: 10px; }
@@ -101,3 +101,17 @@
 .dark .user-footer-title { color: theme(colors.primary.200); }
 .dark .user-footer-line { color: theme(colors.zinc.300); }
 .dark .user-footer-list a { color: theme(colors.zinc.200); }
+
+/* Right side compact queue */
+.upcoming-side { display:flex; flex-direction:column; gap:8px; align-self: stretch; overflow:auto; }
+.upcoming-side-title { font-weight:800; color: theme(colors.secondary.main); }
+.upcoming-side-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+.upcoming-side-item { display:grid; grid-template-columns: 40px 1fr auto; gap:8px; align-items:center; background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:6px 8px; }
+.upcoming-side-thumb { width:40px; height:32px; object-fit:cover; border-radius:6px; }
+.upcoming-side-name { font-weight:700; color:#111827; font-size:13px; }
+.upcoming-side-meta { color:#6b7280; font-size:11px; }
+.upcoming-side-badge { background: theme(colors.primary.main); color:#fff; font-weight:800; padding:3px 8px; border-radius:999px; font-size:11px; }
+.dark .upcoming-side-item { background: theme(colors.zinc.900); border-color: theme(colors.zinc.700); }
+.dark .upcoming-side-name { color:#f3f4f6; }
+.dark .upcoming-side-meta { color:#cbd5e1; }
+.dark .upcoming-side-badge { background: theme(colors.primary.200); color:#111827; }
