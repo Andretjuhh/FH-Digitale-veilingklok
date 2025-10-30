@@ -18,7 +18,7 @@ function AppHeader() {
 		const handleScroll = () => {
 			const scrollTop = window.scrollY;
 			// Animate the ripple over the first 200px of scrolling
-			const scrollFraction = Math.min(scrollTop / 200, 1);
+			const scrollFraction = Math.min(scrollTop / 100, 1);
 			setScrollScale(scrollFraction);
 			setIsFilled(scrollFraction === 1);
 		};
