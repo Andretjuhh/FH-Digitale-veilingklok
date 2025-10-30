@@ -47,11 +47,6 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("password");
 
-                    b.Property<string>("Regio")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("regio");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -211,6 +206,10 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("post_code");
 
+                    b.Property<string>("Regio")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("regio");
+
                     b.ToTable("Koper");
                 });
 
@@ -234,6 +233,11 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("name");
 
+                    b.Property<string>("Regio")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("regio");
+
                     b.Property<string>("Telephone")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -246,6 +250,12 @@ namespace VeilingKlokKlas1Groep2.Migrations
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.Veilingmeester", b =>
                 {
                     b.HasBaseType("VeilingKlokApp.Models.Domain.Account");
+
+                    b.Property<string>("Regio")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("regio");
 
                     b.Property<string>("SoortVeiling")
                         .IsRequired()
