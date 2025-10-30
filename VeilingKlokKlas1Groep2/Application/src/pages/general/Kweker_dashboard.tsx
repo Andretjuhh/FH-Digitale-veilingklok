@@ -106,7 +106,7 @@ export default function KwekerDashboard() {
                         <div className="product-grid">
                             {displayedProducts.map((p) => (
                                 <article key={p.id} className="product-card">
-                                    <div className="product-info">
+                                    <div className="product-info-kweker">
                                         <h3 className="product-title">{p.title}</h3>
                                         <p className="product-desc">{p.description}</p>
                                     </div>

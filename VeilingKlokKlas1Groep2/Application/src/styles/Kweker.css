@@ -9,15 +9,6 @@
     --header-height: 80px;
 }
 
-.app-header {
-    position: fixed;
-    height: var(--header-height);
-    display: flex;
-    align-items: center;
-    background: #fff;
-    z-index: 1100;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
-}
 
 .kweker-container {
     max-width: 1300px;
@@ -129,7 +120,7 @@
 }
 
 /* Product card layout */
-.product-info {
+.product-info-kweker {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
