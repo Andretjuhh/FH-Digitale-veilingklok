@@ -1,5 +1,5 @@
 import React from 'react';
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/login.css'; // make sure this path is correct!
 
 function Login() {
@@ -18,12 +18,12 @@ function Login() {
 
 				<form className="login-form">
 					<label>Email</label>
-					<input type="email" placeholder="you@example.com" className="input-field"/>
+					<input type="email" placeholder="you@example.com" className="input-field" />
 
 					<label>Password</label>
-					<input type="password" placeholder="••••••••" className="input-field"/>
+					<input type="password" placeholder="••••••••" className="input-field" />
 
-					<button type="submit" className="btn-primary">
+					<button type="submit" className="btn-primary" onClick={() => navigate('/user-dashboard')}>
 						Log In
 					</button>
 
