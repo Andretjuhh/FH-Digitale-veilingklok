@@ -7,19 +7,21 @@ import useRoot from "../hooks/useRoot";
 type RootContextProps = {
 	initialized: boolean;
 	loggedIn: boolean;
+	setLoggedIn: (b: boolean) => void;
 }
 
 const RootContext = React.createContext<RootContextProps>({
 	initialized: false,
 	loggedIn: false,
+	setLoggedIn: () => {
+	}
 });
 
 function RootContextProvider({children}: { children: React.ReactNode }) {
-	const {loggedIn, initialized} = useRoot();
-
+	const rootData = useRoot();
 	return (
-		<RootContext.Provider value={{loggedIn, initialized}}>
-			{initialized && children}
+		<RootContext.Provider value={rootData}>
+			{rootData.initialized && children}
 		</RootContext.Provider>
 	);
 }

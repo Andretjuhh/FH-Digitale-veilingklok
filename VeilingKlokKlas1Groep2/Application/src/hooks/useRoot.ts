@@ -23,6 +23,8 @@ function useRoot() {
 
 	// Initialize Application & Global application functions
 	useEffect(() => {
+		console.log('Initializing application...');
+		
 		// Initialize Application
 		initializeApp({t, navigate, changeLanguage}).then(() => {
 			setInitialized(true);
@@ -33,7 +35,7 @@ function useRoot() {
 		i18n.changeLanguage(window.application.languageCode).then(null);
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [i18n]);
+	}, []);
 
 	// Function to switch application language
 	const changeLanguage = useCallback((code: SupportedLanguages) => {
@@ -45,6 +47,10 @@ function useRoot() {
 	return {
 		initialized,
 		loggedIn,
+		setLoggedIn: (b: boolean) => {
+			console.log('Setting loggedIn to', b);
+			setLoggedIn(b);
+		},
 	}
 }
 
