@@ -1,5 +1,4 @@
-﻿// File: `Application/src/pages/general/Kweker_dashboard.tsx`
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import AppHeader from '../../components/nav/AppHeader';
 import Button from '../../components/buttons/Button';
 import '../../styles/Kweker.css';
@@ -118,9 +117,11 @@ export default function KwekerDashboard() {
                             ))}
                         </div>
                         <div className="content-footer">
-                            <Button className="toevoegen-knop" label={"Voeg nieuw product toe"} onClick={() => { /* open submit form */ }}>
-                                Toevoegen
-                            </Button>
+                            {activeTab === 'my' && (
+                                <Button className="toevoegen-knop" label={"Voeg nieuw product toe"} onClick={() => { /* open submit form */ }}>
+                                    Toevoegen
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </section>
