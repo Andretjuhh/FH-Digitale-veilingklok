@@ -4,11 +4,12 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 
 // Internal imports
 import RootContext from './contexts/RootContext';
-
 import Home from './pages/general/Home';
-import Register from './pages/general/Register';
 import Login from './pages/general/Login';
-import KlantDashboard from './pages/KlantDashboard';
+import Register from './pages/general/Register';
+import KwekerDashboard from './pages/general/Kweker_dashboard';
+import KlantDashboard from "./pages/KlantDashboard";
+
 import './styles/app.css';
 import UserDashboard from './pages/user/UserDashboard';
 
@@ -22,7 +23,8 @@ function App() {
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
 				<Route path="/KlantDashboard" element={<KlantDashboard />} />
-				<Route path="/user-dashboard" element={<UserDashboard />} />
+				<Route path="/user-dashboard" element={<UserDashboard/>}/>
+                <Route path="/kweker" element={<KwekerDashboard />} />
 			</Routes>
 		</RootContext>
 	);
