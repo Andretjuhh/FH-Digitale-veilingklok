@@ -56,15 +56,11 @@ const PLANNING_COMPLETED = [
 
 function Dashboard() {
 	return (
-		/* Dashboard bestaat uit een paar simpele blokken met dummy info */
 		<Page enableHeader className="dashboard-page">
-			{/* Intro met call-to-actions */}
 			<DashboardIntro onCreateAuction={() => window.alert('Nieuwe dummy veiling aangemaakt')} />
 
-			{/* Kleine kaartjes met nepstatistieken */}
 			<DashboardSnapshot items={SNAPSHOT_ITEMS} />
 
-			{/* Planning verdeeld in drie kolommen */}
 			<DashboardPlanning upcoming={PLANNING_UPCOMING} checklist={PLANNING_CHECKLIST} completed={PLANNING_COMPLETED} />
 
 			<AppFooter />
