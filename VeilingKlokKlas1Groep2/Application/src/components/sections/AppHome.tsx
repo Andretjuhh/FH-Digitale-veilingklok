@@ -17,7 +17,7 @@ function AppHome() {
 						<div className={'app-home-cta'}>
 							<span className={'app-home-cta-text'}>{window.application.t('welcome_cta_text')}</span>
 							<div className={'app-home-cta-btns'}>
-								<Button className={'app-home-p-btn'} label={window.application.t('get_Started')} icon={'bi-person-plus-fill'} />
+								<Button className={'app-home-p-btn'} label={window.application.t('get_Started')} icon={'bi-person-plus-fill'} onClick={() => navigate('/register')} />
 								<Button className={'app-home-s-btn'} label={window.application.t('login')} onClick={() => navigate('/login')} />
 							</div>
 						</div>
