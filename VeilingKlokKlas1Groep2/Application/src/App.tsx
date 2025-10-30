@@ -24,6 +24,7 @@ function App() {
                 <Route path="/kweker" element={<KwekerDashboard />} />
 				<Route path="/KlantDashboard" element={<KlantDashboard />} />
 				<Route path="/user-dashboard" element={<UserDashboard/>}/>
+                <Route path="/kweker" element={<KwekerDashboard />} />
 			</Routes>
 		</RootContext>
 	);

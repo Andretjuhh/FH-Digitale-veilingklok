@@ -120,7 +120,6 @@
 }
 
 /* Product card layout */
-.product-info-kweker {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
