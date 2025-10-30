@@ -603,7 +603,6 @@
 
 /*#endregion */
 
-
 /*#region Dashboard */
 .dashboard-page {
     width: 100%;
@@ -888,7 +887,6 @@
     text-transform: uppercase;
     letter-spacing: 0.18em;
     background: rgba(255, 255, 255, 0.8);
-    background-color: theme(colors.secondary.400);
 }
 
 .dashboard-badge.status-klaar {
