@@ -1,4 +1,4 @@
-# 🛠️ Database Setup for Auction Clock System (Veiling Klok DB)
+# 🛠️ Database Setup for Auction Clock System (Veiling Klok DB )
 
 This guide outlines the steps to set up the **`VeilingKlokDB`** (Auction Clock Database) in SQL Server using SQL Server Management Studio (SSMS).
 
