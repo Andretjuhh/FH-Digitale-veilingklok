@@ -1,10 +1,11 @@
 // External imports
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../buttons/Button';
-import ButterflyParticles from '../../particles/ButterflyParticles';
+import Button from "../buttons/Button";
+import ButterflyParticles from "../../particles/ButterflyParticles";
 
 function AppHome() {
+	
 	const navigate = useNavigate();
 	return (
 		<section id={'home'} className={'app-home'}>
@@ -17,8 +18,16 @@ function AppHome() {
 						<div className={'app-home-cta'}>
 							<span className={'app-home-cta-text'}>{window.application.t('welcome_cta_text')}</span>
 							<div className={'app-home-cta-btns'}>
-								<Button className={'app-home-p-btn'} label={window.application.t('get_Started')} icon={'bi-person-plus-fill'} onClick={() => navigate('/register')} />
-								<Button className="app-home-s-btn" label={window.application.t('login')} icon="bi-box-arrow-in-right" onClick={() => navigate('/login')} />
+								<Button
+									className={'app-home-p-btn'}
+									label={window.application.t('get_Started')}
+									icon={'bi-person-plus-fill'}
+								/>
+								<Button
+									className={'app-home-s-btn'}
+									label={window.application.t('login')}
+									onClick={() => navigate('/user-dashboard')}
+								/>
 							</div>
 						</div>
 					</div>
@@ -33,3 +42,4 @@ function AppHome() {
 }
 
 export default AppHome;
+

@@ -75,6 +75,7 @@ function Register() {
 		alert('Account created successfully!');
 	};
 
+
 	return (
 		<div className="app-page register-page">
 			<div className="register-card">
