@@ -45,6 +45,7 @@ function useRoot() {
 	return {
 		initialized,
 		loggedIn,
+		setLoggedIn,
 	}
 }
 

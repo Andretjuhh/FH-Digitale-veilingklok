@@ -37,7 +37,7 @@ function AppHeader() {
 			<nav className="header-nav">
 				<ul className={'nav-menu'}>
 					{
-						loggedIn ?
+						!loggedIn ?
 							<>
 								<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
 									{window.application.t('what_is_flori_clock')}
