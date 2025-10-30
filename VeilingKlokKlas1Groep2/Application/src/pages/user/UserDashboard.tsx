@@ -109,8 +109,8 @@ function UserDashboard() {
   const [stock, setStock] = useState<number[]>(initialStock);
   const currentStock = stock[productIndex] ?? 0;
   const [qty, setQty] = useState<number>(1);
-  const decQty = () => setQty(q => Math.max(1, q - 1));
-  const incQty = () => setQty(q => Math.min(999, q + 1));
+  const decQty = () => setQty(q => Math.max(0, q - 1));
+  const incQty = () => setQty(q => Math.min(999, q + 5));
 
   // prijs wordt gestuurd door de klok (onTick)
 
@@ -178,18 +178,24 @@ function UserDashboard() {
 
             <div className="user-actions">
               <div className="buy-controls">
-                {/* <Button className={'qty-icon-btn'} icon={'bi-dash'} onClick={decQty} disabled={qty <= 1} /> */}
-                {/* <div className="qty-val">{qty}</div> */}
-                {/* <Button className={'qty-icon-btn'} icon={'bi-plus'} onClick={incQty} /> */}
                 <Button
-                  className="user-action-btn !bg-primary-main"
-                  label="Koop product"
+                  className={'qty-icon-btn btn-outline'}
+                  label="-5"
+                  aria-label="Verlaag aantal met 5"
+                  title="-5"
+                  onClick={decQty}
+                  disabled={qty <= 1}
+                />
+                <Button
+                  className="user-action-btn !bg-primary-main buy-full"
+                  label={`Koop product (${qty})`}
                   onClick={() => {
+                    const cur = stock[productIndex] ?? 0;
+                    const delta = Math.min(qty, cur);
+                    const nextVal = Math.max(0, cur - delta);
                     setStock(prev => {
                       const arr = [...prev];
-                      const cur = arr[productIndex] ?? 0;
-                      const delta = Math.min(qty, cur);
-                      arr[productIndex] = Math.max(0, cur - delta);
+                      arr[productIndex] = nextVal;
                       return arr;
                     });
                     setPaused(true);
@@ -197,28 +203,21 @@ function UserDashboard() {
                       setResetToken((v) => v + 1);
                       setPrice(0.65);
                       setPaused(false);
-                      const newCur = Math.max(0, (stock[productIndex] ?? 0) - qty);
-                      if (newCur === 0) {
+                      if (nextVal === 0) {
                         setProductIndex((i) => (i + 1) % products.length);
                       }
                     }, 500);
                   }}
                 />
+                <Button
+                  className={'qty-icon-btn btn-outline'}
+                  label="+5"
+                  aria-label="Verhoog aantal met 5"
+                  title="+5"
+                  onClick={incQty}
+                />
               </div>
-              <Button
-                className="user-action-btn"
-                label="Ander product"
-                onClick={() => {
-                  setProductIndex((i) => (i + 1) % products.length);
-                  // reset price/clock for new product
-                  setPaused(true);
-                  setTimeout(() => {
-                    setResetToken((v) => v + 1);
-                    setPrice(0.65);
-                    setPaused(false);
-                  }, 300);
-                }}
-              />
+
             </div>
           </div>
 
@@ -283,4 +282,3 @@ function UserDashboard() {
 }
 
 export default UserDashboard;
-

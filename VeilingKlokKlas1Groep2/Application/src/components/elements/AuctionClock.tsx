@@ -107,26 +107,26 @@ export default function AuctionClock(props: ClockProps) {
         {/* Center panel */}
         <g className="clock-center" transform="translate(150,150)">
           {/* top row */}
-          <text x={-40} y={-55} className="clock-label" textAnchor="end">Ronde</text>
+          <text x={-5} y={-75} className="clock-label" textAnchor="end">Ronde</text>
           <rect x={-35} y={-70} width={30} height={22} rx={4} className="clock-box" />
           <text x={-20} y={-55} className="clock-value" textAnchor="start">{round}</text>
 
-          <text x={20} y={-55} className="clock-label" textAnchor="end">Munt</text>
+          <text x={55} y={-75} className="clock-label" textAnchor="end">Munt</text>
           <rect x={25} y={-70} width={34} height={22} rx={4} className="clock-box" />
           <text x={42} y={-55} className="clock-value" textAnchor="middle">{coin}</text>
 
           {/* second row */}
-          <text x={-86} y={-15} className="clock-label" textAnchor="middle">Stw/GP</text>
+          <text x={-86} y={-35} className="clock-label" textAnchor="middle">Stw/GP</text>
           <rect x={-108} y={-30} width={44} height={22} rx={4} className="clock-box" />
 
-          <text x={-30} y={-15} className="clock-label" textAnchor="middle">Ehd/Stw/GP</text>
+          <text x={-30} y={-35} className="clock-label" textAnchor="middle">Ehd/Stw/GP</text>
           <rect x={-55} y={-30} width={50} height={22} rx={4} className="clock-box" />
 
-          <text x={32} y={-15} className="clock-label" textAnchor="middle">Tot. ehd</text>
+          <text x={32} y={-35} className="clock-label" textAnchor="middle">Tot. ehd</text>
           <rect x={8} y={-30} width={46} height={22} rx={4} className="clock-box" />
           <text x={31} y={-15} className="clock-value" textAnchor="middle">{totalLots}</text>
 
-          <text x={98} y={-15} className="clock-label" textAnchor="middle">Aant/ehd</text>
+          <text x={98} y={-35} className="clock-label" textAnchor="middle">Aant/ehd</text>
           <rect x={76} y={-30} width={46} height={22} rx={4} className="clock-box" />
           <text x={99} y={-15} className="clock-value" textAnchor="middle">{amountPerLot}</text>
 

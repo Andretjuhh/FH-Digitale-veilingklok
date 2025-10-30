@@ -13,6 +13,7 @@
   border-radius: 16px;
   padding: var(--top-pd);
   border: 1px solid theme(colors.zinc.200);
+  border: 1px solid theme(colors.zinc.200);
   display: grid;
   grid-template-columns: 1fr 1.4fr 0.9fr;
   gap: var(--top-pd);
@@ -53,8 +54,7 @@
 .user-actions { display: grid; gap: 10px; width: 100%; margin-top: 8px; }
 .user-action-btn { justify-content: center; }
 .user-card-aside { width: 48px; height: 48px; border-radius: 50%; background: #e5e7eb; place-self: start end; }
-.
-.buy-controls { display:flex; gap:10px; align-items:center; }
+.buy-controls { display:grid; grid-template-columns: 44px 1fr 44px; gap:12px; align-items:center; width:100%; }
 .qty-val { min-width:48px; text-align:center; font-weight:800; }
 
 .user-footer {
@@ -121,5 +121,16 @@
 .dark .upcoming-side-meta { color:#cbd5e1; }
 .dark .upcoming-side-badge { background: theme(colors.primary.200); color:#111827; }
 
-.qty-icon-btn { height:40px; min-width:40px; padding:0 10px; }
+.qty-icon-btn { height:36px; min-width:36px; padding:0; box-sizing: border-box; }
 .qty-icon-btn-icon { font-size: 18px; }
+
+/* outline style for +/- buttons */
+.btn-outline { background: transparent !important; border: 1.5px solid #111827 !important; }
+.btn-outline .base-btn-icon, .btn-outline .base-btn-txt { color: #111827 !important; }
+.dark .btn-outline { border-color: #e5e7eb !important; }
+.dark .btn-outline .base-btn-icon, .dark .btn-outline .base-btn-txt { color: #e5e7eb !important; }
+
+.buy-full { width: 100%; }
+.qty-blue { background: #93c5fd !important; }
+.qty-blue .base-btn-icon, .qty-blue .base-btn-txt { color: #0b1020 !important; }
+.dark .qty-blue { background: #60a5fa !important; }
