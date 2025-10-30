@@ -8,6 +8,8 @@ import Home from "./pages/general/Home";
 import Login from "./pages/general/Login";
 import Register from "./pages/general/Register";
 import Dashboard from "./pages/general/Dashboard";
+import UserDashboard from "./pages/user/UserDashboard";
+import KlantDashboard from "./pages/KlantDashboard";
 import "./styles/app.css";
 
 function App() {
@@ -20,6 +22,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/user-dashboard" element={<UserDashboard />} />
+        <Route path="/KlantDashboard" element={<KlantDashboard />} />
       </Routes>
     </RootContext>
   );
