@@ -12,7 +12,6 @@ import Register from "./pages/general/Register";
 import KwekerDashboard from "./pages/general/Kweker_dashboard";
 import Dashboard from "./pages/general/Dashboard";
 import UserDashboard from "./pages/user/UserDashboard";
-import "./styles/app.css";
 
 function App() {
   const location = useLocation();
