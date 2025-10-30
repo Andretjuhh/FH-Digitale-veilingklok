@@ -1,16 +1,18 @@
 // External imports
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
+import {useLocation, useNavigate} from "react-router-dom";
 
 // Internal imports
 import LanguagePicker from '../buttons/LanguagePicker';
 import clsx from 'clsx';
-import useRoot from "../../hooks/useRoot";
+import Button from "../buttons/Button";
 
 function AppHeader() {
-	const {loggedIn} = useRoot();
+	let location = useLocation();
+	const navigate = useNavigate();
+
 	const [scrollScale, setScrollScale] = useState(0);
 	const [isFilled, setIsFilled] = useState(false);
-
 
 	useEffect(() => {
 		const handleScroll = () => {
@@ -28,6 +30,12 @@ function AppHeader() {
 		};
 	}, []);
 
+	const handleLogout = useCallback(() => {
+		navigate('/');
+	}, [])
+
+	console.log(location.pathname)
+
 	return (
 		<header className={clsx('app-header', isFilled && 'app-header-filled')} style={{'--scroll-scale': scrollScale} as React.CSSProperties}>
 			<div className={'header-logo'}>
@@ -37,7 +45,7 @@ function AppHeader() {
 			<nav className="header-nav">
 				<ul className={'nav-menu'}>
 					{
-						!loggedIn ?
+						['', '/'].includes(location.pathname) ?
 							<>
 								<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
 									{window.application.t('what_is_flori_clock')}
@@ -72,7 +80,12 @@ function AppHeader() {
 				</ul>
 			</nav>
 
-			<LanguagePicker/>
+			{
+				['', '/'].includes(location.pathname) ?
+					<LanguagePicker/>
+					:
+					<Button className={'app-home-s-btn app-header-logout'} label={window.application.t('logout')} onClick={handleLogout}/>
+			}
 		</header>
 	);
 }

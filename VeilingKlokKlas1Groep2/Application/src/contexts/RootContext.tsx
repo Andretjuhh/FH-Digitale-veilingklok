@@ -19,7 +19,6 @@ const RootContext = React.createContext<RootContextProps>({
 
 function RootContextProvider({children}: { children: React.ReactNode }) {
 	const rootData = useRoot();
-
 	return (
 		<RootContext.Provider value={rootData}>
 			{rootData.initialized && children}
