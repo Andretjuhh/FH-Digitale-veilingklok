@@ -15,13 +15,10 @@ function Register() {
 	const navigate = useNavigate();
 	const [userType, setUserType] = useState<UserType>('koper');
 	const [step, setStep] = useState(1);
-
-	// ✅ All form data stored here (controlled inputs)
 	const [formData, setFormData] = useState<Record<string, string>>({});
 
 	const regions = ['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Overijssel', 'Limburg', 'Friesland', 'Drenthe', 'Flevoland', 'Groningen', 'Zeeland'];
 
-	// Define steps for each user type
 	const steps: Record<UserType, InputField[][]> = {
 		koper: [
 			[
@@ -78,48 +75,64 @@ function Register() {
 	return (
 		<div className="app-page register-page">
 			<div className="register-card">
-				{/* Back Button */}
-				<button className="back-button" onClick={() => navigate('/')}>
+				<button className="back-button" onClick={() => navigate('/')} aria-label="Go back to homepage">
 					← Back
 				</button>
+
 				<div className="register-header">
 					<h2 className="register-title">Create Account</h2>
-					<p className="register-subtitle">
+					<p className="register-subtitle" aria-live="polite">
 						Step {step} of {totalSteps}
 					</p>
 				</div>
 
-				{/* Progress Bar */}
-				<div className="progress-bar">
+				<div
+					className="progress-bar"
+					role="progressbar"
+					aria-valuenow={step}
+					aria-valuemin={1}
+					aria-valuemax={totalSteps}
+					aria-label={`Registration progress: step ${step} of ${totalSteps}`}
+				>
 					<div className="progress-bar-fill" style={{ width: `${(step / totalSteps) * 100}%` }}></div>
 				</div>
 
-				{/* Tabs */}
-				<div className="register-tabs">
+				<div className="register-tabs" role="tablist" aria-label="Select user type">
 					{(['koper', 'kweker', 'veilingmeester'] as UserType[]).map((type) => (
 						<div
 							key={type}
 							className={`register-tab ${userType === type ? 'active' : ''}`}
 							onClick={() => {
 								setUserType(type);
-								setStep(1); // reset to first step when switching user type
+								setStep(1);
 							}}
+							role="tab"
+							aria-selected={userType === type}
+							tabIndex={0}
+							aria-label={`Register as ${type}`}
 						>
 							{type.charAt(0).toUpperCase() + type.slice(1)}
 						</div>
 					))}
 				</div>
 
-				{/* Form */}
 				<form className="register-form" onSubmit={handleSubmit}>
 					{currentFields.map((field, idx) => {
 						const key = `${userType}-${field.label}`;
+						const ariaLabel = `${field.label} for ${userType}`;
 
 						if (field.type === 'select') {
 							return (
 								<div key={idx}>
-									<label>{field.label}</label>
-									<select className="input-field" value={formData[key] || ''} onChange={(e) => handleInputChange(key, e.target.value)}>
+									<label htmlFor={key}>{field.label}</label>
+									<select
+										id={key}
+										className="input-field"
+										aria-label={ariaLabel}
+										aria-required="true"
+										value={formData[key] || ''}
+										onChange={(e) => handleInputChange(key, e.target.value)}
+									>
 										<option value="" disabled>
 											Select {field.label.toLowerCase()}
 										</option>
@@ -135,19 +148,21 @@ function Register() {
 
 						return (
 							<div key={idx}>
-								<label>{field.label}</label>
+								<label htmlFor={key}>{field.label}</label>
 								<input
+									id={key}
 									type={field.type}
 									placeholder={field.placeholder}
 									className="input-field"
 									value={formData[key] || ''}
 									onChange={(e) => handleInputChange(key, e.target.value)}
+									aria-label={ariaLabel}
+									aria-required="true"
 								/>
 							</div>
 						);
 					})}
 
-					{/* Step Buttons */}
 					<div className="form-buttons">
 						{step > 1 && (
 							<button
@@ -157,6 +172,7 @@ function Register() {
 									e.preventDefault();
 									setStep(step - 1);
 								}}
+								aria-label="Go back to previous step"
 							>
 								Back
 							</button>
@@ -170,17 +186,18 @@ function Register() {
 									e.preventDefault();
 									setStep(step + 1);
 								}}
+								aria-label="Go to next step"
 							>
 								Next
 							</button>
 						) : (
-							<button type="submit" className="btn-primary">
+							<button type="submit" className="btn-primary" aria-label="Submit registration form and create account">
 								Create Account
 							</button>
 						)}
 					</div>
 
-					<button type="button" className="login-link" onClick={() => navigate('/login')}>
+					<button type="button" className="login-link" onClick={() => navigate('/login')} aria-label="Go to login page instead">
 						Login instead?
 					</button>
 				</form>
