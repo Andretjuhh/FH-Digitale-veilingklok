@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import '../../styles/register.css';
 
 type UserType = 'koper' | 'kweker' | 'veilingmeester';
@@ -25,39 +25,39 @@ function Register() {
 	const steps: Record<UserType, InputField[][]> = {
 		koper: [
 			[
-				{ label: 'Email', type: 'email', placeholder: 'you@example.com' },
-				{ label: 'Password', type: 'password', placeholder: '••••••••' },
-				{ label: 'First Name', type: 'text', placeholder: 'Steve' },
-				{ label: 'Last Name', type: 'text', placeholder: 'Jobs' },
+				{label: 'Email', type: 'email', placeholder: 'you@example.com'},
+				{label: 'Password', type: 'password', placeholder: '••••••••'},
+				{label: 'First Name', type: 'text', placeholder: 'Steve'},
+				{label: 'Last Name', type: 'text', placeholder: 'Jobs'},
 			],
 			[
-				{ label: 'Address', type: 'text', placeholder: 'Street 123' },
-				{ label: 'Postcode', type: 'text', placeholder: '1234 AB' },
-				{ label: 'Region', type: 'select', options: regions },
+				{label: 'Address', type: 'text', placeholder: 'Street 123'},
+				{label: 'Postcode', type: 'text', placeholder: '1234 AB'},
+				{label: 'Region', type: 'select', options: regions},
 			],
 		],
 		kweker: [
 			[
-				{ label: 'Company Name', type: 'text', placeholder: 'Example BV' },
-				{ label: 'Email', type: 'email', placeholder: 'you@example.com' },
-				{ label: 'Password', type: 'password', placeholder: '••••••••' },
-				{ label: 'kvk Number', type: 'text', placeholder: '12345678' },
+				{label: 'Company Name', type: 'text', placeholder: 'Example BV'},
+				{label: 'Email', type: 'email', placeholder: 'you@example.com'},
+				{label: 'Password', type: 'password', placeholder: '••••••••'},
+				{label: 'kvk Number', type: 'text', placeholder: '12345678'},
 			],
 			[
-				{ label: 'Telephone Number', type: 'text', placeholder: '+31 6 12345678' },
-				{ label: 'Address', type: 'text', placeholder: 'Street 123' },
-				{ label: 'Postcode', type: 'text', placeholder: '1234 AB' },
-				{ label: 'Region', type: 'select', options: regions },
+				{label: 'Telephone Number', type: 'text', placeholder: '+31 6 12345678'},
+				{label: 'Address', type: 'text', placeholder: 'Street 123'},
+				{label: 'Postcode', type: 'text', placeholder: '1234 AB'},
+				{label: 'Region', type: 'select', options: regions},
 			],
 		],
 		veilingmeester: [
 			[
-				{ label: 'Email', type: 'email', placeholder: 'you@example.com' },
-				{ label: 'Password', type: 'password', placeholder: '••••••••' },
+				{label: 'Email', type: 'email', placeholder: 'you@example.com'},
+				{label: 'Password', type: 'password', placeholder: '••••••••'},
 			],
 			[
-				{ label: 'Region', type: 'select', options: regions },
-				{ label: 'Authorisation Code', type: 'text', placeholder: '123456' },
+				{label: 'Region', type: 'select', options: regions},
+				{label: 'Authorisation Code', type: 'text', placeholder: '123456'},
 			],
 		],
 	};
@@ -66,7 +66,7 @@ function Register() {
 	const currentFields = steps[userType][step - 1];
 
 	const handleInputChange = (key: string, value: string) => {
-		setFormData((prev) => ({ ...prev, [key]: value }));
+		setFormData((prev) => ({...prev, [key]: value}));
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -76,50 +76,34 @@ function Register() {
 	};
 
 	return (
-		<div className="register-page">
+		<div className="app-page register-page">
 			<div className="register-card">
 				{/* Back Button */}
-				<button className="back-button" aria-label="Go back to the previous page" onClick={() => navigate('/')}>
+				<button className="back-button" onClick={() => navigate('/')}>
 					← Back
 				</button>
-
 				<div className="register-header">
-					<h2 className="register-title" aria-label="Create your account">
-						Create Account
-					</h2>
-
-					{/* Step indicator with live updates */}
-					<p className="register-subtitle" aria-live="polite" aria-label={`You are on step ${step} of ${totalSteps}`}>
+					<h2 className="register-title">Create Account</h2>
+					<p className="register-subtitle">
 						Step {step} of {totalSteps}
 					</p>
 				</div>
 
 				{/* Progress Bar */}
-				<div
-					className="progress-bar"
-					role="progressbar"
-					aria-valuemin={0}
-					aria-valuemax={100}
-					aria-valuenow={(step / totalSteps) * 100}
-					aria-label={`Progress bar, ${Math.round((step / totalSteps) * 100)} percent complete`}
-				>
-					<div className="progress-bar-fill" style={{ width: `${(step / totalSteps) * 100}%` }}></div>
+				<div className="progress-bar">
+					<div className="progress-bar-fill" style={{width: `${(step / totalSteps) * 100}%`}}></div>
 				</div>
 
 				{/* Tabs */}
-				<div className="register-tabs" role="tablist" aria-label="Account type selection tabs">
+				<div className="register-tabs">
 					{(['koper', 'kweker', 'veilingmeester'] as UserType[]).map((type) => (
 						<div
 							key={type}
-							role="tab"
-							aria-selected={userType === type}
-							tabIndex={userType === type ? 0 : -1}
 							className={`register-tab ${userType === type ? 'active' : ''}`}
 							onClick={() => {
 								setUserType(type);
 								setStep(1); // reset to first step when switching user type
 							}}
-							aria-label={`Register as ${type}`}
 						>
 							{type.charAt(0).toUpperCase() + type.slice(1)}
 						</div>
@@ -127,26 +111,15 @@ function Register() {
 				</div>
 
 				{/* Form */}
-				<form className="register-form" onSubmit={handleSubmit} aria-label={`${userType} registration form`}>
+				<form className="register-form" onSubmit={handleSubmit}>
 					{currentFields.map((field, idx) => {
 						const key = `${userType}-${field.label}`;
-						const id = `${key.replace(/\s+/g, '-').toLowerCase()}-${idx}`;
-						const ariaLabel = `${field.label}, step ${step} of ${totalSteps}`;
 
 						if (field.type === 'select') {
 							return (
 								<div key={idx}>
-									<label htmlFor={id} className="sr-only">
-										{field.label}
-									</label>
-									<select
-										id={id}
-										className="input-field"
-										value={formData[key] || ''}
-										onChange={(e) => handleInputChange(key, e.target.value)}
-										aria-label={ariaLabel}
-										aria-required="true"
-									>
+									<label>{field.label}</label>
+									<select className="input-field" value={formData[key] || ''} onChange={(e) => handleInputChange(key, e.target.value)}>
 										<option value="" disabled>
 											Select {field.label.toLowerCase()}
 										</option>
@@ -162,18 +135,13 @@ function Register() {
 
 						return (
 							<div key={idx}>
-								<label htmlFor={id} className="sr-only">
-									{field.label}
-								</label>
+								<label>{field.label}</label>
 								<input
-									id={id}
 									type={field.type}
 									placeholder={field.placeholder}
 									className="input-field"
 									value={formData[key] || ''}
 									onChange={(e) => handleInputChange(key, e.target.value)}
-									aria-label={ariaLabel}
-									aria-required="true"
 								/>
 							</div>
 						);
@@ -189,7 +157,6 @@ function Register() {
 									e.preventDefault();
 									setStep(step - 1);
 								}}
-								aria-label="Go back to the previous step"
 							>
 								Back
 							</button>
@@ -203,18 +170,17 @@ function Register() {
 									e.preventDefault();
 									setStep(step + 1);
 								}}
-								aria-label="Proceed to the next step"
 							>
 								Next
 							</button>
 						) : (
-							<button type="submit" className="btn-primary" aria-label="Submit the registration form and create your account">
+							<button type="submit" className="btn-primary">
 								Create Account
 							</button>
 						)}
 					</div>
 
-					<button type="button" className="login-link" onClick={() => navigate('/login')} aria-label="Go to login page">
+					<button type="button" className="login-link" onClick={() => navigate('/login')}>
 						Login instead?
 					</button>
 				</form>
