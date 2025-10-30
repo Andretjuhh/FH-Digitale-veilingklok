@@ -1,6 +1,6 @@
 // External imports
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import Button from '../buttons/Button';
 import ButterflyParticles from '../../particles/ButterflyParticles';
 
@@ -8,7 +8,7 @@ function AppHome() {
 	const navigate = useNavigate();
 	return (
 		<section id={'home'} className={'app-home'}>
-			<ButterflyParticles />
+			<ButterflyParticles/>
 			<div className={'app-home-ctn'}>
 				<div className={'app-home-row z-10'}>
 					<div className={'app-home-ex'}>
@@ -17,17 +17,18 @@ function AppHome() {
 						<div className={'app-home-cta'}>
 							<span className={'app-home-cta-text'}>{window.application.t('welcome_cta_text')}</span>
 							<div className={'app-home-cta-btns'}>
-								<Button className={'app-home-p-btn'} label={window.application.t('get_Started')} icon={'bi-person-plus-fill'} onClick={() => navigate('/register')} />
-								<Button className="app-home-s-btn" label={window.application.t('login')} icon="bi-box-arrow-in-right" onClick={() => navigate('/login')} />
+								<Button className={'app-home-p-btn'} label={window.application.t('get_Started')} icon={'bi-person-plus-fill'}
+								        onClick={() => navigate('/register')}/>
+								<Button className="app-home-s-btn" label={window.application.t('login')} onClick={() => navigate('/login')}/>
 							</div>
 						</div>
 					</div>
 				</div>
 				<div className={'app-home-row'}>
-					<img className={'app-home-img'} src={'/pictures/kweker.png'} alt={'kweker'} />
+					<img className={'app-home-img'} src={'/pictures/kweker.png'} alt={'kweker'}/>
 				</div>
 			</div>
-			<div className={'app-home-round-bt'} />
+			<div className={'app-home-round-bt'}/>
 		</section>
 	);
 }
