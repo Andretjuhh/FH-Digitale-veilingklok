@@ -7,7 +7,7 @@ import RootContext from "./contexts/RootContext";
 import Home from "./pages/general/Home";
 import Login from "./pages/general/Login";
 import Register from "./pages/general/Register";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/general/Dashboard";
 import "./styles/app.css";
 
 function App() {
