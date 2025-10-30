@@ -36,6 +36,12 @@ export const resources = {
 			veilingklok: 'Veilingklok',
 			what_is_veilingklok: 'Een geavanceerd systeem dat de tijd en volgorde van biedingen regelt tijdens veilingen',
 
+			dashboard: 'Dashboard',
+			manage_account: 'Account beheren',
+			settings: 'Instellingen',
+			orders: 'Orders',
+			logout: 'Uitloggen',
+
 		},
 	},
 	en: {

@@ -1,13 +1,16 @@
 // External imports
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 
 // Internal imports
 import LanguagePicker from '../buttons/LanguagePicker';
 import clsx from 'clsx';
+import useRoot from "../../hooks/useRoot";
 
 function AppHeader() {
+	const {loggedIn} = useRoot();
 	const [scrollScale, setScrollScale] = useState(0);
 	const [isFilled, setIsFilled] = useState(false);
+
 
 	useEffect(() => {
 		const handleScroll = () => {
@@ -26,29 +29,50 @@ function AppHeader() {
 	}, []);
 
 	return (
-		<header className={clsx('app-header', isFilled && 'app-header-filled')} style={{ '--scroll-scale': scrollScale } as React.CSSProperties}>
+		<header className={clsx('app-header', isFilled && 'app-header-filled')} style={{'--scroll-scale': scrollScale} as React.CSSProperties}>
 			<div className={'header-logo'}>
-				<img className={'header-logo-img'} src={'/svg/logo-floriclock.svg'} alt={'FloriClock'} />
+				<img className={'header-logo-img'} src={'/svg/logo-floriclock.svg'} alt={'FloriClock'}/>
 			</div>
 
 			<nav className="header-nav">
 				<ul className={'nav-menu'}>
-					<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
-						{window.application.t('what_is_flori_clock')}
-					</a>
-					<a className={'nav-menu-anchor'} href={'#soort-bloemen'}>
-						{window.application.t('flower_types')}
-					</a>
-					<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
-						{window.application.t('how_it_works')}
-					</a>
-					<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
-						{window.application.t('contact_us')}
-					</a>
+					{
+						loggedIn ?
+							<>
+								<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
+									{window.application.t('what_is_flori_clock')}
+								</a>
+								<a className={'nav-menu-anchor'} href={'#soort-bloemen'}>
+									{window.application.t('flower_types')}
+								</a>
+								<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
+									{window.application.t('how_it_works')}
+								</a>
+								<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
+									{window.application.t('contact_us')}
+								</a>
+							</>
+							:
+							<>
+								<a className={'nav-menu-anchor'} href={'#'}>
+									{window.application.t('dashboard')}
+								</a>
+								<a className={'nav-menu-anchor'} href={'#'}>
+									{window.application.t('orders')}
+								</a>
+								<a className={'nav-menu-anchor'} href={'#'}>
+									{window.application.t('manage_account')}
+								</a>
+								<a className={'nav-menu-anchor'} href={'#'}>
+									{window.application.t('settings')}
+								</a>
+							</>
+					}
+
 				</ul>
 			</nav>
 
-			<LanguagePicker />
+			<LanguagePicker/>
 		</header>
 	);
 }
