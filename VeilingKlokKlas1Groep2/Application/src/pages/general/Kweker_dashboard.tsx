@@ -1,5 +1,6 @@
 ﻿import React, { useState } from 'react';
 import AppHeader from '../../components/nav/AppHeader';
+import AppFooter from "../../components/sections/AppFooter";
 import Button from '../../components/buttons/Button';
 import '../../styles/Kweker.css';
 
@@ -126,6 +127,7 @@ export default function KwekerDashboard() {
                     </div>
                 </section>
             </main>
+            <AppFooter />
         </div>
     );
 }
