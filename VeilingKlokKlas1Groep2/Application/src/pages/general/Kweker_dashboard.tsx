@@ -31,7 +31,7 @@ const sampleProducts: Product[] = [
     { id: '4', title: 'Product 4', description: 'Beschrijving van product 4', price: 34.75 },
     { id: '5', title: 'Product 5', description: 'Beschrijving van product 5', price: 9.99 },
     { id: '6', title: 'Product 6', description: 'Beschrijving van product 6', price: 49.00 },
-    { id: '6', title: 'Product 7', description: 'Beschrijving van product 7', price: 22.00 },
+    { id: '7', title: 'Product 7', description: 'Beschrijving van product 7', price: 22.00 },
 ];
 
 const sampleHistory: Product[] = [
