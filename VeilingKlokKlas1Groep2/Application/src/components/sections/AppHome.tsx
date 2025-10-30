@@ -27,6 +27,8 @@ function AppHome() {
 									className={'app-home-s-btn'}
 									label={window.application.t('login')}
 									onClick={() => navigate('/user-dashboard')}
+									//adakom
+
 								/>
 							</div>
 						</div>
