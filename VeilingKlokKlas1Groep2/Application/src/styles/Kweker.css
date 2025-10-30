@@ -48,13 +48,13 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-}
-.stat-label {
-    font-size: 15px; 
+}   
+.kweker-stat-label {
+    font-size: 18px; 
 }
 
 /*Kweker stats*/
-.stat-value {
+.kweker-stat-value {
     font-weight: 700;
     font-size: 20px;
     color: var(--accent);
@@ -143,7 +143,7 @@
 }
 
 .product-price {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 20px;
     display: flex;
     min-height: 10px;
