@@ -17,6 +17,9 @@ function Register() {
 	const [step, setStep] = useState(1);
 	const [formData, setFormData] = useState<Record<string, string>>({});
 
+	// ... (rest of your component logic remains the same)
+	// ... (regions array, steps object, totalSteps, currentFields, handleInputChange are unchanged)
+
 	const regions = ['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Overijssel', 'Limburg', 'Friesland', 'Drenthe', 'Flevoland', 'Groningen', 'Zeeland'];
 
 	const steps: Record<UserType, InputField[][]> = {
@@ -66,14 +69,48 @@ function Register() {
 		setFormData((prev) => ({ ...prev, [key]: value }));
 	};
 
+	//
+	// 👇 MODIFIED handleSubmit FUNCTION
+	//
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
+
+		// 1. Log the final data
 		console.log('Final submitted data:', formData);
-		alert('Account created successfully!');
+
+		// 2. Ideally, send the data to a server for account creation...
+		//    (You would put your API call here)
+
+		// 3. Define the destination route based on the selected userType
+		let destination = '/'; // Fallback to homepage
+
+		switch (userType) {
+			case 'koper':
+				destination = '/user-dashboard';
+				break;
+			case 'kweker':
+				destination = '/'; // Replace with actual kweker dashboard route
+				break;
+			case 'veilingmeester':
+				destination = '/'; // Replace with actual veilingmeester dashboard route
+				break;
+			default:
+				break;
+		}
+
+		// 4. Show success message (optional, replace with proper notification/state management)
+		alert(`Account created successfully as ${userType}! Redirecting...`);
+
+		// 5. Navigate to the appropriate dashboard
+		navigate(destination);
 	};
+	//
+	// 👆 END MODIFIED handleSubmit FUNCTION
+	//
 
 	return (
 		<div className="app-page register-page">
+			{/* ... (rest of your return JSX remains the same) */}
 			<div className="register-card">
 				<button className="back-button" onClick={() => navigate('/')} aria-label="Go back to homepage">
 					← Back
