@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import '../../styles/register.css';
 
 type UserType = 'koper' | 'kweker' | 'veilingmeester';
@@ -25,39 +25,39 @@ function Register() {
 	const steps: Record<UserType, InputField[][]> = {
 		koper: [
 			[
-				{ label: 'Email', type: 'email', placeholder: 'you@example.com' },
-				{ label: 'Password', type: 'password', placeholder: '••••••••' },
-				{ label: 'First Name', type: 'text', placeholder: 'Steve' },
-				{ label: 'Last Name', type: 'text', placeholder: 'Jobs' },
+				{label: 'Email', type: 'email', placeholder: 'you@example.com'},
+				{label: 'Password', type: 'password', placeholder: '••••••••'},
+				{label: 'First Name', type: 'text', placeholder: 'Steve'},
+				{label: 'Last Name', type: 'text', placeholder: 'Jobs'},
 			],
 			[
-				{ label: 'Address', type: 'text', placeholder: 'Street 123' },
-				{ label: 'Postcode', type: 'text', placeholder: '1234 AB' },
-				{ label: 'Region', type: 'select', options: regions },
+				{label: 'Address', type: 'text', placeholder: 'Street 123'},
+				{label: 'Postcode', type: 'text', placeholder: '1234 AB'},
+				{label: 'Region', type: 'select', options: regions},
 			],
 		],
 		kweker: [
 			[
-				{ label: 'Company Name', type: 'text', placeholder: 'Example BV' },
-				{ label: 'Email', type: 'email', placeholder: 'you@example.com' },
-				{ label: 'Password', type: 'password', placeholder: '••••••••' },
-				{ label: 'kvk Number', type: 'text', placeholder: '12345678' },
+				{label: 'Company Name', type: 'text', placeholder: 'Example BV'},
+				{label: 'Email', type: 'email', placeholder: 'you@example.com'},
+				{label: 'Password', type: 'password', placeholder: '••••••••'},
+				{label: 'kvk Number', type: 'text', placeholder: '12345678'},
 			],
 			[
-				{ label: 'Telephone Number', type: 'text', placeholder: '+31 6 12345678' },
-				{ label: 'Address', type: 'text', placeholder: 'Street 123' },
-				{ label: 'Postcode', type: 'text', placeholder: '1234 AB' },
-				{ label: 'Region', type: 'select', options: regions },
+				{label: 'Telephone Number', type: 'text', placeholder: '+31 6 12345678'},
+				{label: 'Address', type: 'text', placeholder: 'Street 123'},
+				{label: 'Postcode', type: 'text', placeholder: '1234 AB'},
+				{label: 'Region', type: 'select', options: regions},
 			],
 		],
 		veilingmeester: [
 			[
-				{ label: 'Email', type: 'email', placeholder: 'you@example.com' },
-				{ label: 'Password', type: 'password', placeholder: '••••••••' },
+				{label: 'Email', type: 'email', placeholder: 'you@example.com'},
+				{label: 'Password', type: 'password', placeholder: '••••••••'},
 			],
 			[
-				{ label: 'Region', type: 'select', options: regions },
-				{ label: 'Authorisation Code', type: 'text', placeholder: '123456' },
+				{label: 'Region', type: 'select', options: regions},
+				{label: 'Authorisation Code', type: 'text', placeholder: '123456'},
 			],
 		],
 	};
@@ -66,7 +66,7 @@ function Register() {
 	const currentFields = steps[userType][step - 1];
 
 	const handleInputChange = (key: string, value: string) => {
-		setFormData((prev) => ({ ...prev, [key]: value }));
+		setFormData((prev) => ({...prev, [key]: value}));
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -76,7 +76,7 @@ function Register() {
 	};
 
 	return (
-		<div className="register-page">
+		<div className="app-page register-page">
 			<div className="register-card">
 				{/* Back Button */}
 				<button className="back-button" onClick={() => navigate('/')}>
@@ -91,7 +91,7 @@ function Register() {
 
 				{/* Progress Bar */}
 				<div className="progress-bar">
-					<div className="progress-bar-fill" style={{ width: `${(step / totalSteps) * 100}%` }}></div>
+					<div className="progress-bar-fill" style={{width: `${(step / totalSteps) * 100}%`}}></div>
 				</div>
 
 				{/* Tabs */}

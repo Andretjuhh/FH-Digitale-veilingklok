@@ -12,8 +12,29 @@
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  overflow: visible;
+  overflow: hidden;
   z-index: 100;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.app-header-filled {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.app-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 210vw; /* Large enough to cover the screen */
+  height: 210vw;
+  background-color: white;
+  border-radius: 50%;
+  transform-origin: center center;
+  /* Center the circle on the top-left corner and then scale it */
+  transform: translateX(-50%) translateY(-50%) scale(var(--scroll-scale, 0));
+  transition: transform 0.5s ease-out;
+  z-index: -1;
 }
 
 .header-logo {
@@ -724,6 +745,13 @@
   color: theme(colors.primary.main) !important;
   font-size: var(--h3-size) !important;
   font-weight: 700 !important;
+}
+
+.app-bloems-card-txt {
+  font-size: var(--span4-size);
+  width: 100%;
+  height: auto;
+  /* overflow: hidden; */
 }
 
 .app-bloems-card-img {
