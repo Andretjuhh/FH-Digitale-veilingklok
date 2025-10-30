@@ -89,7 +89,8 @@ function Register() {
 				destination = '/user-dashboard';
 				break;
 			case 'kweker':
-				destination = '/'; // Replace with actual kweker dashboard route
+				destination = '/kweker';
+                // Replace with actual kweker dashboard route
 				break;
 			case 'veilingmeester':
 				destination = '/'; // Replace with actual veilingmeester dashboard route
