@@ -7,6 +7,7 @@ import RootContext from './contexts/RootContext';
 import Home from './pages/general/Home';
 import Login from './pages/general/Login';
 import Register from './pages/general/Register';
+import KwekerDashboard from './pages/general/Kweker_dashboard';
 import './styles/app.css';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
 				<Route path="/" element={<Home />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
+                <Route path="/kweker" element={<KwekerDashboard />} />
 			</Routes>
 		</RootContext>
 	);
