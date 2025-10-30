@@ -5,7 +5,7 @@ import '../../styles/login.css'; // make sure this path is correct!
 function Login() {
 	const navigate = useNavigate();
 	return (
-		<div className="login-page">
+		<div className="app-page login-page">
 			<div className="login-card">
 				{/* Back Button */}
 				<button className="back-button" onClick={() => navigate('/')}>
@@ -23,7 +23,7 @@ function Login() {
 					<label>Password</label>
 					<input type="password" placeholder="••••••••" className="input-field" />
 
-					<button type="submit" className="btn-primary">
+					<button type="submit" className="btn-primary" onClick={() => navigate('/user-dashboard')}>
 						Log In
 					</button>
 
