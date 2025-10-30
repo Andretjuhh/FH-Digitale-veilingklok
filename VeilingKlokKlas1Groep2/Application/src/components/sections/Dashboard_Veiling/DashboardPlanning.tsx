@@ -19,20 +19,20 @@ function DashboardPlanning(props: DashboardPlanningProps) {
   const { upcoming, checklist, completed } = props;
 
   const statusLabels: Record<PlanningItem["status"], string> = {
-    concept: "Concept",
-    klaar: "Klaar voor live",
+    concept: "Conceptfase",
+    klaar: "Klaar voor start",
     afgerond: "Afgerond",
   };
 
   return (
     <section className="dashboard-section dashboard-planning">
       <header className="dashboard-section-header">
-        <h2 className="dashboard-section-title">In de planning</h2>
+        <h2 className="dashboard-section-title">Planning en taken</h2>
       </header>
 
       <div className="dashboard-columns">
         <div className="dashboard-column">
-          <h3 className="dashboard-column-title">Komende rondes</h3>
+          <h3 className="dashboard-column-title">Aankomende veilingen</h3>
           <ul className="dashboard-list">
             {upcoming.map((item) => (
               <li className="dashboard-list-item" key={item.id}>
@@ -51,7 +51,7 @@ function DashboardPlanning(props: DashboardPlanningProps) {
         </div>
 
         <div className="dashboard-column">
-          <h3 className="dashboard-column-title">To-do voor vandaag</h3>
+          <h3 className="dashboard-column-title">Taken voor vandaag</h3>
           <ul className="dashboard-checklist">
             {checklist.map((todo, index) => (
               <li className="dashboard-checklist-item" key={index}>
@@ -63,7 +63,7 @@ function DashboardPlanning(props: DashboardPlanningProps) {
         </div>
 
         <div className="dashboard-column">
-          <h3 className="dashboard-column-title">Net afgerond</h3>
+          <h3 className="dashboard-column-title">Recent afgerond</h3>
           <ul className="dashboard-list">
             {completed.map((item) => (
               <li className="dashboard-list-item" key={item.id}>

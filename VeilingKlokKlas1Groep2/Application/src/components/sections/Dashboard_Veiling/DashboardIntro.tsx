@@ -15,10 +15,8 @@ function DashboardIntro(props: DashboardIntroProps) {
     <section className="dashboard-section dashboard-intro">
       <div className="dashboard-intro-content">
         <div className="dashboard-intro-text">
-          <span className="dashboard-tag">Veilingmeester</span>
-          <h1 className="dashboard-title">
-            Begin met het beheren van je veiling
-          </h1>
+          <span className="dashboard-tag">Jouw dashboard</span>
+          <h1 className="dashboard-title">Welkom in het veilingdashboard</h1>
           <p className="dashboard-description">
             Dit is je startpunt om nieuwe kavels klaar te zetten, lopende rondes
             in de gaten te houden en te wennen aan de flow. Alles is nog dummy

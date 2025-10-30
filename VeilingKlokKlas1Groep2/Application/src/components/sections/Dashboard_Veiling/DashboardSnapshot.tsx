@@ -17,7 +17,7 @@ function DashboardSnapshot(props: DashboardSnapshotProps) {
   return (
     <section className="dashboard-section dashboard-snapshot">
       <header className="dashboard-section-header">
-        <h2 className="dashboard-section-title">Snelle blik</h2>
+        <h2 className="dashboard-section-title">Actuele stand</h2>
       </header>
 
       <div className="dashboard-card-grid">
