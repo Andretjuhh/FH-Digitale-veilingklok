@@ -20,9 +20,9 @@ namespace VeilingKlokApp.Models.Domain
         [MaxLength(255)]
         public string? Adress { get; set; }
 
-        [Column("regio")]
-        [MaxLength(100)]
-        public string? Regio { get; set; }
+        // [Column("regio")]
+        // [MaxLength(100)]
+        // public string? Regio { get; set; }
 
         [Column("kvk_nmr")]
         [MaxLength(50)]

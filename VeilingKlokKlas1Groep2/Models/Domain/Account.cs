@@ -22,6 +22,10 @@ namespace VeilingKlokApp.Models.Domain
         [Required, MaxLength(255)]
         public string Password { get; set; }
 
+        [Column("regio")]
+        [MaxLength(100)]
+        public string? Regio { get; set; }
+
         [Column("created_at")]
         [Required]
         public DateTime CreatedAt { get; set; }
