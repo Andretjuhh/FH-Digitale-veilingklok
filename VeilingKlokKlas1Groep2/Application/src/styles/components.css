@@ -75,6 +75,14 @@
 	white-space: nowrap;
 	font-size: var(--span1b-size);
 	font-weight: 700;
+	transition: all 0.3s ease-in-out;
+	transform-origin: center bottom;
+}
+
+.nav-menu-anchor:hover {
+	color: theme(colors.primary.main);
+	transform: scale(1.2);
+	margin: 0 var(--span4-size);
 }
 
 /*#endregion */
@@ -347,6 +355,7 @@
 	display: flex;
 	flex-direction: row;
 	padding: var(--side-pd) var(--side-pd);
+	padding-left: 0 !important;
 	gap: var(--side-pd);
 }
 
@@ -372,7 +381,7 @@
 }
 
 .app-bloems-cardswap-ctn > .card-swapper {
-	right: 30% !important;
+	right: 20% !important;
 	top: 0 !important;
 	transform: translateY(0%) !important;
 }
@@ -405,7 +414,7 @@
 	font-size: var(--span4-size);
 	width: 100%;
 	height: auto;
-	overflow: hidden;
+	/* overflow: hidden; */
 }
 
 .app-bloems-card-img {
