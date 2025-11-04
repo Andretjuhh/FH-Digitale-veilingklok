@@ -64,23 +64,23 @@ export default function KwekerDashboard() {
 
                 <section className="kweker-stats">
                     <div className="kweker-stat-card">
-                        <div className="stat-label">Producten aangeboden</div>
-                        <div className="stat-value">{stats.totalProducts}</div>
+                        <div className="kweker-stat-label">Producten aangeboden</div>
+                        <div className="kweker-stat-value">{stats.totalProducts}</div>
                     </div>
 
                     <div className="kweker-stat-card">
-                        <div className="stat-label">Producten verkocht</div>
-                        <div className="stat-value">{stats.activeAuctions}</div>
+                        <div className="kweker-stat-label">Producten verkocht</div>
+                        <div className="kweker-stat-value">{stats.activeAuctions}</div>
                     </div>
 
                     <div className="kweker-stat-card">
-                        <div className="stat-label">Totale omzet</div>
-                        <div className="stat-value">{formatEur(stats.totalRevenue)}</div>
+                        <div className="kweker-stat-label">Totale omzet</div>
+                        <div className="kweker-stat-value">{formatEur(stats.totalRevenue)}</div>
                     </div>
 
                     <div className="kweker-stat-card">
-                        <div className="stat-label">Bloemstelen verkocht</div>
-                        <div className="stat-value">{stats.stemsSold}</div>
+                        <div className="kweker-stat-label">Bloemstelen verkocht</div>
+                        <div className="kweker-stat-value">{stats.stemsSold}</div>
                     </div>
                 </section>
 
