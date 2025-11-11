@@ -3,15 +3,15 @@ import React from 'react';
 
 // Internal imports
 import Page from '../../components/screens/Page';
-import AppFooter from '../../components/sections/AppFooter';
 import DashboardIntro from '../../components/sections/Dashboard_Veiling/DashboardIntro';
 import DashboardSnapshot from '../../components/sections/Dashboard_Veiling/DashboardSnapshot';
 import DashboardPlanning from '../../components/sections/Dashboard_Veiling/DashboardPlanning';
 
+
 const SNAPSHOT_ITEMS = [
-	{ label: 'Lopende ronde', value: '1 kavel', note: 'Rozen Avalanche+ (dummy data)' },
-	{ label: 'Komende kavels', value: '3 voorbereidingen', note: 'Alles nog in testfase' },
-	{ label: 'Deelnemers', value: '12 ingelogd', note: 'Deze aantallen zijn fictief' }
+	{label: 'Lopende ronde', value: '1 kavel', note: 'Rozen Avalanche+ (dummy data)'},
+	{label: 'Komende kavels', value: '3 voorbereidingen', note: 'Alles nog in testfase'},
+	{label: 'Deelnemers', value: '12 ingelogd', note: 'Deze aantallen zijn fictief'}
 ];
 
 const PLANNING_UPCOMING = [
@@ -56,14 +56,13 @@ const PLANNING_COMPLETED = [
 
 function Dashboard() {
 	return (
-		<Page enableHeader className="dashboard-page">
-			<DashboardIntro onCreateAuction={() => window.alert('Nieuwe dummy veiling aangemaakt')} />
+		<Page enableHeader enableFooter className="dashboard-page">
+			<DashboardIntro onCreateAuction={() => window.alert('Nieuwe dummy veiling aangemaakt')}/>
 
-			<DashboardSnapshot items={SNAPSHOT_ITEMS} />
+			<DashboardSnapshot items={SNAPSHOT_ITEMS}/>
 
-			<DashboardPlanning upcoming={PLANNING_UPCOMING} checklist={PLANNING_CHECKLIST} completed={PLANNING_COMPLETED} />
+			<DashboardPlanning upcoming={PLANNING_UPCOMING} checklist={PLANNING_CHECKLIST} completed={PLANNING_COMPLETED}/>
 
-			<AppFooter />
 		</Page>
 	);
 }

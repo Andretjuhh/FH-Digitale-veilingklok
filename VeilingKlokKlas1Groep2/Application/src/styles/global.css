@@ -1,13 +1,4 @@
-@import 'app.css';
-@import 'components.css';
-@import 'pages.css';
-@import 'bootstrap-icons/font/bootstrap-icons.css';
-@import './Dashboard.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/*#region Global CSS Variables */
 :root {
     --logo-size: 62px;
     --side-pd: 60px;
@@ -41,6 +32,8 @@
 @media only screen and (min-width: 768px) and (max-width: 1023px) and (min-height: 480px) {
 }
 
+/*#endregion */
+
 /*#region Global Element Styles */
 html {
     width: 100vw;
@@ -54,6 +47,7 @@ html {
 }
 
 body {
+    position: relative;
     width: 100vw;
     min-height: 100vh;
 }
@@ -86,6 +80,7 @@ img {
     user-select: none;
 }
 
+/* Custom Button */
 .base-btn {
     width: auto;
     height: auto;
@@ -113,6 +108,102 @@ img {
     color: white;
     font-size: var(--span2-size);
     font-weight: 600;
+}
+
+/* Language Picker dropdown */
+.dropdown:has(.language-picker-btn) {
+    width: auto;
+    height: var(--header-size);
+
+
+    position: fixed !important;
+    right: var(--side-pd) !important;
+    top: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.language-picker-btn {
+    --color: #07895b;
+    background-color: theme(colors.primary.main) !important;
+    z-index: 2 !important;
+    color: white;
+    padding: var(--span4-size) var(--h4-size) !important;
+}
+
+.language-picker-btn-icon,
+.language-picker-btn-txt {
+    color: white !important;
+}
+
+.language-picker-item-btn {
+    color: black;
+}
+
+.language-picker-item-btn:active {
+    background-color: theme(colors.primary.400) !important;
+}
+
+/* --- Input Styling (Includes Textarea) */
+.input-field-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    color: #1f2937;
+    border-color: #d1d5db;
+    border-width: 1px;
+    border-radius: 1em;
+    background-color: #f9fafb;
+    transition: all 200ms ease-in-out;
+}
+
+.input-field::placeholder {
+    color: #9ca3af;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: theme(colors.primary.500);
+    box-shadow: 0 0 0 2px #e0e7ff;
+    background-color: #ffffff;
+}
+
+.input-field-error-feedback {
+    color: theme(colors.red.600);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    margin-top: 0.25rem;
+}
+
+.custom-spinner {
+    border: 5px solid #d1d5db;
+    border-radius: 50%;
+    border-top: 5px solid theme(colors.primary.500);
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto;
+    -webkit-animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /*#endregion */

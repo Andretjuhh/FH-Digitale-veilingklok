@@ -1,12 +1,12 @@
 // External imports
-import React, {useCallback} from 'react';
+import React from 'react';
 import {useNavigate} from 'react-router-dom';
 import Button from '../buttons/Button';
 import ButterflyParticles from '../../particles/ButterflyParticles';
 
 function AppHome() {
 	const navigate = useNavigate();
- 
+
 	return (
 		<section id={'home'} className={'app-home'}>
 			<ButterflyParticles/>
