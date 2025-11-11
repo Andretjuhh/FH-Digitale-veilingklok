@@ -5,6 +5,7 @@ import '../../../styles/pages.css'; // make sure this path is correct!
 import FormInputField from '../../elements/FormInputField';
 import TextAreaInputField from '../../elements/TextAreaInputField';
 import Login from '../../../pages/general/Login';
+import FormLink from '../../buttons/FormLink';
 
 
 function LoginContent() {
@@ -39,13 +40,10 @@ function LoginContent() {
 
 					<Button className='btn-primary' label={window.application.t('login')} onClick={() => navigate('/user-dashboard')} aria-label={window.application.t('login_button_aria')}/>
 					
-					{/* Still need to add forgoten link nav */}
-                    <button type="button" className="forgot-link" aria-label="Forgot password link">
-                        Forgot password?
-                    </button>
-                    <button type="button" className="register-link" aria-label="Create an account link" onClick={() => navigate('/register')}>
-                        Create an account
-                    </button>
+					{/* Still need to add forgotten link nav */}
+					<FormLink className='forgot-link' label={window.application.t('forgot_password')} onClick={() => navigate('/')} aria-label={window.application.t('forgot_password_aria')}/>
+					<FormLink className='register-link' label={window.application.t('create_account')} onClick={() => navigate('/register')} aria-label={window.application.t('create_account_aria')}/>
+
                 </form>
             </div>
         </div>
