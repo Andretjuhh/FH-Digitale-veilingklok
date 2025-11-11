@@ -41,6 +41,8 @@ export const resources = {
 			settings: 'Instellingen',
 			orders: 'Orders',
 			logout: 'Uitloggen',
+			back: "Terug",
+			back_aria: "Knop om terug te gaan",
 
 		},
 	},

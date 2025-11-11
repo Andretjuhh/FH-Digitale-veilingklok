@@ -3,7 +3,7 @@
 	justify-content: center;
 	align-items: center;
 	height: 100vh;
-	background-color: #f9fafb;
+	background-color: #ffffff;
 }
 
 .login-card {
@@ -43,26 +43,51 @@
 	margin-bottom: 0.5rem; /* Add spacing between label and input */
 }
 
-.back-button {
-	position: absolute;
-	top: 15px;
-	left: 15px;
-	background: transparent;
-	border: none;
-	color: #007bff;
-	font-size: 16px;
-	cursor: pointer;
-	font-weight: 500;
-	transition: color 0.2s ease;
+.base-btn.back-button {
+    /* Position it absolutely in the top left corner */
+    position: absolute;
+    top: 10px; /* Adjust as needed for spacing */
+    left: 10px; /* Adjust as needed for spacing */
+    
+    /* Use the same gradient as the Log In button */
+    background: linear-gradient(to right, #2563eb, #1d4ed8);
+    color: white; /* Make the icon white */
+    
+    /* Make it a small, round button */
+    width: 100px; /* Smaller width */
+    height: 60px; /* Square dimensions */
+    padding: 0; /* Remove padding */
+    display: flex; /* Use flex to center the icon */
+    justify-content: center;
+    align-items: center;
+    
+    
+    /* Other styles */
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10; /* Ensure it is above the card content */
 }
 
-.back-button:hover {
-	color: #0056b3;
+.base-btn.back-button:hover {
+    background: linear-gradient(to right, #1d4ed8, #1e40af);
+    transform: scale(1.05); /* Slight scale for hover effect */
+}
+
+
+.base-btn.back-button .base-btn-icon {
+    font-size: 1rem; /* Adjust icon size */
+    color: white; /* Make the icon white */
+}
+
+
+.base-btn.back-button-txt {
+    display: none; 
 }
 
 /* Card hover polish */
 .login-card:hover {
-	transform: translateY(-4px);
+	transform: translateY(0px);
 	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
