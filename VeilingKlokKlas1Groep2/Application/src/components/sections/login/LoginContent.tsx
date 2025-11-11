@@ -1,47 +1,55 @@
 import React, {useCallback} from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../buttons/Button';
-import '../../../styles/login.css'; // make sure this path is correct!
+import '../../../styles/pages.css'; // make sure this path is correct!
+import FormInputField from '../../elements/FormInputField';
+import TextAreaInputField from '../../elements/TextAreaInputField';
+import Login from '../../../pages/general/Login';
 
 
 function LoginContent() {
-	const navigate = useNavigate();
-	return (
-		<div className="app-page login-page">
-			<div className="login-card">
-				{/* Back Button */}
-				<Button className={"back-button"} label={window.application.t('back')} aria-label={window.application.t('back_aria')}
-								        icon={'bi bi-backspace'} onClick={() => navigate('/')}/>
-				<div className="login-header">
-					<h2 className="login-title" aria-label="Welcome back">
-						Welcome Back
-					</h2>
-					<p className="login-subtitle" aria-label="Please sign in to your account">
-						Please sign in to your account
-					</p>
-				</div>
+    const navigate = useNavigate();
+    
+    /* * NOTE: The original component used the logo as a back button. 
+    * I've preserved the back functionality and placed the logo
+    * inside the header for the new look, giving it a new class name.
+    */
+    const handleGoBack = () => navigate('/');
+    
+    return (
+        
+        <div className="app-page login-page">
+            <div className="login-card">                
+                <div className="login-header">
+                    <Button 
+                        className="logo-icon" 
+                        icon="/svg/logo-flori.svg"
+                        onClick={handleGoBack}
+                        aria-label={window.application.t('back_button_aria')}
+                    />
+                    <div className="login-text-container">
+						<h2 className={'login-title'} aria-label={window.application.t('welcome_back')}>{window.application.t('welcome_back')}</h2>
+                        <p className={'login-subtitle'} aria-label="Please sign in to your account">{window.application.t('sign_in_message')}</p>
+                    </div>
+                </div>
+                <form className="login-form">
 
-				<form className="login-form">
-					<label>Email</label>
-					<input type="email" placeholder="you@example.com" className="input-field" aria-label="Email input field" />
+                    <FormInputField id='email' label={window.application.t('email')} className='input-field' error='Please type an email (example@email.com)' isError={false} />
+                    <FormInputField id='password' label={window.application.t('password')} className='input-field' error='Incorrect Password' isError={false} />
 
-					<label>Password</label>
-					<input type="password" placeholder="••••••••" className="input-field" aria-label="Password input field" />
-
-					<button type="submit" className="btn-primary" aria-label="Log in button" onClick={() => navigate('/user-dashboard')}>
-						Log In
-					</button>
-
-					<button type="button" className="forgot-link" aria-label="Forgot password link">
-						Forgot password?
-					</button>
-					<button type="button" className="register-link" aria-label="Create an account link" onClick={() => navigate('/register')}>
-						Create an account
-					</button>
-				</form>
-			</div>
-		</div>
-	);
+					<Button className='btn-primary' label={window.application.t('login')} onClick={() => navigate('/user-dashboard')} aria-label={window.application.t('login_button_aria')}/>
+					
+					{/* Still need to add forgoten link nav */}
+                    <button type="button" className="forgot-link" aria-label="Forgot password link">
+                        Forgot password?
+                    </button>
+                    <button type="button" className="register-link" aria-label="Create an account link" onClick={() => navigate('/register')}>
+                        Create an account
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
 }
 
 export default LoginContent;

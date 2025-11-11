@@ -8,23 +8,27 @@
 }
 
 .login-card {
-    position: relative; /* Make sure the back button positions relative to this */
-    padding: 2rem;
+    position: relative; 
+    padding: 2rem; /* Keep this padding for the card content */
     border-radius: 12px;
-    background: white;
+    background: #f9fafb;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     width: 400px;
     max-width: 90%;
 }
 
 .login-form {
-    flex: 1; /* take remaining height */
+    flex: 1; 
     display: flex;
     flex-direction: column;
-    overflow-y: auto; /* scroll only this section */
-    padding: 0 2rem 2rem; /* padding inside scrollable area */
+    
+    /* Set Max Width and Center Horizontally */
+    max-width: 300px; 
+    margin: 0 auto; 
+    
+    padding: 0; 
+    overflow-y: auto; 
 }
-
 /* Optional: custom scrollbar for Webkit browsers */
 .login-form::-webkit-scrollbar {
     width: 6px;
@@ -44,21 +48,29 @@
     margin-bottom: 0.5rem; /* Add spacing between label and input */
 }
 
-.back-button {
-    position: absolute;
-    top: 15px;
-    left: 15px;
+.logo-icon {
     background: transparent;
     border: none;
-    color: #007bff;
-    font-size: 16px;
     cursor: pointer;
-    font-weight: 500;
-    transition: color 0.2s ease;
+    padding: 0;
+    
+    /* Increased size from 36px to 48px */
+    width: 48px; 
+    height: 48px;
+    
+    /* Spacing between the icon and the text */
+    margin-right: 16px; 
+    
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
-.back-button:hover {
-    color: #0056b3;
+.logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Ensures the image fits within the bounds without being cut */
 }
 
 /* Card hover polish */
@@ -70,9 +82,20 @@
 /* Header */
 .login-header {
     display: flex;
+    flex-direction: row; 
+    align-items: center; /* Vertically center logo and text */
+    justify-content: flex-start; /* Keeps content left-aligned */
+    
+    padding: 0; /* Let the .login-card padding control spacing */
+    margin-bottom: 2rem; /* Increased margin for more space above the form */
+    overflow: visible; 
+}
+
+/* NEW: Style the container for the title/subtitle to stack them */
+.login-text-container {
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    margin-bottom: 1.5rem;
+    align-items: flex-start; 
 }
 
 .login-icon {
@@ -84,15 +107,17 @@
 }
 
 .login-title {
-    font-size: 1.5rem;
+    font-size: 1.75rem; /* Slight size bump to match the large logo */
     font-weight: 600;
     color: #1f2937;
-    margin-bottom: 0.25rem;
+    margin-top: 0;
+    margin-bottom: 0.25rem; 
 }
 
 .login-subtitle {
     color: #6b7280;
     font-size: 0.875rem;
+    margin: 0; 
 }
 
 /* Polished Input Fields */
@@ -105,7 +130,7 @@
     font-size: 1rem;
     color: #374151;
     transition: all 0.2s ease;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
 }
 
 .input-field::placeholder {
@@ -132,7 +157,9 @@
     font-weight: 600;
     letter-spacing: 0.02em;
     transition: background 0.3s ease, transform 0.2s ease;
-    width: 100%;
+    width: 100%; /* Fills the 300px centered form width */
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
     border: none;
     cursor: pointer;
 }

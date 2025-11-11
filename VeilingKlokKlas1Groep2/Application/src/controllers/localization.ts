@@ -18,6 +18,15 @@ export const resources = {
 			get_Started: 'Meld je aan',
 			logout: 'Uitloggen',
 
+			//Login page texts
+			welcome_back: 'Welkom terug',
+			sign_in_message: 'Meld u alstublieft aan bij uw account',
+			forgot_password: 'Wachtwoord vergeten?',
+			create_account: 'Account aanmaken',
+			password: 'Wachtwoord',
+			email: 'E-mailadres',
+		
+
 			// Home page Texts
 			what_is_flori_clock: "Wat is FloriClock?",
 			what_is_flori_clock_description: "FloriClock is een digitaal veilingplatform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen. Ons doel is om de veilinghandel in bloemen en planten te vereenvoudigen en te optimaliseren door middel van een gebruiksvriendelijke online marktplaats.",
@@ -53,7 +62,10 @@ export const resources = {
 
 			// Aria labels and alt texts
 			alt_error_bug_picture: 'Error bug image',
-			back_aria: "Knop om terug te gaan",
+			back_button_aria: "Knop om terug te gaan",
+			login_button_aria: "Knop om in te loggen",
+			forgot_password_aria: "Wachtwoord vergeten link",
+			create_account_aria: "Account aanmaken link",
 		},
 	},
 	en: {
