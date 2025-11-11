@@ -3,10 +3,10 @@ import React from 'react';
 
 // Internal imports
 import Page from '../../components/screens/Page';
-import AppFooter from '../../components/sections/AppFooter';
 import DashboardIntro from '../../components/sections/Dashboard_Veiling/DashboardIntro';
 import DashboardSnapshot from '../../components/sections/Dashboard_Veiling/DashboardSnapshot';
 import DashboardPlanning from '../../components/sections/Dashboard_Veiling/DashboardPlanning';
+
 
 const SNAPSHOT_ITEMS = [
 	{label: 'Lopende ronde', value: '1 kavel', note: 'Rozen Avalanche+ (dummy data)'},

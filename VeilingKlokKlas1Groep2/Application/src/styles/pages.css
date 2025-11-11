@@ -640,7 +640,6 @@
     border-radius: 16px;
     padding: var(--top-pd);
     border: 1px solid theme(colors.zinc.200);
-    border: 1px solid theme(colors.zinc.200);
     display: grid;
     grid-template-columns: 1fr 1.4fr 0.9fr;
     gap: var(--top-pd);
