@@ -222,7 +222,7 @@ namespace VeilingKlokApp.Controllers
                     .AsNoTracking()
                     .ToListAsync();
 
-                return Ok(new { count = products.Count, products });
+                return Ok(new { products });
             }
             catch (Exception ex)
             {

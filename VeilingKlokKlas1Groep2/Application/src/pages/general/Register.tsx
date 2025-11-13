@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { useRootContext } from '../../contexts/RootContext';
 import { createKwekerAccount } from '../../controllers/kweker';
 import { NewKwekerAccount } from '../../declarations/KwekerAccount';
+import { log } from 'console';
 
 type UserType = 'koper' | 'kweker' | 'veilingmeester';
 
@@ -19,7 +20,6 @@ interface InputField {
 
 function Register() {
 	const { authenticateAccount } = useRootContext();
-	const kwekerForm = useForm<NewKwekerAccount>();
 
 	const navigate = useNavigate();
 	const [userType, setUserType] = useState<UserType>('koper');
@@ -84,7 +84,6 @@ function Register() {
 
 		// 1. Log the final data
 		console.log('Final submitted data:', formData);
-		console.log('Kweker form data:', kwekerForm.getValues());
 
 		// 2. Ideally, send the data to a server for account creation...
 
@@ -98,7 +97,20 @@ function Register() {
 			case 'kweker':
 				destination = '/kweker';
 				try {
-					const authResponse = await createKwekerAccount(kwekerForm.getValues());
+					const account: NewKwekerAccount = {
+						name: formData['kweker-Company Name'],
+						email: formData['kweker-Email'],
+						password: formData['kweker-Password'],
+						kvkNumber: formData['kweker-kvk Number'],
+						telephone: formData['kweker-Telephone Number'],
+						address: formData['kweker-Address'],
+						regio: formData['kweker-Region'],
+						createdAt: new Date(),
+					};
+
+					const authResponse = await createKwekerAccount(account);
+					// 4. Show success message (optional, replace with proper notification/state management)
+					alert(`Account created successfully as ${userType}! Redirecting...`);
 					authenticateAccount(authResponse);
 				} catch (error) {
 					console.log('Error creating kweker account:', error);
@@ -111,9 +123,6 @@ function Register() {
 			default:
 				break;
 		}
-
-		// 4. Show success message (optional, replace with proper notification/state management)
-		alert(`Account created successfully as ${userType}! Redirecting...`);
 
 		// 5. Navigate to the appropriate dashboard
 		navigate(destination);

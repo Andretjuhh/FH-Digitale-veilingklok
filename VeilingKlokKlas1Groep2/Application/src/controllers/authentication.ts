@@ -37,6 +37,6 @@ export async function logoutAccount() {
 }
 
 // Save the accesstoken in local storage
-async function saveAuthenticationResponse(response: AuthResponse) {
+export async function saveAuthenticationResponse(response: AuthResponse) {
 	localStorage.setItem('accessToken', response.accessToken);
 }

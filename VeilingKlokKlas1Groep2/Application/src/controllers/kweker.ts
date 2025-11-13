@@ -1,6 +1,7 @@
 import { fetchResponse } from '../utils/fetchHelpers';
 import { NewKwekerAccount } from '../declarations/KwekerAccount';
 import { AuthResponse } from '../declarations/AuthenticationResponse';
+import { ProductDetails } from '../declarations/ProductDetails';
 
 export async function createKwekerAccount(account: NewKwekerAccount) {
 	return await fetchResponse<AuthResponse>('/api/kweker/create', {
@@ -16,7 +17,7 @@ export async function getKwekerAccountInfo() {
 }
 
 export async function getKwekerProducts() {
-	return await fetchResponse('/api/kweker/products', {
+	return await fetchResponse<{ products: ProductDetails[] }>('/api/kweker/products', {
 		method: 'GET',
 	});
 }
