@@ -12,6 +12,7 @@ using VeilingKlokKlas1Groep2.Declarations;
 using VeilingKlokKlas1Groep2.Models.InputDTOs;
 using VeilingKlokKlas1Groep2.Services;
 using VeilingKlokKlas1Groep2.Configuration;
+using VeilingKlokKlas1Groep2.Attributes;
 
 namespace VeilingKlokApp.Controllers
 {
@@ -111,6 +112,123 @@ namespace VeilingKlokApp.Controllers
                 var error = new HtppError(
                     "Internal Server Error",
                     $"Account creation failed: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+        }
+
+        #endregion
+
+        #region Get Authenticated Kweker
+
+        /// <summary>
+        /// Returns the authenticated Kweker's account details (current user)
+        /// Requires the user to be authenticated and of account type 'Kweker'
+        /// </summary>
+        [HttpGet("account-info")]
+        [Authorize]
+        [AuthorizeAccountType("Kweker")]
+        public async Task<IActionResult> GetCurrentKweker()
+        {
+            try
+            {
+                var accountId = HttpContext.Items["AccountId"] as int?;
+
+                if (!accountId.HasValue)
+                {
+                    var error = new HtppError("Unauthorized", "Invalid token claims", 401 );
+                    return Unauthorized(error);
+                }
+
+                var kwekerDetails = await _db.Kwekers
+                    .Where(k => k.Id == accountId.Value)
+                    .Select(k => new KwekerDetails
+                    {
+                        AccountId = k.Id,
+                        Name = k.Name,
+                        Email = k.Email,
+                        Telephone = k.Telephone,
+                        Adress = k.Adress,
+                        Regio = k.Regio,
+                        KvkNumber = k.KvkNumber,
+                    })
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
+
+                if (kwekerDetails == null)
+                {
+                    var error = new HtppError(
+                        "Not Found",
+                        "Authenticated Kweker account not found",
+                        404
+                    );
+                    return NotFound(error);
+                }
+
+                return Ok(kwekerDetails);
+            }
+            catch (Exception ex)
+            {
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Failed to retrieve current Kweker account: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+        }
+
+        #endregion
+
+        #region Get Authenticated Kweker products
+
+        /// <summary>
+        /// Returns all products for the authenticated Kweker (current user)
+        /// Protected: Requires authentication and account type 'Kweker'
+        /// </summary>
+        [HttpGet("products")]
+        [Authorize]
+        [AuthorizeAccountType("Kweker")]
+        public async Task<IActionResult> GetProducts()
+        {
+            try
+            {
+                var accountId = HttpContext.Items["AccountId"] as int?;
+                if (!accountId.HasValue)
+                {
+                    var error = new HtppError(
+                        "Unauthorized",
+                        "Invalid token claims",
+                        401
+                    );
+                    return Unauthorized(error);
+                }
+
+                var products = await _db.Products
+                    .Where(p => p.KwekerId == accountId.Value)
+                    .Select(p => new ProductDetails
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        MinimumPrice = p.MinimumPrice,
+                        Quantity = p.Quantity,
+                        ImageUrl = p.ImageUrl,
+                        Size = p.Size,
+                        KwekerId = p.KwekerId
+                    })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                return Ok(new { count = products.Count, products });
+            }
+            catch (Exception ex)
+            {
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Failed to retrieve products for authenticated Kweker: {ex.Message}",
                     500
                 );
                 return StatusCode(500, error);
@@ -229,7 +347,5 @@ namespace VeilingKlokApp.Controllers
         }
 
         #endregion
-
-        // Helpers moved to AuthService to avoid duplication
     }
 }

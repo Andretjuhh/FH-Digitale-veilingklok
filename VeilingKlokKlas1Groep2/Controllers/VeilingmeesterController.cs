@@ -323,6 +323,5 @@ namespace VeilingKlokApp.Controllers
 
         #endregion
 
-        // Helpers moved to AuthService
-    }
+     }
 }
