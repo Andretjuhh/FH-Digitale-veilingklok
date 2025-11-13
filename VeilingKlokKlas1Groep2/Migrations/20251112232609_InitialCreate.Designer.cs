@@ -12,8 +12,8 @@ using VeilingKlokApp.Data;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     [DbContext(typeof(VeilingKlokContext))]
-    [Migration("20251015160532_InitialCreates")]
-    partial class InitialCreates
+    [Migration("20251112232609_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -82,6 +82,10 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasColumnType("int")
                         .HasColumnName("koper_id");
 
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int")
+                        .HasColumnName("product_id");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int")
                         .HasColumnName("quantity");
@@ -90,7 +94,101 @@ namespace VeilingKlokKlas1Groep2.Migrations
 
                     b.HasIndex("KoperId");
 
+                    b.HasIndex("ProductId");
+
                     b.ToTable("Order");
+                });
+
+            modelBuilder.Entity("VeilingKlokApp.Models.Domain.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("image_url");
+
+                    b.Property<int>("KwekerId")
+                        .HasColumnType("int")
+                        .HasColumnName("kweker_id");
+
+                    b.Property<decimal>("MinimumPrice")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("minimum_price");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("price");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int")
+                        .HasColumnName("quantity");
+
+                    b.Property<string>("Size")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("size");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KwekerId");
+
+                    b.ToTable("Product");
+                });
+
+            modelBuilder.Entity("VeilingKlokApp.Models.Domain.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int")
+                        .HasColumnName("account_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("ReplacedByToken")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("replaced_by_token");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("token");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("RefreshToken");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.VeilingKlok", b =>
@@ -195,10 +293,9 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 {
                     b.HasBaseType("VeilingKlokApp.Models.Domain.Account");
 
-                    b.Property<string>("SoortVeiling")
-                        .IsRequired()
+                    b.Property<int>("AurthorisatieCode")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .HasColumnType("int")
                         .HasColumnName("soort_veiling");
 
                     b.ToTable("Veilingmeester");
@@ -212,7 +309,37 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("VeilingKlokApp.Models.Domain.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Koper");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("VeilingKlokApp.Models.Domain.Product", b =>
+                {
+                    b.HasOne("VeilingKlokApp.Models.Domain.Kweker", "Kweker")
+                        .WithMany("Products")
+                        .HasForeignKey("KwekerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Kweker");
+                });
+
+            modelBuilder.Entity("VeilingKlokApp.Models.Domain.RefreshToken", b =>
+                {
+                    b.HasOne("VeilingKlokApp.Models.Domain.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.VeilingKlok", b =>
@@ -256,6 +383,11 @@ namespace VeilingKlokKlas1Groep2.Migrations
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.Koper", b =>
                 {
                     b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("VeilingKlokApp.Models.Domain.Kweker", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.Veilingmeester", b =>
