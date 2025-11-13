@@ -1,10 +1,9 @@
 // External imports
 import React from 'react';
-import clsx from "clsx";
+import clsx from 'clsx';
 
 // Internal imports
-import {joinClsx} from "../../utils/classPrefixer";
-
+import { joinClsx } from '../../utils/classPrefixer';
 
 type ButtonProps = {
 	labelClassName?: string;
@@ -13,13 +12,14 @@ type ButtonProps = {
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 function Button(props: ButtonProps) {
-	const {label, icon, className, labelClassName, type = "button", ...rest} = props;
-	return <button type={type} className={clsx('base-btn', className)} {...rest}>
-		{icon && <i className={clsx("base-btn-icon", joinClsx(className, 'icon'), "bi", icon)}/>}
-		{icon && <img src={icon} className="base-btn-icon" alt="" />}
-		{label && <span className={clsx('base-btn-txt', joinClsx(className, 'txt'), labelClassName)}>{label}</span>}
-		
-	</button>;
+	const { label, icon, className, labelClassName, ...rest } = props;
+	return (
+		<button className={clsx('base-btn', className)} {...rest}>
+			{icon && <i className={clsx('base-btn-icon', joinClsx(className, 'icon'), 'bi', icon)} />}
+			{icon && <img src={icon} className="base-btn-icon" alt="" />}
+			{label && <span className={clsx('base-btn-txt', joinClsx(className, 'txt'), labelClassName)}>{label}</span>}
+		</button>
+	);
 }
 
 export default Button;
