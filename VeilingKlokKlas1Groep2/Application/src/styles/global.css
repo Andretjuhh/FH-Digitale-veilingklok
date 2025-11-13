@@ -110,6 +110,22 @@ img {
     font-weight: 600;
 }
 
+.base-btn-link {
+    background: none !important; 
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    color: #2563eb; 
+    justify-content: start;
+    gap: 0;
+}
+
+.base-btn-link-txt {
+    color: #2563eb; 
+    font-size: var(--span4-size);
+    font-weight: 400;
+}
+
 /* Language Picker dropdown */
 .dropdown:has(.language-picker-btn) {
     width: auto;

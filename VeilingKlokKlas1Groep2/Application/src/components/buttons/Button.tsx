@@ -16,7 +16,9 @@ function Button(props: ButtonProps) {
 	const {label, icon, className, labelClassName, ...rest} = props;
 	return <button className={clsx('base-btn', className)} {...rest}>
 		{icon && <i className={clsx("base-btn-icon", joinClsx(className, 'icon'), "bi", icon)}/>}
+		{icon && <img src={icon} className="base-btn-icon" alt="" />}
 		{label && <span className={clsx('base-btn-txt', joinClsx(className, 'txt'), labelClassName)}>{label}</span>}
+		
 	</button>;
 }
 
