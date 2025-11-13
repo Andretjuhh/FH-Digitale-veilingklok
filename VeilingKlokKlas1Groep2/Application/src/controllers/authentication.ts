@@ -1,9 +1,33 @@
 import { fetchResponse } from '../utils/fetchHelpers';
 import { LoginRequest } from '../declarations/LoginRequest';
+import { AuthResponse } from '../declarations/AuthenticationResponse';
+import { AccountInfo } from '../declarations/AccountInfo';
 
+// Initialize authentication by chekcing if tokens are valid
+export async function initializeAuthentication() {
+	try {
+		const response = await fetchResponse<AccountInfo>('/api/auth/account', {
+			method: 'GET',
+		});
+		window.application.account = response;
+		return response;
+	} catch {
+		localStorage.removeItem('accessToken');
+		return undefined;
+	}
+}
+
+// Login into account
 export async function loginAccount(account: LoginRequest) {
-	return await fetchResponse('/api/auth/login', {
+	const response = await fetchResponse<AuthResponse>('/api/auth/login', {
 		method: 'POST',
 		body: JSON.stringify(account),
 	});
+	await saveAuthenticationResponse(response);
+	return response;
+}
+
+// Save the accesstoken in local storage
+async function saveAuthenticationResponse(response: AuthResponse) {
+	localStorage.setItem('accessToken', response.accessToken);
 }
