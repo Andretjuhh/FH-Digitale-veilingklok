@@ -9,6 +9,7 @@ import initializeApp from '../controllers/application';
 import { initializeAuthentication, loginAccount } from '../controllers/authentication';
 import { AccountInfo } from '../declarations/AccountInfo';
 import { LoginRequest } from '../declarations/LoginRequest';
+import { AuthResponse } from '../declarations/AuthenticationResponse';
 
 function useRoot() {
 	//  Router navigation
@@ -64,6 +65,13 @@ function useRoot() {
 		setInitialized(true);
 	}, [t, navigate, changeLanguage]);
 
+	// Authenticate account function (stub for future use)
+	const authenticateAccount = useCallback((account: AuthResponse) => {
+		console.log('Authenticating account in context...', account);
+		setLoggedIn(true);
+		setAccount({ email: account.email, accountType: account.accountType });
+	}, []);
+
 	// Authenticate user function
 	const authenticate = useCallback(async (account: LoginRequest) => {
 		const authResponse = await loginAccount(account);
@@ -72,12 +80,19 @@ function useRoot() {
 		setAccount({ email: authResponse.email, accountType: authResponse.accountType });
 	}, []);
 
+	const removeAuthentication = useCallback(() => {
+		setLoggedIn(false);
+		setAccount(undefined);
+	}, []);
+
 	return {
 		initialized,
 
 		loggedIn,
 		account,
 		authenticate,
+		authenticateAccount,
+		removeAuthentication,
 
 		t,
 		languageCode,

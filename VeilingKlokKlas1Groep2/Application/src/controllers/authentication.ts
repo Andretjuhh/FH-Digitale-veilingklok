@@ -27,6 +27,15 @@ export async function loginAccount(account: LoginRequest) {
 	return response;
 }
 
+// Logout from account
+export async function logoutAccount() {
+	await fetchResponse('/api/auth/logout', {
+		method: 'GET',
+	}).then(() => {
+		localStorage.removeItem('accessToken');
+	});
+}
+
 // Save the accesstoken in local storage
 async function saveAuthenticationResponse(response: AuthResponse) {
 	localStorage.setItem('accessToken', response.accessToken);

@@ -1,6 +1,12 @@
+// External imports
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+
+// Internal imports
 import { useRootContext } from '../../contexts/RootContext';
+import { createKwekerAccount } from '../../controllers/kweker';
+import { NewKwekerAccount } from '../../declarations/KwekerAccount';
 
 type UserType = 'koper' | 'kweker' | 'veilingmeester';
 
@@ -12,7 +18,9 @@ interface InputField {
 }
 
 function Register() {
-	const { setLoggedIn } = useRootContext();
+	const { authenticateAccount } = useRootContext();
+	const kwekerForm = useForm<NewKwekerAccount>();
+
 	const navigate = useNavigate();
 	const [userType, setUserType] = useState<UserType>('koper');
 	const [step, setStep] = useState(1);
@@ -71,17 +79,13 @@ function Register() {
 		setFormData((prev) => ({ ...prev, [key]: value }));
 	};
 
-	//
-	// 👇 MODIFIED handleSubmit FUNCTION
-	//
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleRegister = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		// 1. Log the final data
 		console.log('Final submitted data:', formData);
 
 		// 2. Ideally, send the data to a server for account creation...
-		//    (You would put your API call here)
 
 		// 3. Define the destination route based on the selected userType
 		let destination = '/'; // Fallback to homepage
@@ -92,7 +96,13 @@ function Register() {
 				break;
 			case 'kweker':
 				destination = '/kweker';
-				// Replace with actual kweker dashboard route
+				try {
+					const authResponse = await createKwekerAccount(kwekerForm.getValues());
+					authenticateAccount(authResponse);
+				} catch (error) {
+					console.log('Error creating kweker account:', error);
+				}
+
 				break;
 			case 'veilingmeester':
 				destination = '/dashboard'; // Replace with actual veilingmeester dashboard route
@@ -103,15 +113,10 @@ function Register() {
 
 		// 4. Show success message (optional, replace with proper notification/state management)
 		alert(`Account created successfully as ${userType}! Redirecting...`);
-		// TODO: Temporary fix
-		setLoggedIn(true);
 
 		// 5. Navigate to the appropriate dashboard
 		navigate(destination);
 	};
-	//
-	// 👆 END MODIFIED handleSubmit FUNCTION
-	//
 
 	return (
 		<div className="app-page register-page">
@@ -158,7 +163,7 @@ function Register() {
 					))}
 				</div>
 
-				<form className="register-form" onSubmit={handleSubmit}>
+				<form className="register-form" onSubmit={handleRegister}>
 					{currentFields.map((field, idx) => {
 						const key = `${userType}-${field.label}`;
 						const ariaLabel = `${field.label} for ${userType}`;
