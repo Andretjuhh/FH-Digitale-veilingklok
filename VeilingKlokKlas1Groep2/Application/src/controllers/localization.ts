@@ -86,6 +86,7 @@ export const resources = {
 			create_account_aria: "Account aanmaken link",
 			progress_bar: "Aanmeld progressie: stap",
 			login_message_aria: "Link om terug naar inlog scherm te gaan",
+
 		},
 	},
 	en: {
