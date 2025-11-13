@@ -66,6 +66,14 @@ export const resources = {
 			login_button_aria: "Knop om in te loggen",
 			forgot_password_aria: "Wachtwoord vergeten link",
 			create_account_aria: "Account aanmaken link",
+
+			// Error page texts
+			go_back_home: 'Ga terug naar home',
+			something_went_wrong: 'Something went wrong.',
+			unexpected_happened: 'An unexpected error occurred. Please try again later.',
+
+			// Aria labels and alt texts
+			alt_error_bug_picture: 'Error bug image',
 		},
 	},
 	en: {
