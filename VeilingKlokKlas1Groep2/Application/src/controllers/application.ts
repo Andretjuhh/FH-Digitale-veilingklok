@@ -1,6 +1,6 @@
 // External imports
-import {TFunction} from "i18next";
-import {NavigateFunction} from "react-router-dom";
+import { TFunction } from 'i18next';
+import { NavigateFunction } from 'react-router-dom';
 
 // Internal imports
 
@@ -11,14 +11,15 @@ type InitializeAppProps = {
 };
 
 /** Initialize application global variable */
-export default async function initializeApp({t, navigate, changeLanguage}: InitializeAppProps) {
+export default async function initializeApp({ t, navigate, changeLanguage }: InitializeAppProps) {
+	console.log('Setting up application global variable...');
+
 	window.application = {
 		initialized: true,
 		t,
 		navigate,
 		pathname: window.location.pathname,
 		languageCode: 'nl',
-		changeLanguage
-	}
-
+		changeLanguage,
+	};
 }

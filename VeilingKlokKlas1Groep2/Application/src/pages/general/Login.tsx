@@ -1,8 +1,16 @@
+// External imports
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+
+// Internal imports
+import { LoginRequest } from '../../declarations/LoginRequest';
 
 function Login() {
 	const navigate = useNavigate();
+
+	const { register, handleSubmit } = useForm<LoginRequest>();
+
 	return (
 		<div className="app-page login-page">
 			<div className="login-card">
