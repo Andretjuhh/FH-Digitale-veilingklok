@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../buttons/Button';
 import FormInputField from '../../elements/FormInputField';
+import FormLink from '../../buttons/FormLink';
 
 type UserType = 'koper' | 'kweker' | 'veilingmeester';
 
@@ -190,8 +191,8 @@ function RegisterContent() {
 							/>
 						)}
 					</div>
-					<Button
-						className="login-link"
+					<FormLink
+						className="back-to-login-link"
 						label={window.application.t('login_message')}
 						onClick={() => navigate('/login')}
 						aria-label={window.application.t('login_message_aria')}

@@ -209,6 +209,22 @@
 	text-decoration: underline;
 }
 
+.back-to-login-link {
+	display: block;
+	text-align: center;
+	color: #2563eb;
+	font-size: 0.875rem;
+	text-decoration: none;
+	margin-top: 0.75rem;
+	background: none;
+	border: none;
+	cursor: pointer;
+}
+
+.back-to-login-link:hover {
+	text-decoration: underline;
+}
+
 /*#endregion*/
 
 /*#region Page Register*/
