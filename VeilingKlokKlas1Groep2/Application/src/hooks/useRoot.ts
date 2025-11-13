@@ -6,10 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { SupportedLanguages, useTranslation } from '../controllers/localization';
 import LocalStorage from '../controllers/localStorage';
 import initializeApp from '../controllers/application';
-import { initializeAuthentication, loginAccount, saveAuthenticationResponse } from '../controllers/authentication';
+import { initializeAuthentication, loginAccount } from '../controllers/authentication';
 import { AccountInfo } from '../declarations/AccountInfo';
 import { LoginRequest } from '../declarations/LoginRequest';
-import { AuthResponse } from '../declarations/AuthenticationResponse';
 
 function useRoot() {
 	//  Router navigation
@@ -58,20 +57,12 @@ function useRoot() {
 		await initializeApp({ t, navigate, changeLanguage });
 
 		// Initialize authentication
-		const _user = await initializeAuthentication().catch(() => undefined);
+		const _user = await initializeAuthentication().catch(null);
 		setAccount(_user);
-		setLoggedIn(!!_user);
+		setLoggedIn(_user !== null);
 
 		setInitialized(true);
 	}, [t, navigate, changeLanguage]);
-
-	// Authenticate account function (stub for future use)
-	const authenticateAccount = useCallback(async (account: AuthResponse) => {
-		console.log('Authenticating account in context...', account);
-		setLoggedIn(true);
-		setAccount({ email: account.email, accountType: account.accountType });
-		await saveAuthenticationResponse(account);
-	}, []);
 
 	// Authenticate user function
 	const authenticate = useCallback(async (account: LoginRequest) => {
@@ -79,12 +70,6 @@ function useRoot() {
 		// If no error is thrown, the login was successful
 		setLoggedIn(true);
 		setAccount({ email: authResponse.email, accountType: authResponse.accountType });
-		await saveAuthenticationResponse(authResponse);
-	}, []);
-
-	const removeAuthentication = useCallback(() => {
-		setLoggedIn(false);
-		setAccount(undefined);
 	}, []);
 
 	return {
@@ -93,8 +78,6 @@ function useRoot() {
 		loggedIn,
 		account,
 		authenticate,
-		authenticateAccount,
-		removeAuthentication,
 
 		t,
 		languageCode,

@@ -8,7 +8,6 @@ import useRoot from '../hooks/useRoot';
 import { SupportedLanguages } from '../controllers/localization';
 import { LoginRequest } from '../declarations/LoginRequest';
 import { AccountInfo } from '../declarations/AccountInfo';
-import { AuthResponse } from '../declarations/AuthenticationResponse';
 
 type RootContextProps = {
 	initialized: boolean;
@@ -19,9 +18,7 @@ type RootContextProps = {
 	languageCode: SupportedLanguages;
 	t: TFunction<'translation', undefined>;
 
-	authenticateAccount: (account: AuthResponse) => void;
-	removeAuthentication: () => void;
-	authenticate: (request: LoginRequest) => Promise<void>;
+	authenticate: (account: LoginRequest) => Promise<void>;
 	changeLanguage: (code: SupportedLanguages) => Promise<void> | void;
 	navigate: NavigateFunction;
 };
@@ -32,9 +29,6 @@ const RootContext = React.createContext<RootContextProps>({
 	languageCode: 'nl',
 	t: (() => '') as TFunction<'translation', undefined>,
 	account: undefined,
-
-	authenticateAccount: () => undefined,
-	removeAuthentication: () => undefined,
 	authenticate: () => Promise.resolve(),
 	changeLanguage: () => Promise.resolve(),
 	navigate: () => undefined,
@@ -42,7 +36,7 @@ const RootContext = React.createContext<RootContextProps>({
 
 function RootContextProvider({ children }: { children: React.ReactNode }) {
 	const rootData = useRoot();
-	console.log({ account: rootData.account, loggedIn: rootData.loggedIn });
+	console.log({ ...rootData });
 	return <RootContext.Provider value={rootData}>{rootData.initialized && children}</RootContext.Provider>;
 }
 
