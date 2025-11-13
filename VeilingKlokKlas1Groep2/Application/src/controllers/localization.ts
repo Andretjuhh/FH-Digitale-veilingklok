@@ -18,13 +18,27 @@ export const resources = {
 			get_Started: 'Meld je aan',
 			logout: 'Uitloggen',
 
-			//Login page texts
+			//Login and register page texts
 			welcome_back: 'Welkom terug',
 			sign_in_message: 'Meld u alstublieft aan bij uw account',
 			forgot_password: 'Wachtwoord vergeten?',
 			create_account: 'Account aanmaken',
 			password: 'Wachtwoord',
 			email: 'E-mailadres',
+			address: "Adres",
+			postcode: "Postcode",
+			region: "Regio",
+			company_name: "Bedrijfsnaam",
+			kvk_number: "KVK-Nummer",
+			phonenumber: "Telefoonnummer",
+			authorisation_code: "Autorisatiecode",
+			step: 'Stap',
+			of: 'van',
+			first_name: 'Voornaam',
+			last_name: 'Achternaam',
+			previous: 'Vorige',
+			next: 'Volgende',
+			login_message: 'Inloggen?',
 		
 
 			// Home page Texts
@@ -62,10 +76,16 @@ export const resources = {
 
 			// Aria labels and alt texts
 			alt_error_bug_picture: 'Error bug image',
+			email_aria: "Input veld om email in te vullen",
+			first_name_aria: "Input veld om voornaam in te vullen",
+			last_name_aria: "Input veld om achternaam in te vullen",
+			password_aria: "Input veld om wachtwoord in te vullen",
 			back_button_aria: "Knop om terug te gaan",
 			login_button_aria: "Knop om in te loggen",
 			forgot_password_aria: "Wachtwoord vergeten link",
 			create_account_aria: "Account aanmaken link",
+			progress_bar: "Aanmeld progressie: stap",
+			login_message_aria: "Link om terug naar inlog scherm te gaan",
 
 		},
 	},
