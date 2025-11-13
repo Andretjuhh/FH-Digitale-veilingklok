@@ -11,7 +11,7 @@ import { useRootContext } from '../../contexts/RootContext';
 function AppHeader() {
 	let location = useLocation();
 	const navigate = useNavigate();
-	const { removeAuthentication, loggedIn } = useRootContext();
+	const { removeAuthentication } = useRootContext();
 
 	const [scrollScale, setScrollScale] = useState(0);
 	const [isFilled, setIsFilled] = useState(false);
@@ -80,12 +80,10 @@ function AppHeader() {
 						)}
 					</ul>
 				</nav>
-				{(!['', '/'].includes(location.pathname) || loggedIn) && (
-					<Button className={'app-home-s-btn app-header-logout'} label={window.application.t('logout')} onClick={handleLogout} />
-				)}
+				{!['', '/'].includes(location.pathname) && <Button className={'app-home-s-btn app-header-logout'} label={window.application.t('logout')} onClick={handleLogout} />}
 			</header>
 
-			{['', '/'].includes(location.pathname) && !loggedIn && <LanguagePicker />}
+			{['', '/'].includes(location.pathname) && <LanguagePicker />}
 		</>
 	);
 }
