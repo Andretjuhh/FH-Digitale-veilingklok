@@ -21,7 +21,7 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 				headers: {
 					'Content-Type': 'application/json',
 					Accept: 'application/json',
-					Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}`,
+					// Authorization: `Bearer ${window.application.auth.accessToken}`,
 				},
 		  }
 		: {};
