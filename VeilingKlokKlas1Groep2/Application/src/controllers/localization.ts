@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import {initReactI18next, useTranslation} from 'react-i18next';
+import { initReactI18next, useTranslation } from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -42,11 +42,12 @@ export const resources = {
 		
 
 			// Home page Texts
-			what_is_flori_clock: "Wat is FloriClock?",
-			what_is_flori_clock_description: "FloriClock is een digitaal veilingplatform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen. Ons doel is om de veilinghandel in bloemen en planten te vereenvoudigen en te optimaliseren door middel van een gebruiksvriendelijke online marktplaats.",
-			how_it_works: "Hoe werkt het?",
-			flower_types: "Bloemsoorten",
-			flower_types_description: "Ontdek een breed scala aan bloemsoorten die beschikbaar zijn op ons platform. Van rozen tot tulpen, vind precies wat je zoekt.",
+			what_is_flori_clock: 'Wat is FloriClock?',
+			what_is_flori_clock_description:
+				'FloriClock is een digitaal veilingplatform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen. Ons doel is om de veilinghandel in bloemen en planten te vereenvoudigen en te optimaliseren door middel van een gebruiksvriendelijke online marktplaats.',
+			how_it_works: 'Hoe werkt het?',
+			flower_types: 'Bloemsoorten',
+			flower_types_description: 'Ontdek een breed scala aan bloemsoorten die beschikbaar zijn op ons platform. Van rozen tot tulpen, vind precies wat je zoekt.',
 			contact_us: 'Contacteer ons',
 			welcome_title: 'Welkom bij FloriClock',
 			welcome_description: `Bloemen en planten verkopen en kopen vanop nu nog makkelijker met FloriClock!
@@ -98,16 +99,19 @@ export const resources = {
 	fr: {
 		translation: {},
 	},
-}
-i18n.use(initReactI18next).init({
-	resources,
-	lng: 'nl',// if you're using a language detector, do not define the lng option
-	fallbackLng: 'nl',
-	debug: false,
-	interpolation: {escapeValue: false},
-}).then(null);
+};
+i18n
+	.use(initReactI18next)
+	.init({
+		resources,
+		lng: 'nl', // if you're using a language detector, do not define the lng option
+		fallbackLng: 'nl',
+		debug: false,
+		interpolation: { escapeValue: false },
+	})
+	.then(null);
 
-export type LocalizationResources = typeof resources['nl'] //keyof typeof resources['nl']['translation'];
-export type LocalizationTexts = keyof typeof resources['nl']['translation'];
+export type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
+export type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 export type SupportedLanguages = keyof typeof resources;
-export {useTranslation};
+export { useTranslation };
