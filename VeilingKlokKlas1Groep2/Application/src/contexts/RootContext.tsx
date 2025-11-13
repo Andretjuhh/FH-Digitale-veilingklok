@@ -1,20 +1,30 @@
 // External imports
 import React from 'react';
+import {TFunction} from "i18next";
+import {NavigateFunction} from "react-router-dom";
 
 // Internal imports
 import useRoot from "../hooks/useRoot";
+import {SupportedLanguages} from "../controllers/localization";
 
 type RootContextProps = {
 	initialized: boolean;
 	loggedIn: boolean;
+	languageCode: SupportedLanguages;
+	t: TFunction<"translation", undefined>
 	setLoggedIn: (b: boolean) => void;
+	changeLanguage: (code: SupportedLanguages) => Promise<void> | void;
+	navigate: NavigateFunction
 }
 
 const RootContext = React.createContext<RootContextProps>({
 	initialized: false,
 	loggedIn: false,
-	setLoggedIn: () => {
-	}
+	languageCode: 'nl',
+	t: (() => '') as TFunction<"translation", undefined>,
+	setLoggedIn: () => undefined,
+	changeLanguage: () => Promise.resolve(),
+	navigate: () => undefined,
 });
 
 function RootContextProvider({children}: { children: React.ReactNode }) {

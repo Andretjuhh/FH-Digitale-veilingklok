@@ -1,5 +1,609 @@
-﻿/* User Dashboard layout (wireframe skeleton) */
+﻿/*#region Page Login*/
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9fafb;
+}
 
+.login-card {
+    position: relative; /* Make sure the back button positions relative to this */
+    padding: 2rem;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    max-width: 90%;
+}
+
+.login-form {
+    flex: 1; /* take remaining height */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* scroll only this section */
+    padding: 0 2rem 2rem; /* padding inside scrollable area */
+}
+
+/* Optional: custom scrollbar for Webkit browsers */
+.login-form::-webkit-scrollbar {
+    width: 6px;
+}
+
+.login-form::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 116, 139, 0.5);
+    border-radius: 3px;
+}
+
+.login-form div {
+    display: flex;
+    flex-direction: column; /* Stack label above input */
+}
+
+.login-form label {
+    margin-bottom: 0.5rem; /* Add spacing between label and input */
+}
+
+.back-button {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: transparent;
+    border: none;
+    color: #007bff;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.back-button:hover {
+    color: #0056b3;
+}
+
+/* Card hover polish */
+.login-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Header */
+.login-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.login-icon {
+    background-color: #e0edff;
+    color: #2563eb;
+    border-radius: 50%;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.login-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.login-subtitle {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+/* Polished Input Fields */
+.input-field {
+    width: 90%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #f9fafb;
+    font-size: 1rem;
+    color: #374151;
+    transition: all 0.2s ease;
+    margin-bottom: 1rem;
+}
+
+.input-field::placeholder {
+    color: #9ca3af;
+}
+
+.input-field:hover {
+    border-color: #cbd5e1;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    background-color: #fff;
+}
+
+/* Button */
+.btn-primary {
+    background: linear-gradient(to right, #2563eb, #1d4ed8);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: background 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to right, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* Forgot password */
+.forgot-link {
+    display: block;
+    text-align: center;
+    color: #2563eb;
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-top: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+/* Register link */
+.register-link {
+    display: block;
+    text-align: center;
+    color: #2563eb;
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-top: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
+
+/*#endregion*/
+
+/*#region Page Register*/
+/* Make the page fill the viewport and prevent page scrolling */
+/* Center the card */
+.register-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    background-color: #f3f4f6;
+}
+
+/* Card styling */
+.register-card {
+    position: relative; /* Make sure the back button positions relative to this */
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 500px;
+
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; /* limit card height */
+}
+
+.back-button {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: transparent;
+    border: none;
+    color: #007bff;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.back-button:hover {
+    color: #0056b3;
+}
+
+/* Header stays fixed at top of card */
+.register-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 2rem;
+    flex-shrink: 0; /* don't shrink */
+    margin-bottom: 0.5rem;
+}
+
+.register-icon {
+    background-color: #e0edff;
+    color: #2563eb;
+    border-radius: 50%;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.register-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.register-subtitle {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+/* Tabs container stays fixed below header */
+.register-tabs {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid #e5e7eb;
+    padding: 0 2rem;
+    flex-shrink: 0; /* don't shrink */
+    margin-bottom: 0.5rem;
+}
+
+.register-tab {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 0;
+    cursor: pointer;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.register-tab:hover {
+    color: #2563eb;
+}
+
+.register-tab.active {
+    color: #2563eb;
+    border-bottom: 2px solid #2563eb;
+}
+
+/* Scrollable form section */
+.register-form {
+    flex: 1; /* take remaining height */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* scroll only this section */
+    padding: 0 2rem 2rem; /* padding inside scrollable area */
+}
+
+/* Optional: custom scrollbar for Webkit browsers */
+.register-form::-webkit-scrollbar {
+    width: 6px;
+}
+
+.register-form::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 116, 139, 0.5);
+    border-radius: 3px;
+}
+
+.register-form div {
+    display: flex;
+    flex-direction: column; /* Stack label above input */
+}
+
+.register-form label {
+    margin-bottom: 0.5rem; /* Add spacing between label and input */
+}
+
+/* Card hover polish */
+.register-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Polished Input Fields */
+.input-field {
+    width: 90%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #f9fafb;
+    font-size: 1rem;
+    color: #374151;
+    transition: all 0.2s ease;
+    margin-bottom: 1rem;
+}
+
+.input-field::placeholder {
+    color: #9ca3af;
+}
+
+.input-field:hover {
+    border-color: #cbd5e1;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    background-color: #fff;
+}
+
+/* Button */
+.btn-primary {
+    background: linear-gradient(to right, #2563eb, #1d4ed8);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: background 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to right, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* Register link */
+.login-link {
+    display: block;
+    text-align: center;
+    color: #2563eb;
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-top: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #4f46e5; /* nice purple-blue */
+    transition: width 0.3s ease;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn-secondary {
+    background: #e5e7eb;
+    color: #111;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+}
+
+/*#endregion*/
+
+/*#region Kweker Page*/
+:root {
+    --bg: #f6f6f6;
+    --muted: #9aa0a6;
+    --card: #ffffff;
+    --accent: #2d2d2d;
+    --pill-bg: #efefef;
+    --border: #ddd;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --header-height: 80px;
+}
+
+
+.kweker-container {
+    max-width: 1300px;
+    margin: 24px auto;
+    padding: 20px;
+    padding-top: calc(var(--header-height) + 20px);
+}
+
+.kweker-page {
+    background: var(--bg);
+    min-height: 100vh;
+}
+
+.kweker-hallo h1 {
+    font-weight: 600;
+    margin: 0 0 6px 0;
+    font-size: 35px;
+}
+
+.kweker-desc {
+    margin: 0 0 18px 0;
+    font-size: 20px;
+}
+
+.kweker-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.kweker-stat-card {
+    background: var(--card);
+    padding: 18px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    min-height: 92px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.stat-label {
+    font-size: 15px;
+}
+
+/*Kweker stats*/
+.stat-value {
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--accent);
+}
+
+.kweker-tabs-wrap {
+    margin: 20px 0;
+}
+
+.kweker-tabs {
+    display: flex;
+    background: var(--pill-bg);
+    padding: 6px;
+    border-radius: 20px;
+    width: 100%;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+}
+
+.kweker-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.kweker-tab.active {
+    background: var(--card);
+    color: var(--accent);
+    box-shadow: var(--shadow);
+}
+
+.kweker-content {
+    margin-top: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    padding: 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.content-inner {
+    max-width: 100%;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.product-card {
+    display: flex;
+    align-items: flex-start;
+    min-height: 140px;
+    box-sizing: border-box;
+    padding: 12px;
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+/* Product card layout */
+.product-info-kweker {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-right: 12px;
+}
+
+.product-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: var(--accent);
+}
+
+.product-desc {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+.product-price {
+    font-weight: 600;
+    font-size: 20px;
+    display: flex;
+    min-height: 10px;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 56px;
+}
+
+.product-thumb {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #efefef, #dcdcdc);
+}
+
+/* Knop toevoegen onderaan*/
+.content-footer .toevoegen-knop {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    display: inline-flex;
+    min-width: -webkit-fill-available;
+    align-items: center;
+    min-height: 30px;
+    padding: 10px 18px;
+    box-sizing: border-box;
+}
+
+/*#endregion*/
+
+/*#region Unknown page styles*/
 .user-hero {
     margin: calc(var(--header-size) + var(--top-pd)) 0 var(--top-pd);
     padding: 0 var(--side-pd);
@@ -35,7 +639,6 @@
     background: #f3f4f6;
     border-radius: 16px;
     padding: var(--top-pd);
-    border: 1px solid theme(colors.zinc.200);
     border: 1px solid theme(colors.zinc.200);
     display: grid;
     grid-template-columns: 1fr 1.4fr 0.9fr;
@@ -236,91 +839,6 @@
     font-weight: 800;
 }
 
-.user-footer {
-    margin-top: calc(var(--top-pd) * 2);
-    border-top: 1px solid theme(colors.zinc.200);
-    padding: var(--top-pd) var(--side-pd);
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--side-pd);
-}
-
-.user-footer-col {
-    display: grid;
-    gap: 10px;
-}
-
-.user-footer-title {
-    font-weight: 700;
-    color: theme(colors.secondary.main);
-}
-
-.user-footer-line {
-    color: #64748b;
-}
-
-.user-footer-list {
-    display: grid;
-    gap: 6px;
-}
-
-.user-footer-list a {
-    color: #475569;
-    text-decoration: none;
-}
-
-.user-footer-list a:hover {
-    text-decoration: underline;
-}
-
-@media (max-width: 1024px) {
-    .user-card {
-        grid-template-columns: 1fr;
-    }
-
-    .user-card-aside {
-        place-self: end;
-    }
-}
-
-/* Dark mode adjustments */
-.dark .user-dashboard {
-    color: theme(colors.zinc.100);
-}
-
-.dark .user-hero-title {
-    color: theme(colors.primary.200);
-}
-
-.dark .user-hero-sub {
-    color: theme(colors.zinc.200);
-}
-
-.dark .user-card {
-    background: theme(colors.zinc.800);
-    border-color: theme(colors.zinc.700);
-}
-
-.dark .user-card-media {
-    background: theme(colors.zinc.700);
-}
-
-.dark .product-info {
-    background: #064e3b;
-    border-color: #065f46;
-}
-
-.dark .prod-label {
-    color: #d1fae5;
-    opacity: .9;
-}
-
-.dark .prod-val {
-    background: #0b1220;
-    border-color: #374151;
-    color: #e5e7eb;
-}
-
 /* Upcoming queue */
 .upcoming {
     margin-top: calc(var(--top-pd) * 1.5);
@@ -407,7 +925,7 @@
     color: #cbd5e1;
 }
 
-.dark .user-footer {
+.dark .app-footer {
     border-color: theme(colors.zinc.700);
 }
 
@@ -546,3 +1064,5 @@
 .dark .qty-blue {
     background: #60a5fa !important;
 }
+
+/*#endregion*/

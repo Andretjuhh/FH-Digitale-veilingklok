@@ -1,10 +1,10 @@
 // External imports
 import React from 'react';
 import clsx from 'clsx';
-import AppHeader from "../nav/AppHeader";
 
 // Internal imports
-
+import AppHeader from "../nav/AppHeader";
+import AppFooter from "../nav/AppFooter";
 
 type PageProps = {
 	enableHeader?: boolean;
@@ -20,6 +20,7 @@ function Page(props: PageProps) {
 		>
 			{enableHeader && <AppHeader/>}
 			{children}
+			{enableFooter && <AppFooter/>}
 		</div>
 	);
 }

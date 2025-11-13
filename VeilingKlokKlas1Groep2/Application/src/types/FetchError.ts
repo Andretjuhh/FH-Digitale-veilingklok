@@ -1,5 +1,5 @@
-export interface FetchError {
+export interface FetchError<T> {
+	name?: string;
 	statusCode: number;
-	errorCode: string;
-	message: string;
+	data?: string | T;
 }
