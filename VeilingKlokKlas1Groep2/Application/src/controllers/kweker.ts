@@ -1,8 +1,9 @@
 import { fetchResponse } from '../utils/fetchHelpers';
 import { NewKwekerAccount } from '../declarations/KwekerAccount';
+import { AuthResponse } from '../declarations/AuthenticationResponse';
 
 export async function createKwekerAccount(account: NewKwekerAccount) {
-	return await fetchResponse('/kweker/create', {
+	return await fetchResponse<AuthResponse>('/kweker/create', {
 		method: 'POST',
 		body: JSON.stringify(account),
 	});
