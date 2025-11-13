@@ -12,6 +12,7 @@ namespace VeilingKlokApp.Data
         public DbSet<Veilingmeester> Veilingmeesters { get; set; }
         public DbSet<VeilingKlok> Veilingklokken { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -55,6 +56,13 @@ namespace VeilingKlokApp.Data
 
             modelBuilder.Entity<Product>().HasOne(pd => pd.Kweker).WithMany(kw => kw.Products)
                 .HasForeignKey(pd => pd.KwekerId).IsRequired();
+
+            // 6. One-to-many Relationship for Account to RefreshTokens
+            modelBuilder.Entity<RefreshToken>()
+                .HasOne(rt => rt.Account)
+                .WithMany()
+                .HasForeignKey(rt => rt.AccountId)
+                .OnDelete(DeleteBehavior.Cascade); // Delete tokens when account is deleted
         }
     }
 }

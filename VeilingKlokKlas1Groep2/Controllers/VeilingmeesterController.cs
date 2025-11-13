@@ -2,48 +2,80 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.Extensions.Options;
 
 using VeilingKlokApp.Data;
 using VeilingKlokApp.Models;
 using VeilingKlokApp.Models.Domain;
+using VeilingKlokApp.Models.OutputDTOs;
+using VeilingKlokKlas1Groep2.Declarations;
 using VeilingKlokKlas1Groep2.Models;
+using VeilingKlokKlas1Groep2.Services;
+using VeilingKlokKlas1Groep2.Configuration;
 
 namespace VeilingKlokApp.Controllers
 {
+    /// <summary>
+    /// Controller for managing Veilingmeester (Auctioneer) operations
+    /// Handles CRUD operations for auctioneer accounts and their auction clocks
+    /// </summary>
     [ApiController]
     [Route("api/veilingmeester")]
     public class VeilingmeesterController : ControllerBase
     {
         private readonly VeilingKlokContext _db;
+        private readonly IPasswordHasher _passwordHasher;
+        private readonly IAuthService _authService;
 
-        public VeilingmeesterController(VeilingKlokContext db)
+        public VeilingmeesterController(VeilingKlokContext db, IPasswordHasher passwordHasher, IAuthService authService)
         {
             _db = db;
+            _passwordHasher = passwordHasher;
+            _authService = authService;
         }
 
-        // 1) Create Veilingmeester account (transactional)
+        #region Create Veilingmeester Account
+
+        /// <summary>
+        /// Creates a new Veilingmeester (Auctioneer) account
+        /// </summary>
+        /// <param name="newVeilingmeester">Veilingmeester account details to create</param>
+        /// <returns>Created account ID with HTTP 200 status</returns>
         [HttpPost("create")]
         public async Task<IActionResult> CreateVeilingmeesterAccount([FromBody] NewVeilingMeesterAccount newVeilingmeester)
         {
-            // Validate input minimally
-            if (newVeilingmeester == null) return BadRequest("Missing payload.");
+            // Validate input payload
+            if (newVeilingmeester == null)
+            {
+                var error = new HtppError(
+                    "Bad Request",
+                    "Veilingmeester account data is required",
+                    400
+                );
+                return BadRequest(error);
+            }
 
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
-                // NOTE: Check for existing account by email here to provide a better error message 
-                // than letting the DB unique constraint fail.
+                // Check for existing account by email using LINQ
+                // Provides better error message than DB unique constraint
                 if (await _db.Accounts.AnyAsync(a => a.Email == newVeilingmeester.Email))
                 {
                     await transaction.RollbackAsync();
-                    return BadRequest("FAILURE: An account with this email already exists.");
+                    var error = new HtppError(
+                        "Conflict",
+                        "An account with this email already exists",
+                        409
+                    );
+                    return Conflict(error);
                 }
 
-                // Create Veilingmeester directly (Account is abstract and base of Kweker)
+                // Create Veilingmeester entity (Account is abstract base class)
                 var veilingmeester = new Veilingmeester
                 {
                     Email = newVeilingmeester.Email,
-                    Password = newVeilingmeester.Password,
+                    Password = _passwordHasher.HashPassword(newVeilingmeester.Password),
                     CreatedAt = DateTime.UtcNow,
                     Regio = newVeilingmeester.Regio,
                     AurthorisatieCode = newVeilingmeester.AurthorisatieCode
@@ -52,114 +84,245 @@ namespace VeilingKlokApp.Controllers
                 _db.Veilingmeesters.Add(veilingmeester);
                 await _db.SaveChangesAsync();
 
+                // Use AuthService to perform sign in (generate tokens, persist refresh token, set cookie)
+                var accountType = "Veilingmeester";
+                var authResponse = await _authService.SignInAsync(veilingmeester, accountType, Response);
+
                 await transaction.CommitAsync();
 
-                return Ok(new { message = "SUCCESS: Veilingmeester Account created", accountId = veilingmeester.Id });
-            }
-            // 👇 CATCH SPECIFIC DATABASE ERRORS
-            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
-            {
-                await transaction.RollbackAsync();
-                // This is the common exception for constraint violations, foreign key issues, etc.
-                // We return the inner exception message to help you debug the exact issue.
-                return StatusCode(500, $"FAILURE: Database constraint violation (rolled back). Error: {ex.InnerException?.Message ?? ex.Message}");
-            }
-            catch (System.Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return StatusCode(500, $"FAILURE: Account creation failed (rolled back). Error: {ex.Message}");
-            }
-        }
-
-        // 2) Get Veilingmeester account
-        [HttpGet("{accountId}")]
-        public async Task<ActionResult<VeilingmeesterDetails>> GetVeilingmeesterAccount(int accountId)
-        {
-            var veilingmeesterDetails = await _db.Veilingmeesters
-                .Where(v => v.Id == accountId)
-                .Select(v => new VeilingmeesterDetails
-                {
-                    AccountId = v.Id,
-                    Email = v.Email,     // base property from Account
-                    Regio = v.Regio,
-                    AurthorisatieCode = v.AurthorisatieCode
-                })
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
-
-            if (veilingmeesterDetails == null)
-                return NotFound($"Velingmeester account with ID {accountId} not found.");
-
-            return Ok(veilingmeesterDetails);
-        }
-
-        //Update Veilingmeester account (Currently does not create if it doesnt exist)
-        [HttpPut("{accountId}")]
-        public async Task<IActionResult> UpdateVeilingmeesterAccount(int accountId, [FromBody] UpdateVeilingMeester updateVeilingmeester)
-        {
-            // 1. Basic validation
-            if (updateVeilingmeester == null)
-            {
-                return BadRequest("Missing payload.");
-            }
-
-            // 2. Start Transaction for atomic update of Account and Veilingmeester
-            // Crucial for modifying data across two related tables (Account and Veilingmeester)
-            using var transaction = await _db.Database.BeginTransactionAsync();
-            try
-            {
-                // 3. Retrieve existing Koper record
-                var veilingmeester = await _db.Veilingmeesters
-                    .FirstOrDefaultAsync(v => v.Id == accountId);
-
-                // 4. Check if the resource exists
-                if (veilingmeester == null)
-                {
-                    await transaction.RollbackAsync();
-                    return NotFound($"FAILURE: Veiliingmeester account with ID {accountId} not found. Cannot update.");
-                }
-
-                // 5. Check for Email collision if the email is being changed
-                if (veilingmeester.Email != updateVeilingmeester.Email)
-                {
-                    // Check if the new email is already in use by a *different* account
-                    if (await _db.Accounts.AnyAsync(a => a.Email == updateVeilingmeester.Email && a.Id != accountId))
-                    {
-                        await transaction.RollbackAsync();
-                        return BadRequest("FAILURE: Another account already uses this email address.");
-                    }
-                }
-
-                // 6. Update Account details (Email)
-                veilingmeester.Email = updateVeilingmeester.Email;
-                // NOTE: The Password field is NOT updated here for security reasons.
-
-                // 7. Update Koper details (Profile fields)
-                veilingmeester.Password = updateVeilingmeester.Password;
-                veilingmeester.AurthorisatieCode = updateVeilingmeester.AuthorisatieCode;
-                veilingmeester.Regio = updateVeilingmeester.Regio;
-
-                // EF Core tracks the changes, but we ensure they are saved
-                await _db.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                // Standard response for a successful PUT update
-                return Ok(new { message = $"SUCCESS: Veilingmeester Account {accountId} updated successfully." });
+                return Ok(authResponse);
             }
             catch (DbUpdateException ex)
             {
                 await transaction.RollbackAsync();
-                return StatusCode(500, $"FAILURE: Database error during update (rolled back). Error: {ex.InnerException?.Message ?? ex.Message}");
+                var error = new HtppError(
+                    "Database Error",
+                    $"Database constraint violation: {ex.InnerException?.Message ?? ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return StatusCode(500, $"FAILURE: Account update failed (rolled back). Error: {ex.Message}");
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Account creation failed: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
             }
-
-
         }
 
+        #endregion
 
+        #region Get Veilingmeester Account
+
+        /// <summary>
+        /// Retrieves a Veilingmeester account by ID
+        /// </summary>
+        /// <param name="accountId">The ID of the Veilingmeester account to retrieve</param>
+        /// <returns>Veilingmeester account details with HTTP 200 status</returns>
+        [HttpGet("{accountId}")]
+        public async Task<ActionResult<VeilingmeesterDetails>> GetVeilingmeesterAccount(int accountId)
+        {
+            try
+            {
+                // Retrieve Veilingmeester using LINQ with projection to DTO
+                var veilingmeesterDetails = await _db.Veilingmeesters
+                    .Where(v => v.Id == accountId)
+                    .Select(v => new VeilingmeesterDetails
+                    {
+                        AccountId = v.Id,
+                        Email = v.Email,     // Base property from Account
+                        Regio = v.Regio,
+                        AurthorisatieCode = v.AurthorisatieCode
+                    })
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
+
+                if (veilingmeesterDetails == null)
+                {
+                    var error = new HtppError(
+                        "Not Found",
+                        $"Veilingmeester account with ID {accountId} not found",
+                        404
+                    );
+                    return NotFound(error);
+                }
+
+                return Ok(veilingmeesterDetails);
+            }
+            catch (Exception ex)
+            {
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Failed to retrieve Veilingmeester account: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+        }
+
+        #endregion
+
+        #region Update Veilingmeester Account
+
+        /// <summary>
+        /// Updates an existing Veilingmeester account
+        /// </summary>
+        /// <param name="accountId">The ID of the Veilingmeester account to update</param>
+        /// <param name="updateVeilingmeester">Updated Veilingmeester profile details</param>
+        /// <returns>Success message with HTTP 200 status</returns>
+        [HttpPut("update/{accountId}")]
+        public async Task<IActionResult> UpdateVeilingmeesterAccount(int accountId, [FromBody] UpdateVeilingMeester updateVeilingmeester)
+        {
+            // Validate input payload
+            if (updateVeilingmeester == null)
+            {
+                var error = new HtppError(
+                    "Bad Request",
+                    "Update data is required",
+                    400
+                );
+                return BadRequest(error);
+            }
+
+            // Start transaction for atomic update across Account and Veilingmeester tables
+            using var transaction = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                // Retrieve existing Veilingmeester record using LINQ
+                var veilingmeester = await _db.Veilingmeesters
+                    .Where(v => v.Id == accountId)
+                    .FirstOrDefaultAsync();
+
+                // Check if the resource exists
+                if (veilingmeester == null)
+                {
+                    await transaction.RollbackAsync();
+                    var error = new HtppError(
+                        "Not Found",
+                        $"Veilingmeester account with ID {accountId} not found",
+                        404
+                    );
+                    return NotFound(error);
+                }
+
+                // Check for email collision if email is being changed
+                if (veilingmeester.Email != updateVeilingmeester.Email)
+                {
+                    // Verify new email isn't used by a different account using LINQ
+                    var emailExists = await _db.Accounts
+                        .AnyAsync(a => a.Email == updateVeilingmeester.Email && a.Id != accountId);
+
+                    if (emailExists)
+                    {
+                        await transaction.RollbackAsync();
+                        var error = new HtppError(
+                            "Conflict",
+                            "Another account already uses this email address",
+                            409
+                        );
+                        return Conflict(error);
+                    }
+                }
+
+                // Update Account details (Email)
+                veilingmeester.Email = updateVeilingmeester.Email;
+
+                // Update Veilingmeester details (Profile fields)
+                veilingmeester.Password = updateVeilingmeester.Password;
+                veilingmeester.AurthorisatieCode = updateVeilingmeester.AuthorisatieCode;
+                veilingmeester.Regio = updateVeilingmeester.Regio;
+
+                // Save changes and commit transaction
+                await _db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok(new { message = $"Veilingmeester account {accountId} updated successfully" });
+            }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+                var error = new HtppError(
+                    "Database Error",
+                    $"Database error during update: {ex.InnerException?.Message ?? ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Account update failed: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+        }
+
+        #endregion
+
+        #region Get Veilingmeester Auction Clocks
+
+        /// <summary>
+        /// Retrieves all VeilingKlokken (Auction Clocks) for a specific Veilingmeester
+        /// </summary>
+        /// <param name="accountId">The ID of the Veilingmeester account</param>
+        /// <returns>List of VeilingKlokken with HTTP 200 status</returns>
+        [HttpGet("{accountId}/veilingklokken")]
+        public async Task<ActionResult<IEnumerable<VeilingKlokDetails>>> GetVeilingmeesterVeilingKlokken(int accountId)
+        {
+            try
+            {
+                // Verify Veilingmeester exists using LINQ
+                var veilingmeesterExists = await _db.Veilingmeesters.AnyAsync(v => v.Id == accountId);
+                
+                if (!veilingmeesterExists)
+                {
+                    var error = new HtppError(
+                        "Not Found",
+                        $"Veilingmeester account with ID {accountId} not found",
+                        404
+                    );
+                    return NotFound(error);
+                }
+
+                // Retrieve all VeilingKlokken for this Veilingmeester using LINQ
+                var veilingKlokken = await _db.Veilingklokken
+                    .Where(vk => vk.VeilingmeesterId == accountId)
+                    .Select(vk => new VeilingKlokDetails
+                    {
+                        Id = vk.Id,
+                        Naam = vk.Naam,
+                        DurationInSeconds = vk.DurationInSeconds,
+                        LiveViews = vk.LiveViews,
+                        StartTime = vk.StartTime,
+                        EndTime = vk.EndTime,
+                        VeilingmeesterId = vk.VeilingmeesterId
+                    })
+                    .OrderBy(vk => vk.StartTime)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                return Ok(new { count = veilingKlokken.Count, veilingKlokken });
+            }
+            catch (Exception ex)
+            {
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Failed to retrieve Veilingmeester auction clocks: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+        }
+
+        #endregion
+
+        // Helpers moved to AuthService
     }
 }

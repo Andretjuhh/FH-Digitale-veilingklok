@@ -145,6 +145,49 @@ namespace VeilingKlokKlas1Groep2.Migrations
                     b.ToTable("Product");
                 });
 
+            modelBuilder.Entity("VeilingKlokApp.Models.Domain.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int")
+                        .HasColumnName("account_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("ReplacedByToken")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("replaced_by_token");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("token");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("RefreshToken");
+                });
+
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.VeilingKlok", b =>
                 {
                     b.Property<int>("Id")
@@ -247,10 +290,9 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 {
                     b.HasBaseType("VeilingKlokApp.Models.Domain.Account");
 
-                    b.Property<string>("SoortVeiling")
-                        .IsRequired()
+                    b.Property<int>("AurthorisatieCode")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .HasColumnType("int")
                         .HasColumnName("soort_veiling");
 
                     b.ToTable("Veilingmeester");
@@ -284,6 +326,17 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .IsRequired();
 
                     b.Navigation("Kweker");
+                });
+
+            modelBuilder.Entity("VeilingKlokApp.Models.Domain.RefreshToken", b =>
+                {
+                    b.HasOne("VeilingKlokApp.Models.Domain.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.VeilingKlok", b =>

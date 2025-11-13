@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     /// <inheritdoc />
-    public partial class ProductMigrane : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,6 +19,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    regio = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     created_at = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -34,8 +35,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                     first_name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     last_name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     adress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    post_code = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    regio = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    post_code = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -56,7 +56,6 @@ namespace VeilingKlokKlas1Groep2.Migrations
                     name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     telephone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     adress = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    regio = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     kvk_nmr = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
@@ -71,12 +70,35 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RefreshToken",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    token = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    account_id = table.Column<int>(type: "int", nullable: false),
+                    expires_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    revoked_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    replaced_by_token = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshToken", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_RefreshToken_Account_account_id",
+                        column: x => x.account_id,
+                        principalTable: "Account",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Veilingmeester",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false),
-                    soort_veiling = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    regio = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    soort_veiling = table.Column<int>(type: "int", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -189,6 +211,11 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 column: "kweker_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RefreshToken_account_id",
+                table: "RefreshToken",
+                column: "account_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Veilingklok_veilingmeester_id",
                 table: "Veilingklok",
                 column: "veilingmeester_id");
@@ -199,6 +226,9 @@ namespace VeilingKlokKlas1Groep2.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Order");
+
+            migrationBuilder.DropTable(
+                name: "RefreshToken");
 
             migrationBuilder.DropTable(
                 name: "Veilingklok");
