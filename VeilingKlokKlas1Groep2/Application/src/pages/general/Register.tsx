@@ -84,6 +84,7 @@ function Register() {
 
 		// 1. Log the final data
 		console.log('Final submitted data:', formData);
+		console.log('Kweker form data:', kwekerForm.getValues());
 
 		// 2. Ideally, send the data to a server for account creation...
 
