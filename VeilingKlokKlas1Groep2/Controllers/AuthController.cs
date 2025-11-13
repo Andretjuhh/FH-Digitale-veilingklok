@@ -39,6 +39,8 @@ namespace VeilingKlokApp.Controllers
             _authService = authService;
         }
 
+        
+
         #region Login
 
         /// <summary>
@@ -239,6 +241,49 @@ namespace VeilingKlokApp.Controllers
                 var error = new HtppError(
                     "Internal Server Error",
                     $"Token revocation failed: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+        }
+
+        #endregion
+
+        #region Account Info
+
+        /// <summary>
+        /// Returns the authenticated user's account info (email and account type)
+        /// </summary>
+        [HttpGet("account")]
+        [VeilingKlokKlas1Groep2.Attributes.Authorize]
+        public IActionResult GetAccountInfo()
+        {
+            try
+            {
+                var email = HttpContext.User?.Claims
+                    .FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+
+                var accountType = HttpContext.Items["AccountType"] as string
+                                   ?? HttpContext.User?.Claims.FirstOrDefault(c => c.Type == "AccountType")?.Value
+                                   ?? string.Empty;
+
+                if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(accountType))
+                {
+                    var error = new HtppError(
+                        "Unauthorized",
+                        "Invalid token claims",
+                        401
+                    );
+                    return Unauthorized(error);
+                }
+
+                return Ok(new { email, accountType });
+            }
+            catch (Exception ex)
+            {
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Failed to retrieve account info: {ex.Message}",
                     500
                 );
                 return StatusCode(500, error);
