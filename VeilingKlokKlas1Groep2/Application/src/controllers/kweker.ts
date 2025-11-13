@@ -7,3 +7,15 @@ export async function createKwekerAccount(account: NewKwekerAccount) {
 		body: JSON.stringify(account),
 	});
 }
+
+export async function getKwekerAccountInfo() {
+	return await fetchResponse('/kweker/account-info', {
+		method: 'GET',
+	});
+}
+
+export async function getKwekerProducts() {
+	return await fetchResponse('/kweker/products', {
+		method: 'GET',
+	});
+}

@@ -1,6 +1,6 @@
 // Internal exports
-import CONFIG from "../constant/application";
-import {FetchError} from "../types/FetchError";
+import CONFIG from '../constant/application';
+import { FetchError } from '../types/FetchError';
 
 /** Make an application fetch request */
 export async function appFetch(request: RequestInfo | URL, options: RequestInit = {}) {
@@ -14,15 +14,17 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 	}
 
 	// Set default options for proper cookie handling
-	const defaultOptions: RequestInit = isAppFetch ? {
-		method: 'GET',
-		credentials: 'include', // Include cookies in the request
-		headers: {
-			'Content-Type': 'application/json',
-			Accept: 'application/json',
-			// Authorization: `Bearer ${window.application.auth.accessToken}`,
-		},
-	} : {};
+	const defaultOptions: RequestInit = isAppFetch
+		? {
+				method: 'GET',
+				credentials: 'include', // Include cookies in the request
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+					// Authorization: `Bearer ${window.application.auth.accessToken}`,
+				},
+		  }
+		: {};
 
 	// Merge with user options
 	const mergedOptions: RequestInit = {
@@ -60,13 +62,13 @@ export async function handleResponse<GeneticResponse = any, GeneticError = any>(
 		if (contentType?.includes('application/json')) {
 			try {
 				// Return the parsed JSON requestResponse
-				return await requestResponse.json() as Promise<GeneticResponse>;
+				return (await requestResponse.json()) as Promise<GeneticResponse>;
 			} catch (error: any) {
 				throw new Error(`Error parsing JSON: ${error.message}`);
 			}
 		} else {
 			// Handle non-JSON requestResponse types
-			return await requestResponse.text() as unknown as Promise<GeneticResponse>;
+			return (await requestResponse.text()) as unknown as Promise<GeneticResponse>;
 		}
 	} else {
 		// Read the error message from the requestResponse body
@@ -77,7 +79,7 @@ export async function handleResponse<GeneticResponse = any, GeneticError = any>(
 
 		// Attempt to parse the error requestResponse as JSON
 		try {
-			fetchError.data = await requestResponse.clone().json() as GeneticError;
+			fetchError.data = (await requestResponse.clone().json()) as GeneticError;
 		} catch {
 			fetchError.data = await requestResponse.clone().text();
 		}
