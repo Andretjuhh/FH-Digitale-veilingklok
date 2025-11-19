@@ -33,8 +33,10 @@ namespace VeilingKlokApp.Models.Domain
         // --- Veilingmeester Relationship ---
         [Column("veilingmeester_id")]
         [Required]
-         public int VeilingmeesterId { get; set; }
+        public int VeilingmeesterId { get; set; }
         public Veilingmeester Veilingmeester { get; set; } = default!;
 
+        // --- Products Relationship ---
+        public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }
