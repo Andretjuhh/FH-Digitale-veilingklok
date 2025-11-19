@@ -1,21 +1,30 @@
 // External imports
-import { TFunction } from 'i18next';
-import { NavigateFunction } from 'react-router-dom';
+import {NavigateFunction} from 'react-router-dom';
 
 // Internal imports
-import { SupportedLanguages, LocalizationResources } from './src/controllers/localization';
+import {LocalizationResources, SupportedLanguages} from './src/controllers/localization';
+import {AccountInfo} from "./src/declarations/AccountInfo";
 
 declare global {
+	/** Interface representing the global application state
+	 *
+	 * @property {boolean} initialized - Indicates if the application has been initialized
+	 * @property {string}
+	 * pathname - The current pathname of the application
+	 * @property {SupportedLanguages} languageCode - The current language code of the application
+	 * @property {NavigateFunction} navigate - Function to programmatically navigate within the application
+	 * @property {Pick<AccountInfo, 'email' | 'accountType'>} [account] - Account authentication state
+	 * */
 	interface Application {
 		initialized: boolean; // Indicates if the application has been initialized
 		pathname: string;
 		languageCode: SupportedLanguages;
 
-		t: TFunction; // Assuming t is a function that translates a key to a string
-		navigate: NavigateFunction; // Function to navigate to a different page
-		changeLanguage: (code: SupportedLanguages) => Promise<void> | void;
+		/** Function to programmatically navigate within the application */
+		navigate: NavigateFunction;
 
-		account?: Pick<AuthResponse, 'email' | 'accountType'>;
+		/** Account authentication state */
+		account?: AccountInfo;
 	}
 
 	interface Window {

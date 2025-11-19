@@ -1,14 +1,14 @@
 // External imports
 import React from 'react';
-import { TFunction } from 'i18next';
-import { NavigateFunction } from 'react-router-dom';
+import {TFunction} from 'i18next';
+import {NavigateFunction} from 'react-router-dom';
 
 // Internal imports
 import useRoot from '../hooks/useRoot';
-import { SupportedLanguages } from '../controllers/localization';
-import { LoginRequest } from '../declarations/LoginRequest';
-import { AccountInfo } from '../declarations/AccountInfo';
-import { AuthResponse } from '../declarations/AuthenticationResponse';
+import {SupportedLanguages} from '../controllers/localization';
+import {LoginRequest} from '../declarations/LoginRequest';
+import {AccountInfo} from '../declarations/AccountInfo';
+import {AuthResponse} from '../declarations/AuthenticationResponse';
 
 type RootContextProps = {
 	initialized: boolean;
@@ -16,12 +16,15 @@ type RootContextProps = {
 	loggedIn: boolean;
 	account: AccountInfo | undefined;
 
+	/** Current application language code */
 	languageCode: SupportedLanguages;
 	t: TFunction<'translation', undefined>;
 
+	/** Authenticate and store account information */
+	authenticate: (request: LoginRequest) => Promise<void>;
 	authenticateAccount: (account: AuthResponse) => void;
 	removeAuthentication: () => void;
-	authenticate: (request: LoginRequest) => Promise<void>;
+
 	changeLanguage: (code: SupportedLanguages) => Promise<void> | void;
 	navigate: NavigateFunction;
 };
@@ -40,9 +43,9 @@ const RootContext = React.createContext<RootContextProps>({
 	navigate: () => undefined,
 });
 
-function RootContextProvider({ children }: { children: React.ReactNode }) {
+function RootContextProvider({children}: { children: React.ReactNode }) {
 	const rootData = useRoot();
-	console.log({ account: rootData.account, loggedIn: rootData.loggedIn });
+	console.log({account: rootData.account, loggedIn: rootData.loggedIn});
 	return <RootContext.Provider value={rootData}>{rootData.initialized && children}</RootContext.Provider>;
 }
 
@@ -54,5 +57,5 @@ function useRootContext() {
 	return context;
 }
 
-export { useRootContext };
+export {useRootContext};
 export default RootContextProvider;

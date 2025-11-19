@@ -1,6 +1,6 @@
 // External imports
 import React, { useCallback, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 // Internal imports
 import LanguagePicker from '../buttons/LanguagePicker';
@@ -10,8 +10,7 @@ import { useRootContext } from '../../contexts/RootContext';
 
 function AppHeader() {
 	let location = useLocation();
-	const navigate = useNavigate();
-	const { removeAuthentication, loggedIn } = useRootContext();
+	const { removeAuthentication, loggedIn, t, navigate } = useRootContext();
 
 	const [scrollScale, setScrollScale] = useState(0);
 	const [isFilled, setIsFilled] = useState(false);
@@ -50,39 +49,37 @@ function AppHeader() {
 						{['', '/'].includes(location.pathname) ? (
 							<>
 								<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
-									{window.application.t('what_is_flori_clock')}
+									{t('what_is_flori_clock')}
 								</a>
 								<a className={'nav-menu-anchor'} href={'#soort-bloemen'}>
-									{window.application.t('flower_types')}
+									{t('flower_types')}
 								</a>
 								<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
-									{window.application.t('how_it_works')}
+									{t('how_it_works')}
 								</a>
 								<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
-									{window.application.t('contact_us')}
+									{t('contact_us')}
 								</a>
 							</>
 						) : (
 							<>
 								<a className={'nav-menu-anchor'} href={'#'}>
-									{window.application.t('dashboard')}
+									{t('dashboard')}
 								</a>
 								<a className={'nav-menu-anchor'} href={'#'}>
-									{window.application.t('orders')}
+									{t('orders')}
 								</a>
 								<a className={'nav-menu-anchor'} href={'#'}>
-									{window.application.t('manage_account')}
+									{t('manage_account')}
 								</a>
 								<a className={'nav-menu-anchor'} href={'#'}>
-									{window.application.t('settings')}
+									{t('settings')}
 								</a>
 							</>
 						)}
 					</ul>
 				</nav>
-				{(!['', '/'].includes(location.pathname) || loggedIn) && (
-					<Button className={'app-home-s-btn app-header-logout'} label={window.application.t('logout')} onClick={handleLogout} />
-				)}
+				{(!['', '/'].includes(location.pathname) || loggedIn) && <Button className={'app-home-s-btn app-header-logout'} label={t('logout')} onClick={handleLogout} />}
 			</header>
 
 			{['', '/'].includes(location.pathname) && !loggedIn && <LanguagePicker />}
