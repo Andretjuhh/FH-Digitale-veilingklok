@@ -53,8 +53,19 @@ namespace VeilingKlokApp.Data
                 .HasForeignKey(vk => vk.VeilingmeesterId)
                 .IsRequired();
 
-            modelBuilder.Entity<Product>().HasOne(pd => pd.Kweker).WithMany(kw => kw.Products)
-                .HasForeignKey(pd => pd.KwekerId).IsRequired();
+            // 6. One-to-many Relationship for Kweker products
+            modelBuilder.Entity<Product>()
+                .HasOne(pd => pd.Kweker)
+                .WithMany(kw => kw.Products)
+                .HasForeignKey(pd => pd.KwekerId)
+                .IsRequired();
+
+            // 7. One-to-many Relationship for Veilingklok products
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.VeilingKlok)
+                .WithMany(vk => vk.Products)
+                .HasForeignKey(p => p.VeilingKlokId)
+                .IsRequired();
         }
     }
 }

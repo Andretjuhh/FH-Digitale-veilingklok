@@ -35,12 +35,17 @@ namespace VeilingKlokApp.Models.Domain
         
         [Column("size")]
         public string? Size { get; set; }
-        
 
         // --- Kweker Relationship ---
         [Column("kweker_id")]
         [Required]
         public int KwekerId { get; set; } // FK to Kweker
         public Kweker Kweker { get; set; } = default!; // Navigation property to Kweker
+
+        // --- Veilingklok Relationship ---
+        [Column("veilingklok_id")]
+        [Required]
+        public int VeilingKlokId { get; set; } // FK to VeilingKlok
+        public VeilingKlok VeilingKlok { get; set; } = default!; // Navigation property
     }
 }
