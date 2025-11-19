@@ -20,7 +20,7 @@ function LoginContent() {
 		<div className="app-page login-page">
 			<div className="login-card">
 				<div className="login-header">
-					<Button className="logo-icon" icon="/svg/logo-flori.svg" onClick={handleGoBack} aria-label={t('back_button_aria')} />
+					<Button className="logo-icon" img="/svg/logo-flori.svg" onClick={handleGoBack} aria-label={t('back_button_aria')} />
 					<div className="login-text-container">
 						<h2 className={'login-title'} aria-label={t('welcome_back')}>
 							{t('welcome_back')}
