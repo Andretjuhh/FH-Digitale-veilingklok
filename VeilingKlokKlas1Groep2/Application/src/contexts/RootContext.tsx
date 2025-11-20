@@ -1,45 +1,58 @@
 // External imports
 import React from 'react';
-import {TFunction} from "i18next";
-import {NavigateFunction} from "react-router-dom";
+import {TFunction} from 'i18next';
+import {NavigateFunction} from 'react-router-dom';
 
 // Internal imports
-import useRoot from "../hooks/useRoot";
-import {SupportedLanguages} from "../controllers/localization";
+import useRoot from '../hooks/useRoot';
+import {SupportedLanguages} from '../controllers/localization';
+import {LoginRequest} from '../declarations/LoginRequest';
+import {AccountInfo} from '../declarations/AccountInfo';
+import {AuthResponse} from '../declarations/AuthenticationResponse';
 
 type RootContextProps = {
 	initialized: boolean;
+
 	loggedIn: boolean;
+	account: AccountInfo | undefined;
+
+	/** Current application language code */
 	languageCode: SupportedLanguages;
-	t: TFunction<"translation", undefined>
-	setLoggedIn: (b: boolean) => void;
+	t: TFunction<'translation', undefined>;
+
+	/** Authenticate and store account information */
+	authenticate: (request: LoginRequest) => Promise<void>;
+	authenticateAccount: (account: AuthResponse) => void;
+	removeAuthentication: () => void;
+
 	changeLanguage: (code: SupportedLanguages) => Promise<void> | void;
-	navigate: NavigateFunction
-}
+	navigate: NavigateFunction;
+};
 
 const RootContext = React.createContext<RootContextProps>({
 	initialized: false,
 	loggedIn: false,
 	languageCode: 'nl',
-	t: (() => '') as TFunction<"translation", undefined>,
-	setLoggedIn: () => undefined,
+	t: (() => '') as TFunction<'translation', undefined>,
+	account: undefined,
+
+	authenticateAccount: () => undefined,
+	removeAuthentication: () => undefined,
+	authenticate: () => Promise.resolve(),
 	changeLanguage: () => Promise.resolve(),
 	navigate: () => undefined,
 });
 
 function RootContextProvider({children}: { children: React.ReactNode }) {
 	const rootData = useRoot();
-	return (
-		<RootContext.Provider value={rootData}>
-			{rootData.initialized && children}
-		</RootContext.Provider>
-	);
+	console.log({account: rootData.account, loggedIn: rootData.loggedIn});
+	return <RootContext.Provider value={rootData}>{rootData.initialized && children}</RootContext.Provider>;
 }
 
 function useRootContext() {
 	const context = React.useContext(RootContext);
 	if (!context) {
-		throw new Error("useRootContext must be used within a RootContextProvider");
+		throw new Error('useRootContext must be used within a RootContextProvider');
 	}
 	return context;
 }

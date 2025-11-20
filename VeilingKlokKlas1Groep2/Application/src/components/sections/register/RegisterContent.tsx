@@ -1,102 +1,85 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useState } from 'react';
 import Button from '../../buttons/Button';
 import FormInputField from '../../elements/FormInputField';
 import FormLink from '../../buttons/FormLink';
-
-type UserType = 'koper' | 'kweker' | 'veilingmeester';
-
-interface InputField {
-	label: string;
-	type: string;
-	placeholder?: string;
-	options?: string[];
-}
+import { useRootContext } from '../../../contexts/RootContext';
+import { AccountType } from '../../../types/AccountTypes';
+import { RegisterSteps } from '../../../constant/forms';
+import { useForm } from 'react-hook-form';
+import { NewKwekerAccount } from '../../../declarations/KwekerAccount';
+import { createKwekerAccount } from '../../../controllers/kweker';
 
 function RegisterContent() {
-	const navigate = useNavigate();
-	const [userType, setUserType] = useState<UserType>('koper');
+	const { t, navigate, authenticateAccount } = useRootContext();
+
+	const { register, handleSubmit } = useForm();
+
+	// State management
 	const [step, setStep] = useState(1);
-	const [formData, setFormData] = useState<Record<string, string>>({});
+	const [selectedAccountType, setAccountType] = useState<AccountType>(AccountType.Koper);
 	const handleGoBack = () => navigate('/');
 
-	const regions = ['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Overijssel', 'Limburg', 'Friesland', 'Drenthe', 'Flevoland', 'Groningen', 'Zeeland'];
+	// Define the steps and their corresponding fields
+	const totalSteps = RegisterSteps[selectedAccountType].length;
+	const currentFields = RegisterSteps[selectedAccountType][step - 1];
 
-	const t = window.application.t;
+	// Handle form submission
+	// console.log('Form Errors:', formState.errors);
+	// console.log('Form Values:', getValues());
 
-	const steps: Record<UserType, InputField[][]> = {
-		koper: [
-			[
-				{ label: t('email'), type: 'email', placeholder: 'you@example.com' },
-				{ label: t('password'), type: 'password', placeholder: '••••••••' },
-				{ label: t('first_name'), type: 'text', placeholder: 'Steve' },
-				{ label: t('last_name'), type: 'text', placeholder: 'Jobs' },
-			],
-			[
-				{ label: t('address'), type: 'text', placeholder: 'Street 123' },
-				{ label: t('postcode'), type: 'text', placeholder: '1234 AB' },
-				{ label: t('region'), type: 'select', options: regions },
-			],
-		],
-		kweker: [
-			[
-				{ label: t('company_name'), type: 'text', placeholder: 'Example BV' },
-				{ label: t('email'), type: 'email', placeholder: 'you@example.com' },
-				{ label: t('password'), type: 'password', placeholder: '••••••••' },
-				{ label: t('kvk_number'), type: 'text', placeholder: '12345678' },
-			],
-			[
-				{ label: t('phonenumber'), type: 'text', placeholder: '+31 6 12345678' },
-				{ label: t('address'), type: 'text', placeholder: 'Street 123' },
-				{ label: t('postcode'), type: 'text', placeholder: '1234 AB' },
-				{ label: t('region'), type: 'select', options: regions },
-			],
-		],
-		veilingmeester: [
-			[
-				{ label: t('email'), type: 'email', placeholder: 'you@example.com' },
-				{ label: t('password'), type: 'password', placeholder: '••••••••' },
-			],
-			[
-				{ label: t('region'), type: 'select', options: regions },
-				{ label: t('authorisation_code'), type: 'text', placeholder: '123456' },
-			],
-		],
-	};
+	const handleFormSubmittion = useCallback(
+		async (data: any) => {
+			try {
+				console.log('Final submitted data:', data);
 
-	const totalSteps = steps[userType].length;
-	const currentFields = steps[userType][step - 1];
+				// Redirect based on account type
+				let dashboardDestination = '/';
 
-	const handleInputChange = (key: string, value: string) => {
-		setFormData((prev) => ({ ...prev, [key]: value }));
-	};
+				// Implement authentication logic here (e.g., API call to register the user)
+				switch (selectedAccountType) {
+					case AccountType.Koper:
+						dashboardDestination = '/user-dashboard';
+						break;
+					case AccountType.Kweker:
+						dashboardDestination = '/kweker';
+						const account: NewKwekerAccount = {
+							name: data['company_name'],
+							email: data['email'],
+							password: data['password'],
+							telephone: data['phonenumber'],
+							address: data['address'],
+							postcode: data['postcode'],
+							regio: data['region'],
+							kvkNumber: data['kvk_number'],
+							createdAt: new Date(),
+						};
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-		console.log('Final submitted data:', formData);
+						// Call the API to create the kweker account
+						const authResponse = await createKwekerAccount(account);
 
-		let destination = '/';
-		switch (userType) {
-			case 'koper':
-				destination = '/user-dashboard';
-				break;
-			case 'kweker':
-				destination = '/kweker';
-				break;
-			case 'veilingmeester':
-				destination = '/dashboard';
-				break;
-		}
+						// Authenticate the account in the app
+						authenticateAccount(authResponse);
+						break;
+					case AccountType.Veilingmeester:
+						dashboardDestination = '/dashboard';
+						break;
+				}
 
-		alert(`Account created successfully as ${userType}! Redirecting...`);
-		navigate(destination);
-	};
+				// Navigate to the appropriate dashboard
+				navigate(dashboardDestination, { replace: true });
+			} catch (error) {
+				console.error('Error during registration:', error);
+				// Handle errors (e.g., show error message to the user)
+			}
+		},
+		[navigate, selectedAccountType]
+	);
 
 	return (
 		<div className="app-page register-page">
 			<div className="register-card">
 				<div className="register-header">
-					<Button className="logo-icon" icon="/svg/logo-flori.svg" onClick={handleGoBack} aria-label={t('back_button_aria')} />
+					<Button className="logo-icon" img="/svg/logo-flori.svg" onClick={handleGoBack} aria-label={t('back_button_aria')} />
 					<div className="register-text-container">
 						<h2 className="register-title" aria-label={t('create_account')}>
 							{t('create_account')}
@@ -106,6 +89,7 @@ function RegisterContent() {
 						</p>
 					</div>
 				</div>
+
 				<div className="registration-stepper" aria-label={`Registration step ${step} of ${totalSteps}`}>
 					{/* Map over the total number of steps (1 and 2) */}
 					{Array.from({ length: totalSteps }, (_, index) => {
@@ -128,16 +112,16 @@ function RegisterContent() {
 				</div>
 
 				<div className="register-tabs" role="tablist" aria-label="Select user type">
-					{(['koper', 'kweker', 'veilingmeester'] as UserType[]).map((type) => (
+					{Object.values(AccountType).map((type, index) => (
 						<div
 							key={type}
-							className={`register-tab ${userType === type ? 'active' : ''}`}
+							className={`register-tab ${selectedAccountType === type ? 'active' : ''}`}
 							onClick={() => {
-								setUserType(type);
+								setAccountType(type);
 								setStep(1);
 							}}
 							role="tab"
-							aria-selected={userType === type}
+							aria-selected={selectedAccountType === type}
 							tabIndex={0}
 							aria-label={`Register as ${type}`}
 						>
@@ -146,58 +130,37 @@ function RegisterContent() {
 					))}
 				</div>
 
-				<form className="register-form">
-					{currentFields.map((field, idx) => {
-						const key = `${userType}-${field.label}`;
-						const ariaLabel = `${field.label} for ${userType}`;
+				<form className="register-form" onSubmit={handleSubmit(handleFormSubmittion)}>
+					{
+						// Map over the fields for the current step
+						currentFields.map((field, idx) => {
+							const ariaLabel = `${t(field.label)} ${t('for')} ${t(selectedAccountType)}`;
 
-						return (
-							<FormInputField
-								key={idx}
-								id={key}
-								label={field.label}
-								placeholder={field.placeholder}
-								type={field.type === 'select' ? 'select' : field.type}
-								value={formData[key] || ''}
-								onChange={(e) => handleInputChange(key, field.type === 'select' ? e.target.value : (e.target as HTMLInputElement).value)}
-								className="input-field"
-								isError={false}
-								error=""
-								aria-label={ariaLabel}
-							/>
-						);
-					})}
+							return (
+								<FormInputField
+									key={idx}
+									id={field.label}
+									label={t(field.label)}
+									placeholder={field.placeholder}
+									type={field.type}
+									className="input-field"
+									aria-label={ariaLabel}
+									{...register(field.label, { required: true })}
+								/>
+							);
+						})
+					}
 
 					<div className="form-buttons">
-						{step > 1 && (
-							<Button
-								className="btn-secondary"
-								label={window.application.t('previous')}
-								onClick={() => setStep(step - 1)}
-								aria-label={window.application.t('previous')}
-								type="button"
-							/>
-						)}
+						{step > 1 && <Button className="btn-secondary" label={t('previous')} onClick={() => setStep(step - 1)} aria-label={t('previous')} type="button" />}
 
 						{step < totalSteps ? (
-							<Button className="btn-secondary" label={window.application.t('next')} onClick={() => setStep(step + 1)} aria-label={window.application.t('next')} type="button" />
+							<Button className="btn-secondary" label={t('next')} onClick={() => setStep(step + 1)} aria-label={t('next')} type="button" />
 						) : (
-							<Button
-								onClick={handleSubmit}
-								className="btn-primary"
-								label={window.application.t('create_account')}
-								aria-label={window.application.t('create_account')}
-								type="button"
-							/>
+							<Button className="btn-primary" label={t('create_account')} aria-label={t('create_account')} type="submit" />
 						)}
 					</div>
-					<FormLink
-						className="back-to-login-link"
-						label={window.application.t('login_message')}
-						onClick={() => navigate('/login')}
-						aria-label={window.application.t('login_message_aria')}
-						type="button"
-					/>
+					<FormLink className="back-to-login-link" label={t('login_message')} onClick={() => navigate('/login')} aria-label={t('login_message_aria')} type="button" />
 				</form>
 			</div>
 		</div>
