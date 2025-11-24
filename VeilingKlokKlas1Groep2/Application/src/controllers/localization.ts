@@ -78,8 +78,9 @@ export const resources = {
 			go_back_home: 'Ga terug naar home',
 			something_went_wrong: 'Something went wrong.',
 			unexpected_happened: 'An unexpected error occurred. Please try again later.',
-			email_required_error: 'e-mail vereist',
-			email_invalid_error: 'e-mail klopt niet',
+			email_required_error: 'E-mail vereist',
+			email_invalid_error: 'E-mail klopt niet',
+			password_required_error: 'Wachtwoord vereist',
 
 			// Aria labels and alt texts
 			alt_error_bug_picture: 'Error bug image',

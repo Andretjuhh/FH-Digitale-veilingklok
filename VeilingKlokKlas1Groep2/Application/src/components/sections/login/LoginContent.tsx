@@ -49,7 +49,7 @@ function LoginContent() {
 						</p>
 					</div>
 				</div>
-				<form className="login-form">
+				<form className="login-form" onSubmit={handleSubmit(onSubmit)}>
 					<FormInputField id="email" label={t('email')} className="input-field" type="email" 
 					// Pass RHF props: register('field-name', { rules })
                         {...register('email', { 
@@ -63,9 +63,18 @@ function LoginContent() {
                         isError={!!errors.email} 
                         // Pass RHF error message to the component
                         error={errors.email?.message || 'Please type an email (example@email.com)'}/>
-					<FormInputField id="password" label={t('password')} className="input-field" type="password" error="Incorrect Password" isError={false} />
+					<FormInputField id="password" label={t('password')} className="input-field" type="password" 
+					// Pass RHF props: register('field-name', { rules })
+                        {...register('password', { 
+                            required: t('password_required_error'),
+                        })}
+                        // Check RHF errors object for this field
+                        isError={!!errors.password} 
+                        // Pass RHF error message to the component
+                        error={errors.password?.message || 'Incorrect Password'} 
+                    />
 
-					<Button className="btn-primary" label={t('login')} type="submit" aria-label={t('login_button_aria')} />
+					<Button type="submit"  className="btn-primary" label={t('login')} aria-label={t('login_button_aria')} />
 
 					{/* Still need to add forgotten link nav */}
 					<FormLink className="forgot-link" label={t('forgot_password')} onClick={() => navigate('/')} aria-label={t('forgot_password_aria')} />
