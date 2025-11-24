@@ -7,6 +7,8 @@ import { AccountType } from '../../../types/AccountTypes';
 import { RegisterSteps } from '../../../constant/forms';
 import { useForm } from 'react-hook-form';
 import { NewKwekerAccount } from '../../../declarations/KwekerAccount';
+import { NewKoperAccount } from '../../../declarations/KoperAccount';
+import { createKoperAccount} from '../../../controllers/koper';
 import { createKwekerAccount } from '../../../controllers/kweker';
 
 function RegisterContent() {
@@ -37,10 +39,28 @@ function RegisterContent() {
 
 				// Implement authentication logic here (e.g., API call to register the user)
 				switch (selectedAccountType) {
-					case AccountType.Koper:
+					case AccountType.Koper: {
 						dashboardDestination = '/user-dashboard';
+						const account: NewKoperAccount = {
+							name: data['company_name'],
+							email: data['email'],
+							password: data['password'],
+							telephone: data['phonenumber'],
+							address: data['address'],
+							postcode: data['postcode'],
+							regio: data['region'],
+							kvkNumber: data['kvk_number'],
+							createdAt: new Date(),
+						}
+
+						// Call the API to create the kweker account
+						const authResponse = await createKoperAccount(account);
+
+						//Authenticate the account in the app
+						authenticateAccount(authResponse);
 						break;
-					case AccountType.Kweker:
+					}
+					case AccountType.Kweker: {
 						dashboardDestination = '/kweker';
 						const account: NewKwekerAccount = {
 							name: data['company_name'],
@@ -60,6 +80,7 @@ function RegisterContent() {
 						// Authenticate the account in the app
 						authenticateAccount(authResponse);
 						break;
+					}
 					case AccountType.Veilingmeester:
 						dashboardDestination = '/dashboard';
 						break;
