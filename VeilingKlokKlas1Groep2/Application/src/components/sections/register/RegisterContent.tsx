@@ -14,7 +14,9 @@ import { createKwekerAccount } from '../../../controllers/kweker';
 function RegisterContent() {
 	const { t, navigate, authenticateAccount } = useRootContext();
 
-	const { register, handleSubmit } = useForm();
+	const { register, handleSubmit } = useForm({
+		shouldUnregister: false
+	});
 
 	// State management
 	const [step, setStep] = useState(1);
@@ -45,11 +47,9 @@ function RegisterContent() {
 							name: data['company_name'],
 							email: data['email'],
 							password: data['password'],
-							telephone: data['phonenumber'],
 							address: data['address'],
 							postcode: data['postcode'],
 							regio: data['region'],
-							kvkNumber: data['kvk_number'],
 							createdAt: new Date(),
 						}
 
@@ -151,7 +151,7 @@ function RegisterContent() {
 					))}
 				</div>
 
-				<form className="register-form" onSubmit={handleSubmit(handleFormSubmittion)}>
+				<form className="register-form" onSubmit={handleSubmit(handleFormSubmittion)} autoComplete='off'>
 					{
 						// Map over the fields for the current step
 						currentFields.map((field, idx) => {
@@ -159,14 +159,19 @@ function RegisterContent() {
 
 							return (
 								<FormInputField
-									key={idx}
+									key={`${selectedAccountType}-${step}-${field.label}`}
 									id={field.label}
 									label={t(field.label)}
 									placeholder={field.placeholder}
 									type={field.type}
 									className="input-field"
 									aria-label={ariaLabel}
-									{...register(field.label, { required: true })}
+									autoComplete={
+										field.type === "password"
+										? "new-password"       // prevents Chrome autofill
+										: "off"                // prevents autofill on other fields
+									}
+									{...register(`${selectedAccountType}.step${step}.${field.label}`, { required: true })}
 								/>
 							);
 						})
