@@ -2,10 +2,14 @@ import React, { useCallback } from 'react';
 import Button from '../../buttons/Button';
 import '../../../styles/pages.css'; // make sure this path is correct!
 import FormInputField from '../../elements/FormInputField';
-import TextAreaInputField from '../../elements/TextAreaInputField';
-import Login from '../../../pages/general/Login';
 import FormLink from '../../buttons/FormLink';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { useRootContext } from '../../../contexts/RootContext';
+
+type LoginFormData = {
+    email: string;
+    password: string;
+};
 
 function LoginContent() {
 	const { t, navigate } = useRootContext();
@@ -15,6 +19,21 @@ function LoginContent() {
 	 * inside the header for the new look, giving it a new class name.
 	 */
 	const handleGoBack = () => navigate('/');
+
+	const { 
+        register, 
+        handleSubmit, 
+        formState: { errors } 
+    } = useForm<LoginFormData>();
+
+	// 2. Define the submit handler function
+    const onSubmit: SubmitHandler<LoginFormData> = (data) => {
+        console.log('Form Submitted (Client-Side Validated):', data);
+        
+        // This is where you would call your backend API for authentication
+        // For now, we simulate navigation on success
+        navigate('/user-dashboard'); 
+    };
 
 	return (
 		<div className="app-page login-page">
@@ -31,10 +50,22 @@ function LoginContent() {
 					</div>
 				</div>
 				<form className="login-form">
-					<FormInputField id="email" label={t('email')} className="input-field" error="Please type an email (example@email.com)" isError={false} />
-					<FormInputField id="password" label={t('password')} className="input-field" error="Incorrect Password" isError={false} />
+					<FormInputField id="email" label={t('email')} className="input-field" type="email" 
+					// Pass RHF props: register('field-name', { rules })
+                        {...register('email', { 
+                            required: t('email_required_error'), 
+                            pattern: {
+                                value: /^\S+@\S+\.\S+$/, 
+                                message: t('email_invalid_error') 
+                            }
+                        })}
+                        // Check RHF errors object for this field
+                        isError={!!errors.email} 
+                        // Pass RHF error message to the component
+                        error={errors.email?.message || 'Please type an email (example@email.com)'}/>
+					<FormInputField id="password" label={t('password')} className="input-field" type="password" error="Incorrect Password" isError={false} />
 
-					<Button className="btn-primary" label={t('login')} onClick={() => navigate('/user-dashboard')} aria-label={t('login_button_aria')} />
+					<Button className="btn-primary" label={t('login')} type="submit" aria-label={t('login_button_aria')} />
 
 					{/* Still need to add forgotten link nav */}
 					<FormLink className="forgot-link" label={t('forgot_password')} onClick={() => navigate('/')} aria-label={t('forgot_password_aria')} />
