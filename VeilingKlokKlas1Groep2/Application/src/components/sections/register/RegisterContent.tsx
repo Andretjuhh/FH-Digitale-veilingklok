@@ -14,9 +14,7 @@ import { createKwekerAccount } from '../../../controllers/kweker';
 function RegisterContent() {
 	const { t, navigate, authenticateAccount } = useRootContext();
 
-	const { register, handleSubmit } = useForm({
-		shouldUnregister: false
-	});
+	const { register, handleSubmit } = useForm();
 
 	// State management
 	const [step, setStep] = useState(1);
@@ -44,7 +42,8 @@ function RegisterContent() {
 					case AccountType.Koper: {
 						dashboardDestination = '/user-dashboard';
 						const account: NewKoperAccount = {
-							name: data['company_name'],
+							firstname: data['first_name'],
+							lastname: data['last_name'],
 							email: data['email'],
 							password: data['password'],
 							address: data['address'],
@@ -171,7 +170,7 @@ function RegisterContent() {
 										? "new-password"       // prevents Chrome autofill
 										: "off"                // prevents autofill on other fields
 									}
-									{...register(`${selectedAccountType}.step${step}.${field.label}`, { required: true })}
+									{...register(field.label, { required: true })}
 								/>
 							);
 						})
