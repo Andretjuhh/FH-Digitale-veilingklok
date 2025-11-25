@@ -2,49 +2,81 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.Extensions.Options;
 
 using VeilingKlokApp.Data;
 using VeilingKlokApp.Models;
 using VeilingKlokApp.Models.Domain;
+using VeilingKlokApp.Models.OutputDTOs;
+using VeilingKlokKlas1Groep2.Declarations;
 using VeilingKlokKlas1Groep2.Models.InputDTOs;
-
+using VeilingKlokKlas1Groep2.Services;
+using VeilingKlokKlas1Groep2.Configuration;
+using VeilingKlokKlas1Groep2.Attributes;
 
 namespace VeilingKlokApp.Controllers
 {
+    /// <summary>
+    /// Controller for managing Kweker (Grower) operations
+    /// Handles CRUD operations for grower accounts and their products
+    /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/kweker")]
     public class KwekerController : ControllerBase
     {
         private readonly VeilingKlokContext _db;
+        private readonly IPasswordHasher _passwordHasher;
+        private readonly IAuthService _authService;
 
-        public KwekerController(VeilingKlokContext db)
+        public KwekerController(VeilingKlokContext db, IPasswordHasher passwordHasher, IAuthService authService)
         {
             _db = db;
+            _passwordHasher = passwordHasher;
+            _authService = authService;
         }
 
-        // 1) Create Kweker account (transactional)
+        #region Create Kweker Account
+
+        /// <summary>
+        /// Creates a new Kweker (Grower) account
+        /// </summary>
+        /// <param name="newKweker">Kweker account details to create</param>
+        /// <returns>Created account ID and tokens with HTTP 200 status</returns>
         [HttpPost("create")]
         public async Task<IActionResult> CreateKwekerAccount([FromBody] NewKwekerAccount newKweker)
         {
-            // Validate input minimally
-            if (newKweker == null) return BadRequest("Missing payload.");
+            // Validate input payload
+            if (newKweker == null)
+            {
+                var error = new HtppError(
+                    "Bad Request",
+                    "Kweker account data is required",
+                    400
+                );
+                return BadRequest(error);
+            }
 
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
-                // NOTE: Check for existing account by email here to provide a better error message 
-                // than letting the DB unique constraint fail.
+                // Check for existing account by email using LINQ
+                // Provides better error message than DB unique constraint
                 if (await _db.Accounts.AnyAsync(a => a.Email == newKweker.Email))
                 {
                     await transaction.RollbackAsync();
-                    return BadRequest("FAILURE: An account with this email already exists.");
+                    var error = new HtppError(
+                        "Conflict",
+                        "An account with this email already exists",
+                        409
+                    );
+                    return Conflict(error);
                 }
 
-                // Create Kweker directly (Account is abstract and base of Kweker)
+                // Create Kweker entity (Account is abstract base class)
                 var kweker = new Kweker
                 {
                     Email = newKweker.Email,
-                    Password = newKweker.Password,
+                    Password = _passwordHasher.HashPassword(newKweker.Password),
                     CreatedAt = DateTime.UtcNow,
                     Name = newKweker.Name,
                     Telephone = newKweker.Telephone,
@@ -56,94 +88,264 @@ namespace VeilingKlokApp.Controllers
                 _db.Kwekers.Add(kweker);
                 await _db.SaveChangesAsync();
 
+                // Use AuthService to perform sign in (generate tokens, persist refresh token, set cookie)
+                var accountType = "Kweker";
+                var authResponse = await _authService.SignInAsync(kweker, accountType, Response);
+
                 await transaction.CommitAsync();
 
-                return Ok(new { message = "SUCCESS: Kweker Account created", accountId = kweker.Id });
-            }
-            // 👇 CATCH SPECIFIC DATABASE ERRORS
-            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
-            {
-                await transaction.RollbackAsync();
-                // This is the common exception for constraint violations, foreign key issues, etc.
-                // We return the inner exception message to help you debug the exact issue.
-                return StatusCode(500, $"FAILURE: Database constraint violation (rolled back). Error: {ex.InnerException?.Message ?? ex.Message}");
-            }
-            catch (System.Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return StatusCode(500, $"FAILURE: Account creation failed (rolled back). Error: {ex.Message}");
-            }
-        }
-
-        // 2) Get Kweker account
-        [HttpGet("{accountId}")]
-        public async Task<ActionResult<KwekerDetails>> GetKwekerAccount(int accountId)
-        {
-            var kwekerDetails = await _db.Kwekers
-                .Where(k => k.Id == accountId)
-                .Select(k => new KwekerDetails
-                {
-                    AccountId = k.Id,
-                    Name = k.Name,
-                    Email = k.Email,     // base property from Account
-                    Telephone = k.Telephone,
-                    Adress = k.Adress,
-                    Regio = k.Regio,
-                    KvkNumber = k.KvkNumber,
-                })
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
-
-            if (kwekerDetails == null)
-                return NotFound($"Koper account with ID {accountId} not found.");
-
-            return Ok(kwekerDetails);
-        }
-        [HttpPost("create-product")]
-        public async Task<IActionResult> CreateProduct([FromBody] NewProduct newProduct)
-        {
-            if (newProduct == null) return BadRequest("Missing payload.");
-
-            using var transaction = await _db.Database.BeginTransactionAsync();
-            try
-            {
-                // Optional: Check for duplicate product name for the same kweker
-                if (await _db.Products.AnyAsync(p => p.Name == newProduct.Name && p.KwekerId == newProduct.KwekerId))
-                {
-                    await transaction.RollbackAsync();
-                    return BadRequest("FAILURE: Product with this name already exists for this kweker.");
-                }
-
-                var product = new Product
-                {
-                    Name = newProduct.Name,
-                    Description = newProduct.Description,
-                    Price = newProduct.Price,
-                    MinimumPrice = newProduct.MinimumPrice,
-                    Quantity = newProduct.Quantity,
-                    ImageUrl = newProduct.ImageUrl,
-                    Size = newProduct.Size,
-                    KwekerId = newProduct.KwekerId
-                };
-
-                _db.Products.Add(product);
-                await _db.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return Ok(new { message = "SUCCESS: Product created", productId = product.Id });
+                return Ok(authResponse);
             }
             catch (DbUpdateException ex)
             {
                 await transaction.RollbackAsync();
-                return StatusCode(500, $"FAILURE: Database constraint violation (rolled back). Error: {ex.InnerException?.Message ?? ex.Message}");
+                var error = new HtppError(
+                    "Database Error",
+                    $"Database constraint violation: {ex.InnerException?.Message ?? ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return StatusCode(500, $"FAILURE: Product creation failed (rolled back). Error: {ex.Message}");
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Account creation failed: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
             }
         }
 
+        #endregion
 
+        #region Get Authenticated Kweker
+
+        /// <summary>
+        /// Returns the authenticated Kweker's account details (current user)
+        /// Requires the user to be authenticated and of account type 'Kweker'
+        /// </summary>
+        [HttpGet("account-info")]
+        [Authorize]
+        [AuthorizeAccountType("Kweker")]
+        public async Task<IActionResult> GetCurrentKweker()
+        {
+            try
+            {
+                var accountId = HttpContext.Items["AccountId"] as int?;
+
+                if (!accountId.HasValue)
+                {
+                    var error = new HtppError("Unauthorized", "Invalid token claims", 401 );
+                    return Unauthorized(error);
+                }
+
+                var kwekerDetails = await _db.Kwekers
+                    .Where(k => k.Id == accountId.Value)
+                    .Select(k => new KwekerDetails
+                    {
+                        AccountId = k.Id,
+                        Name = k.Name,
+                        Email = k.Email,
+                        Telephone = k.Telephone,
+                        Adress = k.Adress,
+                        Regio = k.Regio,
+                        KvkNumber = k.KvkNumber,
+                    })
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
+
+                if (kwekerDetails == null)
+                {
+                    var error = new HtppError(
+                        "Not Found",
+                        "Authenticated Kweker account not found",
+                        404
+                    );
+                    return NotFound(error);
+                }
+
+                return Ok(kwekerDetails);
+            }
+            catch (Exception ex)
+            {
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Failed to retrieve current Kweker account: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+        }
+
+        #endregion
+
+        #region Get Authenticated Kweker products
+
+        /// <summary>
+        /// Returns all products for the authenticated Kweker (current user)
+        /// Protected: Requires authentication and account type 'Kweker'
+        /// </summary>
+        [HttpGet("products")]
+        [Authorize]
+        [AuthorizeAccountType("Kweker")]
+        public async Task<IActionResult> GetProducts()
+        {
+            try
+            {
+                var accountId = HttpContext.Items["AccountId"] as int?;
+                if (!accountId.HasValue)
+                {
+                    var error = new HtppError(
+                        "Unauthorized",
+                        "Invalid token claims",
+                        401
+                    );
+                    return Unauthorized(error);
+                }
+
+                var products = await _db.Products
+                    .Where(p => p.KwekerId == accountId.Value)
+                    .Select(p => new ProductDetails
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        MinimumPrice = p.MinimumPrice,
+                        Quantity = p.Quantity,
+                        ImageUrl = p.ImageUrl,
+                        Size = p.Size,
+                        KwekerId = p.KwekerId
+                    })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                return Ok(new { products });
+            }
+            catch (Exception ex)
+            {
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Failed to retrieve products for authenticated Kweker: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+        }
+
+        #endregion
+
+        #region (Admin) Get Kweker Account
+
+        /// <summary>
+        /// Retrieves a Kweker account by ID
+        /// </summary>
+        /// <param name="accountId">The ID of the Kweker account to retrieve</param>
+        /// <returns>Kweker account details with HTTP 200 status</returns>
+        [HttpGet("admin/{accountId}")]
+        public async Task<ActionResult<KwekerDetails>> GetKwekerAccount(int accountId)
+        {
+            try
+            {
+                // Retrieve Kweker using LINQ with projection to DTO
+                var kwekerDetails = await _db.Kwekers
+                    .Where(k => k.Id == accountId)
+                    .Select(k => new KwekerDetails
+                    {
+                        AccountId = k.Id,
+                        Name = k.Name,
+                        Email = k.Email,     // Base property from Account
+                        Telephone = k.Telephone,
+                        Adress = k.Adress,
+                        Regio = k.Regio,
+                        KvkNumber = k.KvkNumber,
+                    })
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
+
+                if (kwekerDetails == null)
+                {
+                    var error = new HtppError(
+                        "Not Found",
+                        $"Kweker account with ID {accountId} not found",
+                        404
+                    );
+                    return NotFound(error);
+                }
+
+                return Ok(kwekerDetails);
+            }
+            catch (Exception ex)
+            {
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Failed to retrieve Kweker account: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+        }
+
+        #endregion
+
+        #region (Admin)  Get Kweker Products
+
+        /// <summary>
+        /// Retrieves all products for a specific Kweker
+        /// </summary>
+        /// <param name="accountId">The ID of the Kweker account</param>
+        /// <returns>List of products with HTTP 200 status</returns>
+        [HttpGet("admin/{accountId}/products")]
+        public async Task<ActionResult<IEnumerable<ProductDetails>>> GetKwekerProducts(int accountId)
+        {
+            try
+            {
+                // Verify Kweker exists using LINQ
+                var kwekerExists = await _db.Kwekers.AnyAsync(k => k.Id == accountId);
+                
+                if (!kwekerExists)
+                {
+                    var error = new HtppError(
+                        "Not Found",
+                        $"Kweker account with ID {accountId} not found",
+                        404
+                    );
+                    return NotFound(error);
+                }
+
+                // Retrieve all products for this Kweker using LINQ
+                var products = await _db.Products
+                    .Where(p => p.KwekerId == accountId)
+                    .Select(p => new ProductDetails
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        MinimumPrice = p.MinimumPrice,
+                        Quantity = p.Quantity,
+                        ImageUrl = p.ImageUrl,
+                        Size = p.Size,
+                        KwekerId = p.KwekerId
+                    })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                return Ok(new { count = products.Count, products });
+            }
+            catch (Exception ex)
+            {
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Failed to retrieve Kweker products: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+        }
+
+        #endregion
     }
 }

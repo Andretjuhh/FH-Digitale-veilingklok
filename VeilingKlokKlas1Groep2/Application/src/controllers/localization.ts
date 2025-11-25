@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import {initReactI18next, useTranslation} from 'react-i18next';
+import { initReactI18next, useTranslation } from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -12,6 +12,12 @@ export const resources = {
 			services: 'Diensten',
 			flowers: 'Bloemen',
 			transactions: 'Transacties',
+			for: 'voor',
+
+			// Account types
+			Koper: 'Koper',
+			Kweker: 'Kweker',
+			Veilingmeester: 'Veilingmeester',
 
 			// Auth texts
 			login: 'Inloggen',
@@ -25,13 +31,13 @@ export const resources = {
 			create_account: 'Account aanmaken',
 			password: 'Wachtwoord',
 			email: 'E-mailadres',
-			address: "Adres",
-			postcode: "Postcode",
-			region: "Regio",
-			company_name: "Bedrijfsnaam",
-			kvk_number: "KVK-Nummer",
-			phonenumber: "Telefoonnummer",
-			authorisation_code: "Autorisatiecode",
+			address: 'Adres',
+			postcode: 'Postcode',
+			region: 'Regio',
+			company_name: 'Bedrijfsnaam',
+			kvk_number: 'KVK-Nummer',
+			phonenumber: 'Telefoonnummer',
+			authorisation_code: 'Autorisatiecode',
 			step: 'Stap',
 			of: 'van',
 			first_name: 'Voornaam',
@@ -39,14 +45,14 @@ export const resources = {
 			previous: 'Vorige',
 			next: 'Volgende',
 			login_message: 'Inloggen?',
-		
 
 			// Home page Texts
-			what_is_flori_clock: "Wat is FloriClock?",
-			what_is_flori_clock_description: "FloriClock is een digitaal veilingplatform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen. Ons doel is om de veilinghandel in bloemen en planten te vereenvoudigen en te optimaliseren door middel van een gebruiksvriendelijke online marktplaats.",
-			how_it_works: "Hoe werkt het?",
-			flower_types: "Bloemsoorten",
-			flower_types_description: "Ontdek een breed scala aan bloemsoorten die beschikbaar zijn op ons platform. Van rozen tot tulpen, vind precies wat je zoekt.",
+			what_is_flori_clock: 'Wat is FloriClock?',
+			what_is_flori_clock_description:
+				'FloriClock is een digitaal veilingplatform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen. Ons doel is om de veilinghandel in bloemen en planten te vereenvoudigen en te optimaliseren door middel van een gebruiksvriendelijke online marktplaats.',
+			how_it_works: 'Hoe werkt het?',
+			flower_types: 'Bloemsoorten',
+			flower_types_description: 'Ontdek een breed scala aan bloemsoorten die beschikbaar zijn op ons platform. Van rozen tot tulpen, vind precies wat je zoekt.',
 			contact_us: 'Contacteer ons',
 			welcome_title: 'Welkom bij FloriClock',
 			welcome_description: `Bloemen en planten verkopen en kopen vanop nu nog makkelijker met FloriClock!
@@ -66,8 +72,7 @@ export const resources = {
 			manage_account: 'Account beheren',
 			settings: 'Instellingen',
 			orders: 'Orders',
-			back: "Terug",
-			
+			back: 'Terug',
 
 			// Error page texts
 			go_back_home: 'Ga terug naar home',
@@ -76,17 +81,16 @@ export const resources = {
 
 			// Aria labels and alt texts
 			alt_error_bug_picture: 'Error bug image',
-			email_aria: "Input veld om email in te vullen",
-			first_name_aria: "Input veld om voornaam in te vullen",
-			last_name_aria: "Input veld om achternaam in te vullen",
-			password_aria: "Input veld om wachtwoord in te vullen",
-			back_button_aria: "Knop om terug te gaan",
-			login_button_aria: "Knop om in te loggen",
-			forgot_password_aria: "Wachtwoord vergeten link",
-			create_account_aria: "Account aanmaken link",
-			progress_bar: "Aanmeld progressie: stap",
-			login_message_aria: "Link om terug naar inlog scherm te gaan",
-
+			email_aria: 'Input veld om email in te vullen',
+			first_name_aria: 'Input veld om voornaam in te vullen',
+			last_name_aria: 'Input veld om achternaam in te vullen',
+			password_aria: 'Input veld om wachtwoord in te vullen',
+			back_button_aria: 'Knop om terug te gaan',
+			login_button_aria: 'Knop om in te loggen',
+			forgot_password_aria: 'Wachtwoord vergeten link',
+			create_account_aria: 'Account aanmaken link',
+			progress_bar: 'Aanmeld progressie: stap',
+			login_message_aria: 'Link om terug naar inlog scherm te gaan',
 		},
 	},
 	en: {
@@ -98,16 +102,19 @@ export const resources = {
 	fr: {
 		translation: {},
 	},
-}
-i18n.use(initReactI18next).init({
-	resources,
-	lng: 'nl',// if you're using a language detector, do not define the lng option
-	fallbackLng: 'nl',
-	debug: false,
-	interpolation: {escapeValue: false},
-}).then(null);
+};
+i18n
+	.use(initReactI18next)
+	.init({
+		resources,
+		lng: 'nl', // if you're using a language detector, do not define the lng option
+		fallbackLng: 'nl',
+		debug: false,
+		interpolation: { escapeValue: false },
+	})
+	.then(null);
 
-export type LocalizationResources = typeof resources['nl'] //keyof typeof resources['nl']['translation'];
-export type LocalizationTexts = keyof typeof resources['nl']['translation'];
-export type SupportedLanguages = keyof typeof resources;
-export {useTranslation};
+type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
+type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
+type SupportedLanguages = keyof typeof resources;
+export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };
