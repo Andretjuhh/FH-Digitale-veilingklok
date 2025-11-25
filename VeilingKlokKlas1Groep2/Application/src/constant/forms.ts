@@ -12,7 +12,7 @@ const RegisterSteps: Readonly<Record<AccountType, InputField[][]>> = {
 			{ label: 'last_name', type: 'text', placeholder: 'Jobs' , required: true},
 		],
 		[
-			{ label: 'address', type: 'text', placeholder: '', required: false },
+			{ label: 'address', type: 'text', placeholder: '' },
 			{ label: 'postcode', type: 'text', placeholder: '1234 AB' },
 			{ label: 'region', type: 'select', options: [...Regions] },
 		],
