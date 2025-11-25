@@ -78,7 +78,7 @@ namespace VeilingKlokApp.Controllers
                     Password = _passwordHasher.HashPassword(newVeilingmeester.Password),
                     CreatedAt = DateTime.UtcNow,
                     Regio = newVeilingmeester.Regio,
-                    AurthorisatieCode = newVeilingmeester.AurthorisatieCode
+                    AuthorisatieCode = newVeilingmeester.AuthorisatieCode
                 };
 
                 _db.Veilingmeesters.Add(veilingmeester);
@@ -136,7 +136,7 @@ namespace VeilingKlokApp.Controllers
                         AccountId = v.Id,
                         Email = v.Email,     // Base property from Account
                         Regio = v.Regio,
-                        AurthorisatieCode = v.AurthorisatieCode
+                        AuthorisatieCode = v.AuthorisatieCode
                     })
                     .AsNoTracking()
                     .FirstOrDefaultAsync();
@@ -233,7 +233,7 @@ namespace VeilingKlokApp.Controllers
 
                 // Update Veilingmeester details (Profile fields)
                 veilingmeester.Password = updateVeilingmeester.Password;
-                veilingmeester.AurthorisatieCode = updateVeilingmeester.AuthorisatieCode;
+                veilingmeester.AuthorisatieCode = updateVeilingmeester.AuthorisatieCode;
                 veilingmeester.Regio = updateVeilingmeester.Regio;
 
                 // Save changes and commit transaction

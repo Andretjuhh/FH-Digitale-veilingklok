@@ -9,7 +9,7 @@ namespace VeilingKlokApp.Models.Domain
     {
         [Column("soort_veiling")]
         [Required, MaxLength(20)]
-        public int AurthorisatieCode { get; set; }
+        public string AuthorisatieCode { get; set; }
 
         // [Column("regio")]
         // [MaxLength(100)]

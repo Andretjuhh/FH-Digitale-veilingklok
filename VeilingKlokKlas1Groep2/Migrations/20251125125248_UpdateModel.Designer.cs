@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VeilingKlokApp.Data;
 
@@ -11,9 +12,11 @@ using VeilingKlokApp.Data;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     [DbContext(typeof(VeilingKlokContext))]
-    partial class VeilingKlokContextModelSnapshot : ModelSnapshot
+    [Migration("20251125125248_UpdateModel")]
+    partial class UpdateModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
