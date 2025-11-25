@@ -213,7 +213,8 @@ function RegisterContent() {
               <Button
                 className="btn-primary"
                 label={t('create_account')}
-                type="submit"
+                type="button" // ← change to button
+                onClick={handleSubmit(handleFormSubmittion)} // ← manually trigger submit
               />
             )}
           </div>
