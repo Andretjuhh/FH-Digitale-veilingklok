@@ -6,6 +6,7 @@ using VeilingKlokApp.Models.Domain;
 using VeilingKlokApp.Models.OutputDTOs;
 using VeilingKlokKlas1Groep2.Declarations;
 using VeilingKlokKlas1Groep2.Models.InputDTOs;
+using VeilingKlokKlas1Groep2.Attributes;
 
 namespace VeilingKlokApp.Controllers
 {
@@ -30,9 +31,11 @@ namespace VeilingKlokApp.Controllers
         /// Creates a new product for a kweker (grower)
         /// </summary>
         /// <param name="newProduct">Product details to create</param>
-        /// <returns>Created product details with HTTP 201 status</returns>
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateProduct([FromBody] NewProduct newProduct)
+    /// <returns>Created product details with HTTP 201 status</returns>
+    [Authorize]
+    [AuthorizeAccountType("Kweker")]
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateProduct([FromBody] NewProduct newProduct)
         {
             // Validate input payload
             if (newProduct == null)
@@ -89,22 +92,37 @@ namespace VeilingKlokApp.Controllers
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
+                // Get the authenticated account id from HttpContext (set by auth middleware)
+                var accountId = HttpContext.Items["AccountId"] as int?;
+                if (!accountId.HasValue)
+                {
+                    await transaction.RollbackAsync();
+                    var error = new HtppError(
+                        "Unauthorized",
+                        "Invalid token claims",
+                        401
+                    );
+                    return Unauthorized(error);
+                }
+
+                var kwekerId = accountId.Value;
+
                 // Verify that the Kweker exists using LINQ
                 var kwekerExists = await _db.Kwekers
-                    .AnyAsync(k => k.Id == newProduct.KwekerId);
+                    .AnyAsync(k => k.Id == kwekerId);
 
                 if (!kwekerExists)
                 {
                     await transaction.RollbackAsync();
                     var error = new HtppError(
                         "Not Found",
-                        $"Kweker with ID {newProduct.KwekerId} does not exist",
+                        $"Kweker with ID {kwekerId} does not exist",
                         404
                     );
                     return NotFound(error);
                 }
 
-                // Create the product entity
+                // Create the product entity using the authenticated kweker id
                 var product = new Product
                 {
                     Name = newProduct.Name,
@@ -114,7 +132,7 @@ namespace VeilingKlokApp.Controllers
                     Quantity = newProduct.Quantity,
                     ImageUrl = newProduct.ImageUrl,
                     Size = newProduct.Size,
-                    KwekerId = newProduct.KwekerId
+                    KwekerId = kwekerId
                 };
 
                 _db.Products.Add(product);
