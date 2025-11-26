@@ -14,55 +14,71 @@ namespace VeilingKlokApp.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Top level call to base method
             base.OnModelCreating(modelBuilder);
 
-            // 1. Specialization Strategy: Table-Per-Type (TPT)
-            // This ensures separate tables for Account, Kopers, and Kwekers,
-            // linked by the primary key, enforcing the specialization naturally.
+            //
+            // 1. Table-Per-Type (TPT)
+            //
             modelBuilder.Entity<Account>()
                 .UseTptMappingStrategy();
 
-            // 2. Unique Email Constraint
-            // Make it easier to find accounts by email and enforce uniqueness.
-            // Creates a unique index on the 'email' column in the base 'Account' table.
+            //
+            // 2. Unique Email index
+            //
             modelBuilder.Entity<Account>()
                 .HasIndex(a => a.Email)
                 .IsUnique();
 
-            // 3. Define the One-to-Many Relationship Koper to Orders
-            modelBuilder.Entity<Koper>()
-                .HasMany(k => k.Orders)
-                .WithOne(o => o.Koper)
+            //
+            // 3. Koper -> Orders (one definition, safe delete behavior)
+            //
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Koper)
+                .WithMany(k => k.Orders)
                 .HasForeignKey(o => o.KoperId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
-            // 4. One-to-many Relationship for Buyer orders 
-            modelBuilder.Entity<Order>()
-                .HasOne(o => o.Koper)             // Order has one Koper
-                .WithMany(k => k.Orders)          // Koper has many Orders
-                .HasForeignKey(o => o.KoperId)    // Uses the KoperId field as the Foreign Key
-                .OnDelete(DeleteBehavior.Restrict); // Important: Prevents cascading delete issues
-
-            // 5. One-to-many Relationship for Veilingmeester veilingklokken
+            //
+            // 4. Veilingmeester -> VeilingKlok
+            //
             modelBuilder.Entity<VeilingKlok>()
                 .HasOne(vk => vk.Veilingmeester)
                 .WithMany(vm => vm.Veilingklokken)
                 .HasForeignKey(vk => vk.VeilingmeesterId)
+                .OnDelete(DeleteBehavior.Restrict)   // IMPORTANT FIX
                 .IsRequired();
 
-            modelBuilder.Entity<Product>().HasOne(pd => pd.Kweker).WithMany(kw => kw.Products)
-                .HasForeignKey(pd => pd.KwekerId).IsRequired();
+            //
+            // 5. Kweker -> Products
+            //
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Kweker)
+                .WithMany(k => k.Products)
+                .HasForeignKey(p => p.KwekerId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
 
-            // 6. One-to-many Relationship for Account to RefreshTokens
+            //
+            // 6. VeilingKlok -> Products
+            //
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.VeilingKlok)
+                .WithMany(vk => vk.Products)
+                .HasForeignKey(p => p.VeilingKlokId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
+
+            //
+            // 7. Account -> RefreshTokens (Cascade allowed)
+            //
             modelBuilder.Entity<RefreshToken>()
                 .HasOne(rt => rt.Account)
                 .WithMany()
                 .HasForeignKey(rt => rt.AccountId)
-                .OnDelete(DeleteBehavior.Cascade); // Delete tokens when account is deleted
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

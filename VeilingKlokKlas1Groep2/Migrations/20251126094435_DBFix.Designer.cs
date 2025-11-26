@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VeilingKlokApp.Data;
 
@@ -11,9 +12,11 @@ using VeilingKlokApp.Data;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     [DbContext(typeof(VeilingKlokContext))]
-    partial class VeilingKlokContextModelSnapshot : ModelSnapshot
+    [Migration("20251126094435_DBFix")]
+    partial class DBFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -296,10 +299,9 @@ namespace VeilingKlokKlas1Groep2.Migrations
                 {
                     b.HasBaseType("VeilingKlokApp.Models.Domain.Account");
 
-                    b.Property<string>("AuthorisatieCode")
-                        .IsRequired()
+                    b.Property<int>("AurthorisatieCode")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .HasColumnType("int")
                         .HasColumnName("soort_veiling");
 
                     b.ToTable("Veilingmeester");
