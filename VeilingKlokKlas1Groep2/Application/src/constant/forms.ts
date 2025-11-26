@@ -6,10 +6,10 @@ const Regions = ['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Over
 const RegisterSteps: Readonly<Record<AccountType, InputField[][]>> = {
 	[AccountType.Koper]: [
 		[
-			{ label: 'email', type: 'email', placeholder: 'you@example.com' },
-			{ label: 'password', type: 'password', placeholder: '••••••••' },
-			{ label: 'first_name', type: 'text', placeholder: 'Steve' },
-			{ label: 'last_name', type: 'text', placeholder: 'Jobs' },
+			{ label: 'email', type: 'email', placeholder: 'you@example.com', required: true },
+			{ label: 'password', type: 'password', placeholder: '••••••••', required: true },
+			{ label: 'first_name', type: 'text', placeholder: 'Steve', required: true },
+			{ label: 'last_name', type: 'text', placeholder: 'Jobs' , required: true},
 		],
 		[
 			{ label: 'address', type: 'text', placeholder: '' },
@@ -19,11 +19,11 @@ const RegisterSteps: Readonly<Record<AccountType, InputField[][]>> = {
 	],
 	[AccountType.Kweker]: [
 		[
-			{ label: 'company_name', type: 'text', placeholder: 'Example BV' },
-			{ label: 'email', type: 'email', placeholder: 'you@example.com' },
-			{ label: 'password', type: 'password', placeholder: '••••••••' },
+			{ label: 'company_name', type: 'text', placeholder: 'Example BV', required: true },
+			{ label: 'email', type: 'email', placeholder: 'you@example.com', required: true },
+			{ label: 'password', type: 'password', placeholder: '••••••••', required: true },
 		],
-		[{ label: 'kvk_number', type: 'text', placeholder: '12345678' }],
+		[{ label: 'kvk_number', type: 'text', placeholder: '12345678', required: true }],
 		[
 			{ label: 'phonenumber', type: 'text', placeholder: '+31 6 12345678' },
 			{ label: 'address', type: 'text', placeholder: 'Street 123' },
