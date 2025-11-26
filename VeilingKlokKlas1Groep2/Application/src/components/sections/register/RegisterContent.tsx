@@ -7,6 +7,8 @@ import { AccountType } from '../../../types/AccountTypes';
 import { RegisterSteps } from '../../../constant/forms';
 import { useForm } from 'react-hook-form';
 import { NewKwekerAccount } from '../../../declarations/KwekerAccount';
+import { NewKoperAccount } from '../../../declarations/KoperAccount';
+import { createKoperAccount} from '../../../controllers/koper';
 import { createKwekerAccount } from '../../../controllers/kweker';
 
 function RegisterContent() {
@@ -37,10 +39,27 @@ function RegisterContent() {
 
 				// Implement authentication logic here (e.g., API call to register the user)
 				switch (selectedAccountType) {
-					case AccountType.Koper:
+					case AccountType.Koper: {
 						dashboardDestination = '/user-dashboard';
+						const account: NewKoperAccount = {
+							firstname: data['first_name'],
+							lastname: data['last_name'],
+							email: data['email'],
+							password: data['password'],
+							address: data['address'],
+							postcode: data['postcode'],
+							regio: data['region'],
+							createdAt: new Date(),
+						}
+
+						// Call the API to create the kweker account
+						const authResponse = await createKoperAccount(account);
+
+						//Authenticate the account in the app
+						authenticateAccount(authResponse);
 						break;
-					case AccountType.Kweker:
+					}
+					case AccountType.Kweker: {
 						dashboardDestination = '/kweker';
 						const account: NewKwekerAccount = {
 							name: data['company_name'],
@@ -60,6 +79,7 @@ function RegisterContent() {
 						// Authenticate the account in the app
 						authenticateAccount(authResponse);
 						break;
+					}
 					case AccountType.Veilingmeester:
 						dashboardDestination = '/dashboard';
 						break;
@@ -130,7 +150,7 @@ function RegisterContent() {
 					))}
 				</div>
 
-				<form className="register-form" onSubmit={handleSubmit(handleFormSubmittion)}>
+				<form className="register-form" onSubmit={handleSubmit(handleFormSubmittion)} autoComplete='off'>
 					{
 						// Map over the fields for the current step
 						currentFields.map((field, idx) => {
@@ -138,13 +158,18 @@ function RegisterContent() {
 
 							return (
 								<FormInputField
-									key={idx}
+									key={`${selectedAccountType}-${step}-${field.label}`}
 									id={field.label}
 									label={t(field.label)}
 									placeholder={field.placeholder}
 									type={field.type}
 									className="input-field"
 									aria-label={ariaLabel}
+									autoComplete={
+										field.type === "password"
+										? "new-password"       // prevents Chrome autofill
+										: "off"                // prevents autofill on other fields
+									}
 									{...register(field.label, { required: true })}
 								/>
 							);
