@@ -33,12 +33,12 @@ const RegisterSteps: Readonly<Record<AccountType, InputField[][]>> = {
 	],
 	[AccountType.Veilingmeester]: [
 		[
-			{ label: 'email', type: 'email', placeholder: 'you@example.com' },
-			{ label: 'password', type: 'password', placeholder: '••••••••' },
+			{ label: 'email', type: 'email', placeholder: 'you@example.com', required: true },
+			{ label: 'password', type: 'password', placeholder: '••••••••', required: true },
 		],
 		[
 			{ label: 'region', type: 'select', options: [...Regions] },
-			{ label: 'authorisation_code', type: 'text', placeholder: '123456' },
+			{ label: 'authorisation_code', type: 'text', placeholder: '123456', required: true },
 		],
 	],
 };

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VeilingKlokApp.Data;
 
@@ -11,9 +12,11 @@ using VeilingKlokApp.Data;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     [DbContext(typeof(VeilingKlokContext))]
-    partial class VeilingKlokContextModelSnapshot : ModelSnapshot
+    [Migration("20251126091319_InitialCreate2")]
+    partial class InitialCreate2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,15 +141,9 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("size");
 
-                    b.Property<int>("VeilingKlokId")
-                        .HasColumnType("int")
-                        .HasColumnName("veilingklok_id");
-
                     b.HasKey("Id");
 
                     b.HasIndex("KwekerId");
-
-                    b.HasIndex("VeilingKlokId");
 
                     b.ToTable("Product");
                 });
@@ -329,18 +326,10 @@ namespace VeilingKlokKlas1Groep2.Migrations
                     b.HasOne("VeilingKlokApp.Models.Domain.Kweker", "Kweker")
                         .WithMany("Products")
                         .HasForeignKey("KwekerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("VeilingKlokApp.Models.Domain.VeilingKlok", "VeilingKlok")
-                        .WithMany("Products")
-                        .HasForeignKey("VeilingKlokId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Kweker");
-
-                    b.Navigation("VeilingKlok");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.RefreshToken", b =>
@@ -359,7 +348,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                     b.HasOne("VeilingKlokApp.Models.Domain.Veilingmeester", "Veilingmeester")
                         .WithMany("Veilingklokken")
                         .HasForeignKey("VeilingmeesterId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Veilingmeester");
@@ -390,11 +379,6 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasForeignKey("VeilingKlokApp.Models.Domain.Veilingmeester", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("VeilingKlokApp.Models.Domain.VeilingKlok", b =>
-                {
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("VeilingKlokApp.Models.Domain.Koper", b =>

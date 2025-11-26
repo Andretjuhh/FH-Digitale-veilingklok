@@ -8,8 +8,10 @@ import { RegisterSteps } from '../../../constant/forms';
 import { useForm } from 'react-hook-form';
 import { NewKwekerAccount } from '../../../declarations/KwekerAccount';
 import { NewKoperAccount } from '../../../declarations/KoperAccount';
+import { NewVeilingmeesterAccount } from '../../../declarations/VeilingmeesterAccount';
 import { createKoperAccount } from '../../../controllers/koper';
 import { createKwekerAccount } from '../../../controllers/kweker';
+import { createVeilingmeesterAccount } from '../../../controllers/veilingmeester';
 
 function RegisterContent() {
   const { t, navigate, authenticateAccount } = useRootContext();
@@ -73,9 +75,21 @@ function RegisterContent() {
             break;
           }
 
-          case AccountType.Veilingmeester:
+          case AccountType.Veilingmeester: {
             dashboardDestination = '/dashboard';
+            const account: NewVeilingmeesterAccount = {
+              email: data['email'],
+              password: data['password'],
+              regio: data['region'],
+              authorisatieCode: data['authorisation_code'],
+              createdAt: new Date(),
+            };
+            const authResponse = await createVeilingmeesterAccount(account);
+            authenticateAccount(authResponse);
+
             break;
+          }
+            
         }
 
         navigate(dashboardDestination, { replace: true });
@@ -176,7 +190,7 @@ function RegisterContent() {
                 error={errorMsg}
                 isError={!!errorMsg}
                 {...register(name, {
-                  required: isRequired ? `${t(field.label)} is required` : false,
+                  required: isRequired ? `${t(field.label)} is ${t('required')}` : false,
                   ...(name === 'email' && {
                     pattern: {
                       value: /^\S+@\S+\.\S+$/,
