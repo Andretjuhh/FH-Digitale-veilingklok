@@ -1,12 +1,14 @@
-﻿// External imports
+// External imports
 import React, { useEffect, useMemo, useState } from 'react';
 
 // Internal imports
 import Page from '../../components/nav/Page';
 import Button from '../../components/buttons/Button';
 import AuctionClock from '../../components/elements/AuctionClock';
+import { useRootContext } from '../../contexts/RootContext';
 
 function UserDashboard() {
+	const { t } = useRootContext();
 	const CLOCK_SECONDS = 4;
 	const [price, setPrice] = useState<number>(0.65);
 	// Productenlijst (dummy data)
@@ -142,10 +144,7 @@ function UserDashboard() {
 		const before = products.slice(0, productIndex);
 		return [...after, ...before];
 	}, [products, productIndex]);
-	const [isDark, setIsDark] = useState<boolean>(() => {
-		const saved = typeof window !== 'undefined' ? localStorage.getItem('theme') : null;
-		return saved === 'dark';
-	});
+
 	const [paused, setPaused] = useState<boolean>(false);
 	const [resetToken, setResetToken] = useState<number>(0);
 	// Voorraad per product en aankoop hoeveelheid
@@ -160,8 +159,10 @@ function UserDashboard() {
 	const [stock, setStock] = useState<number[]>(initialStock);
 	const currentStock = stock[productIndex] ?? 0;
 	const [qty, setQty] = useState<number>(5);
-	const decQty = () => setQty((q) => Math.max(0, q - 1));
-	const incQty = () => setQty((q) => Math.min(999, q + 5));
+	useEffect(() => {
+		// clamp quantity when product or stock changes
+		setQty((q) => Math.max(0, Math.min(currentStock, q)));
+	}, [currentStock, productIndex]);
 
 	// prijs wordt gestuurd door de klok (onTick)
 
@@ -170,17 +171,9 @@ function UserDashboard() {
 			<section className="user-hero">
 				<div className="user-hero-head">
 					<div>
-						<h1 className="user-hero-title">Mijn Dashboard</h1>
-						<p className="user-hero-sub">Overzicht van je profiel en acties</p>
+						<h1 className="user-hero-title">{t('koper_dashboard')}</h1>
+						<p className="user-hero-sub">{t('koper_dashboard_sub')}</p>
 					</div>
-					{/* <div className="user-hero-actions">
-            <Button
-              className={'app-home-s-btn'}
-              label={isDark ? 'Licht thema' : 'Donker thema'}
-              icon={isDark ? 'bi-sun-fill' : 'bi-moon-fill'}
-              onClick={toggleTheme}
-            />
-          </div> */}
 				</div>
 			</section>
 
@@ -196,19 +189,19 @@ function UserDashboard() {
 						/>
 						<div className="product-info">
 							<div className="prod-row">
-								<span className="prod-label">Aanvoerder</span>
+								<span className="prod-label">{t('koper_supplier')}</span>
 								<span className="prod-val">{current.supplier}</span>
-								<span className="prod-label">avr nr</span>
+								<span className="prod-label">{t('koper_avr')}</span>
 								<span className="prod-val">{current.avr}</span>
 							</div>
 							<div className="prod-row">
-								<span className="prod-label">Product</span>
+								<span className="prod-label">{t('koper_product')}</span>
 								<span className="prod-val prod-val--wide">{current.name}</span>
-								<span className="prod-label">land</span>
+								<span className="prod-label">{t('koper_country')}</span>
 								<span className="prod-val">{current.land}</span>
 							</div>
 							<div className="prod-row">
-								<span className="prod-label">aantal stelen per bos</span>
+								<span className="prod-label">{t('koper_stems_per_bundle')}</span>
 								<span className="prod-val prod-val--wide">{current.stemsPerBundle}</span>
 							</div>
 						</div>
@@ -232,14 +225,13 @@ function UserDashboard() {
 							}}
 						/>
 
-						<div className="stock-text">Voorraad: {currentStock} stuks</div>
+						<div className="stock-text">{t('koper_stock', { count: currentStock })}</div>
 
 						<div className="user-actions">
 							<div className="buy-controls">
-								<Button className={'qty-icon-btn btn-outline'} label="-5" aria-label="Verlaag aantal met 5" title="-5" onClick={decQty} disabled={qty <= 1} />
 								<Button
 									className="user-action-btn !bg-primary-main buy-full"
-									label={`Koop product (${qty})`}
+									label={`${t('koper_buy')} (${qty})`}
 									onClick={() => {
 										const cur = stock[productIndex] ?? 0;
 										const delta = Math.min(qty, cur);
@@ -260,14 +252,38 @@ function UserDashboard() {
 										}, 500);
 									}}
 								/>
-								<Button className={'qty-icon-btn btn-outline'} label="+5" aria-label="Verhoog aantal met 5" title="+5" onClick={incQty} />
+								<div className="buy-inline">
+									<input
+										type="number"
+										min={0}
+										max={currentStock}
+										className="buy-inline-input"
+										value={Number.isFinite(qty) ? qty : ''}
+										onChange={(e) => {
+											const val = parseInt(e.target.value, 10);
+											if (Number.isNaN(val)) {
+												setQty(0);
+												return;
+											}
+											setQty(Math.max(0, Math.min(currentStock, val)));
+										}}
+										aria-label={t('koper_qty_input_aria')}
+									/>
+									<Button
+										className="qty-max-btn btn-outline"
+										label={t('koper_max_stock')}
+										aria-label={t('koper_max_stock')}
+										onClick={() => setQty(currentStock)}
+										disabled={currentStock === 0}
+									/>
+								</div>
 							</div>
 						</div>
 					</div>
 
 					{/* Right side: compacte wachtrij */}
 					<aside className="upcoming-side">
-						<h4 className="upcoming-side-title">Volgende</h4>
+						<h4 className="upcoming-side-title">{t('koper_upcoming')}</h4>
 						<ul className="upcoming-side-list">
 							{upcoming.map((p, i) => (
 								<li className="upcoming-side-item" key={i}>
@@ -282,7 +298,7 @@ function UserDashboard() {
 									<div className="upcoming-side-info">
 										<div className="upcoming-side-name">{p.name}</div>
 										<div className="upcoming-side-meta">
-											{p.supplier} · {p.minStemLen} · bos {p.stemsPerBundle}
+											{p.supplier} • {p.minStemLen} • {t('koper_bundle_label')} {p.stemsPerBundle}
 										</div>
 									</div>
 									<span className="upcoming-side-badge">{p.kwa}</span>
@@ -295,49 +311,49 @@ function UserDashboard() {
 
 			<footer className="app-footer">
 				<div className="user-footer-col">
-					<h4 className="user-footer-title">Over FloriClock</h4>
-					<p className="user-footer-line">Digitale veiling voor bloemen en planten.</p>
-					<p className="user-footer-line">Gebouwd door studenten — demo omgeving.</p>
+					<h4 className="user-footer-title">{t('koper_footer_about_title')}</h4>
+					<p className="user-footer-line">{t('koper_footer_about_line1')}</p>
+					<p className="user-footer-line">{t('koper_footer_about_line2')}</p>
 				</div>
 				<div className="user-footer-col">
-					<h4 className="user-footer-title">Product</h4>
+					<h4 className="user-footer-title">{t('koper_footer_product_title')}</h4>
 					<ul className="user-footer-list">
 						<li>
-							<a href="#">Live veiling</a>
+							<a href="#">{t('koper_footer_live')}</a>
 						</li>
 						<li>
-							<a href="#">Prijsgeschiedenis</a>
+							<a href="#">{t('koper_footer_history')}</a>
 						</li>
 						<li>
-							<a href="#">Favorieten</a>
+							<a href="#">{t('koper_footer_favorites')}</a>
 						</li>
 					</ul>
 				</div>
 				<div className="user-footer-col">
-					<h4 className="user-footer-title">Resources</h4>
+					<h4 className="user-footer-title">{t('koper_footer_resources_title')}</h4>
 					<ul className="user-footer-list">
 						<li>
-							<a href="#">Documentatie</a>
+							<a href="#">{t('koper_footer_docs')}</a>
 						</li>
 						<li>
-							<a href="#">Veelgestelde vragen</a>
+							<a href="#">{t('koper_footer_faq')}</a>
 						</li>
 						<li>
-							<a href="#">Status</a>
+							<a href="#">{t('koper_footer_status')}</a>
 						</li>
 					</ul>
 				</div>
 				<div className="user-footer-col">
-					<h4 className="user-footer-title">Contact</h4>
+					<h4 className="user-footer-title">{t('koper_footer_contact_title')}</h4>
 					<ul className="user-footer-list">
 						<li>
-							<a href="#">Service & support</a>
+							<a href="#">{t('koper_footer_support')}</a>
 						</li>
 						<li>
-							<a href="#">Contactformulier</a>
+							<a href="#">{t('koper_footer_form')}</a>
 						</li>
 						<li>
-							<a href="#">Locaties</a>
+							<a href="#">{t('koper_footer_locations')}</a>
 						</li>
 					</ul>
 				</div>
@@ -347,3 +363,5 @@ function UserDashboard() {
 }
 
 export default UserDashboard;
+
+
