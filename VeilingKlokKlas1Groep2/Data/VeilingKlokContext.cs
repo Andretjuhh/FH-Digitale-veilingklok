@@ -62,14 +62,14 @@ namespace VeilingKlokApp.Data
                 .IsRequired();
 
             //
-            // 6. VeilingKlok -> Products
+            // 6. VeilingKlok -> Products (product may exist without being assigned to a VeilingKlok)
             //
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.VeilingKlok)
                 .WithMany(vk => vk.Products)
                 .HasForeignKey(p => p.VeilingKlokId)
                 .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired();
+                .IsRequired(false); // make the FK optional
 
             //
             // 7. Account -> RefreshTokens (Cascade allowed)

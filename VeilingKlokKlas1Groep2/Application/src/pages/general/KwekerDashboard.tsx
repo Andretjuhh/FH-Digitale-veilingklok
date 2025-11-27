@@ -2,6 +2,7 @@
 import Button from '../../components/buttons/Button';
 import Page from '../../components/nav/Page';
 import { getKwekerProducts } from '../../controllers/kweker';
+import { createProduct } from '../../controllers/Product';
 
 type KwekerStats = {
 	totalProducts: number;
@@ -51,6 +52,15 @@ export default function KwekerDashboard() {
 	const [stats] = useState<KwekerStats>(initialStats);
 	const [activeTab, setActiveTab] = useState<'my' | 'history'>('my');
 	const [products, setProducts] = useState<Product[]>(activeTab === 'my' ? sampleProducts : sampleHistory);
+	const [isCreating, setIsCreating] = useState(false);
+	const [showForm, setShowForm] = useState(false);
+	const [name, setName] = useState('');
+	const [description, setDescription] = useState('');
+	const [price, setPrice] = useState<number | ''>('');
+	const [minimumPrice, setMinimumPrice] = useState<number | ''>('');
+	const [quantity, setQuantity] = useState<number | ''>('');
+	const [imageUrl, setImageUrl] = useState('');
+	const [size, setSize] = useState('');
 
 	useEffect(() => {
 		initializeProducts();
@@ -129,16 +139,114 @@ export default function KwekerDashboard() {
 						</div>
 						<div className="content-footer">
 							{activeTab === 'my' && (
-								<Button
-									className="toevoegen-knop"
-									label={'Voeg nieuw product toe'}
-									onClick={() => {
-										/* open submit form */
-									}}
-								>
-									Toevoegen
-								</Button>
-							)}
+								<>
+									{!showForm && (
+										<Button
+											className="toevoegen-knop"
+											label={'Voeg nieuw product toe'}
+											onClick={() => setShowForm(true)}
+										>
+											Toevoegen
+										</Button>
+									)}
+									{showForm && (
+										<div className="modal-overlay" onClick={() => !isCreating && setShowForm(false)}>
+											<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+												<div className="modal-header">
+													<h3>Nieuw product toevoegen</h3>
+													<button className="modal-close" onClick={() => setShowForm(false)} aria-label="Sluiten">✕</button>
+												</div>
+												<div className="modal-body">
+													<form
+				onSubmit={async (e) => {
+						e.preventDefault();
+						if (isCreating) return;
+						// basic validation
+						if (!name || price === '' || Number(price) <= 0) {
+							alert('Vul ten minste naam en een geldige prijs in.');
+							return;
+						}
+						setIsCreating(true);
+						try {
+							const payload = {
+								name,
+								description,
+								price: Number(price),
+								minimumPrice: minimumPrice === '' ? Number(price) : Number(minimumPrice),
+								quantity: quantity === '' ? 1 : Number(quantity),
+								imageUrl,
+								size,
+							};
+							const res = await createProduct(payload).catch((err) => {
+								console.error('createProduct failed', err);
+								return null;
+							});
+							if (res && res.product) {
+								const p = res.product;
+								const mapped: Product = {
+									id: p.id,
+									title: p.name,
+									description: p.description,
+									price: p.price,
+								};
+								setProducts((prev) => [mapped, ...prev]);
+								setShowForm(false);
+								// reset form
+								setName('');
+								setDescription('');
+								setPrice('');
+								setMinimumPrice('');
+								setQuantity('');
+								setImageUrl('');
+								setSize('');
+							} else {
+								alert('Het aanmaken van het product is mislukt.');
+							}
+						} finally {
+							setIsCreating(false);
+						}
+					}}
+					className="create-product-form"
+					>
+					<div className="form-row">
+						<label>Naam</label>
+						<input value={name} onChange={(e) => setName(e.target.value)} />
+					</div>
+					<div className="form-row">
+						<label>Beschrijving</label>
+						<textarea value={description} onChange={(e) => setDescription(e.target.value)} />
+					</div>
+					<div className="form-row">
+						<label>Prijs (€)</label>
+						<input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))} />
+					</div>
+					<div className="form-row">
+						<label>Minimum prijs (€)</label>
+						<input type="number" step="0.01" value={minimumPrice} onChange={(e) => setMinimumPrice(e.target.value === '' ? '' : Number(e.target.value))} />
+					</div>
+					<div className="form-row">
+						<label>Aantal</label>
+						<input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value === '' ? '' : Number(e.target.value))} />
+					</div>
+					<div className="form-row">
+						<label>Afbeelding URL</label>
+						<input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+					</div>
+					<div className="form-row">
+						<label>Maat</label>
+						<input value={size} onChange={(e) => setSize(e.target.value)} />
+					</div>
+					<div className="form-row form-actions">
+						<button type="submit" className="toevoegen-knop btn-primary" disabled={isCreating}>{isCreating ? 'Bezig...' : 'Voeg nieuw product toe'}</button>
+						<button type="button" className="cancel-btn" onClick={() => setShowForm(false)} disabled={isCreating}>Annuleren</button>
+					</div>
+					</form>
+											</div>
+											</div>
+										</div>
+									)}
+							</>
+						)}
 						</div>
 					</div>
 				</section>

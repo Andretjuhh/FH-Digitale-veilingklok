@@ -21,3 +21,12 @@ export async function getKwekerProducts() {
 		method: 'GET',
 	});
 }
+
+export async function createProduct(NewProduct: ProductDetails) {
+	return await fetchResponse<{ message: string; product: ProductDetails }>(
+		'/api/product/create',
+		{
+			method: 'POST',
+			body: JSON.stringify(NewProduct),
+		}
+	);}
