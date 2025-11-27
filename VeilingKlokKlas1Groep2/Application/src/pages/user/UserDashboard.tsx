@@ -83,6 +83,48 @@ function UserDashboard() {
 				ripeness: '3-4',
 				image: '/pictures/plant 3.png',
 			},
+			{
+				supplier: 'PetalWorks',
+				avr: '8215',
+				name: 'Peony Coral Charm',
+				land: 'FR',
+				mps: 'A',
+				brief: '77421d',
+				kwa: 'A1',
+				qi: 'A',
+				minStemLen: '45 cm',
+				stemsPerBundle: '8',
+				ripeness: '2-3',
+				image: '/pictures/plant 5.png',
+			},
+			{
+				supplier: 'Sunrise Farms',
+				avr: '9340',
+				name: 'Sunflower Helio',
+				land: 'ES',
+				mps: 'B',
+				brief: '66330f',
+				kwa: 'A2',
+				qi: 'B',
+				minStemLen: '60 cm',
+				stemsPerBundle: '6',
+				ripeness: '3-4',
+				image: '/pictures/plant 6.png',
+			},
+			{
+				supplier: 'Nordic Blooms',
+				avr: '1055',
+				name: 'Eucalyptus Cinerea',
+				land: 'NO',
+				mps: 'A',
+				brief: '33109e',
+				kwa: 'A1',
+				qi: 'A',
+				minStemLen: '65 cm',
+				stemsPerBundle: '25',
+				ripeness: '2-2',
+				image: '/pictures/plant 7.png',
+			},
 		],
 		[]
 	);
@@ -117,7 +159,7 @@ function UserDashboard() {
 	);
 	const [stock, setStock] = useState<number[]>(initialStock);
 	const currentStock = stock[productIndex] ?? 0;
-	const [qty, setQty] = useState<number>(1);
+	const [qty, setQty] = useState<number>(5);
 	const decQty = () => setQty((q) => Math.max(0, q - 1));
 	const incQty = () => setQty((q) => Math.min(999, q + 5));
 
@@ -164,28 +206,10 @@ function UserDashboard() {
 								<span className="prod-val prod-val--wide">{current.name}</span>
 								<span className="prod-label">land</span>
 								<span className="prod-val">{current.land}</span>
-								<span className="prod-label">mps</span>
-								<span className="prod-val">{current.mps}</span>
-							</div>
-							<div className="prod-row">
-								<span className="prod-label">brief</span>
-								<span className="prod-val">{current.brief}</span>
-								<span className="prod-label">kwa</span>
-								<span className="prod-val">{current.kwa}</span>
-								<span className="prod-label">qi</span>
-								<span className="prod-val">{current.qi}</span>
-							</div>
-							<div className="prod-row">
-								<span className="prod-label">minimum steellengte</span>
-								<span className="prod-val prod-val--wide">{current.minStemLen}</span>
 							</div>
 							<div className="prod-row">
 								<span className="prod-label">aantal stelen per bos</span>
 								<span className="prod-val prod-val--wide">{current.stemsPerBundle}</span>
-							</div>
-							<div className="prod-row">
-								<span className="prod-label">rijpheidstadium</span>
-								<span className="prod-val prod-val--wide">{current.ripeness}</span>
 							</div>
 						</div>
 					</div>
@@ -199,7 +223,6 @@ function UserDashboard() {
 							resetToken={resetToken}
 							round={1}
 							coin={1}
-							totalLots={Math.max(0, Math.ceil((stock[productIndex] ?? 0) / (parseInt(current.stemsPerBundle, 10) || 1)))}
 							amountPerLot={parseInt(current.stemsPerBundle, 10) || 1}
 							minAmount={1}
 							price={price}
