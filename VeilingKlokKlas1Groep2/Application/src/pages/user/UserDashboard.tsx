@@ -162,8 +162,10 @@ function UserDashboard() {
 	const [stock, setStock] = useState<number[]>(initialStock);
 	const currentStock = stock[productIndex] ?? 0;
 	const [qty, setQty] = useState<number>(5);
-	const decQty = () => setQty((q) => Math.max(0, q - 1));
-	const incQty = () => setQty((q) => Math.min(999, q + 5));
+	useEffect(() => {
+		// clamp quantity when product or stock changes
+		setQty((q) => Math.max(0, Math.min(currentStock, q)));
+	}, [currentStock, productIndex]);
 
 	// prijs wordt gestuurd door de klok (onTick)
 
@@ -238,7 +240,6 @@ function UserDashboard() {
 
 						<div className="user-actions">
 							<div className="buy-controls">
-								<Button className={'qty-icon-btn btn-outline'} label="-5" aria-label="Verlaag aantal met 5" title="-5" onClick={decQty} disabled={qty <= 1} />
 								<Button
 									className="user-action-btn !bg-primary-main buy-full"
 									label={`Koop product (${qty})`}
@@ -262,7 +263,31 @@ function UserDashboard() {
 										}, 500);
 									}}
 								/>
-								<Button className={'qty-icon-btn btn-outline'} label="+5" aria-label="Verhoog aantal met 5" title="+5" onClick={incQty} />
+								<div className="buy-inline">
+									<input
+										type="number"
+										min={0}
+										max={currentStock}
+										className="buy-inline-input"
+										value={Number.isFinite(qty) ? qty : ''}
+										onChange={(e) => {
+											const val = parseInt(e.target.value, 10);
+											if (Number.isNaN(val)) {
+												setQty(0);
+												return;
+											}
+											setQty(Math.max(0, Math.min(currentStock, val)));
+										}}
+										aria-label="Aantal te kopen stelen"
+									/>
+									<Button
+										className="qty-max-btn btn-outline"
+										label="Max voorraad"
+										aria-label="Stel aantal in op maximale voorraad"
+										onClick={() => setQty(currentStock)}
+										disabled={currentStock === 0}
+									/>
+								</div>
 							</div>
 						</div>
 					</div>
