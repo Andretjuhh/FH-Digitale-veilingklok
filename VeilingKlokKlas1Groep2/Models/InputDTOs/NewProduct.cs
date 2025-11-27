@@ -9,5 +9,4 @@ public class NewProduct
     public int Quantity { get; set; }
     public string? ImageUrl { get; set; }
     public string? Size { get; set; }
-    public int KwekerId { get; set; }
 }

@@ -32,11 +32,6 @@ export default function AuctionClock(props: ClockProps) {
   const DOTS = 100; // number of dots around the ring
   const totalMs = totalSeconds * 1000;
   const [remainingMs, setRemainingMs] = useState<number>(totalMs);
-  const [roundCount, setRoundCount] = useState<number>(round);
-
-  useEffect(() => {
-    setRoundCount(round);
-  }, [round]);
 
   useEffect(() => {
     if (!start) return;
@@ -57,15 +52,15 @@ export default function AuctionClock(props: ClockProps) {
         const secs = Math.ceil(next / 1000);
         onTick?.(secs);
         if (next === 0) {
-          setRoundCount((prev) => prev + 1);
+          window.clearInterval(id);
           onComplete?.();
-          return totalMs; // reset to start position
         }
         return next;
       });
     }, 100);
     return () => window.clearInterval(id);
-  }, [start, props.paused, totalMs, onTick, onComplete]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [start, props.paused]);
 
   const progressIndex = useMemo(() => {
     const elapsedMs = totalMs - remainingMs;
@@ -94,7 +89,7 @@ export default function AuctionClock(props: ClockProps) {
             key={i}
             cx={d.x}
             cy={d.y}
-            r={4}
+            r={3}
             className={i === progressIndex ? 'clock-dot clock-dot--active' : 'clock-dot'}
           />
         ))}
@@ -110,18 +105,28 @@ export default function AuctionClock(props: ClockProps) {
         {/* Center panel */}
         <g className="clock-center" transform="translate(150,150)">
           {/* top row */}
-          <text x={-40} y={-75} className="clock-label" textAnchor="middle">Ronde</text>
-          <rect x={-58} y={-70} width={36} height={22} rx={4} className="clock-box" />
-          <text x={-40} y={-55} className="clock-value" textAnchor="middle">{roundCount}</text>
+          <text x={-5} y={-75} className="clock-label" textAnchor="end">Ronde</text>
+          <rect x={-35} y={-70} width={30} height={22} rx={4} className="clock-box" />
+          <text x={-20} y={-55} className="clock-value" textAnchor="start">{round}</text>
 
-          <text x={40} y={-75} className="clock-label" textAnchor="middle">Munt</text>
-          <rect x={22} y={-70} width={36} height={22} rx={4} className="clock-box" />
-          <text x={40} y={-55} className="clock-value" textAnchor="middle">{coin}</text>
+          <text x={55} y={-75} className="clock-label" textAnchor="end">Munt</text>
+          <rect x={25} y={-70} width={34} height={22} rx={4} className="clock-box" />
+          <text x={42} y={-55} className="clock-value" textAnchor="middle">{coin}</text>
 
           {/* second row */}
-          <text x={0} y={-35} className="clock-label" textAnchor="middle">Aant/ehd</text>
-          <rect x={-23} y={-30} width={46} height={22} rx={4} className="clock-box" />
-          <text x={0} y={-15} className="clock-value" textAnchor="middle">{amountPerLot}</text>
+          <text x={-86} y={-35} className="clock-label" textAnchor="middle">Stw/GP</text>
+          <rect x={-108} y={-30} width={44} height={22} rx={4} className="clock-box" />
+
+          <text x={-30} y={-35} className="clock-label" textAnchor="middle">Ehd/Stw/GP</text>
+          <rect x={-55} y={-30} width={50} height={22} rx={4} className="clock-box" />
+
+          <text x={32} y={-35} className="clock-label" textAnchor="middle">Tot. ehd</text>
+          <rect x={8} y={-30} width={46} height={22} rx={4} className="clock-box" />
+          <text x={31} y={-15} className="clock-value" textAnchor="middle">{totalLots}</text>
+
+          <text x={98} y={-35} className="clock-label" textAnchor="middle">Aant/ehd</text>
+          <rect x={76} y={-30} width={46} height={22} rx={4} className="clock-box" />
+          <text x={99} y={-15} className="clock-value" textAnchor="middle">{amountPerLot}</text>
 
           {/* third row */}
           <text x={-20} y={28} className="clock-label" textAnchor="end">Prijs</text>
@@ -133,6 +138,7 @@ export default function AuctionClock(props: ClockProps) {
           <text x={82} y={28} className="clock-value" textAnchor="middle">{minAmount}</text>
 
           {/* bottom label */}
+          <text x={0} y={70} className="clock-bottom" textAnchor="middle">Koper</text>
         </g>
       </svg>
     </div>
