@@ -4,6 +4,7 @@ using VeilingKlokApp.Data;
 using VeilingKlokApp.Models;
 using VeilingKlokApp.Models.Domain;
 using VeilingKlokApp.Models.OutputDTOs;
+using VeilingKlokKlas1Groep2.Attributes;
 using VeilingKlokKlas1Groep2.Declarations;
 using VeilingKlokKlas1Groep2.Models.InputDTOs;
 
@@ -32,6 +33,7 @@ namespace VeilingKlokApp.Controllers
         /// <param name="newProduct">Product details to create</param>
         /// <returns>Created product details with HTTP 201 status</returns>
         [HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> CreateProduct([FromBody] NewProduct newProduct)
         {
             // Validate input payload
@@ -89,22 +91,51 @@ namespace VeilingKlokApp.Controllers
             using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
-                // Verify that the Kweker exists using LINQ
+                // Get authenticated account id (set by AuthorizeAttribute)
+                var accountIdObj = HttpContext.Items["AccountId"];
+                if (accountIdObj == null)
+                {
+                    await transaction.RollbackAsync();
+                    var error = new HtppError(
+                        "Unauthorized",
+                        "Authenticated account not found in request",
+                        401
+                    );
+                    return Unauthorized(error);
+                }
+
+                int authenticatedAccountId;
+                try
+                {
+                    authenticatedAccountId = Convert.ToInt32(accountIdObj);
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    var error = new HtppError(
+                        "Unauthorized",
+                        "Invalid authenticated account id",
+                        401
+                    );
+                    return Unauthorized(error);
+                }
+
+                // Verify the authenticated account exists as a Kweker
                 var kwekerExists = await _db.Kwekers
-                    .AnyAsync(k => k.Id == newProduct.KwekerId);
+                    .AnyAsync(k => k.Id == authenticatedAccountId);
 
                 if (!kwekerExists)
                 {
                     await transaction.RollbackAsync();
                     var error = new HtppError(
-                        "Not Found",
-                        $"Kweker with ID {newProduct.KwekerId} does not exist",
-                        404
+                        "Forbidden",
+                        "Authenticated account is not a Kweker",
+                        403
                     );
-                    return NotFound(error);
+                    return StatusCode(403, error);
                 }
 
-                // Create the product entity
+                // Create the product entity using authenticated kweker id
                 var product = new Product
                 {
                     Name = newProduct.Name,
@@ -114,7 +145,7 @@ namespace VeilingKlokApp.Controllers
                     Quantity = newProduct.Quantity,
                     ImageUrl = newProduct.ImageUrl,
                     Size = newProduct.Size,
-                    KwekerId = newProduct.KwekerId
+                    KwekerId = authenticatedAccountId
                 };
 
                 _db.Products.Add(product);

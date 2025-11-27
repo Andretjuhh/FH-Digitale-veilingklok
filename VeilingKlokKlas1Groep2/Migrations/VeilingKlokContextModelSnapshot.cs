@@ -138,7 +138,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("size");
 
-                    b.Property<int>("VeilingKlokId")
+                    b.Property<int?>("VeilingKlokId")
                         .HasColumnType("int")
                         .HasColumnName("veilingklok_id");
 
@@ -335,8 +335,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                     b.HasOne("VeilingKlokApp.Models.Domain.VeilingKlok", "VeilingKlok")
                         .WithMany("Products")
                         .HasForeignKey("VeilingKlokId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Kweker");
 
