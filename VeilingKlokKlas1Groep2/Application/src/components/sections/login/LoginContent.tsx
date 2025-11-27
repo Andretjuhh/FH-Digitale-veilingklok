@@ -5,10 +5,11 @@ import FormInputField from '../../elements/FormInputField';
 import FormLink from '../../buttons/FormLink';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useRootContext } from '../../../contexts/RootContext';
+import { loginAccount, saveAuthenticationResponse } from '../../../controllers/authentication';
 
 type LoginFormData = {
-    email: string;
-    password: string;
+	email: string;
+	password: string;
 };
 
 function LoginContent() {
@@ -20,20 +21,45 @@ function LoginContent() {
 	 */
 	const handleGoBack = () => navigate('/');
 
-	const { 
-        register, 
-        handleSubmit, 
-        formState: { errors } 
-    } = useForm<LoginFormData>();
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<LoginFormData>();
 
 	// 2. Define the submit handler function
-    const onSubmit: SubmitHandler<LoginFormData> = (data) => {
-        console.log('Form Submitted (Client-Side Validated):', data);
-        
-        // This is where you would call your backend API for authentication
-        // For now, we simulate navigation on success
-        navigate('/user-dashboard'); 
-    };
+	const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
+		try {
+			const authResponse = await loginAccount({ email: data.email, password: data.password });
+
+			// Save auth session into context
+			saveAuthenticationResponse(authResponse);
+
+			// Determine dashboard by account type
+			switch (authResponse.accountType) {
+				case 'Koper':
+					navigate('/user-dashboard');
+					break;
+
+				case 'Kweker':
+					navigate('/kweker');
+					break;
+
+				case 'Veilingmeester':
+					navigate('/dashboard');
+					break;
+
+				default:
+					console.error('Unknown account type:', authResponse.accountType);
+					navigate('/');
+			}
+		} catch (error) {
+			console.error('Login failed:', error);
+
+			// Show a user-friendly error
+			alert(t('something_went_wrong') || 'Invalid email or password');
+		}
+	};
 
 	return (
 		<div className="app-page login-page">
@@ -50,31 +76,40 @@ function LoginContent() {
 					</div>
 				</div>
 				<form className="login-form" onSubmit={handleSubmit(onSubmit)}>
-					<FormInputField id="email" label={t('email')} className="input-field" type="email" 
-					// Pass RHF props: register('field-name', { rules })
-                        {...register('email', { 
-                            required: t('email_required_error'), 
-                            pattern: {
-                                value: /^\S+@\S+\.\S+$/, 
-                                message: t('email_invalid_error') 
-                            }
-                        })}
-                        // Check RHF errors object for this field
-                        isError={!!errors.email} 
-                        // Pass RHF error message to the component
-                        error={errors.email?.message || 'Please type an email (example@email.com)'}/>
-					<FormInputField id="password" label={t('password')} className="input-field" type="password" 
-					// Pass RHF props: register('field-name', { rules })
-                        {...register('password', { 
-                            required: t('password_required_error'),
-                        })}
-                        // Check RHF errors object for this field
-                        isError={!!errors.password} 
-                        // Pass RHF error message to the component
-                        error={errors.password?.message || 'Incorrect Password'} 
-                    />
+					<FormInputField
+						id="email"
+						label={t('email')}
+						className="input-field"
+						type="email"
+						// Pass RHF props: register('field-name', { rules })
+						{...register('email', {
+							required: t('email_required_error'),
+							pattern: {
+								value: /^\S+@\S+\.\S+$/,
+								message: t('email_invalid_error'),
+							},
+						})}
+						// Check RHF errors object for this field
+						isError={!!errors.email}
+						// Pass RHF error message to the component
+						error={errors.email?.message || 'Please type an email (example@email.com)'}
+					/>
+					<FormInputField
+						id="password"
+						label={t('password')}
+						className="input-field"
+						type="password"
+						// Pass RHF props: register('field-name', { rules })
+						{...register('password', {
+							required: t('password_required_error'),
+						})}
+						// Check RHF errors object for this field
+						isError={!!errors.password}
+						// Pass RHF error message to the component
+						error={errors.password?.message || 'Incorrect Password'}
+					/>
 
-					<Button type="submit"  className="btn-primary" label={t('login')} aria-label={t('login_button_aria')} />
+					<Button type="submit" className="btn-primary" label={t('login')} aria-label={t('login_button_aria')} />
 
 					{/* Still need to add forgotten link nav */}
 					<FormLink className="forgot-link" label={t('forgot_password')} onClick={() => navigate('/')} aria-label={t('forgot_password_aria')} />
