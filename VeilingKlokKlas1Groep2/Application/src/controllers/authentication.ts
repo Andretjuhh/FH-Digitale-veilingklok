@@ -1,7 +1,7 @@
-import {fetchResponse} from '../utils/fetchHelpers';
-import {LoginRequest} from '../declarations/LoginRequest';
-import {AuthResponse} from '../declarations/AuthenticationResponse';
-import {AccountInfo} from '../declarations/AccountInfo';
+import { fetchResponse } from '../utils/fetchHelpers';
+import { LoginRequest } from '../declarations/LoginRequest';
+import { AuthResponse } from '../declarations/AuthenticationResponse';
+import { AccountInfo } from '../declarations/AccountInfo';
 
 // Initialize authentication by chekcing if tokens are valid
 export async function initializeAuthentication() {
