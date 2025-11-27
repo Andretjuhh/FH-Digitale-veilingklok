@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Button from '../../components/buttons/Button';
 import Page from '../../components/nav/Page';
 import { getKwekerProducts } from '../../controllers/kweker';
