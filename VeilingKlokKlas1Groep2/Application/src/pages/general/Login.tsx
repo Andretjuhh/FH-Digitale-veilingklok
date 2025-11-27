@@ -7,8 +7,8 @@ import LoginContent from '../../components/sections/login/LoginContent';
 
 function Login() {
 	return (
-		<Page enableHeader={false}>
-			<LoginContent />
+		<Page enableHeader={false} className="auth-page">
+			<LoginContent/>
 		</Page>
 	);
 }

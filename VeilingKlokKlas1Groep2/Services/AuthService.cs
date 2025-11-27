@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using VeilingKlokApp.Data;
 using VeilingKlokApp.Models.Domain;
 using VeilingKlokApp.Models.OutputDTOs;
-using VeilingKlokKlas1Groep2.Configuration;
+using VeilingKlokKlas1Groep2.Declarations;
 
 namespace VeilingKlokKlas1Groep2.Services
 {
@@ -50,7 +50,6 @@ namespace VeilingKlokKlas1Groep2.Services
             var authResponse = new AuthResponse
             {
                 AccessToken = accessToken,
-                RefreshToken = null,
                 AccessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
                 RefreshTokenExpiresAt = refreshToken.ExpiresAt,
                 AccountId = account.Id,
@@ -107,7 +106,6 @@ namespace VeilingKlokKlas1Groep2.Services
             var responseDto = new AuthResponse
             {
                 AccessToken = newAccessToken,
-                RefreshToken = null,
                 AccessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
                 RefreshTokenExpiresAt = newRefreshToken.ExpiresAt,
                 AccountId = refreshToken.AccountId,

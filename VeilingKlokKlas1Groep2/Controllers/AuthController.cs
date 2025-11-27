@@ -7,7 +7,6 @@ using VeilingKlokKlas1Groep2.Declarations;
 using VeilingKlokKlas1Groep2.Models.InputDTOs;
 using VeilingKlokKlas1Groep2.Services;
 using Microsoft.Extensions.Options;
-using VeilingKlokKlas1Groep2.Configuration;
 
 namespace VeilingKlokApp.Controllers
 {
@@ -252,22 +251,18 @@ namespace VeilingKlokApp.Controllers
         #region Account Info
 
         /// <summary>
-        /// Returns the authenticated user's account info (email and account type)
+        /// Returns the authenticated user's account info based on their account type
         /// </summary>
         [HttpGet("account")]
         [VeilingKlokKlas1Groep2.Attributes.Authorize]
-        public IActionResult GetAccountInfo()
+        public async Task<IActionResult> GetAccountInfo()
         {
             try
             {
-                var email = HttpContext.User?.Claims
-                    .FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+                var accountId = HttpContext.Items["AccountId"] as int?;
+                var accountType = HttpContext.Items["AccountType"] as string;
 
-                var accountType = HttpContext.Items["AccountType"] as string
-                                   ?? HttpContext.User?.Claims.FirstOrDefault(c => c.Type == "AccountType")?.Value
-                                   ?? string.Empty;
-
-                if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(accountType))
+                if (!accountId.HasValue || string.IsNullOrEmpty(accountType))
                 {
                     var error = new HtppError(
                         "Unauthorized",
@@ -277,7 +272,71 @@ namespace VeilingKlokApp.Controllers
                     return Unauthorized(error);
                 }
 
-                return Ok(new { email, accountType });
+                object? accountDetails = null;
+
+                switch (accountType)
+                {
+                    case "Koper":
+                        var koper = await _db.Kopers.FindAsync(accountId.Value);
+                        if (koper != null)
+                        {
+                            accountDetails = new
+                            {
+                                koper.Id,
+                                koper.Email,
+                                koper.FirstName,
+                                koper.LastName,
+                                koper.Regio,
+                                koper.Adress,
+                                koper.PostCode,
+                                AccountType = "Koper"
+                            };
+                        }
+                        break;
+
+                    case "Kweker":
+                        var kweker = await _db.Kwekers.FindAsync(accountId.Value);
+                        if (kweker != null)
+                        {
+                            accountDetails = new
+                            {
+                                kweker.Id,
+                                kweker.Email,
+                                kweker.Name,
+                                kweker.Telephone,
+                                kweker.Adress,
+                                kweker.Regio,
+                                kweker.KvkNumber,
+                                AccountType = "Kweker"
+                            };
+                        }
+                        break;
+
+                    case "Veilingmeester":
+                        var veilingmeester = await _db.Veilingmeesters.FindAsync(accountId.Value);
+                        if (veilingmeester != null)
+                        {
+                            accountDetails = new
+                            {
+                                veilingmeester.Id,
+                                veilingmeester.Email,
+                                veilingmeester.Regio,
+                                veilingmeester.AuthorisatieCode,
+                                AccountType = "Veilingmeester"
+                            };
+                        }
+                        break;
+
+                    default:
+                        return BadRequest(new HtppError("Bad Request", "Unknown account type", 400));
+                }
+
+                if (accountDetails == null)
+                {
+                    return NotFound(new HtppError("Not Found", "Account details not found", 404));
+                }
+
+                return Ok(accountDetails);
             }
             catch (Exception ex)
             {

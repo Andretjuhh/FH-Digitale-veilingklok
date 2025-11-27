@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import { initReactI18next, useTranslation } from 'react-i18next';
+import {initReactI18next, useTranslation} from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -25,6 +25,7 @@ export const resources = {
 			logout: 'Uitloggen',
 
 			//Login and register page texts
+			login_title: 'Log in',
 			welcome_back: 'Welkom terug',
 			sign_in_message: 'Meld u alstublieft aan bij uw account',
 			forgot_password: 'Wachtwoord vergeten?',
@@ -114,11 +115,11 @@ i18n
 		lng: 'nl', // if you're using a language detector, do not define the lng option
 		fallbackLng: 'nl',
 		debug: false,
-		interpolation: { escapeValue: false },
+		interpolation: {escapeValue: false},
 	})
 	.then(null);
 
 type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
-export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };
+export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};

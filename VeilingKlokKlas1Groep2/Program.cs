@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
 using VeilingKlokApp.Data;
-using VeilingKlokKlas1Groep2.Configuration;
 using VeilingKlokKlas1Groep2.Services;
 using VeilingKlokKlas1Groep2.Data;
- 
+using VeilingKlokKlas1Groep2.Declarations;
+
 
 // Create the application builder
 var builder = WebApplication.CreateBuilder(args);

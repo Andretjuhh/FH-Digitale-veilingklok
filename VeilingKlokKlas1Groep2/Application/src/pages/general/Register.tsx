@@ -7,8 +7,8 @@ import RegisterContent from '../../components/sections/register/RegisterContent'
 
 function Register() {
 	return (
-		<Page enableHeader={false}>
-			<RegisterContent />
+		<Page enableHeader={false} className="auth-page">
+			<RegisterContent/>
 		</Page>
 	);
 }
