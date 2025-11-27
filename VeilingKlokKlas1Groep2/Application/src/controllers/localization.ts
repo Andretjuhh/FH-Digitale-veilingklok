@@ -67,6 +67,9 @@ export const resources = {
 			what_do_buyer: 'Zoeken en bieden op bloemen en planten van hun keuze',
 			what_is_veilingklok: 'Een geavanceerd systeem dat de tijd en volgorde van biedingen regelt tijdens veilingen',
 
+			// Koper Dashboard texts
+			koper_dashboard: 'Mijn Dashboard',
+
 			// Header and Footer texts
 			dashboard: 'Dashboard',
 			manage_account: 'Account beheren',

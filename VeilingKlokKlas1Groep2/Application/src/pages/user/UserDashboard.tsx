@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Page from '../../components/nav/Page';
 import Button from '../../components/buttons/Button';
 import AuctionClock from '../../components/elements/AuctionClock';
+import { useRootContext } from '../../contexts/RootContext';
 
 function UserDashboard() {
 	const CLOCK_SECONDS = 4;
@@ -128,6 +129,7 @@ function UserDashboard() {
 		],
 		[]
 	);
+	const { t, navigate, authenticateAccount } = useRootContext();
 
 	const [productIndex, setProductIndex] = useState<number>(0);
 	const current = products[productIndex];
@@ -170,7 +172,7 @@ function UserDashboard() {
 			<section className="user-hero">
 				<div className="user-hero-head">
 					<div>
-						<h1 className="user-hero-title">Mijn Dashboard</h1>
+						<h1 className="user-hero-title">{t('koper_dashboard')}</h1>
 						<p className="user-hero-sub">Overzicht van je profiel en acties</p>
 					</div>
 					{/* <div className="user-hero-actions">
