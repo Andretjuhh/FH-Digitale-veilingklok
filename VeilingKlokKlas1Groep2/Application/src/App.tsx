@@ -1,13 +1,14 @@
 // External imports
 import React from 'react';
-import {Route, Routes, useLocation} from 'react-router-dom';
-import {AnimatePresence} from 'framer-motion';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 
 // Internal imports
 import RootContext from './contexts/RootContext';
 
 import Home from './pages/general/Home';
 import Login from './pages/general/Login';
+import Settings from './pages/general/Settings';
 import KlantDashboard from './pages/KlantDashboard';
 import Register from './pages/general/Register';
 import KwekerDashboard from './pages/general/KwekerDashboard';
@@ -21,13 +22,14 @@ function App() {
 		<RootContext>
 			<AnimatePresence initial={false}>
 				<Routes location={location} key={location.pathname}>
-					<Route path="/" element={<Home/>}/>
-					<Route path="/login" element={<Login/>}/>
-					<Route path="/register" element={<Register/>}/>
-					<Route path="/dashboard" element={<Dashboard/>}/>
-					<Route path="/KlantDashboard" element={<KlantDashboard/>}/>
-					<Route path="/user-dashboard" element={<UserDashboard/>}/>
-					<Route path="/kweker" element={<KwekerDashboard/>}/>
+					<Route path="/" element={<Home />} />
+					<Route path="/login" element={<Login />} />
+					<Route path="/register" element={<Register />} />
+					<Route path="/settings" element={<Settings />} />
+					<Route path="/dashboard" element={<Dashboard />} />
+					<Route path="/KlantDashboard" element={<KlantDashboard />} />
+					<Route path="/user-dashboard" element={<UserDashboard />} />
+					<Route path="/kweker" element={<KwekerDashboard />} />
 				</Routes>
 			</AnimatePresence>
 		</RootContext>
