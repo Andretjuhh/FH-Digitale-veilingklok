@@ -29,4 +29,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="VeilingKlokKlas1Groep2.Tests\**\*.cs" />
+  </ItemGroup>
+
 </Project>
