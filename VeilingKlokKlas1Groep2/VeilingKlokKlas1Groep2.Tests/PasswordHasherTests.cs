@@ -12,10 +12,15 @@ public class PasswordHasherTests
         var hash1 = hasher.HashPassword("secret123");
         var hash2 = hasher.HashPassword("secret123");
 
-        Assert.NotEqual(hash1, hash2); // salts should make hashes unique
+        Assert.NotEqual(hash1, hash2
+        ); // salts should make hashes unique
         Assert.Contains('.', hash1);
         Assert.Contains('.', hash2);
+        // Check if compare hash are valid 
+        Assert.True(hasher.VerifyPassword(hash1, "secret123"));
+        Assert.False(hasher.VerifyPassword(hash2, "secret1234")); // wrong password
     }
+
 
     [Fact]
     public void VerifyPassword_ReturnsTrueForCorrectPassword()
@@ -49,4 +54,5 @@ public class PasswordHasherTests
 
         Assert.False(result);
     }
+    
 }

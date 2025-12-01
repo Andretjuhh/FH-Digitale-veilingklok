@@ -31,6 +31,9 @@
 
   <ItemGroup>
     <Compile Remove="VeilingKlokKlas1Groep2.Tests\**\*.cs" />
+    <Content Remove="VeilingKlokKlas1Groep2.Tests\**\*" />
+    <EmbeddedResource Remove="VeilingKlokKlas1Groep2.Tests\**\*" />
+    <None Remove="VeilingKlokKlas1Groep2.Tests\**\*" />
   </ItemGroup>
 
 </Project>
