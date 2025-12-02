@@ -1,8 +1,8 @@
 // External dependencies
 import React from 'react';
-import CardSwap, { Card } from '../../libraries/react-bits/CardSwap';
-import TinyCardCounter from '../elements/TinyCardCounter';
-import { useRootContext } from '../../contexts/RootContext';
+import CardSwap, { Card } from '../../../libraries/react-bits/CardSwap';
+import TinyCardCounter from '../../elements/TinyCardCounter';
+import { useRootContext } from '../../../contexts/RootContext';
 
 function AppBloemSoort() {
 	const { t } = useRootContext();
@@ -15,30 +15,9 @@ function AppBloemSoort() {
 				</div>
 				<div className="app-bloems-bdy">
 					<div className={'app-bloems-bdy-row'}>
-						<TinyCardCounter
-							counter={1000000}
-							counterPrefix={'+'}
-							className={'app-bloems-counter-card'}
-							title={t('flowers')}
-							description={t('flowers_description')}
-							icon={'bi-flower2'}
-						/>
-						<TinyCardCounter
-							counter={100}
-							counterPrefix={'+'}
-							className={'app-bloems-counter-card'}
-							title={t('growers')}
-							description={t('growers_description')}
-							icon={'bi-person-arms-up'}
-						/>
-						<TinyCardCounter
-							counter={100}
-							counterPrefix={'+'}
-							className={'app-bloems-counter-card'}
-							title={t('transactions')}
-							description={t('transactions_description')}
-							icon={'bi-cart-check-fill'}
-						/>
+						<TinyCardCounter counter={1000000} counterPrefix={'+'} className={'app-bloems-counter-card'} title={t('flowers')} description={t('flowers_description')} icon={'bi-flower2'} />
+						<TinyCardCounter counter={100} counterPrefix={'+'} className={'app-bloems-counter-card'} title={t('growers')} description={t('growers_description')} icon={'bi-person-arms-up'} />
+						<TinyCardCounter counter={100} counterPrefix={'+'} className={'app-bloems-counter-card'} title={t('transactions')} description={t('transactions_description')} icon={'bi-cart-check-fill'} />
 					</div>
 
 					<div className={'app-bloems-bdy-row app-bloems-cardswap-ctn'}>

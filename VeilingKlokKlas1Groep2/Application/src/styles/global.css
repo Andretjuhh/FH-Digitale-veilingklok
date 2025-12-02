@@ -164,7 +164,8 @@ img {
 
 /* --- Input Styling (Includes Textarea) */
 .input-field-ptn {
-	width: 100%;
+	width: auto;
+	flex: 1;
 }
 .input-field-label {
 	display: block;

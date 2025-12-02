@@ -149,7 +149,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                     image_url = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     size = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     kweker_id = table.Column<int>(type: "int", nullable: false),
-                    veilingklok_id = table.Column<int>(type: "int", nullable: false)
+                    veilingklok_id = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {

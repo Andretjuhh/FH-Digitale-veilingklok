@@ -1,34 +1,34 @@
 import { AccountType } from '../types/AccountTypes';
-import { InputField } from '../types/FormField';
+import { FieldOrGroup, InputField } from '../types/FormField';
 
-const Regions = ['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Overijssel', 'Limburg', 'Friesland', 'Drenthe', 'Flevoland', 'Groningen', 'Zeeland'] as const;
+export const Regions = ['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Overijssel', 'Limburg', 'Friesland', 'Drenthe', 'Flevoland', 'Groningen', 'Zeeland'] as const;
 
-const RegisterSteps: Readonly<Record<AccountType, InputField[][]>> = {
+export const RegisterSteps = {
 	[AccountType.Koper]: [
 		[
+			{ label: 'first_name', type: 'text', placeholder: 'Steve', required: true, group: 'name' },
+			{ label: 'last_name', type: 'text', placeholder: 'Jobs', required: true, group: 'name' },
 			{ label: 'email', type: 'email', placeholder: 'you@example.com', required: true },
 			{ label: 'password', type: 'password', placeholder: '••••••••', required: true },
-			{ label: 'first_name', type: 'text', placeholder: 'Steve', required: true },
-			{ label: 'last_name', type: 'text', placeholder: 'Jobs' , required: true},
 		],
 		[
-			{ label: 'address', type: 'text', placeholder: '' },
-			{ label: 'postcode', type: 'text', placeholder: '1234 AB' },
-			{ label: 'region', type: 'select', options: [...Regions] },
+			{ label: 'address', type: 'text', placeholder: '', required: false },
+			{ label: 'postcode', type: 'text', placeholder: '1234 AB', required: false, group: 'address' },
+			{ label: 'region', type: 'select', options: [...Regions], required: false, placeholder: undefined, group: 'address' },
 		],
 	],
 	[AccountType.Kweker]: [
 		[
-			{ label: 'company_name', type: 'text', placeholder: 'Example BV', required: true },
+			{ label: 'company_name', type: 'text', placeholder: 'Example BV', required: true, group: 'company_details' },
+			{ label: 'kvk_number', type: 'text', placeholder: '12345678', required: true, group: 'company_details' },
 			{ label: 'email', type: 'email', placeholder: 'you@example.com', required: true },
 			{ label: 'password', type: 'password', placeholder: '••••••••', required: true },
 		],
-		[{ label: 'kvk_number', type: 'text', placeholder: '12345678', required: true }],
 		[
-			{ label: 'phonenumber', type: 'text', placeholder: '+31 6 12345678' },
-			{ label: 'address', type: 'text', placeholder: 'Street 123' },
-			{ label: 'postcode', type: 'text', placeholder: '1234 AB' },
-			{ label: 'region', type: 'select', options: [...Regions] },
+			{ label: 'phonenumber', type: 'text', placeholder: '+31 6 12345678', required: false },
+			{ label: 'address', type: 'text', placeholder: 'Street 123', required: false },
+			{ label: 'postcode', type: 'text', placeholder: '1234 AB', required: false, group: 'location' },
+			{ label: 'region', type: 'select', options: [...Regions], required: false, placeholder: undefined, group: 'location' },
 		],
 	],
 	[AccountType.Veilingmeester]: [
@@ -37,10 +37,37 @@ const RegisterSteps: Readonly<Record<AccountType, InputField[][]>> = {
 			{ label: 'password', type: 'password', placeholder: '••••••••', required: true },
 		],
 		[
-			{ label: 'region', type: 'select', options: [...Regions] },
+			{ label: 'region', type: 'select', options: [...Regions], required: true, placeholder: undefined },
 			{ label: 'authorisation_code', type: 'text', placeholder: '123456', required: true },
 		],
 	],
-};
+} as const satisfies Readonly<Record<AccountType, readonly (readonly InputField[])[]>>;
 
-export { RegisterSteps, Regions };
+export const buildFieldLayout = (fields: ReadonlyArray<InputField>): FieldOrGroup[] => {
+	const orderedItems: FieldOrGroup[] = [];
+	let currentGroup: { name: string; fields: InputField[] } | null = null;
+
+	const flushGroup = () => {
+		if (!currentGroup) return;
+		orderedItems.push({ type: 'group', groupName: currentGroup.name, fields: currentGroup.fields });
+		currentGroup = null;
+	};
+
+	fields.forEach((field) => {
+		if (field.group) {
+			if (currentGroup?.name === field.group) {
+				currentGroup.fields.push(field);
+			} else {
+				flushGroup();
+				currentGroup = { name: field.group, fields: [field] };
+			}
+		} else {
+			flushGroup();
+			orderedItems.push({ type: 'field', field });
+		}
+	});
+
+	flushGroup();
+
+	return orderedItems;
+};

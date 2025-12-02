@@ -1,9 +1,9 @@
 // External imports
 import React from 'react';
-import Button from '../buttons/Button';
-import ButterflyParticles from '../../particles/ButterflyParticles';
-import { useRootContext } from '../../contexts/RootContext';
-import { AccountType } from '../../types/AccountTypes';
+import Button from '../../buttons/Button';
+import ButterflyParticles from '../../../particles/ButterflyParticles';
+import { useRootContext } from '../../../contexts/RootContext';
+import { AccountType } from '../../../types/AccountTypes';
 
 function AppHome() {
 	const { loggedIn, account, t, navigate } = useRootContext();

@@ -188,6 +188,13 @@
 	background-color: theme(colors.primary.main);
 }
 
+.form-field-group {
+	display: flex;
+	gap: 1rem;
+	flex: 1;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
 /*#endregion*/
 
 /* Modal popup for create product */

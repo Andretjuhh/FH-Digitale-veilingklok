@@ -1,30 +1,31 @@
-import React, {useCallback, useState} from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Button from '../../buttons/Button';
 import FormInputField from '../../elements/FormInputField';
 import FormLink from '../../buttons/FormLink';
-import {useRootContext} from '../../../contexts/RootContext';
-import {AccountType} from '../../../types/AccountTypes';
-import {RegisterSteps} from '../../../constant/forms';
-import {useForm} from 'react-hook-form';
-import {NewKwekerAccount} from '../../../declarations/KwekerAccount';
-import {NewKoperAccount} from '../../../declarations/KoperAccount';
-import {NewVeilingmeesterAccount} from '../../../declarations/VeilingmeesterAccount';
-import {createKoperAccount} from '../../../controllers/koper';
-import {createKwekerAccount} from '../../../controllers/kweker';
-import {createVeilingmeesterAccount} from '../../../controllers/veilingmeester';
-import {LayoutGroup, motion} from 'framer-motion';
-import {Spring} from "../../../constant/animation";
-import {useComponentStateReducer} from "../../../hooks/useComponentStateReducer";
+import { useRootContext } from '../../../contexts/RootContext';
+import { AccountType } from '../../../types/AccountTypes';
+import { buildFieldLayout, RegisterSteps } from '../../../constant/forms';
+import { useForm } from 'react-hook-form';
+import { FieldOrGroup, InputField } from '../../../types/FormField';
+import { NewKwekerAccount } from '../../../declarations/KwekerAccount';
+import { NewKoperAccount } from '../../../declarations/KoperAccount';
+import { NewVeilingmeesterAccount } from '../../../declarations/VeilingmeesterAccount';
+import { createKoperAccount } from '../../../controllers/koper';
+import { createKwekerAccount } from '../../../controllers/kweker';
+import { createVeilingmeesterAccount } from '../../../controllers/veilingmeester';
+import { LayoutGroup, motion } from 'framer-motion';
+import { Spring } from '../../../constant/animation';
+import { useComponentStateReducer } from '../../../hooks/useComponentStateReducer';
 
 function RegisterContent() {
-	const {t, navigate, authenticateAccount} = useRootContext();
-	const [state, updateState] = useComponentStateReducer({type: 'idle', message: ''});
+	const { t, navigate, authenticateAccount } = useRootContext();
+	const [state, updateState] = useComponentStateReducer({ type: 'idle', message: '' });
 
 	const {
 		register,
 		handleSubmit,
 		trigger,
-		formState: {errors},
+		formState: { errors },
 	} = useForm();
 
 	const [step, setStep] = useState(1);
@@ -34,6 +35,39 @@ function RegisterContent() {
 
 	const totalSteps = RegisterSteps[selectedAccountType].length;
 	const currentFields = RegisterSteps[selectedAccountType][step - 1];
+
+	const orderedFields = useMemo(() => buildFieldLayout(currentFields), [currentFields]);
+	const renderField = useCallback(
+		(field: InputField, key: string) => {
+			const name = field.label;
+			const isRequired = field.required === true;
+			const errorMsg = errors[name]?.message as string | undefined;
+			return (
+				<FormInputField
+					key={key}
+					id={name}
+					label={isRequired ? `${t(field.label)} *` : t(field.label)}
+					placeholder={field.placeholder || ''}
+					type={field.type === 'select' ? 'text' : field.type}
+					className="input-field"
+					aria-label={t(field.label)}
+					autoComplete={field.type === 'password' ? 'new-password' : 'off'}
+					error={errorMsg}
+					isError={!!errorMsg}
+					{...register(name, {
+						required: isRequired ? `${t(field.label)} is ${t('required')}` : false,
+						...(name === 'email' && {
+							pattern: {
+								value: /^\S+@\S+\.\S+$/,
+								message: t('email_invalid_error'),
+							},
+						}),
+					})}
+				/>
+			);
+		},
+		[errors, register, selectedAccountType, step, t]
+	);
 
 	// Validate current step fields before going next
 	const validateStep = async () => {
@@ -100,7 +134,7 @@ function RegisterContent() {
 					}
 				}
 
-				navigate(dashboardDestination, {replace: true});
+				navigate(dashboardDestination, { replace: true });
 			} catch (error) {
 				console.error('Error during registration:', error);
 			}
@@ -114,7 +148,7 @@ function RegisterContent() {
 				{state.type === 'idle' && (
 					<>
 						<div className="auth-header">
-							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('back_button_aria')} onClick={handleGoBack}/>
+							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('back_button_aria')} onClick={handleGoBack} />
 							<div className="auth-text-ctn">
 								<h2 className="auth-header-h1" aria-label={t('create_account')}>
 									{t('create_account')}
@@ -126,16 +160,15 @@ function RegisterContent() {
 
 							{/* Stepper */}
 							<div className="registration-stepper" aria-label={`Registration step ${step} of ${totalSteps}`}>
-								{Array.from({length: totalSteps}, (_, index) => {
+								{Array.from({ length: totalSteps }, (_, index) => {
 									const stepNumber = index + 1;
 									const isActive = stepNumber === step;
 									const isCompleted = stepNumber < step;
 
 									return (
 										<React.Fragment key={stepNumber}>
-											<div className={`stepper-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>{isCompleted ?
-												<span className="checkmark">✓</span> : stepNumber}</div>
-											{stepNumber < totalSteps && <div className={`stepper-connector ${isCompleted ? 'completed' : ''}`}/>}
+											<div className={`stepper-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>{isCompleted ? <span className="checkmark">✓</span> : stepNumber}</div>
+											{stepNumber < totalSteps && <div className={`stepper-connector ${isCompleted ? 'completed' : ''}`} />}
 										</React.Fragment>
 									);
 								})}
@@ -165,49 +198,25 @@ function RegisterContent() {
 						<form
 							className="auth-form"
 							onSubmit={handleSubmit(handleFormSubmittion)}
-							autoComplete="off"
+							// autoComplete="off"
 							onKeyDown={(e) => {
-								// Prevent Enter from submitting form prematurely
 								if (e.key === 'Enter' && step < totalSteps) e.preventDefault();
 							}}
 						>
 							{/* Current step fields */}
-							{currentFields.map((field) => {
-								const name = field.label;
-								const isRequired = field.required === true;
-								const errorMsg = errors[name]?.message as string | undefined;
-
-								return (
-									<FormInputField
-										key={`${selectedAccountType}-${step}-${name}`}
-										id={name}
-										label={isRequired ? `${t(field.label)} *` : t(field.label)}
-										placeholder={field.placeholder}
-										type={field.type}
-										className="input-field"
-										aria-label={t(field.label)}
-										autoComplete={field.type === 'password' ? 'new-password' : 'off'}
-										error={errorMsg}
-										isError={!!errorMsg}
-										{...register(name, {
-											required: isRequired ? `${t(field.label)} is ${t('required')}` : false,
-											...(name === 'email' && {
-												pattern: {
-													value: /^\S+@\S+\.\S+$/,
-													message: t('email_invalid_error'),
-												},
-											}),
-										})}
-									/>
-								);
-							})}
+							{orderedFields.map((item) =>
+								item.type === 'group' ? (
+									<div key={`group-${item.groupName}`} className="form-field-group">
+										{item.fields.map((field, fieldIndex) => renderField(field, `${item.groupName}-${field.label}-${fieldIndex}`))}
+									</div>
+								) : (
+									renderField(item.field, `field-${item.field.label}`)
+								)
+							)}
 
 							{/* Navigation Buttons */}
 							<div className="auth-form-buttons">
-								{step > 1 && <Button
-									label={t('previous')}
-									onClick={() => setStep(step - 1)} type="button"/>
-								}
+								{step > 1 && <Button label={t('previous')} onClick={() => setStep(step - 1)} type="button" />}
 
 								{step < totalSteps ? (
 									<Button
@@ -220,14 +229,15 @@ function RegisterContent() {
 									/>
 								) : (
 									<Button
-										className="auth-submit-btn" label={t('create_account')}
+										className="auth-submit-btn"
+										label={t('create_account')}
 										type="button" // ← change to button
 										onClick={handleSubmit(handleFormSubmittion)} // ← manually trigger submit
 									/>
 								)}
 							</div>
 
-							<FormLink className="back-to-login-link" label={t('login_message')} onClick={() => navigate('/login')} type="button"/>
+							<FormLink className="back-to-login-link" label={t('login_message')} onClick={() => navigate('/login')} type="button" />
 						</form>
 					</>
 				)}

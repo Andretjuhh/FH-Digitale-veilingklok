@@ -9,6 +9,8 @@ import {loginAccount, saveAuthenticationResponse} from '../../../controllers/aut
 import {useComponentStateReducer} from '../../../hooks/useComponentStateReducer';
 import {LayoutGroup, motion} from 'framer-motion';
 import {Spring} from '../../../constant/animation';
+import Spinner from "../../elements/Spinner";
+// import {delay} from '../../../utils/standards'
 
 type LoginFormData = {
 	email: string;
@@ -34,6 +36,8 @@ function LoginContent() {
 	// 2. Define the submit handler function
 	const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
 		try {
+			// updateState({type: 'loading', message: 'Logging in...'});
+			// await delay(2000); // Simulate loading delay
 			const authResponse = await loginAccount({email: data.email, password: data.password});
 
 			// Save auth session into context
@@ -62,6 +66,8 @@ function LoginContent() {
 
 			// Show a user-friendly error
 			alert(t('something_went_wrong') || 'Invalid email or password');
+		} finally {
+			// updateState({type: 'succeed', message: 'Logging in...'});
 		}
 	};
 
@@ -126,7 +132,11 @@ function LoginContent() {
 					</>
 				)}
 
-				{state.type === 'loading' && <div className="form-state"></div>}
+				{state.type === 'loading' &&
+					<div className="form-state">
+						<Spinner/>
+					</div>
+				}
 			</motion.div>
 		</LayoutGroup>
 	);
