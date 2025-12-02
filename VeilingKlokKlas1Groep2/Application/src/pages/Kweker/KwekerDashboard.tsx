@@ -4,7 +4,9 @@ import FormInputField from '../../components/elements/FormInputField';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import Page from '../../components/nav/Page';
 import { getKwekerProducts, getKwekerStats } from '../../controllers/kweker';
-import { createProduct } from '../../controllers/Product';
+import { createProduct, getProductById } from '../../controllers/Product';
+import { ProductDetails } from '../../declarations/ProductDetails';
+import { formatEur } from '../../utils/formatters';
 
 type KwekerStats = {
 	totalProducts: number;
@@ -20,12 +22,7 @@ type Product = {
 	price: number;
 };
 
-const initialStats: KwekerStats = {
-    totalProducts: 0,
-    activeAuctions: 0,
-    totalRevenue: 0,
-    stemsSold: 0,
-};
+// initialStats and hook removed — state is declared inside the component
 
 const sampleProducts: Product[] = [
 	{ id: '1', title: 'Product 1', description: 'Beschrijving van product 1', price: 19.99 },
@@ -46,9 +43,7 @@ const sampleHistory: Product[] = [
 	{ id: 'h6', title: 'Verkocht product 6', description: 'Beschrijving verkocht item 6', price: 59.99 },
 ];
 
-function formatEur(value: number) {
-	return value.toLocaleString('nl-NL', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
-}
+// `formatEur` moved to `Application/src/utils/formatters.ts` and is imported above
 
 export default function KwekerDashboard() {
 	const [stats, setStats] = useState<KwekerStats | null>(null);
@@ -56,6 +51,11 @@ export default function KwekerDashboard() {
 	const [products, setProducts] = useState<Product[]>(activeTab === 'my' ? sampleProducts : sampleHistory);
 	const [isCreating, setIsCreating] = useState(false);
 	const [showForm, setShowForm] = useState(false);
+	// Preview modal state
+	const [showPreview, setShowPreview] = useState(false);
+	const [previewLoading, setPreviewLoading] = useState(false);
+	const [previewError, setPreviewError] = useState<string | null>(null);
+	const [previewProduct, setPreviewProduct] = useState<ProductDetails | null>(null);
 
 	// React Hook Form for create product modal
 	type CreateForm = {
@@ -153,7 +153,22 @@ export default function KwekerDashboard() {
 					<div className="content-inner">
 						<div className="product-grid">
 							{products.map((p) => (
-								<article key={p.id} className="product-card">
+								<article key={p.id} className="product-card clickable" role="button" tabIndex={0} onClick={async () => {
+									// open preview modal and fetch details
+									setShowPreview(true);
+									setPreviewLoading(true);
+									setPreviewError(null);
+									setPreviewProduct(null);
+									try {
+										const res = await getProductById(Number(p.id));
+										setPreviewProduct(res as ProductDetails);
+									} catch (err) {
+										console.error('Failed to load product preview', err);
+										setPreviewError('Kon het product niet laden.');
+									} finally {
+										setPreviewLoading(false);
+									}
+								}} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { (e.currentTarget as HTMLElement).click(); } }}>
 									<div className="product-info-kweker">
 										<h3 className="product-title">{p.title}</h3>
 										<p className="product-desc">{p.description}</p>
@@ -294,6 +309,44 @@ export default function KwekerDashboard() {
 														</div>
 													</form>
 											</div>
+											</div>
+										</div>
+									)}
+
+									{/* Product preview modal */}
+									{showPreview && (
+										<div className="modal-overlay" onClick={() => { if (!previewLoading) { setShowPreview(false); setPreviewProduct(null); setPreviewError(null); } }}>
+											<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+												<div className="modal-header">
+													<h3>Product preview</h3>
+													<button className="modal-close" onClick={() => { setShowPreview(false); setPreviewProduct(null); setPreviewError(null); }} aria-label="Sluiten">✕</button>
+												</div>
+												<div className="modal-body">
+													{previewLoading && <div>Bezig met laden...</div>}
+													{previewError && <div className="error">{previewError}</div>}
+													{previewProduct && (
+														<div className="product-details">
+															<div className="product-details-grid">
+																<div className="product-meta">
+																	<div className="product-meta-header">
+																		<h2 className="product-name">{previewProduct.name}</h2>
+																		<div className="product-price">{formatEur(previewProduct.price)}</div>
+																	</div>
+																	<div className="product-description">{previewProduct.description}</div>
+																	{previewProduct.quantity !== undefined && <div className="product-quantity">Aantal: {previewProduct.quantity}</div>}
+																	{previewProduct.size && <div className="product-size">Maat: {previewProduct.size}</div>}
+																</div>
+																<div className="product-image">
+																	{previewProduct.imageUrl ? (
+																		<img src={previewProduct.imageUrl} alt={previewProduct.name} />
+																	) : (
+																		<div className="product-image-placeholder" aria-hidden="true" />
+																	)}
+																</div>
+															</div>
+														</div>
+													)}
+												</div>
 											</div>
 										</div>
 									)}
