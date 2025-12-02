@@ -77,6 +77,7 @@ function LoginContent() {
 				{state.type === 'idle' && (
 					<>
 						<div className="auth-header">
+							<Button className="auth-header-back-button" icon="bi-x" onClick={handleGoBack} type="button" aria-label={t('back_button_aria')} />
 							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('back_button_aria')} onClick={handleGoBack} />
 							<div className="auth-text-ctn">
 								<h2 className={'auth-header-h1'} aria-label={t('login_title')}>

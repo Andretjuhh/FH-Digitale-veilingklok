@@ -50,6 +50,24 @@
 	margin-bottom: 2rem;
 }
 
+.auth-header-back-button {
+	height: auto;
+	aspect-ratio: 1/1;
+	position: absolute;
+	left: 2rem;
+	top: 2rem;
+	z-index: 100;
+	padding: 0.6rem;
+	border-radius: 9999px;
+	background-color: transparent;
+	border: 1px solid theme(colors.zinc.300);
+	--hovered-color: theme(colors.zinc.400);
+}
+
+.auth-header-back-button-icon {
+	color: black;
+}
+
 .auth-header-logo {
 	height: var(--logo-size);
 	margin-bottom: 0.8rem;
@@ -68,7 +86,7 @@
 	width: 30px;
 	height: 30px;
 	border-radius: 50%;
-	background-color: #ccc; /* Default (inactive) gray */
+	background-color: theme(colors.zinc.300); /* Default (inactive) gray */
 	color: #fff;
 	display: flex;
 	align-items: center;
@@ -94,10 +112,8 @@
 .stepper-connector {
 	flex-grow: 1; /* Takes up available space between dots */
 	height: 2px;
-	background-color: #ccc; /* Default gray line */
+	background-color: theme(colors.zinc.300); /* Default gray line */
 	margin: 0 -15px; /* Pulls the line under the dot's edges */
-
-	/* 🚀 Motion: Transition for line color/fill */
 	transition: background-color 0.4s ease-in-out;
 }
 
@@ -118,9 +134,9 @@
 	padding: 1rem 0;
 	cursor: pointer;
 	font-weight: 600;
-	color: #6b7280;
+	color: theme(colors.zinc.600);
 	transition: all 0.2s ease;
-	border-bottom: 2px solid #e5e7eb;
+	border-bottom: 2px solid theme(colors.zinc.400);
 }
 
 .auth-tab:hover {

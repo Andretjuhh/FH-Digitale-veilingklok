@@ -31,12 +31,11 @@ function RegisterContent() {
 	const [step, setStep] = useState(1);
 	const [selectedAccountType, setAccountType] = useState<AccountType>(AccountType.Koper);
 
-	const handleGoBack = () => navigate('/');
-
 	const totalSteps = RegisterSteps[selectedAccountType].length;
 	const currentFields = RegisterSteps[selectedAccountType][step - 1];
 
 	const orderedFields = useMemo(() => buildFieldLayout(currentFields), [currentFields]);
+	const handleGoBack = () => navigate('/');
 	const renderField = useCallback(
 		(field: InputField, key: string) => {
 			const name = field.label;
@@ -149,6 +148,7 @@ function RegisterContent() {
 				{state.type === 'idle' && (
 					<>
 						<div className="auth-header">
+							<Button className="auth-header-back-button" icon="bi-x" onClick={handleGoBack} type="button" aria-label={t('back_button_aria')} />
 							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('back_button_aria')} onClick={handleGoBack} />
 							<div className="auth-text-ctn">
 								<h2 className="auth-header-h1" aria-label={t('create_account')}>
