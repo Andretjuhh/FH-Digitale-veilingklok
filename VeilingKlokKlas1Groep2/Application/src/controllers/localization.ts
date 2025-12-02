@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import {initReactI18next, useTranslation} from 'react-i18next';
+import { initReactI18next, useTranslation } from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -23,6 +23,17 @@ export const resources = {
 			login: 'Inloggen',
 			get_Started: 'Meld je aan',
 			logout: 'Uitloggen',
+
+			// Auth State messages
+			logging_in: 'Logging in...',
+			logged_in: 'Logged in successfully',
+			creating_account: 'Creating account...',
+			logging_out: 'Logging out...',
+			account_created: 'Account created successfully',
+			account_created_error: 'Account creation failed',
+			account_created_error_message: 'An error occurred while creating your account. Please try again later.',
+			account_created_error_message_technical: 'An error occurred while creating your account. Please contact support.',
+			account_created_error_message_technical_technical: 'An error occurred while creating your account. Please contact support.',
 
 			//Login and register page texts
 			login_title: 'Log in',
@@ -145,11 +156,11 @@ i18n
 		lng: 'nl', // if you're using a language detector, do not define the lng option
 		fallbackLng: 'nl',
 		debug: false,
-		interpolation: {escapeValue: false},
+		interpolation: { escapeValue: false },
 	})
 	.then(null);
 
 type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
-export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};
+export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };

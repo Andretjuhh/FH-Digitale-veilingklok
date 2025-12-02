@@ -16,10 +16,13 @@ import { createVeilingmeesterAccount } from '../../../controllers/veilingmeester
 import { LayoutGroup, motion } from 'framer-motion';
 import { Spring } from '../../../constant/animation';
 import { useComponentStateReducer } from '../../../hooks/useComponentStateReducer';
+import Spinner from '../../elements/Spinner';
+import { delay } from '../../../utils/standards';
+import { isHttpError } from '../../../types/HttpError';
 
 function RegisterContent() {
 	const { t, navigate, authenticateAccount } = useRootContext();
-	const [state, updateState] = useComponentStateReducer({ type: 'idle', message: '' });
+	const [state, updateState] = useComponentStateReducer();
 
 	const {
 		register,
@@ -80,8 +83,9 @@ function RegisterContent() {
 	const handleFormSubmittion = useCallback(
 		async (data: any) => {
 			try {
+				updateState({ type: 'loading', message: t('creating_account') });
+				await delay(1000); // Simulate loading delay
 				let dashboardDestination = '/';
-
 				switch (selectedAccountType) {
 					case AccountType.Koper: {
 						dashboardDestination = '/user-dashboard';
@@ -134,9 +138,16 @@ function RegisterContent() {
 					}
 				}
 
+				updateState({ type: 'succeed', message: t('account_created') });
+				await delay(1000); // Simulate loading delay
 				navigate(dashboardDestination, { replace: true });
 			} catch (error) {
-				console.error('Error during registration:', error);
+				console.error('Login failed:', error);
+				if (isHttpError(error)) updateState({ type: 'error', message: error.message });
+				else updateState({ type: 'error', message: t('something_went_wrong') });
+				await delay(2000); // Simulate loading delay
+			} finally {
+				updateState({ type: 'idle', message: '' });
 			}
 		},
 		[navigate, selectedAccountType, authenticateAccount]
@@ -235,6 +246,15 @@ function RegisterContent() {
 							{step <= 1 && <FormLink className="back-to-login-link" label={t('login_message')} onClick={() => navigate('/login')} type="button" />}
 						</form>
 					</>
+				)}
+
+				{state.type !== 'idle' && (
+					<div className="auth-state">
+						{state.type === 'loading' && <Spinner />}
+						{state.type === 'succeed' && <i className="bi bi-check-circle-fill text-green-500"></i>}
+						{state.type === 'error' && <i className="bi bi-x-circle-fill text-red-500"></i>}
+						<p className="auth-state-text">{state.message}</p>
+					</div>
 				)}
 			</motion.div>
 		</LayoutGroup>

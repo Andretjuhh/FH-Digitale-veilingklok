@@ -17,11 +17,32 @@
 	flex-direction: column;
 	justify-content: flex-start;
 	width: 420px;
+
+	min-width: 420px;
+	min-height: 420px;
 	max-width: 90%;
 }
 
 .auth-card.auto-width {
 	width: unset !important;
+}
+
+.auth-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	flex: 1;
+}
+
+.auth-state i {
+	font-size: var(--h1-size);
+}
+
+.auth-state-text {
+	font-size: var(--span3-size);
+	color: theme(colors.zinc.600);
 }
 
 .auth-form {

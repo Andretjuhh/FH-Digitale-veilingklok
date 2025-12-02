@@ -10,7 +10,8 @@ import { useComponentStateReducer } from '../../../hooks/useComponentStateReduce
 import { LayoutGroup, motion } from 'framer-motion';
 import { Spring } from '../../../constant/animation';
 import Spinner from '../../elements/Spinner';
-// import {delay} from '../../../utils/standards'
+import { delay } from '../../../utils/standards';
+import { HttpError, isHttpError } from '../../../types/HttpError';
 
 type LoginFormData = {
 	email: string;
@@ -19,7 +20,7 @@ type LoginFormData = {
 
 function LoginContent() {
 	const { t, navigate } = useRootContext();
-	const [state, updateState] = useComponentStateReducer({ type: 'idle', message: '' });
+	const [state, updateState] = useComponentStateReducer();
 
 	/* * NOTE: The original component used the logo as a back button.
 	 * I've preserved the back functionality and placed the logo
@@ -36,9 +37,11 @@ function LoginContent() {
 	// 2. Define the submit handler function
 	const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
 		try {
-			// updateState({type: 'loading', message: 'Logging in...'});
-			// await delay(2000); // Simulate loading delay
+			updateState({ type: 'loading', message: t('logging_in') });
+			await delay(1000); // Simulate loading delay
 			const authResponse = await loginAccount({ email: data.email, password: data.password });
+			updateState({ type: 'succeed', message: t('logged_in') });
+			await delay(1000); // Simulate loading delay
 
 			// Save auth session into context
 			saveAuthenticationResponse(authResponse);
@@ -63,11 +66,11 @@ function LoginContent() {
 			}
 		} catch (error) {
 			console.error('Login failed:', error);
-
-			// Show a user-friendly error
-			alert(t('something_went_wrong') || 'Invalid email or password');
+			if (isHttpError(error)) updateState({ type: 'error', message: error.message });
+			else updateState({ type: 'error', message: t('something_went_wrong') });
+			await delay(2000); // Simulate loading delay
 		} finally {
-			// updateState({type: 'succeed', message: 'Logging in...'});
+			updateState({ type: 'idle', message: '' });
 		}
 	};
 
@@ -135,9 +138,12 @@ function LoginContent() {
 					</>
 				)}
 
-				{state.type === 'loading' && (
-					<div className="form-state">
-						<Spinner />
+				{state.type !== 'idle' && (
+					<div className="auth-state">
+						{state.type === 'loading' && <Spinner />}
+						{state.type === 'succeed' && <i className="bi bi-check-circle-fill text-green-500"></i>}
+						{state.type === 'error' && <i className="bi bi-x-circle-fill text-red-500"></i>}
+						<p className="auth-state-text">{state.message}</p>
 					</div>
 				)}
 			</motion.div>
