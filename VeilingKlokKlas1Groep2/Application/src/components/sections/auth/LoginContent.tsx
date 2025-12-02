@@ -3,13 +3,13 @@ import Button from '../../buttons/Button';
 import '../../../styles/pages.css'; // make sure this path is correct!
 import FormInputField from '../../elements/FormInputField';
 import FormLink from '../../buttons/FormLink';
-import {SubmitHandler, useForm} from 'react-hook-form';
-import {useRootContext} from '../../../contexts/RootContext';
-import {loginAccount, saveAuthenticationResponse} from '../../../controllers/authentication';
-import {useComponentStateReducer} from '../../../hooks/useComponentStateReducer';
-import {LayoutGroup, motion} from 'framer-motion';
-import {Spring} from '../../../constant/animation';
-import Spinner from "../../elements/Spinner";
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useRootContext } from '../../../contexts/RootContext';
+import { loginAccount, saveAuthenticationResponse } from '../../../controllers/authentication';
+import { useComponentStateReducer } from '../../../hooks/useComponentStateReducer';
+import { LayoutGroup, motion } from 'framer-motion';
+import { Spring } from '../../../constant/animation';
+import Spinner from '../../elements/Spinner';
 // import {delay} from '../../../utils/standards'
 
 type LoginFormData = {
@@ -18,8 +18,8 @@ type LoginFormData = {
 };
 
 function LoginContent() {
-	const {t, navigate} = useRootContext();
-	const [state, updateState] = useComponentStateReducer({type: 'idle', message: ''});
+	const { t, navigate } = useRootContext();
+	const [state, updateState] = useComponentStateReducer({ type: 'idle', message: '' });
 
 	/* * NOTE: The original component used the logo as a back button.
 	 * I've preserved the back functionality and placed the logo
@@ -30,7 +30,7 @@ function LoginContent() {
 	const {
 		register,
 		handleSubmit,
-		formState: {errors},
+		formState: { errors },
 	} = useForm<LoginFormData>();
 
 	// 2. Define the submit handler function
@@ -38,7 +38,7 @@ function LoginContent() {
 		try {
 			// updateState({type: 'loading', message: 'Logging in...'});
 			// await delay(2000); // Simulate loading delay
-			const authResponse = await loginAccount({email: data.email, password: data.password});
+			const authResponse = await loginAccount({ email: data.email, password: data.password });
 
 			// Save auth session into context
 			saveAuthenticationResponse(authResponse);
@@ -77,7 +77,7 @@ function LoginContent() {
 				{state.type === 'idle' && (
 					<>
 						<div className="auth-header">
-							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('back_button_aria')} onClick={handleGoBack}/>
+							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('back_button_aria')} onClick={handleGoBack} />
 							<div className="auth-text-ctn">
 								<h2 className={'auth-header-h1'} aria-label={t('login_title')}>
 									{t('login_title')}
@@ -93,6 +93,7 @@ function LoginContent() {
 								label={t('email')}
 								className="input-field"
 								type="email"
+								icon="envelope-fill"
 								// Pass RHF props: register('field-name', { rules })
 								{...register('email', {
 									required: t('email_required_error'),
@@ -111,6 +112,7 @@ function LoginContent() {
 								label={t('password')}
 								className="input-field"
 								type="password"
+								icon="lock-fill"
 								// Pass RHF props: register('field-name', { rules })
 								{...register('password', {
 									required: t('password_required_error'),
@@ -121,22 +123,22 @@ function LoginContent() {
 								error={errors.password?.message || 'Incorrect Password'}
 							/>
 
-							<Button type="submit" className="auth-submit-btn" label={t('login')} aria-label={t('login_button_aria')}/>
+							<Button type="submit" className="auth-submit-btn" label={t('login')} aria-label={t('login_button_aria')} />
 
 							{/* Still need to add forgotten link nav */}
 							<div className="flex flex-col">
-								<FormLink className="auth-form-link" label={t('forgot_password')} onClick={() => navigate('/')} aria-label={t('forgot_password_aria')}/>
-								<FormLink className="auth-form-link" label={t('create_account')} onClick={() => navigate('/register')} aria-label={t('create_account_aria')}/>
+								<FormLink className="auth-form-link" label={t('forgot_password')} onClick={() => navigate('/')} aria-label={t('forgot_password_aria')} />
+								<FormLink className="auth-form-link" label={t('create_account')} onClick={() => navigate('/register')} aria-label={t('create_account_aria')} />
 							</div>
 						</form>
 					</>
 				)}
 
-				{state.type === 'loading' &&
+				{state.type === 'loading' && (
 					<div className="form-state">
-						<Spinner/>
+						<Spinner />
 					</div>
-				}
+				)}
 			</motion.div>
 		</LayoutGroup>
 	);

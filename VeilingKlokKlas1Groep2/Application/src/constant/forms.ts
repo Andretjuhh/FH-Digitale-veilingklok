@@ -8,33 +8,33 @@ export const RegisterSteps = {
 		[
 			{ label: 'first_name', type: 'text', placeholder: 'Steve', required: true, group: 'name' },
 			{ label: 'last_name', type: 'text', placeholder: 'Jobs', required: true, group: 'name' },
-			{ label: 'email', type: 'email', placeholder: 'you@example.com', required: true },
-			{ label: 'password', type: 'password', placeholder: '••••••••', required: true },
+			{ label: 'email', type: 'email', placeholder: 'you@example.com', required: true, icon: 'envelope-fill' },
+			{ label: 'password', type: 'password', placeholder: '••••••••', required: true, icon: 'lock-fill' },
 		],
 		[
-			{ label: 'address', type: 'text', placeholder: '', required: false },
-			{ label: 'postcode', type: 'text', placeholder: '1234 AB', required: false, group: 'address' },
-			{ label: 'region', type: 'select', options: [...Regions], required: false, placeholder: undefined, group: 'address' },
+			{ label: 'region', type: 'select', options: [...Regions], required: false, placeholder: 'Den Haag', group: 'location' },
+			{ label: 'postcode', type: 'text', placeholder: '1234AB', required: false, group: 'location' },
+			{ label: 'address', type: 'text', placeholder: 'Van der Valkstraat 123', required: false },
 		],
 	],
 	[AccountType.Kweker]: [
 		[
 			{ label: 'company_name', type: 'text', placeholder: 'Example BV', required: true, group: 'company_details' },
 			{ label: 'kvk_number', type: 'text', placeholder: '12345678', required: true, group: 'company_details' },
-			{ label: 'email', type: 'email', placeholder: 'you@example.com', required: true },
-			{ label: 'password', type: 'password', placeholder: '••••••••', required: true },
+			{ label: 'email', type: 'email', placeholder: 'you@example.com', required: true, icon: 'envelope-fill' },
+			{ label: 'password', type: 'password', placeholder: '••••••••', required: true, icon: 'lock-fill' },
 		],
 		[
 			{ label: 'phonenumber', type: 'text', placeholder: '+31 6 12345678', required: false },
-			{ label: 'address', type: 'text', placeholder: 'Street 123', required: false },
-			{ label: 'postcode', type: 'text', placeholder: '1234 AB', required: false, group: 'location' },
-			{ label: 'region', type: 'select', options: [...Regions], required: false, placeholder: undefined, group: 'location' },
+			{ label: 'region', type: 'select', options: [...Regions], required: false, placeholder: 'Den Haag', group: 'location' },
+			{ label: 'postcode', type: 'text', placeholder: '1234AB', required: false, group: 'location' },
+			{ label: 'address', type: 'text', placeholder: 'Van der Valkstraat 123', required: false },
 		],
 	],
 	[AccountType.Veilingmeester]: [
 		[
-			{ label: 'email', type: 'email', placeholder: 'you@example.com', required: true },
-			{ label: 'password', type: 'password', placeholder: '••••••••', required: true },
+			{ label: 'email', type: 'email', placeholder: 'you@example.com', required: true, icon: 'envelope-fill' },
+			{ label: 'password', type: 'password', placeholder: '••••••••', required: true, icon: 'lock-fill' },
 		],
 		[
 			{ label: 'region', type: 'select', options: [...Regions], required: true, placeholder: undefined },

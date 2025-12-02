@@ -1,6 +1,7 @@
 import { LocalizationTexts } from '../controllers/localization';
 
 export interface InputField<T extends string = string> {
+	icon?: string;
 	label: LocalizationTexts;
 	placeholder: string | undefined;
 	type: 'text' | 'email' | 'password' | 'select';

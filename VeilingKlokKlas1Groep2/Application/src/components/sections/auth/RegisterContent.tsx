@@ -6,7 +6,7 @@ import { useRootContext } from '../../../contexts/RootContext';
 import { AccountType } from '../../../types/AccountTypes';
 import { buildFieldLayout, RegisterSteps } from '../../../constant/forms';
 import { useForm } from 'react-hook-form';
-import { FieldOrGroup, InputField } from '../../../types/FormField';
+import { InputField } from '../../../types/FormField';
 import { NewKwekerAccount } from '../../../declarations/KwekerAccount';
 import { NewKoperAccount } from '../../../declarations/KoperAccount';
 import { NewVeilingmeesterAccount } from '../../../declarations/VeilingmeesterAccount';
@@ -46,6 +46,7 @@ function RegisterContent() {
 				<FormInputField
 					key={key}
 					id={name}
+					icon={field.icon}
 					label={isRequired ? `${t(field.label)} *` : t(field.label)}
 					placeholder={field.placeholder || ''}
 					type={field.type === 'select' ? 'text' : field.type}
@@ -198,7 +199,6 @@ function RegisterContent() {
 						<form
 							className="auth-form"
 							onSubmit={handleSubmit(handleFormSubmittion)}
-							// autoComplete="off"
 							onKeyDown={(e) => {
 								if (e.key === 'Enter' && step < totalSteps) e.preventDefault();
 							}}
@@ -215,29 +215,26 @@ function RegisterContent() {
 							)}
 
 							{/* Navigation Buttons */}
-							<div className="auth-form-buttons">
-								{step > 1 && <Button label={t('previous')} onClick={() => setStep(step - 1)} type="button" />}
-
-								{step < totalSteps ? (
-									<Button
-										label={t('next')}
-										type="button"
-										onClick={async () => {
-											const valid = await validateStep();
-											if (valid) setStep(step + 1);
-										}}
-									/>
-								) : (
-									<Button
-										className="auth-submit-btn"
-										label={t('create_account')}
-										type="button" // ← change to button
-										onClick={handleSubmit(handleFormSubmittion)} // ← manually trigger submit
-									/>
-								)}
+							<div className="flex flex-row gap-2 item-center justify-center">
+								<div className="auth-form-move-buttons">
+									{step > 1 && <Button label={t('previous')} icon="bi-arrow-left" className="auth-form-move-button" onClick={() => setStep(step - 1)} type="button" />}
+									{step < totalSteps && (
+										<Button
+											label={t('next')}
+											className="auth-form-move-button"
+											icon="bi-arrow-right"
+											type="button"
+											onClick={async () => {
+												const valid = await validateStep();
+												if (valid) setStep(step + 1);
+											}}
+										/>
+									)}
+								</div>
 							</div>
 
-							<FormLink className="back-to-login-link" label={t('login_message')} onClick={() => navigate('/login')} type="button" />
+							{step == totalSteps && <Button className="auth-submit-btn" label={t('create_account')} type="button" onClick={handleSubmit(handleFormSubmittion)} />}
+							{step == 0 && <FormLink className="back-to-login-link" label={t('login_message')} onClick={() => navigate('/login')} type="button" />}
 						</form>
 					</>
 				)}

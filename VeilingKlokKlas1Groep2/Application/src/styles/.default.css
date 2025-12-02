@@ -163,6 +163,14 @@ img {
 }
 
 /* --- Input Styling (Includes Textarea) */
+.form-field-group {
+	display: flex;
+	gap: 1rem;
+	flex: 1 2;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
 .input-field-ptn {
 	width: auto;
 	flex: 1;
@@ -176,15 +184,39 @@ img {
 	color: #4b5563;
 }
 
+.input-field-wrapper {
+	position: relative;
+	width: 100%;
+	overflow: visible;
+}
+
+.input-field-icon {
+	width: fit-content;
+	position: absolute;
+	padding: 0.75rem 1rem;
+
+	top: 50%;
+	transform: translateY(-50%);
+
+	color: theme(colors.zinc.400);
+	font-size: 1rem;
+	line-height: 1rem;
+	vertical-align: middle;
+	pointer-events: none;
+	z-index: 2;
+}
+
 .input-field {
 	width: 100%;
 	padding: 0.75rem 1rem;
+	padding-left: calc(var(--icon-width, 1rem));
 	color: #1f2937;
 	border-color: #d1d5db;
 	border-width: 1px;
 	border-radius: 1em;
 	background-color: #f9fafb;
 	transition: all 200ms ease-in-out;
+	z-index: 1;
 }
 
 .input-field::placeholder {
@@ -194,8 +226,12 @@ img {
 .input-field:focus {
 	outline: none;
 	border-color: theme(colors.primary.500);
-	box-shadow: 0 0 0 2px #e0e7ff;
+	/* box-shadow: 0 0 0 2px #e0e7ff; */
 	background-color: #ffffff;
+}
+
+.input-field-wrapper:focus-within .input-field-icon {
+	color: theme(colors.primary.500);
 }
 
 .input-field-error-feedback {
