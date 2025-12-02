@@ -22,11 +22,15 @@ export async function getKwekerProducts() {
 	});
 }
 
-export async function createProduct(NewProduct: ProductDetails) {
-	return await fetchResponse<{ message: string; product: ProductDetails }>(
-		'/api/product/create',
-		{
-			method: 'POST',
-			body: JSON.stringify(NewProduct),
-		}
-	);}
+// Optional stats endpoint: backend may or may not implement this. Frontend will call it and
+// gracefully fall back to client-side derived stats if the call fails.
+export async function getKwekerStats() {
+	return await fetchResponse<{
+		totalProducts: number;
+		activeAuctions: number;
+		totalRevenue: number;
+		stemsSold: number;
+	}>('/api/kweker/stats', {
+		method: 'GET',
+	});
+}
