@@ -25,7 +25,11 @@ export const RegisterSteps = {
 			{ label: 'password', type: 'password', placeholder: '••••••••', required: true, icon: 'lock-fill' },
 		],
 		[
+			{ label: 'first_name', type: 'text', placeholder: 'Steve', required: true, group: 'name' },
+			{ label: 'last_name', type: 'text', placeholder: 'Jobs', required: true, group: 'name' },
 			{ label: 'phonenumber', type: 'text', placeholder: '+31 6 12345678', required: false },
+		],
+		[
 			{ label: 'region', type: 'select', options: [...Regions], required: false, placeholder: 'Den Haag', group: 'location' },
 			{ label: 'postcode', type: 'text', placeholder: '1234AB', required: false, group: 'location' },
 			{ label: 'address', type: 'text', placeholder: 'Van der Valkstraat 123', required: false },

@@ -215,26 +215,24 @@ function RegisterContent() {
 							)}
 
 							{/* Navigation Buttons */}
-							<div className="flex flex-row gap-2 item-center justify-center">
-								<div className="auth-form-move-buttons">
-									{step > 1 && <Button label={t('previous')} icon="bi-arrow-left" className="auth-form-move-button" onClick={() => setStep(step - 1)} type="button" />}
-									{step < totalSteps && (
-										<Button
-											label={t('next')}
-											className="auth-form-move-button"
-											icon="bi-arrow-right"
-											type="button"
-											onClick={async () => {
-												const valid = await validateStep();
-												if (valid) setStep(step + 1);
-											}}
-										/>
-									)}
-								</div>
+							<div className="auth-move-btns">
+								{step > 1 && <Button label={t('previous')} className="auth-form-move-button prev-btn" icon="bi-arrow-left" onClick={() => setStep(step - 1)} type="button" />}
+								{step < totalSteps && (
+									<Button
+										label={t('next')}
+										className="auth-form-move-button"
+										icon="bi-arrow-right"
+										type="button"
+										onClick={async () => {
+											const valid = await validateStep();
+											if (valid) setStep(step + 1);
+										}}
+									/>
+								)}
 							</div>
 
 							{step == totalSteps && <Button className="auth-submit-btn" label={t('create_account')} type="button" onClick={handleSubmit(handleFormSubmittion)} />}
-							{step == 0 && <FormLink className="back-to-login-link" label={t('login_message')} onClick={() => navigate('/login')} type="button" />}
+							{step <= 1 && <FormLink className="back-to-login-link" label={t('login_message')} onClick={() => navigate('/login')} type="button" />}
 						</form>
 					</>
 				)}

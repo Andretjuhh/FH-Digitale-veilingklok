@@ -82,6 +82,9 @@ img {
 
 /* Custom Button */
 .base-btn {
+	--hovered-color: theme(colors.secondary.800);
+	--hovered-text-color: white;
+
 	width: auto;
 	height: auto;
 
@@ -98,16 +101,23 @@ img {
 	overflow: hidden;
 	transition: all 300ms ease-in-out;
 }
-
 .base-btn-icon {
-	color: white;
+	color: var(--text-color, white);
 	font-size: var(--span1-size);
 }
-
 .base-btn-txt {
-	color: white;
+	color: var(--text-color, white);
 	font-size: var(--span2-size);
 	font-weight: 600;
+	transition: color 300ms ease-in-out;
+}
+
+.base-btn:hover {
+	background-color: var(--hovered-color);
+}
+.base-btn:hover .base-btn-txt,
+.base-btn:hover .base-btn-icon {
+	color: var(--hovered-text-color, white);
 }
 
 .base-btn-link {
