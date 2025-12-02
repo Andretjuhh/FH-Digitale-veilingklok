@@ -24,7 +24,19 @@ export const resources = {
 			get_Started: 'Meld je aan',
 			logout: 'Uitloggen',
 
+			// Auth State messages
+			logging_in: 'Logging in...',
+			logged_in: 'Logged in successfully',
+			creating_account: 'Creating account...',
+			logging_out: 'Logging out...',
+			account_created: 'Account created successfully',
+			account_created_error: 'Account creation failed',
+			account_created_error_message: 'An error occurred while creating your account. Please try again later.',
+			account_created_error_message_technical: 'An error occurred while creating your account. Please contact support.',
+			account_created_error_message_technical_technical: 'An error occurred while creating your account. Please contact support.',
+
 			//Login and register page texts
+			login_title: 'Log in',
 			welcome_back: 'Welkom terug',
 			sign_in_message: 'Meld u alstublieft aan bij uw account',
 			forgot_password: 'Wachtwoord vergeten?',
