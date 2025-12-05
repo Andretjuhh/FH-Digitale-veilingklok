@@ -7,7 +7,6 @@ using VeilingKlokKlas1Groep2.Declarations;
 using VeilingKlokKlas1Groep2.Models.InputDTOs;
 using VeilingKlokKlas1Groep2.Services;
 using Microsoft.Extensions.Options;
-using VeilingKlokKlas1Groep2.Configuration;
 
 namespace VeilingKlokApp.Controllers
 {

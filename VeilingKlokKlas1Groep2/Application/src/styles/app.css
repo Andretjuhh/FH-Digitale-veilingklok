@@ -1,4 +1,4 @@
-@import 'global.css';
+@import '.default.css';
 @import 'components.css';
 @import 'pages.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
