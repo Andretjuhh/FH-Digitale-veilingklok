@@ -1,7 +1,17 @@
-import '../../../styles/pages.css'; // make sure this path is correct!
+import AccountSettings from '../settingspage/AccountSettings';
+import PrivacySettings from '../settingspage/PrivacySettings';
+import NotificationsSettings from '../settingspage/NotificationsSettings';
 
-function SettingsContent() {
-	return <div className="settings-content">{<h1> Settings</h1>}</div>;
+function SettingsContent({ active }: { active: string }) {
+	switch (active) {
+		case 'privacy':
+			return <PrivacySettings />;
+		case 'notifications':
+			return <NotificationsSettings />;
+		case 'account':
+		default:
+			return <AccountSettings />;
+	}
 }
 
 export default SettingsContent;
