@@ -11,7 +11,8 @@ import Login from './pages/general/Login';
 import Settings from './pages/general/Settings';
 import KlantDashboard from './pages/KlantDashboard';
 import Register from './pages/general/Register';
-import KwekerDashboard from './pages/general/KwekerDashboard';
+import KwekerDashboard from './pages/Kweker/KwekerDashboard';
+import ProductDetails from './pages/Kweker/ProductDetails';
 import Dashboard from './pages/general/Dashboard';
 import UserDashboard from './pages/user/UserDashboard';
 
@@ -30,6 +31,7 @@ function App() {
 					<Route path="/KlantDashboard" element={<KlantDashboard />} />
 					<Route path="/user-dashboard" element={<UserDashboard />} />
 					<Route path="/kweker" element={<KwekerDashboard />} />
+					<Route path="/kweker/product/:id" element={<ProductDetails />} />
 				</Routes>
 			</AnimatePresence>
 		</RootContext>

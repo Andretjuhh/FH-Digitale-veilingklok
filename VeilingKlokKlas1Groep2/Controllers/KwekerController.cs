@@ -120,6 +120,70 @@ namespace VeilingKlokApp.Controllers
 
         #endregion
 
+        #region Get Kweker Stats
+
+        /// <summary>
+        /// Returns aggregated statistics for the authenticated Kweker
+        /// </summary>
+        [HttpGet("stats")]
+        [Authorize]
+        [AuthorizeAccountType("Kweker")]
+        public async Task<IActionResult> GetKwekerStats()
+        {
+            try
+            {
+                var accountId = HttpContext.Items["AccountId"] as int?;
+                if (!accountId.HasValue)
+                {
+                    var error = new HtppError("Unauthorized", "Invalid token claims", 401);
+                    return Unauthorized(error);
+                }
+
+                // Total products for this kweker
+                var totalProducts = await _db.Products.Where(p => p.KwekerId == accountId.Value).CountAsync();
+
+                // Active auctions: products that are currently assigned to a VeilingKlok (simple heuristic)
+                var activeAuctions = await _db.Products.Where(p => p.KwekerId == accountId.Value && p.VeilingKlokId != null).CountAsync();
+
+                // Stems sold and total revenue: aggregate over Orders joined with Products
+                var orderQuery = _db.Orders
+                    .Where(o => o.Product.KwekerId == accountId.Value)
+                    .AsQueryable();
+
+                var stemsSold = 0;
+                decimal totalRevenue = 0m;
+
+                if (await orderQuery.AnyAsync())
+                {
+                    stemsSold = await orderQuery.SumAsync(o => o.Quantity);
+
+                    // Sum revenue using the current Product.Price (approximation)
+                    totalRevenue = await orderQuery
+                        .Select(o => new { o.Quantity, ProductPrice = o.Product.Price })
+                        .SumAsync(x => x.Quantity * x.ProductPrice);
+                }
+
+                return Ok(new
+                {
+                    totalProducts,
+                    activeAuctions,
+                    totalRevenue,
+                    stemsSold
+                });
+            }
+            catch (Exception ex)
+            {
+                var error = new HtppError(
+                    "Internal Server Error",
+                    $"Failed to retrieve Kweker stats: {ex.Message}",
+                    500
+                );
+                return StatusCode(500, error);
+            }
+        }
+
+        #endregion
+
         #region Get Authenticated Kweker
 
         /// <summary>
