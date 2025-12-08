@@ -32,8 +32,8 @@ function AppHeader() {
 	}, []);
 
 	const handleLogout = useCallback(() => {
-		navigate('/');
 		removeAuthentication();
+		navigate('/');
 	}, []);
 
 	console.log(location.pathname);

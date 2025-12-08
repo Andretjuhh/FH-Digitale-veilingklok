@@ -88,7 +88,7 @@ function RegisterContent() {
 				let dashboardDestination = '/';
 				switch (selectedAccountType) {
 					case AccountType.Koper: {
-						dashboardDestination = '/user-dashboard';
+						dashboardDestination = '/koper/dashboard';
 						const account: NewKoperAccount = {
 							firstname: data['first_name'],
 							lastname: data['last_name'],
@@ -105,7 +105,7 @@ function RegisterContent() {
 					}
 
 					case AccountType.Kweker: {
-						dashboardDestination = '/kweker';
+						dashboardDestination = '/kweker/dashboard';
 						const account: NewKwekerAccount = {
 							name: data['company_name'],
 							email: data['email'],
@@ -123,7 +123,7 @@ function RegisterContent() {
 					}
 
 					case AccountType.Veilingmeester: {
-						dashboardDestination = '/dashboard';
+						dashboardDestination = '/veilingmeester/dashboard';
 						const account: NewVeilingmeesterAccount = {
 							email: data['email'],
 							password: data['password'],
