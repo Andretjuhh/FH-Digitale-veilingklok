@@ -318,7 +318,7 @@ export default function KwekerDashboard() {
 										<div className="modal-overlay" onClick={() => { if (!previewLoading) { setShowPreview(false); setPreviewProduct(null); setPreviewError(null); } }}>
 											<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
 												<div className="modal-header">
-													<h3>Product preview</h3>
+													<h3>Product</h3>
 													<button className="modal-close" onClick={() => { setShowPreview(false); setPreviewProduct(null); setPreviewError(null); }} aria-label="Sluiten">✕</button>
 												</div>
 												<div className="modal-body">
