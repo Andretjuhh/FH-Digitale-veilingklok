@@ -60,6 +60,9 @@ function AppHeader() {
 								<a className={'nav-menu-anchor'} href={'#what-is-flori-clock'}>
 									{t('contact_us')}
 								</a>
+								<a className={'nav-menu-anchor'} onClick={() => navigate('/settings')}>
+									{t('settings')}
+								</a>
 							</>
 						) : (
 							<>
@@ -72,7 +75,7 @@ function AppHeader() {
 								<a className={'nav-menu-anchor'} href={'#'}>
 									{t('manage_account')}
 								</a>
-								<a className={'nav-menu-anchor'} href={'#'}>
+								<a className={'nav-menu-anchor'} href={'#'} onClick={() => navigate('/settings')}>
 									{t('settings')}
 								</a>
 							</>
