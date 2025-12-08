@@ -813,6 +813,44 @@
 
 /*#endregion*/
 
+/*#region Settings Page styles*/
+.settings-page {
+	display: flex; /* flex */
+	height: 100vh; /* h-screen */
+	background-color: #f9fafb;
+}
+.settings-sidebar {
+	display: flex;
+	flex-direction: column;
+	width: 15rem; /* w-60 → 60 * 0.25rem = 15rem */
+	height: 100vh; /* h-screen */
+	padding: 1rem; /* p-4 → 4 * 0.25rem */
+	border-right: 1px solid #e5e7eb; /* border-r (default border color) */
+	background-color: #ffffff; /* bg-white */
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06); /* shadow-md */
+	justify-content: space-evenly;
+}
+
+.settings-form {
+	--form-gap: 0.8rem;
+	flex: 1;
+	display: flex;
+	justify-content: space-evenly;
+	flex-direction: column;
+	overflow-y: auto; /* scroll only this section */
+	gap: var(--form-gap);
+	height: 80%;
+}
+
+.sidebar-account-button {
+	padding: 2rem 1rem;
+}
+
+.settings-content {
+	padding: 1.5rem;
+}
+/*#endregion*/
+
 /*#region Unknown page styles*/
 .user-hero {
 	margin: calc(var(--header-size) + var(--top-pd)) 0 var(--top-pd);
