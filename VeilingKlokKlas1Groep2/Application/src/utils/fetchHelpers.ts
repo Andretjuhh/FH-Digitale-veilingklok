@@ -100,8 +100,8 @@ export async function handleResponse<GeneticResponse = any, GeneticError = any>(
 	throw new HttpError({
 		code: 'FETCH_REQUEST_ERROR',
 		statusCode: requestResponse.status,
-		message: `Fetch request failed with status ${requestResponse.status}: ${requestResponse.statusText}`,
-		details: fetchError,
+		message: (fetchError as any).message || `Fetch request failed with status ${requestResponse.status}: ${requestResponse.statusText}`,
+		details: (fetchError as any).details || fetchError,
 		expose: false,
 	});
 }
