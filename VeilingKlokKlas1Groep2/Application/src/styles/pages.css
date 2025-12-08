@@ -819,6 +819,36 @@
 	height: 100vh; /* h-screen */
 	background-color: #f9fafb;
 }
+
+.settings-input-field input {
+    border: 1px solid #ccc;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* When editing, make border blue + glow */
+.settings-input-field.editing input {
+    border-color: #007bff; /* Blue */
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2); /* Optional glow */
+}
+
+
+.settings-input-field {
+	display: flex;
+    flex-direction: row;
+    gap: 0.25rem; /* same as Tailwind gap-1 */
+}
+
+/* When editing, make icon darker + pressed in */
+.settings-input-field.editing button {
+    background-color: #e6f0ff;          /* light blue background */
+    transform: translateY(2px);         /* pressed in */
+    border-radius: 6px;
+}
+
+.settings-input-field.editing .bi-pencil {
+    color: #007bff; /* icon blue */
+}
+
 .settings-sidebar {
 	display: flex;
 	flex-direction: column;
@@ -832,22 +862,29 @@
 }
 
 .settings-form {
-	--form-gap: 0.8rem;
-	flex: 1;
 	display: flex;
-	justify-content: space-evenly;
 	flex-direction: column;
-	overflow-y: auto; /* scroll only this section */
-	gap: var(--form-gap);
-	height: 80%;
+	justify-content: space-between;
+	height: 50%;
 }
 
 .sidebar-account-button {
 	padding: 2rem 1rem;
 }
 
+.settings-edit-button {
+	margin-top: 25px;
+	transition: transform 0.15s, background-color 0.15s;
+	padding: 2%;
+	width: 3%;
+	height: 5%;
+}
+
+
 .settings-content {
-	padding: 1.5rem;
+	flex: 1;       /* grow to fill space */
+    width: 100%;   /* ensure max width */
+    padding: 2rem; /* optional */
 }
 /*#endregion*/
 

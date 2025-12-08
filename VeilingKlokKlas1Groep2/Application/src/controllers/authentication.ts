@@ -2,6 +2,7 @@ import { fetchResponse } from '../utils/fetchHelpers';
 import { LoginRequest } from '../declarations/LoginRequest';
 import { AuthResponse } from '../declarations/AuthenticationResponse';
 import { AccountInfo } from '../declarations/AccountInfo';
+import { UpdateAccountInfo } from '../declarations/UpdateAccountInfo';
 
 // Initialize authentication by chekcing if tokens are valid
 export async function initializeAuthentication() {
@@ -43,4 +44,12 @@ export async function getAccountInfo() {
 	return await fetchResponse('/api/auth/account', {
 		method: 'GET',
 	});
+}
+
+export async function updateAccountInfo(data: UpdateAccountInfo) {
+    return await fetchResponse('/api/auth/account', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
+    });
 }
