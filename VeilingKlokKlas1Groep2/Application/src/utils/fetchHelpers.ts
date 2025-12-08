@@ -1,6 +1,7 @@
 // Internal exports
-import CONFIG from '../constant/application';
-import { FetchError } from '../types/FetchError';
+import config from '../constant/application';
+import { HttpError } from '../types/HttpError';
+import { ProcessError } from '../types/ProcessError';
 
 /** Make an application fetch request */
 export async function appFetch(request: RequestInfo | URL, options: RequestInit = {}) {
@@ -9,7 +10,7 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 
 	// Check if the request url start with / if yes add the API_URL
 	if (typeof request === 'string' && request.startsWith('/')) {
-		request = new URL(request, CONFIG.API);
+		request = new URL(request, config.API);
 		isAppFetch = true;
 	}
 
@@ -44,17 +45,25 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 export async function handleResponse<GeneticResponse = any, GeneticError = any>(requestResponse: Response) {
 	// Check if the input is a valid Response object
 	if (!(requestResponse instanceof Response)) {
-		throw new Error('Invalid argument: requestResponse must be an instance of Response');
+		throw new ProcessError({
+			code: 'INVALID_RESPONSE',
+			message: 'Invalid response',
+			details: {
+				response: requestResponse,
+			},
+			expose: true,
+			status: 400,
+		});
 	}
-
-	// // Check for the x-new-token header in the requestResponse
-	// if (requestResponse.headers.has('x-authentication')) {
-	// 	const newAccessToken = requestResponse.headers.get('auth-token');
-	// 	LocalStorage.setItem('auth_access_token', newAccessToken || '', 'persistent');
-	// }
 
 	// Get the content type from the requestResponse headers
 	const contentType = requestResponse.headers.get('content-type');
+
+	// Check for the x-new-token header in the requestResponse
+	if (requestResponse.headers.has(config.X_ACCESS_TOKEN)) {
+		const newAccessToken = requestResponse.headers.get(config.X_ACCESS_TOKEN);
+		localStorage.setItem(config.AUTH_ACCESS_TOKEN_KEY, newAccessToken ?? '');
+	}
 
 	// Check if the requestResponse status indicates success
 	if (requestResponse.ok) {
@@ -64,28 +73,37 @@ export async function handleResponse<GeneticResponse = any, GeneticError = any>(
 				// Return the parsed JSON requestResponse
 				return (await requestResponse.json()) as Promise<GeneticResponse>;
 			} catch (error: any) {
-				throw new Error(`Error parsing JSON: ${error.message}`);
+				throw new HttpError({
+					code: 'FETCH_JSON_PARSE_ERROR',
+					message: error instanceof Error ? `Error parsing JSON: ${error.message}` : 'Error parsing JSON',
+					statusCode: 500,
+					expose: false,
+				});
 			}
 		} else {
 			// Handle non-JSON requestResponse types
 			return (await requestResponse.text()) as unknown as Promise<GeneticResponse>;
 		}
-	} else {
-		// Read the error message from the requestResponse body
-		let fetchError: FetchError<GeneticError> = {
-			name: 'FetchError',
-			statusCode: requestResponse.status,
-		};
-
-		// Attempt to parse the error requestResponse as JSON
-		try {
-			fetchError.data = (await requestResponse.clone().json()) as GeneticError;
-		} catch {
-			fetchError.data = await requestResponse.clone().text();
-		}
-
-		throw fetchError;
 	}
+
+	// If the requestResponse indicates an error, create an ProcessError
+	let fetchError: GeneticError | string;
+
+	// Attempt to parse the error requestResponse as JSON
+	try {
+		fetchError = (await requestResponse.clone().json()) as GeneticError;
+	} catch {
+		fetchError = await requestResponse.clone().text();
+	}
+
+	// Throw an ProcessError with details from the failed requestResponse
+	throw new HttpError({
+		code: 'FETCH_REQUEST_ERROR',
+		statusCode: requestResponse.status,
+		message: `Fetch request failed with status ${requestResponse.status}: ${requestResponse.statusText}`,
+		details: fetchError,
+		expose: false,
+	});
 }
 
 /** Fetch and handle HTTPS request requestResponse */

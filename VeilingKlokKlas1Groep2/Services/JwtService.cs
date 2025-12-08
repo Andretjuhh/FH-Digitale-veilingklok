@@ -4,8 +4,8 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using VeilingKlokKlas1Groep2.Configuration;
 using VeilingKlokApp.Models.Domain;
+using VeilingKlokKlas1Groep2.Declarations;
 
 namespace VeilingKlokKlas1Groep2.Services
 {

@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using VeilingKlokApp.Data;
 using VeilingKlokKlas1Groep2.Declarations;
 using VeilingKlokKlas1Groep2.Services;
 
@@ -7,78 +10,66 @@ namespace VeilingKlokKlas1Groep2.Attributes
 {
     /// <summary>
     /// Authorization attribute to ensure only authenticated users can access endpoints
-    /// Similar to authentication middleware in Node.js/Express
+    /// Validates both Access Token and Refresh Token for enhanced security
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class AuthorizeAttribute : Attribute, IAuthorizationFilter
+    public class AuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
     {
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public virtual async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            // Get JWT service from DI container
             var jwtService = context.HttpContext.RequestServices.GetService<IJwtService>();
-            
-            if (jwtService == null)
+            var dbContext = context.HttpContext.RequestServices.GetService<VeilingKlokContext>();
+
+            if (jwtService == null || dbContext == null)
             {
-                context.Result = new JsonResult(new HtppError(
-                    "Server Error",
-                    "JWT service not configured",
-                    500
-                ))
-                {
-                    StatusCode = 500
-                };
+                context.Result = new JsonResult(new HtppError("Server Error", "Services not configured", 500)) { StatusCode = 500 };
                 return;
             }
 
-            // Extract token from Authorization header
             var authHeader = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-            
             if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer "))
             {
-                context.Result = new JsonResult(new HtppError(
-                    "Unauthorized",
-                    "Access token is required. Please provide a valid token in the Authorization header",
-                    401
-                ))
-                {
-                    StatusCode = 401
-                };
+                context.Result = new JsonResult(new HtppError("Unauthorized", "Access token is required", 401)) { StatusCode = 401 };
                 return;
             }
 
-            // Extract token (remove "Bearer " prefix)
-            var token = authHeader.Substring("Bearer ".Length).Trim();
+            var accessToken = authHeader.Substring("Bearer ".Length).Trim();
+            var principal = jwtService.ValidateAccessToken(accessToken);
 
-            // Validate token
-            var principal = jwtService.ValidateAccessToken(token);
-            
             if (principal == null)
             {
-                context.Result = new JsonResult(new HtppError(
-                    "Unauthorized",
-                    "Invalid or expired access token",
-                    401
-                ))
-                {
-                    StatusCode = 401
-                };
+                context.Result = new JsonResult(new HtppError("Unauthorized", "Invalid or expired access token", 401)) { StatusCode = 401 };
                 return;
             }
 
-            // Store user information in HttpContext for use in controllers
-            context.HttpContext.Items["AccountId"] = jwtService.GetAccountIdFromToken(token);
-            context.HttpContext.Items["AccountType"] = jwtService.GetAccountTypeFromToken(token);
+            if (!context.HttpContext.Request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrEmpty(refreshToken))
+            {
+                context.Result = new JsonResult(new HtppError("Unauthorized", "Refresh token is missing", 401)) { StatusCode = 401 };
+                return;
+            }
+
+            var storedRefreshToken = await dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+            if (storedRefreshToken == null || !storedRefreshToken.IsActive)
+            {
+                context.Result = new JsonResult(new HtppError("Unauthorized", "Invalid or expired refresh token", 401)) { StatusCode = 401 };
+                return;
+            }
+
+            var accountIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(accountIdClaim, out int accountId) || accountId != storedRefreshToken.AccountId)
+            {
+                context.Result = new JsonResult(new HtppError("Unauthorized", "Token mismatch", 401)) { StatusCode = 401 };
+                return;
+            }
+
+            context.HttpContext.Items["AccountId"] = accountId;
+            context.HttpContext.Items["AccountType"] = principal.FindFirst("AccountType")?.Value;
             context.HttpContext.User = principal;
         }
     }
 
-    /// <summary>
-    /// Authorization attribute to restrict access to specific account types
-    /// Usage: [AuthorizeAccountType("Koper", "Kweker")] - allows multiple types
-    /// Similar to role-based middleware in Node.js/Express
-    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class AuthorizeAccountTypeAttribute : Attribute, IAuthorizationFilter
+    public class AuthorizeAccountTypeAttribute : AuthorizeAttribute
     {
         private readonly string[] _allowedAccountTypes;
 
@@ -87,196 +78,52 @@ namespace VeilingKlokKlas1Groep2.Attributes
             _allowedAccountTypes = allowedAccountTypes;
         }
 
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public override async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            // First, ensure user is authenticated
-            var jwtService = context.HttpContext.RequestServices.GetService<IJwtService>();
-            
-            if (jwtService == null)
-            {
-                context.Result = new JsonResult(new HtppError(
-                    "Server Error",
-                    "JWT service not configured",
-                    500
-                ))
-                {
-                    StatusCode = 500
-                };
-                return;
-            }
+            await base.OnAuthorizationAsync(context);
+            if (context.Result != null) return;
 
-            // Extract and validate token
-            var authHeader = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-            
-            if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer "))
+            var accountType = context.HttpContext.Items["AccountType"]?.ToString();
+            if (string.IsNullOrEmpty(accountType) || !_allowedAccountTypes.Contains(accountType))
             {
-                context.Result = new JsonResult(new HtppError(
-                    "Unauthorized",
-                    "Access token is required",
-                    401
-                ))
-                {
-                    StatusCode = 401
-                };
-                return;
+                context.Result = new JsonResult(new HtppError("Forbidden", $"Access denied. Required: {string.Join(", ", _allowedAccountTypes)}", 403)) { StatusCode = 403 };
             }
-
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-            var principal = jwtService.ValidateAccessToken(token);
-            
-            if (principal == null)
-            {
-                context.Result = new JsonResult(new HtppError(
-                    "Unauthorized",
-                    "Invalid or expired access token",
-                    401
-                ))
-                {
-                    StatusCode = 401
-                };
-                return;
-            }
-
-            // Get account type from token
-            var accountType = jwtService.GetAccountTypeFromToken(token);
-            
-            if (string.IsNullOrWhiteSpace(accountType) || !_allowedAccountTypes.Contains(accountType))
-            {
-                context.Result = new JsonResult(new HtppError(
-                    "Forbidden",
-                    $"Access denied. This resource is only available to: {string.Join(", ", _allowedAccountTypes)}",
-                    403
-                ))
-                {
-                    StatusCode = 403
-                };
-                return;
-            }
-
-            // Store user information in HttpContext
-            context.HttpContext.Items["AccountId"] = jwtService.GetAccountIdFromToken(token);
-            context.HttpContext.Items["AccountType"] = accountType;
-            context.HttpContext.User = principal;
         }
     }
 
-    /// <summary>
-    /// Authorization attribute to ensure users can only access their own resources
-    /// Validates that the route parameter matches the authenticated user's ID
-    /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class AuthorizeOwnerAttribute : Attribute, IAuthorizationFilter
+    public class AuthorizeOwnerAttribute : AuthorizeAttribute
     {
         private readonly string _parameterName;
 
-        /// <summary>
-        /// Creates an owner authorization check
-        /// </summary>
-        /// <param name="parameterName">Name of the route parameter to check (default: "accountId")</param>
         public AuthorizeOwnerAttribute(string parameterName = "accountId")
         {
             _parameterName = parameterName;
         }
 
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public override async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            // Get JWT service
-            var jwtService = context.HttpContext.RequestServices.GetService<IJwtService>();
-            
-            if (jwtService == null)
-            {
-                context.Result = new JsonResult(new HtppError(
-                    "Server Error",
-                    "JWT service not configured",
-                    500
-                ))
-                {
-                    StatusCode = 500
-                };
-                return;
-            }
+            await base.OnAuthorizationAsync(context);
+            if (context.Result != null) return;
 
-            // Extract and validate token
-            var authHeader = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-            
-            if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer "))
-            {
-                context.Result = new JsonResult(new HtppError(
-                    "Unauthorized",
-                    "Access token is required",
-                    401
-                ))
-                {
-                    StatusCode = 401
-                };
-                return;
-            }
-
-            var token = authHeader.Substring("Bearer ".Length).Trim();
-            var principal = jwtService.ValidateAccessToken(token);
-            
-            if (principal == null)
-            {
-                context.Result = new JsonResult(new HtppError(
-                    "Unauthorized",
-                    "Invalid or expired access token",
-                    401
-                ))
-                {
-                    StatusCode = 401
-                };
-                return;
-            }
-
-            // Get authenticated user's account ID
-            var authenticatedAccountId = jwtService.GetAccountIdFromToken(token);
-            
+            var authenticatedAccountId = (int?)context.HttpContext.Items["AccountId"];
             if (!authenticatedAccountId.HasValue)
             {
-                context.Result = new JsonResult(new HtppError(
-                    "Unauthorized",
-                    "Invalid token claims",
-                    401
-                ))
-                {
-                    StatusCode = 401
-                };
+                context.Result = new JsonResult(new HtppError("Unauthorized", "Invalid token claims", 401)) { StatusCode = 401 };
                 return;
             }
 
-            // Get the account ID from route parameters
             if (!context.RouteData.Values.TryGetValue(_parameterName, out var routeValue) ||
                 !int.TryParse(routeValue?.ToString(), out int requestedAccountId))
             {
-                context.Result = new JsonResult(new HtppError(
-                    "Bad Request",
-                    $"Invalid or missing parameter: {_parameterName}",
-                    400
-                ))
-                {
-                    StatusCode = 400
-                };
+                context.Result = new JsonResult(new HtppError("Bad Request", $"Invalid or missing parameter: {_parameterName}", 400)) { StatusCode = 400 };
                 return;
             }
 
-            // Verify the authenticated user is accessing their own resource
             if (authenticatedAccountId.Value != requestedAccountId)
             {
-                context.Result = new JsonResult(new HtppError(
-                    "Forbidden",
-                    "You can only access your own account information",
-                    403
-                ))
-                {
-                    StatusCode = 403
-                };
-                return;
+                context.Result = new JsonResult(new HtppError("Forbidden", "You can only access your own account information", 403)) { StatusCode = 403 };
             }
-
-            // Store user information in HttpContext
-            context.HttpContext.Items["AccountId"] = authenticatedAccountId;
-            context.HttpContext.Items["AccountType"] = jwtService.GetAccountTypeFromToken(token);
-            context.HttpContext.User = principal;
         }
     }
 }

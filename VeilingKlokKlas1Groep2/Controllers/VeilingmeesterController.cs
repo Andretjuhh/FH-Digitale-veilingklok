@@ -11,8 +11,7 @@ using VeilingKlokApp.Models.OutputDTOs;
 using VeilingKlokKlas1Groep2.Declarations;
 using VeilingKlokKlas1Groep2.Models;
 using VeilingKlokKlas1Groep2.Services;
-using VeilingKlokKlas1Groep2.Configuration;
-
+ 
 namespace VeilingKlokApp.Controllers
 {
     /// <summary>
