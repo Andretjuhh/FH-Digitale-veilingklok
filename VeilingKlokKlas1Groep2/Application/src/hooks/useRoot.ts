@@ -1,22 +1,22 @@
 // External imports
-import {useCallback, useLayoutEffect, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import { useCallback, useLayoutEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Internal imports
-import {SupportedLanguages, useTranslation} from '../controllers/localization';
+import { SupportedLanguages, useTranslation } from '../controllers/localization';
 import LocalStorage from '../controllers/localStorage';
 import initializeApp from '../controllers/application';
-import {initializeAuthentication, loginAccount, saveAuthenticationResponse} from '../controllers/authentication';
-import {AccountInfo} from '../declarations/AccountInfo';
-import {LoginRequest} from '../declarations/LoginRequest';
-import {AuthResponse} from '../declarations/AuthenticationResponse';
+import { initializeAuthentication, loginAccount, logoutAccount, saveAuthenticationResponse } from '../controllers/authentication';
+import { AccountInfo } from '../declarations/AccountInfo';
+import { LoginRequest } from '../declarations/LoginRequest';
+import { AuthResponse } from '../declarations/AuthenticationResponse';
 
 function useRoot() {
 	//  Router navigation
 	const navigate = useNavigate();
 
 	// Initialize localization
-	const {t, i18n} = useTranslation();
+	const { t, i18n } = useTranslation();
 
 	// Application initialization status
 	const [initialized, setInitialized] = useState(false);
@@ -55,7 +55,7 @@ function useRoot() {
 		console.log('Initializing application...');
 
 		// Initialize application global variable
-		await initializeApp({navigate});
+		await initializeApp({ navigate });
 
 		// Initialize authentication
 		const loggedUser = await initializeAuthentication().catch(() => undefined);
@@ -71,7 +71,7 @@ function useRoot() {
 	const authenticateAccount = useCallback(async (account: AuthResponse) => {
 		console.log('Authenticating account in context...', account);
 		setLoggedIn(true);
-		setAccount({email: account.email, accountType: account.accountType});
+		setAccount({ email: account.email, accountType: account.accountType });
 		await saveAuthenticationResponse(account);
 	}, []);
 
@@ -82,7 +82,7 @@ function useRoot() {
 		const authResponse = await loginAccount(account);
 		// If no error is thrown, the login was successful
 		setLoggedIn(true);
-		setAccount({email: authResponse.email, accountType: authResponse.accountType});
+		setAccount({ email: authResponse.email, accountType: authResponse.accountType });
 		await saveAuthenticationResponse(authResponse);
 	}, []);
 
@@ -90,6 +90,7 @@ function useRoot() {
 	const removeAuthentication = useCallback(() => {
 		setLoggedIn(false);
 		setAccount(undefined);
+		logoutAccount();
 	}, []);
 
 	return {

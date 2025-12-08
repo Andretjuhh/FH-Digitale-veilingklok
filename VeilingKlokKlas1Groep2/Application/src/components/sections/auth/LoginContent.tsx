@@ -49,15 +49,15 @@ function LoginContent() {
 			// Determine dashboard by account type
 			switch (authResponse.accountType) {
 				case 'Koper':
-					navigate('/user-dashboard');
+					navigate('/koper/dashboard');
 					break;
 
 				case 'Kweker':
-					navigate('/kweker');
+					navigate('/kweker/dashboard');
 					break;
 
 				case 'Veilingmeester':
-					navigate('/dashboard');
+					navigate('/veilingmeester/dashboard');
 					break;
 
 				default:
