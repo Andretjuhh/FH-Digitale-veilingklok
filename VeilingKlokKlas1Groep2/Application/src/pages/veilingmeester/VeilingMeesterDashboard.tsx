@@ -53,9 +53,7 @@ function Dashboard() {
 	return (
 		<Page enableHeader enableFooter className="dashboard-page">
 			<DashboardIntro onCreateAuction={() => window.alert('Nieuwe dummy veiling aangemaakt')} />
-
 			<DashboardSnapshot items={SNAPSHOT_ITEMS} />
-
 			<DashboardPlanning upcoming={PLANNING_UPCOMING} checklist={PLANNING_CHECKLIST} completed={PLANNING_COMPLETED} />
 		</Page>
 	);
