@@ -305,8 +305,8 @@ namespace VeilingKlokApp.Controllers
                                 kweker.Name,
                                 kweker.Telephone,
                                 kweker.Adress,
-                                kweker.Regio,
                                 kweker.PostCode,
+                                kweker.Regio,
                                 kweker.KvkNumber,
                                 AccountType = "Kweker"
                             };
@@ -394,6 +394,7 @@ namespace VeilingKlokApp.Controllers
                         kweker.Name = update.Name ?? kweker.Name; // Use the new Name field
                         kweker.Telephone = update.Telephone ?? kweker.Telephone; // Use the Telephone field
                         kweker.Adress = update.Adress ?? kweker.Adress;
+                        kweker.PostCode = update.PostCode ?? kweker.PostCode;
                         kweker.Regio = update.Regio ?? kweker.Regio;
                         // Optionally add postcode/kvknumber logic here if required by the Kweker model
                     }
