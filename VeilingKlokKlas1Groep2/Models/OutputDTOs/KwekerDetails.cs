@@ -8,6 +8,7 @@ namespace VeilingKlokApp.Models
 
         public string Telephone { get; set; }
         public string? Adress { get; set; }
+        public string? PostCode { get; set;}
         public string? Regio { get; set; }
         public string? KvkNumber { get; set; }
     }

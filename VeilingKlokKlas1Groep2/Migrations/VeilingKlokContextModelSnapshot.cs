@@ -283,6 +283,10 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("name");
 
+                    b.Property<string>("PostCode")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("post_code");
+
                     b.Property<string>("Telephone")
                         .IsRequired()
                         .HasMaxLength(20)

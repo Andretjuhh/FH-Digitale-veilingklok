@@ -6,16 +6,16 @@ import { AccountType } from '../../../types/AccountTypes';
 
 // Map account type to the fields they should see
 const fieldsByAccountType: Record<string, string[]> = {
-	Koper: ['email', 'adress', 'postcode', 'regio', 'telephone'],
-	Kweker: ['email', 'name', 'address', 'postcode', 'telephone', 'regio'],
+	Koper: ['email', 'adress', 'postCode', 'regio', 'telephone'],
+	Kweker: ['email', 'name', 'adress', 'postCode', 'telephone', 'regio'],
 	Veilingmeester: ['email', 'regio'],
 };
 
 // Optional: nicer labels for display
 const fieldLabels: Record<string, string> = {
 	email: 'Email',
-	adress: 'Address',
-	postcode: 'Postcode',
+	adress: 'Adress',
+	postCode: 'PostCode',
 	telephone: 'Telefoonnummer',
 	name: 'Bedrijfsnaam',
 	regio: 'Regio',
@@ -35,7 +35,7 @@ function AccountSettings() {
 			const defaults: Record<string, any> = {
 				email: '',
 				adress: '',
-				postcode: '',
+				postCode: '',
 				telephone: '',
 				name: '',
 				regio: '',

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class NewDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -56,6 +56,7 @@ namespace VeilingKlokKlas1Groep2.Migrations
                     name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     telephone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     adress = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    post_code = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     kvk_nmr = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>

@@ -22,6 +22,9 @@ namespace VeilingKlokApp.Models
         [MaxLength(255)]
         public string? Adress { get; set; }
 
+        [MaxLength(20)]
+        public string? PostCode { get; set; }
+
         [MaxLength(100)]
         public string? Regio { get; set; }
         [Required(ErrorMessage = "Kweker number is required")]

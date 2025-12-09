@@ -306,6 +306,7 @@ namespace VeilingKlokApp.Controllers
                                 kweker.Telephone,
                                 kweker.Adress,
                                 kweker.Regio,
+                                kweker.PostCode,
                                 kweker.KvkNumber,
                                 AccountType = "Kweker"
                             };

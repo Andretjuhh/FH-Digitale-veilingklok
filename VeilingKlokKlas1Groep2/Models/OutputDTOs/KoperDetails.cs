@@ -7,6 +7,7 @@ namespace VeilingKlokApp.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string? Adress { get; set; }
+        public string? PostCode { get; set; }
         public string? Regio { get; set; }
     }
 }

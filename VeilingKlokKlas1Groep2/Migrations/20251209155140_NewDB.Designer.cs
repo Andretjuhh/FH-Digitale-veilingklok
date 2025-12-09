@@ -12,8 +12,8 @@ using VeilingKlokApp.Data;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     [DbContext(typeof(VeilingKlokContext))]
-    [Migration("20251127143911_NewData")]
-    partial class NewData
+    [Migration("20251209155140_NewDB")]
+    partial class NewDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -285,6 +285,10 @@ namespace VeilingKlokKlas1Groep2.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("name");
+
+                    b.Property<string>("PostCode")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("post_code");
 
                     b.Property<string>("Telephone")
                         .IsRequired()

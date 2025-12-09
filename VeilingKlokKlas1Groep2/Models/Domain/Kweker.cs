@@ -20,6 +20,9 @@ namespace VeilingKlokApp.Models.Domain
         [MaxLength(255)]
         public string? Adress { get; set; }
 
+        [Column("post_code")]
+        public string? PostCode { get; set; }
+
         // [Column("regio")]
         // [MaxLength(100)]
         // public string? Regio { get; set; }
