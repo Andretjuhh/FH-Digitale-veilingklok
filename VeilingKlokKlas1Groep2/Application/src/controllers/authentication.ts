@@ -47,9 +47,9 @@ export async function getAccountInfo() {
 }
 
 export async function updateAccountInfo(data: UpdateAccountInfo) {
-    return await fetchResponse('/api/auth/account', {
-        method: 'PUT',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
-    });
+	return await fetchResponse('/api/auth/account', {
+		method: 'PUT',
+		body: JSON.stringify(data),
+		headers: { 'Content-Type': 'application/json' },
+	});
 }

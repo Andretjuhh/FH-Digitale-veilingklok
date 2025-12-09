@@ -351,6 +351,68 @@ namespace VeilingKlokApp.Controllers
 
         #endregion
 
+        [HttpPut("account")]
+        [VeilingKlokKlas1Groep2.Attributes.Authorize]
+        public async Task<IActionResult> UpdateAccount([FromBody] UpdateAccountRequest update)
+        {
+            var accountId = HttpContext.Items["AccountId"] as int?;
+            var accountType = HttpContext.Items["AccountType"] as string;
+
+            if (!accountId.HasValue)
+                return Unauthorized(new HtppError("Unauthorized", "Invalid token claims", 401));
+
+            // Load base account
+            var account = await _db.Accounts.FindAsync(accountId.Value);
+            if (account == null)
+                return NotFound(new HtppError("Not Found", "Account not found", 404));
+
+            // Update email if changed
+            if (!string.IsNullOrWhiteSpace(update.Email))
+                account.Email = update.Email;
+
+            // Detect type and update specific fields
+            switch (accountType)
+            {
+                case "Koper":
+                    var koper = await _db.Kopers.FindAsync(accountId.Value);
+                    if (koper != null)
+                    {
+                        koper.FirstName = update.FirstName ?? koper.FirstName;
+                        koper.LastName = update.LastName ?? koper.LastName;
+                        koper.Adress = update.Adress ?? koper.Adress;
+                        koper.PostCode = update.PostCode ?? koper.PostCode;
+                        koper.Regio = update.Regio ?? koper.Regio;
+                    }
+                    break;
+
+                // AuthController.cs (ENHANCED Kweker logic)
+                case "Kweker":
+                    var kweker = await _db.Kwekers.FindAsync(accountId.Value);
+                    if (kweker != null)
+                    {
+                        kweker.Name = update.Name ?? kweker.Name; // Use the new Name field
+                        kweker.Telephone = update.Telephone ?? kweker.Telephone; // Use the Telephone field
+                        kweker.Adress = update.Adress ?? kweker.Adress;
+                        kweker.Regio = update.Regio ?? kweker.Regio;
+                        // Optionally add postcode/kvknumber logic here if required by the Kweker model
+                    }
+                    break;
+
+                case "Veilingmeester":
+                    var vm = await _db.Veilingmeesters.FindAsync(accountId.Value);
+                    if (vm != null)
+                    {
+                        vm.Regio = update.Regio ?? vm.Regio;
+                    }
+                    break;
+            }
+
+            await _db.SaveChangesAsync();
+
+            return Ok(new { message = "Account updated successfully" });
+        }
+
+
         #region Helper Methods
 
         /// <summary>

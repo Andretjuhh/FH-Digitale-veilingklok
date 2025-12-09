@@ -2,88 +2,108 @@ import React, { useState, useEffect } from 'react';
 import Button from '../../buttons/Button';
 import FormInputField from '../../elements/FormInputField';
 import { getAccountInfo, updateAccountInfo } from '../../../controllers/authentication';
+import { AccountType } from '../../../types/AccountTypes';
+
+// Map account type to the fields they should see
+const fieldsByAccountType: Record<string, string[]> = {
+	Koper: ['email', 'adress', 'postcode', 'regio', 'telephone'],
+	Kweker: ['email', 'name', 'address', 'postcode', 'telephone', 'regio'],
+	Veilingmeester: ['email', 'regio'],
+};
+
+// Optional: nicer labels for display
+const fieldLabels: Record<string, string> = {
+	email: 'Email',
+	adress: 'Address',
+	postcode: 'Postcode',
+	telephone: 'Telefoonnummer',
+	name: 'Bedrijfsnaam',
+	regio: 'Regio',
+};
 
 function AccountSettings() {
-	const [email, setEmail] = useState('user@example.com');
-	const [adress, setAdress] = useState('123 Main St');
-	const [region, setRegion] = useState('Den Haag');
-	// Individual edit states
-	const [editEmail, setEditEmail] = useState(false);
-	const [editPassword, setEditPassword] = useState(false);
-	const [editAddress, setEditAddress] = useState(false);
-	const [editRegion, setEditRegion] = useState(false);
+	const [accountType, setAccountType] = useState<AccountType>();
+	const [formData, setFormData] = useState<Record<string, any>>({});
+	const [editFields, setEditFields] = useState<Record<string, boolean>>({});
 
-	// Handlers
-	const toggleEmail = () => setEditEmail(p => !p);
-	const togglePassword = () => setEditPassword(p => !p);
-	const toggleAddress = () => setEditAddress(p => !p);
-	const toggleRegion = () => setEditRegion(p => !p);
-
+	// Load account info
 	useEffect(() => {
 		async function load() {
 			const info = await getAccountInfo();
-			setEmail(info.email);
-			setAdress(info.adress);
-			setRegion(info.region);
+
+			// Provide default empty strings for missing fields
+			const defaults: Record<string, any> = {
+				email: '',
+				adress: '',
+				postcode: '',
+				telephone: '',
+				name: '',
+				regio: '',
+			};
+
+			setFormData({ ...defaults, ...info }); // merge info with defaults
+			setAccountType(info.accountType);
+
+			// Initialize edit states
+			const initialEdit: Record<string, boolean> = {};
+			Object.keys({ ...defaults, ...info }).forEach((key) => (initialEdit[key] = false));
+			setEditFields(initialEdit);
 		}
 		load();
 	}, []);
 
-	async function saveAccount() {
-    const updatedData = {
-        email,
-        adress,
-        region,
-		
+	// Toggle individual field editing
+	const toggleEdit = (field: string) => {
+		setEditFields((prev) => ({ ...prev, [field]: !prev[field] }));
+	};
 
-    };
+	// Save changes (you can customize this to call your API)
+	const handleSave = async () => {
+		// Ask for confirmation before sending the request
+		const confirmSave = window.confirm('Are you sure you want to save the changes?');
+		if (!confirmSave) return; // user canceled
 
-    try {
-        const updatedAccount = await updateAccountInfo(updatedData);
+		try {
+			// Include all fields from formData
+			const updatedData = { ...formData };
 
-        // Update global app state if needed
-        if (window.application) {
-            window.application.account = updatedAccount;
-        }
+			// Call API
+			await updateAccountInfo(updatedData);
 
-        // Turn off editing
-        setEditEmail(false);
-        setEditAddress(false);
-        setEditRegion(false);
+			// Reset edit states
+			const resetEdit: Record<string, boolean> = {};
+			Object.keys(editFields).forEach((key) => (resetEdit[key] = false));
+			setEditFields(resetEdit);
 
-        alert("Account settings updated successfully!");
-
-    } catch (err) {
-        console.error("Error updating account settings:", err);
-        alert("Failed to update account settings.");
-    }
-}
-
-
+			alert('Account updated!');
+		} catch (error: any) {
+			alert(`Failed to update account: ${error.message || error}`);
+		}
+	};
 
 	return (
 		<div className="settings-content">
-			<h1 className="text-2xl font-semibold">Account Settings</h1>
+			<h1 className="text-2xl font-semibold mb-4">Account Settings</h1>
+
 			<div className="settings-form">
-				<div className={`settings-input-field ${editEmail ? "editing" : ""}`}>
-					<FormInputField id="email" label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={!editEmail} />
-					<Button id="edit" className="settings-edit-button" icon="bi bi-pencil" onClick = {toggleEmail} type = "button"/>
-				</div>
-				<div className={`settings-input-field ${editPassword ? "editing" : ""}`}>
-					<FormInputField id="password" label="Password" type="password" value={email} disabled={!editPassword}/>
-					<Button id="edit" className="settings-edit-button" icon="bi bi-pencil" onClick = {togglePassword} type = "button"/>
-				</div>
-				<div className={`settings-input-field ${editAddress ? "editing" : ""}`}>
-					<FormInputField id="adress" label="Adress" type="text" value={adress} onChange={(e) => setAdress(e.target.value)} disabled={!editAddress} />
-					<Button id="edit" className="settings-edit-button" icon="bi bi-pencil" onClick = {toggleAddress} type = "button"/>
-				</div>
-				<div className={`settings-input-field ${editRegion ? "editing" : ""}`}>
-					<FormInputField id="region" label="Region" type="text" value={region} onChange={(e) => setRegion(e.target.value)} disabled={!editRegion} />
-					<Button id="edit" className="settings-edit-button" icon="bi bi-pencil" onClick = {toggleRegion} type = "button"/>
-				</div>
+				{accountType &&
+					fieldsByAccountType[accountType].map((field) => (
+						<div key={field} className={`settings-input-field ${editFields[field] ? 'editing' : ''}`}>
+							<FormInputField
+								id={field}
+								label={fieldLabels[field] || field}
+								value={formData[field] || ''}
+								onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+								disabled={!editFields[field]}
+							/>
+							<Button className="settings-edit-button" icon="bi bi-pencil" onClick={() => toggleEdit(field)} type="button" />
+						</div>
+					))}
 			</div>
-			<Button id="save" className="settings-save-button" label='Save' onClick={saveAccount} type='button'/>
+
+			<Button id="save" className="settings-save-button" label="Save" type="button" onClick={handleSave} />
 		</div>
 	);
 }
+
 export default AccountSettings;
