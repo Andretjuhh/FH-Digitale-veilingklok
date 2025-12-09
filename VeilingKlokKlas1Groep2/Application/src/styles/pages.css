@@ -11,7 +11,8 @@
 	padding: 2rem;
 	border-radius: 1.3rem;
 	background-color: theme(colors.white);
-	box-shadow: 0px 106px 42px rgba(0, 0, 0, 0.01), 0px 59px 36px rgba(0, 0, 0, 0.05), 0px 26px 26px rgba(0, 0, 0, 0.09), 0px 7px 15px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1);
+	box-shadow: 0px 106px 42px rgba(0, 0, 0, 0.01), 0px 59px 36px rgba(0, 0, 0, 0.05), 0px 26px 26px rgba(0, 0, 0, 0.09), 0px 7px 15px rgba(0, 0, 0, 0.1),
+		0px 0px 0px rgba(0, 0, 0, 0.1);
 
 	display: flex;
 	flex-direction: column;
@@ -810,6 +811,118 @@
 	box-sizing: border-box;
 }
 
+/*#endregion*/
+
+/*region Veilingmeester Page styles*/
+
+.veilingmeester-page {
+	background: var(--bg);
+	min-height: 100vh;
+}
+
+.veilingmeester-container {
+	max-width: 1300px;
+	margin: 24px auto;
+	padding: 20px;
+	padding-top: calc(var(--header-height) + 20px);
+}
+
+.veilingmeester-hallo h1 {
+	font-weight: 600;
+	margin: 0 0 6px 0;
+	font-size: 35px;
+}
+
+.veilingmeester-desc {
+	margin: 0 0 18px 0;
+	font-size: 20px;
+}
+
+/*#endregion*/
+
+/*#region Settings Page styles*/
+.settings-page {
+	display: flex; /* flex */
+	height: 100hv; /* h-screen */
+	background-color: #f9fafb;
+}
+
+.settings-input-field input {
+	border: 1px solid #ccc;
+	transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* When editing, make border blue + glow */
+.settings-input-field.editing input {
+	border-color: #007bff; /* Blue */
+	box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2); /* Optional glow */
+}
+
+.settings-input-field {
+    display: flex;
+	flex-direction: row;
+	gap: 0.25rem; /* same as Tailwind gap-1 */
+}
+
+/* When editing, make icon darker + pressed in */
+.settings-input-field.editing button {
+	background-color: #e6f0ff; /* light blue background */
+	transform: translateY(2px); /* pressed in */
+	border-radius: 6px;
+}
+
+.settings-input-field.editing .bi-pencil {
+	color: #007bff; /* icon blue */
+}
+
+.settings-sidebar {
+	display: flex;
+	flex-direction: column;
+	width: 15rem; /* w-60 → 60 * 0.25rem = 15rem */
+	height: 100hv; /* h-screen */
+	padding: 1rem; /* p-4 → 4 * 0.25rem */
+	border-right: 1px solid #e5e7eb; /* border-r (default border color) */
+	background-color: #ffffff; /* bg-white */
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06); /* shadow-md */
+	justify-content: space-evenly;
+}
+
+.settings-form {
+	display: flex;
+	gap: 0.5rem;
+	flex-direction: column;
+
+	height: 80%;
+}
+
+.sidebar-account-button {
+	padding: 2rem 1rem;
+}
+
+.settings-edit-button {
+    transition: transform 0.15s, background-color 0.15s;
+
+    height: 48px;            /* match input height */
+    aspect-ratio: 1 / 1;     /* keep circular */
+    padding: 0;
+
+    flex-shrink: 0;          /* prevent resizing */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+}
+
+.settings-content {
+	flex: 1; /* grow to fill space */
+	width: 100%; /* ensure max width */
+	padding: 2rem; /* optional */
+}
+
+.settings-save-button {
+	align-self: flex-end;
+}
 /*#endregion*/
 
 /*#region Unknown page styles*/

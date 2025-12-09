@@ -1,62 +1,105 @@
 // External imports
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Internal imports
 import Page from '../../components/nav/Page';
-import DashboardIntro from '../../components/sections/veiling-dashboard/DashboardIntro';
-import DashboardSnapshot from '../../components/sections/veiling-dashboard/DashboardSnapshot';
-import DashboardPlanning from '../../components/sections/veiling-dashboard/DashboardPlanning';
 
-const SNAPSHOT_ITEMS = [
-	{ label: 'Lopende ronde', value: '1 kavel', note: 'Rozen Avalanche+ (dummy data)' },
-	{ label: 'Komende kavels', value: '3 voorbereidingen', note: 'Alles nog in testfase' },
-	{ label: 'Deelnemers', value: '12 ingelogd', note: 'Deze aantallen zijn fictief' },
-];
+function VeilingMeesterDashboard() {
+	// Dummy data — vervang later door backend data
+	const [items, setItems] = useState([
+		{ id: 1, name: "Appelmand", amount: 12, price: 3.5, image: "", duration: 30 },
+		{ id: 2, name: "Perenkrat", amount: 8, price: 4.2, image: "", duration: 30 },
+		{ id: 3, name: "Bananendoos", amount: 20, price: 2.8, image: "", duration: 30 },
+	]);
 
-const PLANNING_UPCOMING = [
-	{
-		id: 'UP-01',
-		title: 'Tulpen voorjaar mix',
-		seller: 'Van der Meer',
-		info: 'Startprijs €5,75 • 40 kratten',
-		status: 'klaar' as const,
-	},
-	{
-		id: 'UP-02',
-		title: 'Pioenrozen Coral Sunset',
-		seller: 'Pioenhof Zeeland',
-		info: 'Controle om 11:00',
-		status: 'concept' as const,
-	},
-];
+	const [currentIndex, setCurrentIndex] = useState(0);
+	const [timeLeft, setTimeLeft] = useState(items[0].duration);
+	const [auctionRunning, setAuctionRunning] = useState(false);
 
-const PLANNING_CHECKLIST = ['Controleer kwaliteitsrapport Avalanche+', 'Nieuwe kavel voor morgen klaarzetten', 'Bespreek verzendplanning met logistiek'];
+	// Timer logic
+	useEffect(() => {
+		if (!auctionRunning) return;
+		if (timeLeft <= 0) {
+			// Move to next product
+			setCurrentIndex((prev) => Math.min(prev + 1, items.length - 1));
+			setTimeLeft(items[currentIndex + 1]?.duration || 0);
+			setAuctionRunning(false);
+			return;
+		}
+		const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+		return () => clearTimeout(timer);
+	}, [auctionRunning, timeLeft, currentIndex, items]);
 
-const PLANNING_COMPLETED = [
-	{
-		id: 'CP-01',
-		title: 'Hydrangea selectie',
-		seller: 'Hydrangea House',
-		info: 'Afgehandeld om 08:40',
-		status: 'afgerond' as const,
-	},
-	{
-		id: 'CP-02',
-		title: 'Lelies Stargazer',
-		seller: 'Lilium Co.',
-		info: 'Terugblik gepland',
-		status: 'afgerond' as const,
-	},
-];
+	const currentItem = items[currentIndex];
 
-function Dashboard() {
 	return (
-		<Page enableHeader enableFooter className="dashboard-page">
-			<DashboardIntro onCreateAuction={() => window.alert('Nieuwe dummy veiling aangemaakt')} />
-			<DashboardSnapshot items={SNAPSHOT_ITEMS} />
-			<DashboardPlanning upcoming={PLANNING_UPCOMING} checklist={PLANNING_CHECKLIST} completed={PLANNING_COMPLETED} />
+		<Page enableHeader enableFooter className="veilingmeester-page">
+			<main className="veilingmeester-container">
+
+				{/* Titel */}
+				<section className="veilingmeester-hallo">
+					<h1>Hallo, veilingmeester!</h1>
+					<p className="veilingmeester-desc">
+						Welkom op de dashboard pagina! Hier kan je de veiling starten en bekijken.
+					</p>
+				</section>
+
+				{/* ===================== ACTIEF VEILING PRODUCT ===================== */}
+				<section className="bg-gray-100 p-6 rounded-xl shadow mb-12">
+					<h2 className="text-xl font-semibold mb-4">Huidige veiling</h2>
+
+					<div className="flex items-center gap-4 border rounded-lg bg-white p-4">
+						<div className="w-24 h-24 bg-gray-300 rounded-xl" />
+
+						<div className="flex-1">
+							<h3 className="font-semibold text-lg">{currentItem.name}</h3>
+							<p className="text-gray-700">Aantal: {currentItem.amount}</p>
+							<p className="text-gray-700">Prijs: €{currentItem.price.toFixed(2)}</p>
+							<p className="mt-2 font-semibold">
+								Tijd resterend: {timeLeft}s
+							</p>
+						</div>
+
+						<button
+							onClick={() => setAuctionRunning(!auctionRunning)}
+							className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+						>
+							{auctionRunning ? "Stop" : "Start"}
+						</button>
+					</div>
+				</section>
+
+				{/* ===================== KOMENDE PRODUCTEN ===================== */}
+				<section className="bg-gray-100 p-6 rounded-xl shadow">
+					<h2 className="text-xl font-semibold mb-4">Komende producten</h2>
+
+					<div className="space-y-3">
+						{items.slice(currentIndex + 1).map((item) => (
+							<div
+								key={item.id}
+								className="flex items-center gap-4 border rounded-lg bg-white p-4"
+							>
+								<div className="w-20 h-20 bg-gray-300 rounded-xl" />
+
+								<div className="flex-1">
+									<h3 className="font-semibold">{item.name}</h3>
+									<p className="text-gray-700">Aantal: {item.amount}</p>
+									<p className="text-gray-700">Prijs: €{item.price.toFixed(2)}</p>
+								</div>
+
+								<button
+									className="px-4 py-2 bg-gray-200 rounded-lg cursor-default"
+									disabled
+								>
+									Wachten
+								</button>
+							</div>
+						))}
+					</div>
+				</section>
+			</main>
 		</Page>
 	);
 }
 
-export default Dashboard;
+export default VeilingMeesterDashboard;
