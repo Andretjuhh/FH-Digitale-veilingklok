@@ -1,0 +1,14 @@
+**/bin
+**/obj
+**/.vs
+**/.vscode
+*.user
+*.swp
+Application/node_modules
+Application/build
+Application/dist
+Application/.cache
+Application/.parcel-cache
+Application/.next
+Application/npm-debug.log
+Application/yarn-error.log
