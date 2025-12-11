@@ -12,7 +12,7 @@ using VeilingKlokApp.Data;
 namespace VeilingKlokKlas1Groep2.Migrations
 {
     [DbContext(typeof(VeilingKlokContext))]
-    [Migration("20251209155140_NewDB")]
+    [Migration("20251211131521_NewDB")]
     partial class NewDB
     {
         /// <inheritdoc />
