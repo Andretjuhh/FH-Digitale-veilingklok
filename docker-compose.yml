@@ -10,7 +10,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: Server=SEBSPC\SQLEXPRESS;Database=VeilingKlokDb;User=sa;Password=${SA_PASSWORD:VeilingKlokPassword1234};TrustServerCertificate=true;
+      ConnectionStrings__DefaultConnection: "Server=SEBSPC\\SQLEXPRESS;Database=VeilingKlokDb;User=sa;Password=${SA_PASSWORD:-VeilingKlokPassword1234};TrustServerCertificate=true;"
     depends_on:
       - db
 

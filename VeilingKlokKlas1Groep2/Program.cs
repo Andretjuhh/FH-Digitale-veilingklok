@@ -147,7 +147,15 @@ if (app.Environment.IsDevelopment())
 }
 
 // Server Middleware configuration 
-app.UseHttpsRedirection();
+// Remove or guard this for container runs:
+// app.UseHttpsRedirection();
+
+// Optional: keep it only when you have HTTPS configured
+if (!app.Environment.IsEnvironment("Docker")) // or IsDevelopment() if you prefer
+{
+    app.UseHttpsRedirection();
+}
+
 // Enable CORS
 app.UseCors("AllowFrontend");
 // Authentication & Authorization middleware (order is important!)
