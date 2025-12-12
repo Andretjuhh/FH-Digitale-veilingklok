@@ -43,41 +43,45 @@ function VeilingMeesterAuction() {
 
 	const auction = navAuction ?? fallbackAuction;
 
-	const [products, setProducts] = useState<Product[]>(
-		auction.products.map((p) => ({ ...p }))
-	);
+	const [products, setProducts] = useState<Product[]>(auction.products.map((p) => ({ ...p })));
 	const [activeProductId, setActiveProductId] = useState<number | null>(null);
 	const [clockToken, setClockToken] = useState(0);
 	const [clockPaused, setClockPaused] = useState(false);
+	const [clockFinished, setClockFinished] = useState(false);
 
 	const activeProduct = products.find((p) => p.id === activeProductId) ?? null;
+	const activeIndex = activeProduct ? products.findIndex((p) => p.id === activeProduct.id) : -1;
+	const nextProduct = activeIndex >= 0 ? products[activeIndex + 1] : null;
 
 	const handlePriceChange = (productId: number, value: number) => {
-		setProducts((prev) =>
-			prev.map((product) =>
-				product.id === productId ? { ...product, startingPrice: value } : product
-			)
-		);
+		setProducts((prev) => prev.map((product) => (product.id === productId ? { ...product, startingPrice: value } : product)));
 	};
 
 	const handleStartProduct = (productId: number) => {
 		setActiveProductId(productId);
 		setClockPaused(false);
+		setClockFinished(false);
 		setClockToken((token) => token + 1);
 	};
 
 	const handlePauseResume = () => setClockPaused((state) => !state);
 
 	const handleComplete = () => {
-		const currentIndex = products.findIndex((p) => p.id === activeProductId);
-		const nextProduct = products[currentIndex + 1];
+		// Timer ran out; stop clock and wait for manual restart or manual next.
+		setClockPaused(true);
+		setClockFinished(true);
+	};
+
+	const handleNextProduct = () => {
 		if (nextProduct) {
 			setActiveProductId(nextProduct.id);
 			setClockToken((token) => token + 1);
 			setClockPaused(false);
+			setClockFinished(false);
 		} else {
 			setActiveProductId(null);
 			setClockPaused(false);
+			setClockFinished(false);
 		}
 	};
 
@@ -89,10 +93,7 @@ function VeilingMeesterAuction() {
 						<h1 className="text-2xl font-semibold">{auction.title}</h1>
 						<p className="text-gray-600">{auction.date}</p>
 					</div>
-					<button
-						onClick={() => navigate(-1)}
-						className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-					>
+					<button onClick={() => navigate(-1)} className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
 						Terug
 					</button>
 				</div>
@@ -105,9 +106,7 @@ function VeilingMeesterAuction() {
 								<div>
 									<p className="text-sm text-gray-600">Actief product</p>
 									<p className="font-semibold">{activeProduct.name}</p>
-									<p className="text-gray-700">
-										Startprijs: ƒ {activeProduct.startingPrice.toFixed(2)}
-									</p>
+									<p className="text-gray-700">Startprijs: ƒ {activeProduct.startingPrice.toFixed(2)}</p>
 									<p className="text-gray-700">
 										Aantal: {activeProduct.quantity} · Min. aant.: {activeProduct.minAmount ?? 1}
 									</p>
@@ -121,19 +120,22 @@ function VeilingMeesterAuction() {
 									minAmount={activeProduct.minAmount ?? 1}
 									onComplete={handleComplete}
 								/>
+								{clockFinished && (
+									<div className="text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded px-3 py-2">
+										Tijd verstreken. Start de klok opnieuw of ga naar het volgende product.
+									</div>
+								)}
 								<div className="flex gap-3">
-									<button
-										onClick={handlePauseResume}
-										className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 w-full"
-									>
+									<button onClick={handlePauseResume} className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 w-full">
 										{clockPaused ? 'Hervat klok' : 'Pauzeer klok'}
+									</button>
+									<button onClick={handleNextProduct} disabled={!nextProduct} className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 w-full disabled:opacity-50">
+										Volgende product
 									</button>
 								</div>
 							</div>
 						) : (
-							<div className="text-gray-600">
-								Kies een product in de lijst om de klok te starten.
-							</div>
+							<div className="text-gray-600">Kies een product in de lijst om de klok te starten.</div>
 						)}
 					</div>
 
@@ -143,10 +145,7 @@ function VeilingMeesterAuction() {
 							{products.map((product) => {
 								const isActive = product.id === activeProductId;
 								return (
-									<div
-										key={product.id}
-										className={`border rounded-lg p-3 ${isActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}
-									>
+									<div key={product.id} className={`border rounded-lg p-3 ${isActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
 										<div className="flex flex-col md:flex-row md:items-center gap-3">
 											<div className="flex-1">
 												<p className="font-semibold">{product.name}</p>
@@ -168,10 +167,7 @@ function VeilingMeesterAuction() {
 													onChange={(e) => handlePriceChange(product.id, Number(e.target.value))}
 												/>
 											</div>
-											<button
-												onClick={() => handleStartProduct(product.id)}
-												className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-											>
+											<button onClick={() => handleStartProduct(product.id)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
 												Start klok
 											</button>
 										</div>
