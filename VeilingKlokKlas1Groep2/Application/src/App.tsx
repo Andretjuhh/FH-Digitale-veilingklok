@@ -12,6 +12,7 @@ import Register from './pages/general/Register';
 import KwekerDashboard from './pages/kweker/KwekerDashboard';
 import ProductDetails from './pages/kweker/ProductDetails';
 import VeilingMeesterDashboard from './pages/veilingmeester/VeilingMeesterDashboard';
+import VeilingMeesterAuction from './pages/veilingmeester/VeilingMeesterAuction';
 import KoperDashboard from './pages/koper/KoperDashboard';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
 					<Route path="/login" element={<Login />} />
 					<Route path="/register" element={<Register />} />
 					<Route path="/veilingmeester/dashboard" element={<VeilingMeesterDashboard />} />
+					<Route path="/veilingmeester/auction/:id" element={<VeilingMeesterAuction />} />
 					<Route path="/koper/dashboard" element={<KoperDashboard />} />
 					<Route path="/kweker/dashboard" element={<KwekerDashboard />} />
 					<Route path="/kweker/product/:id" element={<ProductDetails />} />
