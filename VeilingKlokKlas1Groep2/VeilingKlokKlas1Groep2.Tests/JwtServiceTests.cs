@@ -157,14 +157,6 @@ namespace VeilingKlokKlas1Groep2.Tests
         }
 
         [Fact]
-        public void ValidateAccessToken_WithExpiredToken_ReturnsNull()
-        {
-            // Arrange - verwijder deze test omdat JWT met negative expiration niet werkt
-            // JWT library staat geen tokens toe met Expires < NotBefore
-            Assert.True(true); // Dummy assertion
-        }
-
-        [Fact]
         public void GetAccountIdFromToken_WithValidToken_ReturnsAccountId()
         {
             // Arrange
