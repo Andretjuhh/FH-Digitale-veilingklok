@@ -33,10 +33,11 @@ public static class DependencyInjection
         services.AddRepositories();
         services.AddRealTimeServices();
 
+        // Configure DbContext with SQL Server and specify the Migrations Assembly
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-        );
-
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+                b => b.MigrationsAssembly("Infrastructure"))); // This is crucial!
         return services;
     }
 }

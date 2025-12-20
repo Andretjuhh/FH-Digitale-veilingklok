@@ -16,7 +16,6 @@ public abstract class Account
     public Guid Id { get; init; } = Guid.Empty;
 
     [Column("email")]
-    [EmailAddress]
     [Required]
     [MaxLength(255)]
     public string Email { get; private set; }

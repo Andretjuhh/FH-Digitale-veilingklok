@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Data;
@@ -35,7 +36,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .Property(a => a.CreatedAt)
             .HasDefaultValueSql("SYSDATETIMEOFFSET()");
 
-        modelBuilder.Entity<Order>().Property(o => o.CreatedAt).HasDefaultValueSql("SYSDATETIMEOFFSET()");
+        modelBuilder
+            .Entity<Order>()
+            .Property(o => o.CreatedAt)
+            .HasDefaultValueSql("SYSDATETIMEOFFSET()");
 
         modelBuilder
             .Entity<OrderItem>()
@@ -67,21 +71,29 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         #region ACCOUNT HIERARCHY & AUTHENTICATION
 
+        // Password Value Object Conversion
+        modelBuilder
+            .Entity<Account>()
+            .Property(a => a.Password)
+            .HasConversion(password => password.Value, hash => Password.FromHash(hash))
+            .HasColumnName("password");
+
         // Table-Per-Type (TPT) Strategy
         modelBuilder.Entity<Account>().UseTptMappingStrategy();
 
         // Unique Email Index
         modelBuilder.Entity<Account>().HasIndex(a => a.Email).IsUnique();
 
-        // RefreshToken Indexes
+        // RefreshToken Configuration
         modelBuilder.Entity<RefreshToken>().HasIndex(rt => rt.Jti);
         modelBuilder.Entity<RefreshToken>().HasIndex(rt => rt.AccountId);
 
         // Account -> RefreshTokens (Cascade Delete)
+        // Configure from Account side to properly use the navigation property
         modelBuilder
-            .Entity<RefreshToken>()
-            .HasOne<Account>()
-            .WithMany()
+            .Entity<Account>()
+            .HasMany(a => a.RefreshTokens)
+            .WithOne()
             .HasForeignKey(rt => rt.AccountId)
             .OnDelete(DeleteBehavior.Cascade);
 
@@ -103,15 +115,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne<Address>()
             .WithMany()
             .HasForeignKey(k => k.PrimaryAdressId)
-            .OnDelete(DeleteBehavior
-                .Restrict); // you cannot delete an Address if it's referenced as a PrimaryAdressId by any Koper.
+            .OnDelete(DeleteBehavior.Restrict); // you cannot delete an Address if it's referenced as a PrimaryAdressId by any Koper.
 
         // Koper -> Orders (Restrict Delete)
         modelBuilder
             .Entity<Koper>()
             .HasMany<Order>()
             .WithOne()
-            .HasForeignKey(o => o.KoperId).IsRequired()
+            .HasForeignKey(o => o.KoperId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
         #endregion
@@ -151,15 +163,26 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
 
+        // Decimal precision for VeilingKlok prices
+        modelBuilder.Entity<VeilingKlok>().Property(vk => vk.HighestPrice).HasPrecision(18, 2);
+        modelBuilder.Entity<VeilingKlok>().Property(vk => vk.LowestPrice).HasPrecision(18, 2);
+
         #endregion
 
         #region PRODUCT & INVENTORY
 
-        // Check Constraint: MinimumPrice <= Price
+        // Decimal precision for Product prices
+        modelBuilder.Entity<Product>().Property(p => p.AuctionPrice).HasPrecision(18, 2);
+        modelBuilder.Entity<Product>().Property(p => p.MinimumPrice).HasPrecision(18, 2);
+
+        // Check Constraint: MinimumPrice <= AuctionPrice (when AuctionPrice is not null)
         modelBuilder
             .Entity<Product>()
             .ToTable(tb =>
-                tb.HasCheckConstraint("CK_Product_MinimumPrice", "[minimum_price] <= [price]")
+                tb.HasCheckConstraint(
+                    "CK_Product_MinimumPrice",
+                    "[auction_price] IS NULL OR [minimum_price] <= [auction_price]"
+                )
             );
 
         // Product -> VeilingKlok (Optional, Restrict Delete)

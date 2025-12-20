@@ -7,6 +7,9 @@ public sealed class Password
 {
     private string HashedPassword { get; }
 
+    // EF Core needs this public property for value conversion
+    public string Value => HashedPassword;
+
     private Password(string hash)
     {
         HashedPassword = hash;

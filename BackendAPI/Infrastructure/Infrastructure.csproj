@@ -8,6 +8,7 @@
 	<ItemGroup>
 		<Folder Include="Microservices\Email\"/>
 		<Folder Include="Microservices\Payment\"/>
+		<Folder Include="Migrations\"/>
 		<Folder Include="Persistence\Migrations\"/>
 		<Folder Include="Persistence\Seeders\"/>
 	</ItemGroup>
