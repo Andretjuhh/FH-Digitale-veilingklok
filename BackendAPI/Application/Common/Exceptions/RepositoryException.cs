@@ -58,4 +58,9 @@ public sealed class RepositoryException : ProcessException
     {
         return EntityAlreadyExists("ACCOUNT.ALREADY_EXISTS");
     }
+
+    public static RepositoryException ExistingKvkNumber()
+    {
+        return EntityAlreadyExists("ACCOUNT.KVK_ALREADY_EXISTS");
+    }
 }

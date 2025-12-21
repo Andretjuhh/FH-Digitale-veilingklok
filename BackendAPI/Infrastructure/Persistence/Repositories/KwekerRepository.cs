@@ -13,6 +13,11 @@ public class KwekerRepository : UserRepository, IKwekerRepository
     {
     }
 
+    public async Task<bool> ExistingKvkNumberAsync(string kvkNumber)
+    {
+        return await _dbContext.Kwekers.AnyAsync(k => k.KvkNumber == kvkNumber);
+    }
+
     public async Task AddAsync(Kweker kweker)
     {
         await _dbContext.Kwekers.AddAsync(kweker);

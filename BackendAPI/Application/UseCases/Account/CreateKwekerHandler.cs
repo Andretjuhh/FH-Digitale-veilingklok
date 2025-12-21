@@ -40,6 +40,10 @@ public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, A
         try
         {
             var dto = request.Payload;
+
+            if (await _kwekerRepository.ExistingKvkNumberAsync(dto.KvkNumber))
+                throw RepositoryException.ExistingKvkNumber();
+
             if (await _kwekerRepository.ExistingAccountAsync(dto.Email))
                 throw RepositoryException.ExistingAccount();
 
@@ -52,7 +56,7 @@ public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, A
                 KvkNumber = dto.KvkNumber,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
-                Telephone = dto.Telephone,
+                Telephone = dto.Telephone
             };
 
             await _kwekerRepository.AddAsync(kweker);

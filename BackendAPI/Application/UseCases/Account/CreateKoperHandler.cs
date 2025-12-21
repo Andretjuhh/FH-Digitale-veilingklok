@@ -44,24 +44,32 @@ public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Aut
                 throw RepositoryException.ExistingAccount();
 
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            // Create Koper first without address
             var koper = new Koper(dto.Email, Password.Create(dto.Password, _passwordHasher))
             {
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Telephone = dto.Telephone,
             };
+            await _koperRepository.AddAsync(koper);
+            await _unitOfWork.SaveChangesAsync(cancellationToken); // Save to get Koper ID
+
+            // Now create address with the Koper's ID
             var address = new Address(
                 dto.Address.Street,
                 dto.Address.City,
                 dto.Address.RegionOrState,
                 dto.Address.PostalCode,
-                dto.Address.Country
+                dto.Address.Country,
+                koper.Id // Use the saved Koper's ID
             );
-            koper.AddNewAdress(address, false); // Don't set as primary yet
-            await _koperRepository.AddAsync(koper);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // Now set as primary after the address has been saved and has an ID
+            // Add address WITHOUT setting as primary yet (address needs ID first)
+            koper.AddNewAdress(address, makePrimary: false);
+            await _unitOfWork.SaveChangesAsync(cancellationToken); // Save to get Address ID
+
+            // Now set as primary address (after address has ID)
             koper.SetPrimaryAdress(address);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
