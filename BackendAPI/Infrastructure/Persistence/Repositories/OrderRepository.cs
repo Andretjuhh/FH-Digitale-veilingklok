@@ -1,4 +1,5 @@
 using Application.Common.Exceptions;
+using Application.Common.Models;
 using Application.Repositories;
 using Domain.Entities;
 using Domain.Enums;
@@ -82,6 +83,85 @@ public class OrderRepository : IOrderRepository
             .FirstOrDefaultAsync();
 
         return (order, klokStatus);
+    }
+
+    public async Task<(Order order, List<OrderProductInfo> products)?> GetWithProductsByIdAsync(
+        Guid id
+    )
+    {
+        var order = await _dbContext
+            .Orders.Include(o => o.OrderItems)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+        if (order == null)
+            return null;
+
+        var products = await _dbContext
+            .OrderItems.Where(oi => oi.OrderId == id)
+            .Join(
+                _dbContext.Products,
+                oi => oi.ProductId,
+                p => p.Id,
+                (oi, p) => new { OrderItem = oi, Product = p }
+            )
+            .Join(
+                _dbContext.Kwekers,
+                x => x.Product.KwekerId,
+                k => k.Id,
+                (x, k) =>
+                    new OrderProductInfo(
+                        x.Product.Id,
+                        x.Product.Name,
+                        x.Product.Description,
+                        x.Product.ImageUrl,
+                        x.OrderItem.PriceAtPurchase,
+                        k.CompanyName,
+                        x.OrderItem.Quantity
+                    )
+            )
+            .ToListAsync();
+
+        return (order, products);
+    }
+
+    public async Task<(Order order, List<OrderProductInfo> products)?> GetWithProductsByIdAsync(
+        Guid id,
+        Guid koperId
+    )
+    {
+        var order = await _dbContext
+            .Orders.Include(o => o.OrderItems)
+            .FirstOrDefaultAsync(o => o.Id == id && o.KoperId == koperId);
+
+        if (order == null)
+            return null;
+
+        var products = await _dbContext
+            .OrderItems.Where(oi => oi.OrderId == id)
+            .Join(
+                _dbContext.Products,
+                oi => oi.ProductId,
+                p => p.Id,
+                (oi, p) => new { OrderItem = oi, Product = p }
+            )
+            .Join(
+                _dbContext.Kwekers,
+                x => x.Product.KwekerId,
+                k => k.Id,
+                (x, k) =>
+                    new OrderProductInfo(
+                        x.Product.Id,
+                        x.Product.Name,
+                        x.Product.Description,
+                        x.Product.ImageUrl,
+                        x.OrderItem.PriceAtPurchase,
+                        k.CompanyName,
+                        x.OrderItem.Quantity
+                    )
+            )
+            .ToListAsync();
+
+        return (order, products);
     }
 
     public async Task<(IEnumerable<Order> Items, int TotalCount)> GetAllWithFilterAsync(

@@ -73,9 +73,10 @@ public class KoperController : ControllerBase
     [HttpGet("order/{orderId}")]
     public async Task<IActionResult> GetOrder(Guid orderId)
     {
-        var query = new GetOrderQuery(orderId);
+        var (accountId, _) = GetUserClaim.GetInfo(User);
+        var query = new GetOrderCommand(orderId, accountId);
         var result = await _mediator.Send(query);
-        return HttpSuccess<OrderOutputDto>.Ok(result);
+        return HttpSuccess<OrderDetailsOutputDto>.Ok(result);
     }
 
     [HttpGet("orders")]

@@ -19,6 +19,9 @@ public class TestDataSeeder : ITestDataSeeder
     private readonly IPasswordHasher _passwordHasher;
     private readonly ILogger<TestDataSeeder> _logger;
 
+    // Default Password is : Test1234!
+    // Email format:  koper{i + 1}@test.nl || kweker{i + 1}@test.nl || veilingmeester{i + 1}@test.nl
+
     // Dutch flower and plant names
     private static readonly string[] DutchFlowerNames = new[]
     {

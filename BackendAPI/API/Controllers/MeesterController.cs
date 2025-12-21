@@ -57,6 +57,15 @@ public class MeesterController : ControllerBase
         return HttpSuccess<OrderOutputDto>.Ok(result, "Order product updated successfully");
     }
 
+    [HttpGet("order/{orderId}")]
+    public async Task<IActionResult> GetOrder(Guid orderId)
+    {
+        var (accountId, _) = GetUserClaim.GetInfo(User);
+        var query = new GetOrderCommand(orderId, accountId);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<OrderDetailsOutputDto>.Ok(result);
+    }
+
     [HttpPut("order/{orderId}/status")]
     public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromQuery] OrderStatus status)
     {

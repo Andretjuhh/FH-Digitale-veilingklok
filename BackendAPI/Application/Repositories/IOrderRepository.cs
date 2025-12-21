@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.Common.Models;
+using Domain.Entities;
 using Domain.Enums;
 
 namespace Application.Repositories;
@@ -8,6 +9,9 @@ public interface IOrderRepository
     Task<Order?> GetByIdAsync(Guid orderId);
     Task<Order?> GetByIdAsync(Guid orderId, Guid koperId);
     Task<(Order order, VeilingKlokStatus klokStatus)?> GetWithKlokStatusByIdAsync(Guid id, Guid koperId);
+    Task<(Order order, List<OrderProductInfo> products)?> GetWithProductsByIdAsync(Guid id);
+    Task<(Order order, List<OrderProductInfo> products)?> GetWithProductsByIdAsync(Guid id, Guid koperId);
+
 
     Task AddAsync(Order order);
     void Update(Order order);

@@ -53,8 +53,10 @@ public sealed class OrderProductHandler
             var (order, klokStatus) =
                 await _orderRepository.GetWithKlokStatusByIdAsync(request.OrderId, request.KoperId) ??
                 throw RepositoryException.NotFoundOrder();
-            var product = await _productRepository.GetByIdAsync(request.ProductId) ??
-                          throw RepositoryException.NotFoundProduct();
+
+            // Get the product and its kweker info
+            var (product, info) = await _productRepository.GetByIdWithKwekerIdAsync(request.ProductId) ??
+                                  throw RepositoryException.NotFoundProduct();
 
             // Ensure the veiling klok is running
             if (!_veilingKlokEngine.IsVeillingRunning(order.VeilingKlokId))
@@ -99,7 +101,7 @@ public sealed class OrderProductHandler
 
             return OrderMapper.ItemOrder.ToOutputDto(
                 orderItem,
-                new OrderItemProduct(product.Name, product.Description, product.ImageUrl)
+                new OrderItemProduct(product.Name, product.Description, product.ImageUrl, info.CompanyName)
             );
         }
         catch (Exception)

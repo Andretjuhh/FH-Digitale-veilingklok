@@ -55,6 +55,14 @@ public class KwekerController : ControllerBase
         return HttpSuccess<OrderOutputDto>.Ok(result, "Order product updated successfully");
     }
 
+    [HttpGet("order/{orderId}")]
+    public async Task<IActionResult> GetOrder(Guid orderId)
+    {
+        var query = new GetOrderCommand(orderId, Guid.Empty);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<OrderDetailsOutputDto>.Ok(result);
+    }
+
     [HttpPut("order/{orderId}/status")]
     public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromQuery] OrderStatus status)
     {

@@ -6,9 +6,9 @@ using MediatR;
 
 namespace Application.UseCases.Order;
 
-public sealed record GetOrderQuery(Guid OrderId) : IRequest<OrderOutputDto>;
+public sealed record GetOrderCommand(Guid OrderId, Guid? KoperId) : IRequest<OrderDetailsOutputDto>;
 
-public sealed class GetOrderHandler : IRequestHandler<GetOrderQuery, OrderOutputDto>
+public sealed class GetOrderHandler : IRequestHandler<GetOrderCommand, OrderDetailsOutputDto>
 {
     private readonly IOrderRepository _orderRepository;
 
@@ -17,15 +17,18 @@ public sealed class GetOrderHandler : IRequestHandler<GetOrderQuery, OrderOutput
         _orderRepository = orderRepository;
     }
 
-    public async Task<OrderOutputDto> Handle(
-        GetOrderQuery request,
+    public async Task<OrderDetailsOutputDto> Handle(
+        GetOrderCommand request,
         CancellationToken cancellationToken
     )
     {
-        var order =
-            await _orderRepository.GetByIdAsync(request.OrderId)
-            ?? throw RepositoryException.NotFoundOrder();
+        var (order, infos) = (request.KoperId.HasValue
+                                 ? await _orderRepository.GetWithProductsByIdAsync(request.OrderId,
+                                     request.KoperId.Value)
+                                 : await _orderRepository.GetWithProductsByIdAsync(request.OrderId)
+                             )
+                             ?? throw RepositoryException.NotFoundOrder();
 
-        return OrderMapper.ToOutputDto(order);
+        return OrderMapper.ExtraDetails.ToOutputDto(order, infos);
     }
 }

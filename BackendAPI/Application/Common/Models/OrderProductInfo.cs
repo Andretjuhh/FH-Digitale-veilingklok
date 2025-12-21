@@ -1,8 +1,11 @@
 ﻿namespace Application.Common.Models;
 
-public record OrderItemProduct(
+public record OrderProductInfo(
+    Guid ProductId,
     string ProductName,
     string ProductDescription,
     string ProductImageUrl,
-    string CompanyName
+    decimal PriceAtPurchase,
+    string CompanyName,
+    int Quantity
 );

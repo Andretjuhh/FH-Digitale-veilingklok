@@ -6,6 +6,7 @@ public class OrderItemOutputDto
     public required string ProductName { get; set; }
     public required string ProductDescription { get; set; }
     public required string ProductImageUrl { get; set; }
+    public required string CompanyName { get; set; }
 
     public required int Quantity { get; set; }
     public required decimal PriceAtPurchase { get; set; }
