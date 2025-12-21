@@ -111,11 +111,18 @@ namespace Infrastructure.Migrations
                     state_or_province = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     postal_code = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     country = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
-                    account_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    account_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    KoperId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Adresses", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Adresses_Account_account_id",
+                        column: x => x.account_id,
+                        principalTable: "Account",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -155,7 +162,7 @@ namespace Infrastructure.Migrations
                     first_name = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
                     last_name = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
                     telephone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    adress_id = table.Column<int>(type: "int", nullable: false)
+                    adress_id = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -288,6 +295,11 @@ namespace Infrastructure.Migrations
                 column: "account_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Adresses_KoperId",
+                table: "Adresses",
+                column: "KoperId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Koper_primary_adress_id",
                 table: "Koper",
                 column: "primary_adress_id");
@@ -355,19 +367,26 @@ namespace Infrastructure.Migrations
                 column: "veilingmeester_id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Adresses_Koper_account_id",
+                name: "FK_Adresses_Koper_KoperId",
                 table: "Adresses",
-                column: "account_id",
+                column: "KoperId",
                 principalTable: "Koper",
-                principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Adresses_Koper_account_id",
+                name: "FK_Adresses_Account_account_id",
+                table: "Adresses");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Koper_Account_id",
+                table: "Koper");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Adresses_Koper_KoperId",
                 table: "Adresses");
 
             migrationBuilder.DropTable(
@@ -392,10 +411,10 @@ namespace Infrastructure.Migrations
                 name: "Veilingmeester");
 
             migrationBuilder.DropTable(
-                name: "Koper");
+                name: "Account");
 
             migrationBuilder.DropTable(
-                name: "Account");
+                name: "Koper");
 
             migrationBuilder.DropTable(
                 name: "Adresses");

@@ -50,9 +50,9 @@ public class OrderItem
 
     public OrderItem(decimal purchasedPrice, int quantity, Product product, Guid orderId)
     {
-        if (PriceAtPurchase < product.MinimumPrice)
+        if (purchasedPrice < product.MinimumPrice)
             throw OrderValidationException.InvalidProductPrice();
-        if (Quantity < 1)
+        if (quantity < 1)
             throw OrderValidationException.MinOrderQuantityOne();
 
         PriceAtPurchase = purchasedPrice;

@@ -30,11 +30,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Floriday V1 API"); });
-}
+app.UseSwaggerDocumentation();
 
 // Only redirect to HTTPS in production environments
 if (!app.Environment.IsDevelopment())
@@ -50,6 +46,9 @@ app.MapControllers();
 // This creates the WebSocket endpoint at: ws://localhost:5000/hubs/veiling-klok
 // Clients connect to this URL to establish real-time connection
 app.MapHub<VeilingHub>("/hubs/veiling-klok");
+
+// Map development endpoints (seeder, testing utilities, etc.)
+app.MapDevelopmentEndpoints();
 
 #region Home Page Routing
 
@@ -89,8 +88,8 @@ app.MapGet(
 app.Run();
 
 
-// Note: For running dotnet
-//  dotnet ef migrations add InitialCreate --project Infrastructure --startup-project API
+// Note: For running dotnet ( !!!! Run In the same order always !!!! )
 //  dotnet ef database drop --project Infrastructure --startup-project API --force
-//  dotnet ef database update --project Infrastructure --startup-project API
 //  dotnet ef migrations remove --project Infrastructure --startup-project API
+//  dotnet ef migrations add InitialCreate --project Infrastructure --startup-project API
+//  dotnet ef database update --project Infrastructure --startup-project API

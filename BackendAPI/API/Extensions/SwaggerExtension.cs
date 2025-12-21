@@ -1,4 +1,5 @@
 ﻿namespace API.Extensions;
+
 using Microsoft.OpenApi.Models;
 
 public static class SwaggerExtension
@@ -14,7 +15,7 @@ public static class SwaggerExtension
                 {
                     Title = "VeilingKlok API",
                     Version = "v1",
-                    Description = "Auction Clock API with JWT Authentication"
+                    Description = "Auction Clock API with JWT Authentication",
                 }
             );
 
@@ -28,7 +29,7 @@ public static class SwaggerExtension
                     Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
+                    Scheme = "Bearer",
                 }
             );
 
@@ -41,15 +42,29 @@ public static class SwaggerExtension
                             Reference = new OpenApiReference
                             {
                                 Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
+                                Id = "Bearer",
+                            },
                         },
                         Array.Empty<string>()
-                    }
+                    },
                 }
             );
         });
 
         return services;
+    }
+
+    public static WebApplication UseSwaggerDocumentation(this WebApplication app)
+    {
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Floriday V1 API");
+            });
+        }
+
+        return app;
     }
 }

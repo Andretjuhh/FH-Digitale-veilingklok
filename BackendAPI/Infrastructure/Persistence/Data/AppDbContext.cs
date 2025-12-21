@@ -99,15 +99,21 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         #endregion
 
-        #region KOPER (BUYER) CONFIGURATION
+        #region ADDRESS CONFIGURATION
 
-        // Koper -> Addresses (Cascade Delete)
+        // Address -> Account (base class for Koper and Kweker)
+        // This allows addresses to be linked to any Account type
+        // Using Restrict to avoid multiple cascade paths with PrimaryAdressId
         modelBuilder
-            .Entity<Koper>()
-            .HasMany(k => k.Adresses)
-            .WithOne()
+            .Entity<Address>()
+            .HasOne<Account>()
+            .WithMany()
             .HasForeignKey(a => a.AccountId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
+
+        #endregion
+
+        #region KOPER (BUYER) CONFIGURATION
 
         // Koper -> Primary Address (One-to-One, Restrict Delete)
         modelBuilder
@@ -116,7 +122,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany()
             .HasForeignKey(k => k.PrimaryAdressId)
             .IsRequired(false) // Make it optional so it can be null initially
-            .OnDelete(DeleteBehavior.Restrict); // you cannot delete an Address if it's referenced as a PrimaryAdressId by any Koper.
+            .OnDelete(DeleteBehavior.Restrict);
+        // you cannot delete an Address if it's referenced as a PrimaryAdressId by any Koper.
 
         // Koper -> Orders (Restrict Delete)
         modelBuilder
@@ -140,7 +147,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(k => k.Adress)
             .WithMany()
             .HasForeignKey(k => k.AdressId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
 
         // Kweker -> Products (Restrict Delete)
         modelBuilder

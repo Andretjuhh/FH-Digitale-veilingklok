@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251221030622_InitialCreate")]
+    [Migration("20251221140833_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -97,6 +97,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(2)")
                         .HasColumnName("country");
 
+                    b.Property<Guid?>("KoperId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("PostalCode")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -118,6 +121,8 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("KoperId");
 
                     b.ToTable("Adresses");
                 });
@@ -453,7 +458,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasBaseType("Domain.Entities.Account");
 
-                    b.Property<int>("AdressId")
+                    b.Property<int?>("AdressId")
                         .HasColumnType("int")
                         .HasColumnName("adress_id");
 
@@ -523,11 +528,15 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Address", b =>
                 {
+                    b.HasOne("Domain.Entities.Account", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.Koper", null)
                         .WithMany("Adresses")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("KoperId");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
@@ -617,8 +626,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Address", "Adress")
                         .WithMany()
                         .HasForeignKey("AdressId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.Entities.Account", null)
                         .WithOne()

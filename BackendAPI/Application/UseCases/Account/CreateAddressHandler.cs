@@ -41,7 +41,7 @@ public sealed class CreateAddressHandler : IRequestHandler<CreateAddressCommand,
                 dto.RegionOrState,
                 dto.PostalCode,
                 dto.Country,
-                koper.Id.ToString()
+                koper.Id
             );
 
             koper.AddNewAdress(newAddress, false);

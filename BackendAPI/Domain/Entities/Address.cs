@@ -64,7 +64,7 @@ public class Address
         string regionOrState,
         string postalCode,
         string country,
-        string accountId
+        Guid accountId
     )
     {
         Street = street;
@@ -72,7 +72,7 @@ public class Address
         RegionOrState = regionOrState;
         PostalCode = postalCode;
         Country = country;
-        AccountId = Guid.Parse(accountId);
+        AccountId = accountId;
     }
 
     public void UpdateAddress(

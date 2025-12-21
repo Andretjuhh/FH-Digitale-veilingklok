@@ -9,6 +9,7 @@ using Infrastructure.MicroServices.Security;
 using Infrastructure.MicroServices.Security.Configurations;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Repositories;
+using Infrastructure.Persistence.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,9 @@ public static class DependencyInjection
         // Get app.json configurations
         services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // Test Data Seeder for Development
+        services.AddScoped<ITestDataSeeder, TestDataSeeder>();
 
         // Dependency Injection for Infrastructure Repositories & Microservices
         services.AddRepositories();
