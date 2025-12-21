@@ -1,5 +1,4 @@
 ﻿namespace API.Extensions;
-
 using Microsoft.OpenApi.Models;
 
 public static class SwaggerExtension
@@ -15,7 +14,7 @@ public static class SwaggerExtension
                 {
                     Title = "VeilingKlok API",
                     Version = "v1",
-                    Description = "Auction Clock API with JWT Authentication",
+                    Description = "Auction Clock API with JWT Authentication"
                 }
             );
 
@@ -25,12 +24,11 @@ public static class SwaggerExtension
                 new OpenApiSecurityScheme
                 {
                     Description =
-                        "JWT Authorization header using the Bearer scheme. Just enter your token below (no need to add 'Bearer' prefix).",
+                        "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below. Example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
                 }
             );
 
@@ -43,11 +41,11 @@ public static class SwaggerExtension
                             Reference = new OpenApiReference
                             {
                                 Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer",
-                            },
+                                Id = "Bearer"
+                            }
                         },
                         Array.Empty<string>()
-                    },
+                    }
                 }
             );
         });
