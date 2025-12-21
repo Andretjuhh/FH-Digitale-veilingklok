@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/account")]
 public class AccountController : ControllerBase
@@ -21,7 +22,6 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet("country/region")]
-    [Authorize]
     public async Task<IActionResult> GetRegions()
     {
         var command = new GetRegionsCommand("Netherlands");
@@ -30,6 +30,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] RequestLoginDTO loginRequest)
     {
         var command = new LoginAccountCommand(loginRequest);
@@ -38,7 +39,6 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet("info")]
-    [Authorize]
     public async Task<IActionResult> GetAccountInfo()
     {
         var (accountId, accountType) = GetUserClaim.GetInfo(User);
@@ -49,7 +49,6 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet("logout")]
-    [Authorize]
     public async Task<IActionResult> Logout()
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);
@@ -59,6 +58,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet("reauthenticate")]
+    [AllowAnonymous]
     public async Task<IActionResult> Reauthenticate()
     {
         var command = new ReauthenticateTokenCommand();
@@ -67,7 +67,6 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet("revoke-devices")]
-    [Authorize]
     public async Task<IActionResult> RevokeDevices()
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);

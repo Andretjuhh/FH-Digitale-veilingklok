@@ -8,10 +8,12 @@ using Application.UseCases.Product;
 using Application.UseCases.VeilingKlok;
 using Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+[Authorize(Roles = nameof(AccountType.Koper))]
 [ApiController]
 [Route("api/account/koper")]
 public class KoperController : ControllerBase
@@ -24,6 +26,7 @@ public class KoperController : ControllerBase
     }
 
     [HttpPost("create")]
+    [AllowAnonymous]
     public async Task<IActionResult> CreateAccount([FromBody] CreateKoperDTO account)
     {
         var command = new CreateKoperCommand(account);

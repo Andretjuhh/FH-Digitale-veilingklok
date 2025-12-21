@@ -8,10 +8,12 @@ using Application.UseCases.Product;
 using Application.UseCases.VeilingKlok;
 using Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+[Authorize(Roles = nameof(AccountType.Veilingmeester))]
 [ApiController]
 [Route("api/account/meester")]
 public class MeesterController : ControllerBase
@@ -24,6 +26,7 @@ public class MeesterController : ControllerBase
     }
 
     [HttpPost("create")]
+    [AllowAnonymous]
     public async Task<IActionResult> CreateMeesterAccount([FromBody] CreateMeesterDTO account)
     {
         var command = new CreateMeesterCommand(account);
@@ -103,6 +106,20 @@ public class MeesterController : ControllerBase
             result,
             "Product price updated successfully"
         );
+    }
+
+    [HttpGet("products")]
+    public async Task<IActionResult> GetProducts(
+        [FromQuery] string? nameFilter,
+        [FromQuery] decimal? maxPrice,
+        [FromQuery] Guid? kwekerId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        var query = new GetProductsQuery(nameFilter, maxPrice, kwekerId, pageNumber, pageSize);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }
 
     [HttpPost("veilingklok/{klokId}/start/{productId}")]

@@ -8,10 +8,12 @@ using Application.UseCases.Product;
 using Application.UseCases.VeilingKlok;
 using Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+[Authorize(Roles = nameof(AccountType.Kweker))]
 [ApiController]
 [Route("api/account/kweker")]
 public class KwekerController : ControllerBase
@@ -24,6 +26,7 @@ public class KwekerController : ControllerBase
     }
 
     [HttpPost("create")]
+    [AllowAnonymous]
     public async Task<IActionResult> CreateAccount([FromBody] CreateKwekerDTO account)
     {
         var command = new CreateKwekerCommand(account);
@@ -111,6 +114,20 @@ public class KwekerController : ControllerBase
         var command = new UpdateProductCommand(productId, product, kwekerId);
         var result = await _mediator.Send(command);
         return HttpSuccess<ProductDetailsOutputDto>.Ok(result, "Product updated successfully");
+    }
+
+    [HttpGet("products")]
+    public async Task<IActionResult> GetProducts(
+        [FromQuery] string? nameFilter,
+        [FromQuery] decimal? maxPrice,
+        [FromQuery] Guid? kwekerId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        var query = new GetProductsQuery(nameFilter, maxPrice, kwekerId, pageNumber, pageSize);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }
 
     [HttpGet("veilingklok/{klokId}")]
