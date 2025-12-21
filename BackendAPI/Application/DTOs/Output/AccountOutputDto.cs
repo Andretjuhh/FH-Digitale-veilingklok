@@ -19,7 +19,6 @@ public class AccountOutputDto
     // Veilingmeester specific
     public string? CountryCode { get; set; }
     public string? Region { get; set; }
-    public string? AuthorisatieCode { get; set; }
 
     // Address (Primary for Koper, Main for Kweker)
     public AddressOutputDto? Address { get; set; }

@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using API.Extensions;
 using Application;
 using Infrastructure;

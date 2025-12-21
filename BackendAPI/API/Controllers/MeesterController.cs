@@ -1,4 +1,5 @@
 ﻿using API.Models;
+using API.Utils;
 using Application.DTOs.Input;
 using Application.DTOs.Output;
 using Application.UseCases.Account;
@@ -24,5 +25,14 @@ public class MeesterController : ControllerBase
         var command = new CreateMeesterCommand(account);
         var result = await _mediator.Send(command);
         return HttpSuccess<AuthOutputDto>.Ok(result, "Meester account created successfully");
+    }
+
+    [HttpPut("update")]
+    public async Task<IActionResult> UpdateMeesterAccount([FromBody] UpdateVeilingMeesterDTO account)
+    {
+        var (accountId, _) = GetUserClaim.GetInfo(User);
+        var command = new UpdateVeilingmeesterCommand(accountId, account);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<AccountOutputDto>.Ok(result, "Meester account updated successfully");
     }
 }

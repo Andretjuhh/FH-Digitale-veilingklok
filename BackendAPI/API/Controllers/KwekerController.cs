@@ -1,4 +1,5 @@
 ﻿using API.Models;
+using API.Utils;
 using Application.DTOs.Input;
 using Application.DTOs.Output;
 using Application.UseCases.Account;
@@ -24,5 +25,14 @@ public class KwekerController : ControllerBase
         var command = new CreateKwekerCommand(account);
         var result = await _mediator.Send(command);
         return HttpSuccess<AuthOutputDto>.Ok(result, "Kweker account created successfully");
+    }
+
+    [HttpPut("update")]
+    public async Task<IActionResult> UpdateAccount([FromBody] UpdateKwekerDTO account)
+    {
+        var (accountId, _) = GetUserClaim.GetInfo(User);
+        var command = new UpdateKwekerCommand(accountId, account);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<AccountOutputDto>.Ok(result, "Kweker account updated successfully");
     }
 }
