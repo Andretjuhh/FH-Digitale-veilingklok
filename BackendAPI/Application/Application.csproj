@@ -8,6 +8,7 @@
 	<ItemGroup>
 		<PackageReference Include="MediatR" Version="14.0.0"/>
 		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0"/>
+		<PackageReference Include="Qowaiv.Validation.DataAnnotations" Version="4.0.2"/>
 	</ItemGroup>
 
 	<ItemGroup>

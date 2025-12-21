@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Qowaiv.Validation.DataAnnotations;
 
 namespace Application.DTOs.Input;
 
@@ -8,6 +9,7 @@ namespace Application.DTOs.Input;
 public class CreateVeilingKlokDTO
 {
     [Required(ErrorMessage = "VEILINGKLOK.SCHEDULED_TIME_REQUIRED")]
+    [InFuture(ErrorMessage = "VEILINGKLOK.SCHEDULED_TIME_INVALID")]
     public DateTimeOffset ScheduledAt { get; set; }
 
     [Required(ErrorMessage = "VEILINGKLOK.DURATION_REQUIRED")]
@@ -15,8 +17,6 @@ public class CreateVeilingKlokDTO
     public int VeilingDurationMinutes { get; set; }
 
     [Required(ErrorMessage = "VEILINGKLOK.PRODUCTS_REQUIRED")]
-
-    // ProductId mapped with price
     [MinLength(1, ErrorMessage = "VEILINGKLOK.AT_LEAST_ONE_PRODUCT_REQUIRED")]
-    public Dictionary<Guid, decimal> Products { get; set; }
+    public Dictionary<Guid, decimal> Products { get; set; } = new();
 }

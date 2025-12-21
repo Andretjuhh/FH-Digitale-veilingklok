@@ -53,9 +53,12 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
+        // Disable error WARNING CS4014 
+#pragma warning disable CS4014
         // Stop all veiling klok activities and clean up timers
         foreach (var veilingKlok in _activeVeilingClocks)
             StopVeilingAsync(veilingKlok.Key);
+#pragma warning  restore CS4014
 
         // Dispose all timers
         foreach (var timer in _clockTimers.Values)

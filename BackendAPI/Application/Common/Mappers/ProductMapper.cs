@@ -78,7 +78,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                 Stock = entity.Stock,
                 ImageUrl = entity.ImageUrl,
                 Dimension = entity.Dimension,
-                CompanyName = entity.CompanyName,
+                CompanyName = kweker.CompanyName,
             };
         }
     }

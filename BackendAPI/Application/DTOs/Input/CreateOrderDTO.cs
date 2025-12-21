@@ -4,5 +4,5 @@ namespace Application.DTOs.Input;
 
 public class CreateOrderDTO
 {
-    [Required] public Guid KoperId { get; set; }
+    [Required] public Guid VeilingKlokId { get; set; }
 }

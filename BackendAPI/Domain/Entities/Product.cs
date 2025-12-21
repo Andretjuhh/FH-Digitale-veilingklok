@@ -54,8 +54,6 @@ public class Product
 
     [NotMapped] public bool Auctioned => AuctionedCount > 0;
 
-    [NotMapped] public string CompanyName { get; init; }
-
     private Product()
     {
     }

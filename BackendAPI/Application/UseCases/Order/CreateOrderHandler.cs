@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Application.UseCases.Order;
 
-public sealed record CreateOrderCommand(CreateOrderDTO Payload, Guid VeilingKlokId)
+public sealed record CreateOrderCommand(Guid KoperId, CreateOrderDTO Payload)
     : IRequest<OrderOutputDto>;
 
 public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, OrderOutputDto>
@@ -38,7 +38,7 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
         {
             var dto = request.Payload;
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
-            var veilingKlok = await _veilingKlokRepository.GetByIdAsync(request.VeilingKlokId) ??
+            var veilingKlok = await _veilingKlokRepository.GetByIdAsync(dto.VeilingKlokId) ??
                               throw RepositoryException.NotFoundVeilingKlok();
 
             // Only allow orders when the auction clock is started
@@ -46,7 +46,7 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
                 throw CustomException.InvalidVeilingKlokStatus();
 
             // Create order for an clock to start auctioning products
-            var order = new Domain.Entities.Order(dto.KoperId) { VeilingKlokId = veilingKlok.Id };
+            var order = new Domain.Entities.Order(request.KoperId) { VeilingKlokId = veilingKlok.Id };
 
             await _orderRepository.AddAsync(order);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

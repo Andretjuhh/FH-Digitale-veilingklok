@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Application.Common.Attributes;
 
 namespace Application.DTOs.Input;
 
@@ -15,11 +16,11 @@ public class CreateKoperDTO
     public required string Password { get; set; }
 
     [Required(ErrorMessage = "ACCOUNT.FIRSTNAME_REQUIRED")]
-    [MaxLength(100)]
+    [Name]
     public required string FirstName { get; set; }
 
     [Required(ErrorMessage = "ACCOUNT.LASTNAME_REQUIRED")]
-    [MaxLength(100)]
+    [Name]
     public required string LastName { get; set; }
 
     [Required(ErrorMessage = "ACCOUNT.TELEPHONE_REQUIRED")]

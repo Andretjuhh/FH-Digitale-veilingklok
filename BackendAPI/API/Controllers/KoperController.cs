@@ -59,12 +59,10 @@ public class KoperController : ControllerBase
     }
 
     [HttpPost("order")]
-    public async Task<IActionResult> CreateOrder(
-        [FromBody] CreateOrderDTO order,
-        [FromQuery] Guid veilingKlokId
-    )
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDTO order)
     {
-        var command = new CreateOrderCommand(order, veilingKlokId);
+        var (accountId, _) = GetUserClaim.GetInfo(User);
+        var command = new CreateOrderCommand(accountId, order);
         var result = await _mediator.Send(command);
         return HttpSuccess<OrderOutputDto>.Created(result, "Order created successfully");
     }
@@ -118,6 +116,20 @@ public class KoperController : ControllerBase
         var command = new GetProductCommand(productId);
         var result = await _mediator.Send(command);
         return HttpSuccess<ProductOutputDto>.Ok(result);
+    }
+
+    [HttpGet("products")]
+    public async Task<IActionResult> GetProducts(
+        [FromQuery] string? nameFilter,
+        [FromQuery] decimal? maxPrice,
+        [FromQuery] Guid? kwekerId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        var query = new GetProductsQuery(nameFilter, maxPrice, kwekerId, pageNumber, pageSize);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }
 
     [HttpGet("veilingklok/{klokId}")]
