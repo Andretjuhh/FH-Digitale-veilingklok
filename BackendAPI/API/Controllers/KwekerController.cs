@@ -63,7 +63,7 @@ public class KwekerController : ControllerBase
         return HttpSuccess<string>.NoContent("Order status updated successfully");
     }
 
-    [HttpPost("product")]
+    [HttpPost("create-product")]
     public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO product)
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);

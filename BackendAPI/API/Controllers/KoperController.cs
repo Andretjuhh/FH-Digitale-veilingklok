@@ -61,7 +61,7 @@ public class KoperController : ControllerBase
         return HttpSuccess<AddressOutputDto>.Ok(result, "Primary address updated successfully");
     }
 
-    [HttpPost("order")]
+    [HttpPost("create-order")]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDTO order)
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);
