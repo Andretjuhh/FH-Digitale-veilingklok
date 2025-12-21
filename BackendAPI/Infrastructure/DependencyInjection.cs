@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Application.Common.Exceptions;
 using Application.Repositories;
 using Application.Services;
@@ -23,11 +24,11 @@ public static class DependencyInjection
     {
         // This makes HttpContext available throughout your application's request pipeline.
         services.AddHttpContextAccessor();
+        services.AddAuthenticationSecurity(configuration);
 
         // Get app.json configurations
         services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        services.AddAuthenticationSecurity(configuration);
 
         // Dependency Injection for Infrastructure Repositories & Microservices
         services.AddRepositories();
@@ -37,7 +38,9 @@ public static class DependencyInjection
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly("Infrastructure"))); // This is crucial!
+                b => b.MigrationsAssembly("Infrastructure")
+            )
+        ); // This is crucial!
         return services;
     }
 }

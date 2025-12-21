@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Models;
 
@@ -23,12 +25,18 @@ public class HttpSuccess<T> : IActionResult
             StatusCode = StatusCode,
             Message = Message,
             Data = Data,
-            Timestamp = Timestamp
+            Timestamp = Timestamp,
+        };
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Converters = { new JsonStringEnumConverter() },
         };
 
         context.HttpContext.Response.StatusCode = StatusCode;
         context.HttpContext.Response.ContentType = "application/json";
-        await context.HttpContext.Response.WriteAsJsonAsync(response);
+        await context.HttpContext.Response.WriteAsJsonAsync(response, options);
     }
 
     // Private builder methods
@@ -59,10 +67,7 @@ public class HttpSuccess<T> : IActionResult
             .WithData(data);
     }
 
-    public static HttpSuccess<T> Created(
-        T data,
-        string message = "Resource created successfully"
-    )
+    public static HttpSuccess<T> Created(T data, string message = "Resource created successfully")
     {
         return new HttpSuccess<T>()
             .WithStatusCode(StatusCodes.Status201Created)

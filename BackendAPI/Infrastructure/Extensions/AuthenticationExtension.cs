@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using Application.Common.Exceptions;
 using Application.Services;
 using Infrastructure.MicroServices.Security;
@@ -23,7 +24,6 @@ public static class AuthenticationExtension
             ?? throw CustomException.MissingJwtConfiguration();
 
         services.Configure<JwtConfiguration>(configuration.GetSection(JwtConfiguration.Key));
-        services.AddScoped<ITokenService, TokenService>();
 
         services
             .AddAuthentication(options =>
@@ -35,7 +35,7 @@ public static class AuthenticationExtension
             {
                 // Store in HttpContext for later retrieval
                 options.SaveToken = true;
-
+                options.RequireHttpsMetadata = false; // Set to true in production
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     // This is where the framework reads the configuration to validate tokens
@@ -53,6 +53,7 @@ public static class AuthenticationExtension
                 };
             });
 
+        services.AddScoped<ITokenService, TokenService>();
         services.AddAuthorization();
         return services;
     }

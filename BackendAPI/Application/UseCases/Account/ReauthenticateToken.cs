@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.UseCases.Account;
 
-public sealed record ReauthenticateTokenCommand(Guid UserId) : IRequest<AuthOutputDto>;
+public sealed record ReauthenticateTokenCommand() : IRequest<AuthOutputDto>;
 
 public class ReauthenticateToken : IRequestHandler<ReauthenticateTokenCommand, AuthOutputDto>
 {
@@ -28,19 +28,20 @@ public class ReauthenticateToken : IRequestHandler<ReauthenticateTokenCommand, A
         _refreshTokenRepository = refreshTokenRepository;
     }
 
-    public async Task<AuthOutputDto> Handle(ReauthenticateTokenCommand request, CancellationToken cancellationToken)
+    public async Task<AuthOutputDto> Handle(
+        ReauthenticateTokenCommand request,
+        CancellationToken cancellationToken
+    )
     {
         try
         {
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
-            var account = await _userRepository.GetByIdAsync(request.UserId)
-                          ?? throw RepositoryException.ExistingAccount();
 
-            if (!Guid.TryParse(_tokenService.GetContextRefreshToken(), out var refreshTokenGuid))
-                throw CustomException.InvalidCredentials();
+            // Get refresh token from cookie
+            var cookie = _tokenService.GetContextRefreshToken() ?? throw CustomException.InvalidCredentials();
 
             // Validate refresh token
-            var refreshToken = await _refreshTokenRepository.GetById(refreshTokenGuid);
+            var refreshToken = await _refreshTokenRepository.GetById(cookie);
             if (refreshToken == null || refreshToken.IsExpired || !refreshToken.IsActive)
             {
                 _tokenService.ClearCookies();
@@ -48,6 +49,11 @@ public class ReauthenticateToken : IRequestHandler<ReauthenticateTokenCommand, A
                     await _refreshTokenRepository.DeleteAsync(refreshToken);
                 throw CustomException.InvalidCredentials();
             }
+
+            // Get account from the refresh token's AccountId
+            var account =
+                await _userRepository.GetByIdAsync(refreshToken.AccountId)
+                ?? throw RepositoryException.ExistingAccount();
 
             // Generate new tokens
             var (accessToken, jti, expireAt) = _tokenService.GenerateAccessToken(account);

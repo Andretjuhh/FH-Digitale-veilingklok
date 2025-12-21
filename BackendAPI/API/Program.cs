@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using API.Extensions;
 using Application;
 using Infrastructure;
@@ -6,11 +7,11 @@ using Infrastructure.Microservices.SignalR.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddControllers();
 builder.Services.AddRouting();
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddProblemsExtension();
 builder.Services.AddCors(options =>
 {
@@ -33,10 +34,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Floriday V1 API");
-    });
+    app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Floriday V1 API"); });
 }
 
 // Only redirect to HTTPS in production environments
@@ -86,6 +84,7 @@ app.MapGet(
         }
     )
     .ExcludeFromDescription(); // Exclude this endpoint from the Swagger documentation
+
 #endregion
 
 app.Run();

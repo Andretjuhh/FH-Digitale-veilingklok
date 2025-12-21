@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Diagnostics;
+using System.Security.Claims;
 using Application.Common.Exceptions;
 using Domain.Enums;
 
@@ -10,6 +11,8 @@ public sealed class GetUserClaim
     {
         var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var userRole = user.FindFirst(ClaimTypes.Role)?.Value;
+
+        Console.WriteLine($"UserId: {userId}, UserRole: {userRole}  is null = {user.Claims.ToList().Count}");
 
         if (string.IsNullOrEmpty(userId) ||
             !Guid.TryParse(userId, out var accountId) ||

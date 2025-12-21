@@ -46,7 +46,6 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> Logout()
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);
-
         var command = new LogoutAccountCommand(accountId);
         await _mediator.Send(command);
         return HttpSuccess<string>.NoContent("Logout successful");
@@ -55,14 +54,13 @@ public class AccountController : ControllerBase
     [HttpGet("reauthenticate")]
     public async Task<IActionResult> Reauthenticate()
     {
-        var (accountId, _) = GetUserClaim.GetInfo(User);
-
-        var command = new ReauthenticateTokenCommand(accountId);
+        var command = new ReauthenticateTokenCommand();
         var result = await _mediator.Send(command);
         return HttpSuccess<AuthOutputDto>.Ok(result, "Reauthentication successful");
     }
 
     [HttpGet("revoke-devices")]
+    [Authorize]
     public async Task<IActionResult> RevokeDevices()
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);

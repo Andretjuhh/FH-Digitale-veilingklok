@@ -14,14 +14,14 @@ public class RefreshTokenRepository : IRefreshTokenRepository
         _dbContext = dbContext;
     }
 
-    public async Task<RefreshToken?> GetById(Guid refreshTokenId)
-    {
-        return await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.Jti == refreshTokenId);
-    }
-
-    public async Task<RefreshToken?> GetByJtiAsync(string token)
+    public async Task<RefreshToken?> GetById(string token)
     {
         return await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token);
+    }
+
+    public async Task<RefreshToken?> GetByJtiAsync(Guid jti)
+    {
+        return await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.Jti == jti);
     }
 
     public async Task AddAsync(RefreshToken refreshToken)

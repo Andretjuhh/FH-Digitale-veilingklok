@@ -4,8 +4,8 @@ namespace Application.Repositories;
 
 public interface IRefreshTokenRepository
 {
-    Task<RefreshToken?> GetById(Guid refreshTokenId);
-    Task<RefreshToken?> GetByJtiAsync(string token);
+    Task<RefreshToken?> GetById(string token);
+    Task<RefreshToken?> GetByJtiAsync(Guid jti);
     Task AddAsync(RefreshToken refreshToken);
     Task UpdateAsync(RefreshToken refreshToken);
     Task DeleteAsync(RefreshToken refreshToken);

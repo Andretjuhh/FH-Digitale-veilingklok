@@ -25,4 +25,12 @@ public class KoperController : ControllerBase
         var result = await _mediator.Send(command);
         return HttpSuccess<AuthOutputDto>.Ok(result, "Koper account created successfully");
     }
+
+    // [HttpPut("update")]
+    // public async Task<IActionResult> UpdateAccount([FromBody] UpdateKoperDTO account)
+    // {
+    //     var command = new UpdateKoperCommand(account);
+    //     var result = await _mediator.Send(command);
+    //     return HttpSuccess<AuthOutputDto>.Ok(result, "Koper account updated successfully");
+    // }
 }
