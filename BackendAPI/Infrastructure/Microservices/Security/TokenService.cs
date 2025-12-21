@@ -103,9 +103,7 @@ public class TokenService : ITokenService
         {
             new(ClaimTypes.NameIdentifier, account.Id.ToString()),
             new(ClaimTypes.Email, account.Email),
-            new(ClaimTypes.Role,
-                account.AccountType
-                    .ToString()), // AccountType as string name (e.g., "Koper", "Kweker", "Veilingmeester")
+            new(ClaimTypes.Role, account.AccountType.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Token ID
         };
 

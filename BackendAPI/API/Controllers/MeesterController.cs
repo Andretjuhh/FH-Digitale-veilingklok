@@ -3,6 +3,10 @@ using API.Utils;
 using Application.DTOs.Input;
 using Application.DTOs.Output;
 using Application.UseCases.Account;
+using Application.UseCases.Order;
+using Application.UseCases.Product;
+using Application.UseCases.VeilingKlok;
+using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,11 +32,94 @@ public class MeesterController : ControllerBase
     }
 
     [HttpPut("update")]
-    public async Task<IActionResult> UpdateMeesterAccount([FromBody] UpdateVeilingMeesterDTO account)
+    public async Task<IActionResult> UpdateMeesterAccount(
+        [FromBody] UpdateVeilingMeesterDTO account
+    )
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);
         var command = new UpdateVeilingmeesterCommand(accountId, account);
         var result = await _mediator.Send(command);
         return HttpSuccess<AccountOutputDto>.Ok(result, "Meester account updated successfully");
+    }
+
+    [HttpPut("order/{orderId}/product/{productItemId}")]
+    public async Task<IActionResult> UpdateOrderProduct(
+        Guid orderId,
+        Guid productItemId,
+        [FromQuery] int quantity
+    )
+    {
+        var command = new UpdateOrderProductCommand(orderId, productItemId, quantity);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<OrderOutputDto>.Ok(result, "Order product updated successfully");
+    }
+
+    [HttpPut("order/{orderId}/status")]
+    public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromQuery] OrderStatus status)
+    {
+        var command = new UpdateOrderStatusCommand(orderId, status);
+        await _mediator.Send(command);
+        return HttpSuccess.Ok("Order status updated successfully");
+    }
+
+    [HttpPost("veilingklok")]
+    public async Task<IActionResult> CreateVeilingKlok([FromBody] CreateVeilingKlokDTO veiling)
+    {
+        var (meesterId, _) = GetUserClaim.GetInfo(User);
+        var command = new CreateVeilingKlokCommand(veiling, meesterId);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<VeilingKlokDetailsOutputDto>.Ok(
+            result,
+            "VeilingKlok created successfully"
+        );
+    }
+
+    [HttpGet("veilingklok/{klokId}")]
+    public async Task<IActionResult> GetVeilingKlok(Guid klokId)
+    {
+        var command = new GetVeilingKlokCommand(klokId);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<VeilingKlokOutputDto>.Ok(result);
+    }
+
+    [HttpGet("product/{productId}/details")]
+    public async Task<IActionResult> GetProductDetails(Guid productId)
+    {
+        var command = new GetProductDetailsCommand(productId);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<ProductDetailsOutputDto>.Ok(result);
+    }
+
+    [HttpPut("product/{productId}/price")]
+    public async Task<IActionResult> UpdateProductPrice(
+        Guid productId,
+        [FromBody] UpdateProductDTO product
+    )
+    {
+        var command = new UpdateProductCommand(productId, product);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<ProductDetailsOutputDto>.Ok(
+            result,
+            "Product price updated successfully"
+        );
+    }
+
+    [HttpPost("veilingklok/{klokId}/start/{productId}")]
+    public async Task<IActionResult> StartVeilingProduct(Guid klokId, Guid productId)
+    {
+        var command = new StartVeilingProductCommand(klokId, productId);
+        await _mediator.Send(command);
+        return HttpSuccess.Ok("Veiling product started successfully");
+    }
+
+    [HttpPut("veilingklok/{klokId}/status")]
+    public async Task<IActionResult> UpdateVeilingKlokStatus(
+        Guid klokId,
+        [FromQuery] VeilingKlokStatus status
+    )
+    {
+        var command = new UpdateVeilingKlokStatusCommand(klokId, status);
+        await _mediator.Send(command);
+        return HttpSuccess.Ok("VeilingKlok status updated successfully");
     }
 }

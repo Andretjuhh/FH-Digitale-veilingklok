@@ -1,10 +1,8 @@
-﻿using System.Security.Claims;
-using API.Models;
+﻿using API.Models;
 using API.Utils;
 using Application.DTOs.Input;
 using Application.DTOs.Output;
 using Application.UseCases.Account;
-using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +18,15 @@ public class AccountController : ControllerBase
     public AccountController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    [HttpGet("country/region")]
+    [Authorize]
+    public async Task<IActionResult> GetRegions()
+    {
+        var command = new GetRegionsCommand("Netherlands");
+        var result = await _mediator.Send(command);
+        return HttpSuccess<List<string>>.Ok(result, "Regions retrieved successfully");
     }
 
     [HttpPost("login")]
