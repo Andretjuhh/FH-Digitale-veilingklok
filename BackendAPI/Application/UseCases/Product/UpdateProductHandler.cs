@@ -11,7 +11,7 @@ namespace Application.UseCases.Product;
 
 public sealed record UpdateProductCommand(
     Guid ProductId,
-    UpdateKwekerProductDTO Payload,
+    UpdateProductDTO Payload,
     Guid KwekerId
 ) : IRequest<ProductDetailsOutputDto>;
 

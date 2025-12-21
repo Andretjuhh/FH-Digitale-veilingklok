@@ -57,7 +57,7 @@ public class KwekerController : ControllerBase
     {
         var command = new UpdateOrderStatusCommand(orderId, status);
         await _mediator.Send(command);
-        return HttpSuccess.Ok("Order status updated successfully");
+        return HttpSuccess<string>.NoContent("Order status updated successfully");
     }
 
     [HttpPost("product")]
@@ -107,7 +107,8 @@ public class KwekerController : ControllerBase
         [FromBody] UpdateProductDTO product
     )
     {
-        var command = new UpdateProductCommand(productId, product);
+        var (kwekerId, _) = GetUserClaim.GetInfo(User);
+        var command = new UpdateProductCommand(productId, product, kwekerId);
         var result = await _mediator.Send(command);
         return HttpSuccess<ProductDetailsOutputDto>.Ok(result, "Product updated successfully");
     }

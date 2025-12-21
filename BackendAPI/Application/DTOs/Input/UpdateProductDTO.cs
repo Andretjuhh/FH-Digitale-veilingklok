@@ -5,7 +5,7 @@ namespace Application.DTOs.Input;
 /// <summary>
 /// DTO for updating an existing Product
 /// </summary>
-public class UpdateKwekerProductDTO
+public class UpdateProductDTO
 {
     public string? Name { get; set; }
     public string? Description { get; set; }

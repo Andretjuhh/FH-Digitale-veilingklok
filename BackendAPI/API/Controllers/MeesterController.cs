@@ -59,7 +59,7 @@ public class MeesterController : ControllerBase
     {
         var command = new UpdateOrderStatusCommand(orderId, status);
         await _mediator.Send(command);
-        return HttpSuccess.Ok("Order status updated successfully");
+        return HttpSuccess<string>.NoContent("Order status updated successfully");
     }
 
     [HttpPost("veilingklok")]
@@ -68,7 +68,7 @@ public class MeesterController : ControllerBase
         var (meesterId, _) = GetUserClaim.GetInfo(User);
         var command = new CreateVeilingKlokCommand(veiling, meesterId);
         var result = await _mediator.Send(command);
-        return HttpSuccess<VeilingKlokDetailsOutputDto>.Ok(
+        return HttpSuccess<VeilingKlokDetailsOutputDto>.Created(
             result,
             "VeilingKlok created successfully"
         );
@@ -93,10 +93,11 @@ public class MeesterController : ControllerBase
     [HttpPut("product/{productId}/price")]
     public async Task<IActionResult> UpdateProductPrice(
         Guid productId,
+        [FromQuery] Guid kwekerId,
         [FromBody] UpdateProductDTO product
     )
     {
-        var command = new UpdateProductCommand(productId, product);
+        var command = new UpdateProductCommand(productId, product, kwekerId);
         var result = await _mediator.Send(command);
         return HttpSuccess<ProductDetailsOutputDto>.Ok(
             result,
@@ -109,7 +110,7 @@ public class MeesterController : ControllerBase
     {
         var command = new StartVeilingProductCommand(klokId, productId);
         await _mediator.Send(command);
-        return HttpSuccess.Ok("Veiling product started successfully");
+        return HttpSuccess<string>.NoContent("Veiling product started successfully");
     }
 
     [HttpPut("veilingklok/{klokId}/status")]
@@ -120,6 +121,6 @@ public class MeesterController : ControllerBase
     {
         var command = new UpdateVeilingKlokStatusCommand(klokId, status);
         await _mediator.Send(command);
-        return HttpSuccess.Ok("VeilingKlok status updated successfully");
+        return HttpSuccess<string>.NoContent("VeilingKlok status updated successfully");
     }
 }

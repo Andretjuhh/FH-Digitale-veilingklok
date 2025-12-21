@@ -28,7 +28,7 @@ public class KoperController : ControllerBase
     {
         var command = new CreateKoperCommand(account);
         var result = await _mediator.Send(command);
-        return HttpSuccess<AuthOutputDto>.Ok(result, "Koper account created successfully");
+        return HttpSuccess<AuthOutputDto>.Created(result, "Koper account created successfully");
     }
 
     [HttpPut("update")]
@@ -46,7 +46,7 @@ public class KoperController : ControllerBase
         var (accountId, _) = GetUserClaim.GetInfo(User);
         var command = new CreateAddressCommand(accountId, address);
         var result = await _mediator.Send(command);
-        return HttpSuccess<AddressOutputDto>.Ok(result, "Address created successfully");
+        return HttpSuccess<AddressOutputDto>.Created(result, "Address created successfully");
     }
 
     [HttpPut("address/primary/{addressId}")]
@@ -66,7 +66,7 @@ public class KoperController : ControllerBase
     {
         var command = new CreateOrderCommand(order, veilingKlokId);
         var result = await _mediator.Send(command);
-        return HttpSuccess<OrderOutputDto>.Ok(result, "Order created successfully");
+        return HttpSuccess<OrderOutputDto>.Created(result, "Order created successfully");
     }
 
     [HttpGet("order/{orderId}")]
