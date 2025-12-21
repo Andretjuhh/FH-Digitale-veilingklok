@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.DTOs.Input;
 
-public class CreateVeilingMeesterDTO
+public class CreateMeesterDTO
 {
     [Required(ErrorMessage = "ACCOUNT.EMAIL_REQUIRED")]
     [EmailAddress(ErrorMessage = "ACCOUNT.EMAIL_INVALID")]

@@ -126,7 +126,7 @@ namespace Infrastructure.Migrations
                     first_name = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
                     last_name = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
                     telephone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    primary_adress_id = table.Column<int>(type: "int", nullable: false)
+                    primary_adress_id = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {

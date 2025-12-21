@@ -48,7 +48,7 @@ public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Aut
             {
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
-                Telephone = dto.Telephone
+                Telephone = dto.Telephone,
             };
             var address = new Address(
                 dto.Address.Street,
@@ -57,8 +57,12 @@ public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Aut
                 dto.Address.PostalCode,
                 dto.Address.Country
             );
-            koper.AddNewAdress(address, true);
+            koper.AddNewAdress(address, false); // Don't set as primary yet
             await _koperRepository.AddAsync(koper);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            // Now set as primary after the address has been saved and has an ID
+            koper.SetPrimaryAdress(address);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             // Generate Tokens

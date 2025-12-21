@@ -31,8 +31,9 @@ public sealed class CreateAddressHandler : IRequestHandler<CreateAddressCommand,
         try
         {
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
-            var koper = await _koperRepository.GetKoperByIdAsync(request.AccountId) ??
-                        throw RepositoryException.NotFoundAccount();
+            var koper =
+                await _koperRepository.GetKoperByIdAsync(request.AccountId)
+                ?? throw RepositoryException.NotFoundAccount();
             var dto = request.Payload;
             var newAddress = new Address(
                 dto.Street,
@@ -43,7 +44,7 @@ public sealed class CreateAddressHandler : IRequestHandler<CreateAddressCommand,
                 koper.Id.ToString()
             );
 
-            koper.AddNewAdress(newAddress);
+            koper.AddNewAdress(newAddress, false);
             _koperRepository.Update(koper);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);

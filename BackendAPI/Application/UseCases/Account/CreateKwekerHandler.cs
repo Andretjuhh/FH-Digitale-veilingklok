@@ -44,6 +44,16 @@ public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, A
                 throw RepositoryException.ExistingAccount();
 
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            // Create address first with AccountId constructor
+            var address = new Address(
+                dto.Address.Street,
+                dto.Address.City,
+                dto.Address.RegionOrState,
+                dto.Address.PostalCode,
+                dto.Address.Country
+            );
+
             var kweker = new Kweker(dto.Email, Password.Create(dto.Password, _passwordHasher))
             {
                 CompanyName = dto.CompanyName,
@@ -51,14 +61,12 @@ public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, A
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Telephone = dto.Telephone,
-                Adress = new Address(
-                    dto.Address.Street,
-                    dto.Address.City,
-                    dto.Address.RegionOrState,
-                    dto.Address.PostalCode,
-                    dto.Address.Country
-                )
+                Adress = address,
             };
+
+            // Set the AccountId on the address using reflection to match Kweker's Id
+            typeof(Address).GetProperty(nameof(Address.AccountId))?.SetValue(address, kweker.Id);
+
             await _kwekerRepository.AddAsync(kweker);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

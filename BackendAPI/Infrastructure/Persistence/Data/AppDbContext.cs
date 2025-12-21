@@ -115,6 +115,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne<Address>()
             .WithMany()
             .HasForeignKey(k => k.PrimaryAdressId)
+            .IsRequired(false) // Make it optional so it can be null initially
             .OnDelete(DeleteBehavior.Restrict); // you cannot delete an Address if it's referenced as a PrimaryAdressId by any Koper.
 
         // Koper -> Orders (Restrict Delete)

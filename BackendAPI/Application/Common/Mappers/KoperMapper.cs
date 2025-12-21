@@ -14,8 +14,8 @@ public class KoperMapper : IBaseMapper<Koper, KoperOutputDto>
             FirstName = entity.FirstName,
             LastName = entity.LastName,
             Telephone = entity.Telephone,
-            PrimaryAddressId = entity.PrimaryAdressId,
-            Addresses = entity.Adresses.AsQueryable().Select(AddressMapper.EntityDto).ToList(),
+            PrimaryAddressId = entity.PrimaryAdressId ?? 0,
+            Addresses = entity.Adresses.AsQueryable().Select(AddressMapper.EntityDto).ToList()
         };
 
     public static KoperOutputDto ToOutputDto(Koper entity)
@@ -26,8 +26,8 @@ public class KoperMapper : IBaseMapper<Koper, KoperOutputDto>
             FirstName = entity.FirstName,
             LastName = entity.LastName,
             Telephone = entity.Telephone,
-            PrimaryAddressId = entity.PrimaryAdressId,
-            Addresses = entity.Adresses.Select(AddressMapper.ToOutputDto).ToList(),
+            PrimaryAddressId = entity.PrimaryAdressId ?? 0,
+            Addresses = entity.Adresses.Select(AddressMapper.ToOutputDto).ToList()
         };
     }
 }

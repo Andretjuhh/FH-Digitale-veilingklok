@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251220225307_InitialCreate")]
+    [Migration("20251221030622_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -434,7 +434,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(60)")
                         .HasColumnName("last_name");
 
-                    b.Property<int>("PrimaryAdressId")
+                    b.Property<int?>("PrimaryAdressId")
                         .HasColumnType("int")
                         .HasColumnName("primary_adress_id");
 
@@ -609,8 +609,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Address", null)
                         .WithMany()
                         .HasForeignKey("PrimaryAdressId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Domain.Entities.Kweker", b =>

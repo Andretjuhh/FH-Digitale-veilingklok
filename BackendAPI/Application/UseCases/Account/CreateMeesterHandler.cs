@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Application.UseCases.Account;
 
-public sealed record CreateMeesterCommand(CreateVeilingMeesterDTO Payload)
+public sealed record CreateMeesterCommand(CreateMeesterDTO Payload)
     : IRequest<AuthOutputDto>;
 
 public sealed class CreateMeesterHandler : IRequestHandler<CreateMeesterCommand, AuthOutputDto>

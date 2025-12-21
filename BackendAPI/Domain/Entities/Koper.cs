@@ -24,7 +24,7 @@ namespace Domain.Entities
 
         // Koper Primary Adress  One-to-One Relationship
         [Column("primary_adress_id")]
-        public int PrimaryAdressId { get; private set; }
+        public int? PrimaryAdressId { get; private set; }
 
         // Adress Relationshiop  User have many Delivery Adresses
         private readonly List<Address> IAdresses = new List<Address>();
@@ -44,6 +44,9 @@ namespace Domain.Entities
             // User can have max 5 adresses
             if (IAdresses.Count >= 5)
                 throw AccountValidationException.AdressMaximum();
+
+            // Set the AccountId on the address to establish the relationship
+            typeof(Address).GetProperty(nameof(Address.AccountId))?.SetValue(newAdress, this.Id);
 
             IAdresses.Add(newAdress);
             if (makePrimary)

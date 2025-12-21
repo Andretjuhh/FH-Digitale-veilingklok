@@ -431,7 +431,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(60)")
                         .HasColumnName("last_name");
 
-                    b.Property<int>("PrimaryAdressId")
+                    b.Property<int?>("PrimaryAdressId")
                         .HasColumnType("int")
                         .HasColumnName("primary_adress_id");
 
@@ -606,8 +606,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Address", null)
                         .WithMany()
                         .HasForeignKey("PrimaryAdressId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Domain.Entities.Kweker", b =>
