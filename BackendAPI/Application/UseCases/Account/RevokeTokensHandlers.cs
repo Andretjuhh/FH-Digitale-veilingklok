@@ -11,11 +11,13 @@ public sealed class RevokeTokensHandler : IRequestHandler<RevokeTokensCommand>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserRepository _userRepository;
+    private readonly ITokenService _tokenService;
 
-    public RevokeTokensHandler(IUnitOfWork unitOfWork, IUserRepository userRepository)
+    public RevokeTokensHandler(IUnitOfWork unitOfWork, IUserRepository userRepository, ITokenService tokenService)
     {
         _unitOfWork = unitOfWork;
         _userRepository = userRepository;
+        _tokenService = tokenService;
     }
 
     public async Task Handle(RevokeTokensCommand request, CancellationToken cancellationToken)
@@ -29,6 +31,9 @@ public sealed class RevokeTokensHandler : IRequestHandler<RevokeTokensCommand>
 
             // Logic to revoke all tokens for the account
             account.RevokeAllRefreshTokens();
+
+            // Clear tokens from client side if necessary
+            _tokenService.ClearCookies();
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);

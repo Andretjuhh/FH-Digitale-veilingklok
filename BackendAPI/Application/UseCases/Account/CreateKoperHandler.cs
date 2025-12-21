@@ -62,7 +62,7 @@ public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Aut
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             // Generate Tokens
-            var token = _tokenService.GenerateAuthenticationTokens(koper);
+            var (token, _) = _tokenService.GenerateAuthenticationTokens(koper);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
             return token;

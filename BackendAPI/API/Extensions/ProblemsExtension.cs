@@ -4,6 +4,7 @@ using Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 
 namespace API.Extensions;
 
@@ -47,10 +48,14 @@ public static class ProblemsExtension
     internal class ProblemExceptionHandler : IExceptionHandler
     {
         private readonly IProblemDetailsService _problemDetailsService;
+        private readonly ILogger<ProblemExceptionHandler> _logger;
 
-        public ProblemExceptionHandler(IProblemDetailsService problemDetailsService)
+        public ProblemExceptionHandler(
+            IProblemDetailsService problemDetailsService,
+            ILogger<ProblemExceptionHandler> logger)
         {
             _problemDetailsService = problemDetailsService;
+            _logger = logger;
         }
 
         public async ValueTask<bool> TryHandleAsync(
@@ -61,23 +66,25 @@ public static class ProblemsExtension
         {
             HttpError errorResponse;
 
+            // Pattern matching automatically catches all derived classes
             switch (exception)
             {
                 case ProcessException processException:
+                    // This catches CustomException, NotFoundException, and any other ProcessException derived class
                     errorResponse = HttpError.Custom(
                         processException.StatusCode,
                         processException.MessageCode,
-                        processException.Message ?? "Process error occurred"
+                        processException.MessageCode
                     );
                     break;
 
                 case DomainException domainException:
-                    errorResponse = HttpError.BadRequest(
-                        domainException.Message ?? domainException.ErrorCode
-                    );
+                    // This catches all DomainException derived classes
+                    errorResponse = HttpError.BadRequest(domainException.ErrorCode);
                     break;
 
                 default:
+                    _logger.LogError(exception, "Unhandled exception occurred");
                     errorResponse = HttpError.InternalServerError("An unexpected error occurred");
                     break;
             }

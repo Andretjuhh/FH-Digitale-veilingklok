@@ -59,10 +59,10 @@ public sealed class CreateMeesterHandler : IRequestHandler<CreateMeesterCommand,
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             // Generate Tokens
-            var token = _tokenService.GenerateAuthenticationTokens(meester);
+            var (auth, _) = _tokenService.GenerateAuthenticationTokens(meester);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
-            return token;
+            return auth;
         }
         catch (Exception)
         {

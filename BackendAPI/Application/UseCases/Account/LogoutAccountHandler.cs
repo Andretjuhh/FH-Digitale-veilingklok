@@ -33,7 +33,7 @@ public sealed class LogoutAccountHandler : IRequestHandler<LogoutAccountCommand>
                 await _userRepository.GetByIdAsync(request.AccountId)
                 ?? throw RepositoryException.NotFoundAccount();
 
-            var refreshToken = _tokenService.GetRefreshTokenFromCookies();
+            var refreshToken = _tokenService.GetContextRefreshToken();
             if (refreshToken is not null)
             {
                 account.RemoveRefreshToken(refreshToken);

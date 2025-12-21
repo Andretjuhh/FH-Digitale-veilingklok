@@ -176,8 +176,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// Server Middleware configuration
-app.UseHttpsRedirection();
+// Only redirect to HTTPS in production environments
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // Enable CORS
 app.UseCors("AllowFrontend");

@@ -48,10 +48,11 @@ public sealed class LoginAccountHandler : IRequestHandler<LoginAccountCommand, A
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
             // Generate Tokens
-            var token = _tokenService.GenerateAuthenticationTokens(account);
+            var (authOutput, refreshToken) = _tokenService.GenerateAuthenticationTokens(account);
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
-            return token;
+            return authOutput;
         }
         catch (Exception)
         {

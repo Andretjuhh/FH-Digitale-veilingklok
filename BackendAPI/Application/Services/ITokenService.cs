@@ -7,6 +7,8 @@ namespace Application.Services;
 
 public interface ITokenService
 {
+    public Guid GetUserTokenJti();
+
     /// <summary>
     /// Generates an access token for an authenticated user
     /// </summary>
@@ -24,7 +26,7 @@ public interface ITokenService
 
     public void ClearCookies();
 
-    public string? GetRefreshTokenFromCookies();
+    public string? GetContextRefreshToken();
 
-    public AuthOutputDto GenerateAuthenticationTokens(Account account);
+    public (AuthOutputDto auth, RefreshToken refreshToken) GenerateAuthenticationTokens(Account account);
 }

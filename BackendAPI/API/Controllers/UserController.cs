@@ -1,8 +1,12 @@
-﻿using API.Models;
+﻿using System.Security.Claims;
+using API.Models;
+using API.Utils;
 using Application.DTOs.Input;
 using Application.DTOs.Output;
 using Application.UseCases.Account;
+using Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -24,5 +28,46 @@ public class UserController : ControllerBase
         var command = new LoginAccountCommand(loginRequest);
         var result = await _mediator.Send(command);
         return HttpSuccess<AuthOutputDto>.Ok(result, "Login successful");
+    }
+
+    [HttpGet("info")]
+    [Authorize]
+    public async Task<IActionResult> GetAccountInfo()
+    {
+        var (accountId, accountType) = GetUserClaim.GetInfo(User);
+
+        var command = new GetAccountCommand(accountId, accountType);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<object>.Ok(result, "Account information retrieved successfully");
+    }
+
+    [HttpGet("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        var (accountId, _) = GetUserClaim.GetInfo(User);
+
+        var command = new LogoutAccountCommand(accountId);
+        await _mediator.Send(command);
+        return HttpSuccess<string>.NoContent("Logout successful");
+    }
+
+    [HttpGet("reauthenticate")]
+    public async Task<IActionResult> Reauthenticate()
+    {
+        var (accountId, _) = GetUserClaim.GetInfo(User);
+
+        var command = new ReauthenticateTokenCommand(accountId);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<AuthOutputDto>.Ok(result, "Reauthentication successful");
+    }
+
+    [HttpGet("revoke-devices")]
+    public async Task<IActionResult> RevokeDevices()
+    {
+        var (accountId, _) = GetUserClaim.GetInfo(User);
+        var command = new RevokeTokensCommand(accountId);
+        await _mediator.Send(command);
+        return HttpSuccess<string>.NoContent("All devices revoked successfully");
     }
 }

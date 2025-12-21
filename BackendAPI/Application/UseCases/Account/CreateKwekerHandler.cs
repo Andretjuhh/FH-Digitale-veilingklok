@@ -63,10 +63,10 @@ public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, A
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             // Generate Tokens
-            var token = _tokenService.GenerateAuthenticationTokens(kweker);
+            var (auth, _) = _tokenService.GenerateAuthenticationTokens(kweker);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
-            return token;
+            return auth;
         }
         catch (Exception)
         {

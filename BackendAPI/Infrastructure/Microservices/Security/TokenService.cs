@@ -36,6 +36,20 @@ public class TokenService : ITokenService
             throw new ArgumentException("Invalid JWT configuration. Please check the settings.");
     }
 
+    public Guid GetUserTokenJti()
+    {
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext == null)
+            throw new InvalidOperationException("No HTTP context available.");
+
+        var user = httpContext.User;
+        var jtiClaim = user.FindFirst(JwtRegisteredClaimNames.Jti);
+        if (jtiClaim == null || !Guid.TryParse(jtiClaim.Value, out var jti))
+            throw new InvalidOperationException("JTI claim is missing or invalid.");
+
+        return jti;
+    }
+
     public ClaimsPrincipal? ValidateAccessToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -133,7 +147,7 @@ public class TokenService : ITokenService
         };
     }
 
-    public AuthOutputDto GenerateAuthenticationTokens(Account account)
+    public (AuthOutputDto auth, RefreshToken refreshToken) GenerateAuthenticationTokens(Account account)
     {
         var (accessToken, jti, expires) = GenerateAccessToken(account);
         var refreshToken = GenerateRefreshToken(account.Id, jti);
@@ -151,15 +165,15 @@ public class TokenService : ITokenService
         SetCookie("refreshToken", refreshToken.Token,
             cookieOptions); // Assuming RefreshToken entity has a 'Token' property
 
-        return new AuthOutputDto
+        return (new AuthOutputDto
         {
             AccessToken = accessToken,
             AccessTokenExpiresAt = expires,
             AccountType = account.AccountType
-        };
+        }, refreshToken);
     }
 
-    public string? GetRefreshTokenFromCookies()
+    public string? GetContextRefreshToken()
     {
         return GetCookie("refreshToken");
     }

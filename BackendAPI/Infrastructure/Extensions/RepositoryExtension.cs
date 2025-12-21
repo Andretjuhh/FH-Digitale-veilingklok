@@ -15,6 +15,7 @@ public static class RepositoryExtension
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IVeilingKlokRepository, VeilingKlokRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         return services;
     }
 }

@@ -6,9 +6,9 @@ using MediatR;
 
 namespace Application.UseCases.Account;
 
-public sealed record GetAccountQuery(Guid AccountId, AccountType AccountType) : IRequest<object>;
+public sealed record GetAccountCommand(Guid AccountId, AccountType AccountType) : IRequest<object>;
 
-public sealed class GetAccountHandler : IRequestHandler<GetAccountQuery, object>
+public sealed class GetAccountHandler : IRequestHandler<GetAccountCommand, object>
 {
     private readonly IKoperRepository _koperRepository;
     private readonly IKwekerRepository _kwekerRepository;
@@ -25,7 +25,7 @@ public sealed class GetAccountHandler : IRequestHandler<GetAccountQuery, object>
         _meesterRepository = meesterRepository;
     }
 
-    public async Task<object> Handle(GetAccountQuery request, CancellationToken cancellationToken)
+    public async Task<object> Handle(GetAccountCommand request, CancellationToken cancellationToken)
     {
         var (accountId, accountType) = request;
         object account = accountType switch

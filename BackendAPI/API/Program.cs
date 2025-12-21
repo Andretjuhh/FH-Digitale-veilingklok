@@ -6,7 +6,7 @@ using Infrastructure.Microservices.SignalR.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerDocumentation();
 builder.Services.AddControllers();
 builder.Services.AddRouting();
 builder.Services.AddApplication();
@@ -36,13 +36,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Floriday V1 API"); });
 }
 
+// Only redirect to HTTPS in production environments
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
+
 app.UseCors("AllowFrontend");
-app.UseHttpsRedirection();
 app.UseExceptionHandler();
 app.UseAuthentication(); // Must come before UseAuthorization
 app.UseAuthorization();
 app.UseRouting();
 app.MapControllers();
+
 
 // This creates the WebSocket endpoint at: ws://localhost:5000/hubs/veiling-klok
 // Clients connect to this URL to establish real-time connection
