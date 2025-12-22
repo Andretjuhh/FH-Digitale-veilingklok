@@ -1,16 +1,16 @@
 // External imports
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {useLocation} from 'react-router-dom';
 
 // Internal imports
 import LanguagePicker from '../buttons/LanguagePicker';
 import clsx from 'clsx';
-import Button from '../buttons/Button';
 import {useRootContext} from '../contexts/RootContext';
+import AccountAvatar from "../buttons/AccountAvatar";
 
 function AppHeader() {
 	let location = useLocation();
-	const {removeAuthentication, loggedIn, t, navigate} = useRootContext();
+	const {loggedIn, t} = useRootContext();
 
 	const [scrollScale, setScrollScale] = useState(0);
 	const [isFilled, setIsFilled] = useState(false);
@@ -31,12 +31,10 @@ function AppHeader() {
 		};
 	}, []);
 
-	const handleLogout = useCallback(() => {
-		removeAuthentication();
-		navigate('/');
-	}, []);
-
-
+	const headerBottom = useMemo(() => {
+		return loggedIn ? <AccountAvatar/> : <LanguagePicker/>
+	}, [loggedIn]);
+	
 	return (
 		<>
 			<header className={clsx('app-header', isFilled && 'app-header-filled')} style={{'--scroll-scale': scrollScale} as React.CSSProperties}>
@@ -78,10 +76,8 @@ function AppHeader() {
 						)}
 					</ul>
 				</nav>
-				{(!['', '/'].includes(location.pathname) || loggedIn) && <Button className={'app-home-s-btn app-header-logout'} label={t('logout')} onClick={handleLogout}/>}
 			</header>
-
-			{['', '/'].includes(location.pathname) && !loggedIn && <LanguagePicker/>}
+			{headerBottom}
 		</>
 	);
 }

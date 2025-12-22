@@ -26,7 +26,8 @@ function LanguagePicker({className}: Props) {
 
 	return (
 		<CustomDropdown
-			menuClassName={'rounded-xl'}
+			className={'language-picker-dropdown'}
+			menuClassName={'language-picker-menu'}
 			buttonClassName={clsx('base-btn language-picker-btn app-header-s-btn-language', className)}
 			itemButtonClassName={clsx('language-picker-item-btn', joinClsx(className, 'item-btn'))}
 			buttonChildren={
