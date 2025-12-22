@@ -15,10 +15,10 @@ public sealed record GetProductOrdersCommand(
     DateTime? AfterDate = null,
     int PageNumber = 1,
     int PageSize = 10
-) : IRequest<(IEnumerable<OrderOutputDto> data, int totalCount)>;
+) : IRequest<PaginatedOutputDto<OrderOutputDto>>;
 
 public sealed class GetProductOrdersHandler
-    : IRequestHandler<GetProductOrdersCommand, (IEnumerable<OrderOutputDto> data, int totalCount)>
+    : IRequestHandler<GetProductOrdersCommand, PaginatedOutputDto<OrderOutputDto>>
 {
     private readonly IProductRepository _productRepository;
     private readonly IOrderRepository _orderRepository;
@@ -32,7 +32,7 @@ public sealed class GetProductOrdersHandler
         _orderRepository = orderRepository;
     }
 
-    public async Task<(IEnumerable<OrderOutputDto> data, int totalCount)> Handle(
+    public async Task<PaginatedOutputDto<OrderOutputDto>> Handle(
         GetProductOrdersCommand request,
         CancellationToken cancellationToken
     )
@@ -49,6 +49,14 @@ public sealed class GetProductOrdersHandler
             request.PageNumber,
             request.PageSize
         );
-        return (orders.Select(OrderMapper.ToOutputDto), totalCount);
+
+
+        return new PaginatedOutputDto<OrderOutputDto>
+        {
+            Data = orders.Select(OrderMapper.ToOutputDto).ToList(),
+            TotalCount = totalCount,
+            Page = request.PageNumber,
+            Limit = request.PageSize
+        };
     }
 }

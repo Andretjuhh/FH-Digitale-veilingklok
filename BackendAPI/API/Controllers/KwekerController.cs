@@ -109,7 +109,7 @@ public class KwekerController : ControllerBase
             pageSize
         );
         var result = await _mediator.Send(command);
-        return HttpSuccess<(IEnumerable<OrderOutputDto> data, int totalCount)>.Ok(result);
+        return HttpSuccess<PaginatedOutputDto<OrderOutputDto>>.Ok(result);
     }
 
     [HttpPut("product/{productId}")]
@@ -128,11 +128,11 @@ public class KwekerController : ControllerBase
     public async Task<IActionResult> GetProducts(
         [FromQuery] string? nameFilter,
         [FromQuery] decimal? maxPrice,
-        [FromQuery] Guid? kwekerId,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10
     )
     {
+        var (kwekerId, _) = GetUserClaim.GetInfo(User);
         var query = new GetProductsQuery(nameFilter, maxPrice, kwekerId, pageNumber, pageSize);
         var result = await _mediator.Send(query);
         return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
