@@ -24,7 +24,7 @@ function AccountAvatar({className}: Props) {
 				navigate('/', {replace: true});
 			}
 		}
-		, [removeAuthentication, navigate]);
+		, []);
 
 	return (
 		<CustomDropdown

@@ -10,11 +10,11 @@ function AppHome() {
 
 	const handleNavigateToDashboard = () => {
 		if (account?.accountType === AccountType.Kweker) {
-			navigate('/kweker');
+			navigate('/kweker/dashboard');
 		} else if (account?.accountType === AccountType.Koper) {
 			navigate('/koper/dashboard');
 		} else if (account?.accountType === AccountType.Veilingmeester) {
-			navigate('/dashboard/veilingmeester');
+			navigate('/veilingmeester/dashboard');
 		}
 	};
 

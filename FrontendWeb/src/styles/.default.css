@@ -265,11 +265,11 @@ img {
 
 .language-picker-btn {
     --color: #07895b;
-    height: 3.4rem;
+    height: 3.8rem;
     background-color: theme(colors.primary.main) !important;
     z-index: 2 !important;
     color: white;
-    padding: 0.8rem 0.8rem;
+    padding: 0.8rem 1.2rem;
 }
 
 .language-picker-btn-icon,
