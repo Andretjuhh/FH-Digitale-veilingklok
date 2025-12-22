@@ -4,11 +4,6 @@ import {getAuthentication} from '../controllers/server/account';
 import {HttpError} from '../declarations/types/HttpError';
 import {ProcessError} from '../declarations/types/ProcessError';
 
-// Intercept Api calls to refresh token
-async function getAuthorizationHeader() {
-	const auth = await getAuthentication();
-	return {Authorization: `Bearer ${auth?.accessToken ?? ''}`};
-}
 
 /** Make an application fetch request */
 export async function appFetch(request: RequestInfo | URL, options: RequestInit = {}) {
@@ -19,9 +14,8 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 	// Check if the request url start with / if yes add the API_URL
 	if (typeof request === 'string' && request.startsWith('/')) {
 		isAppFetch = true;
-		const isReauth = request.includes('/reauthenticate');
 		request = new URL(request, config.API);
-		if (!isReauth)
+		if (!request.pathname.includes('/reauthenticate')) // to avoid infinite loop
 			auth = await getAuthentication();
 	}
 
@@ -33,7 +27,7 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 			headers: {
 				'Content-Type': 'application/json',
 				Accept: 'application/json',
-				...(auth ? {Authorization: `Bearer ${auth.accessToken}`} : {}),
+				...(auth ? {Authorization: `Bearer ${auth?.accessToken}`} : {}),
 			},
 		}
 		: {};

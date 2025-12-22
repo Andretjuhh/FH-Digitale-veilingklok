@@ -57,42 +57,55 @@ public class ProductRepository : IProductRepository
 
     #region Queries with Kweker Info
 
-    // Queries that return Product along with partial Kweker info
-    private IQueryable<(Product Product, KwekerInfo Kweker)> QueryProductWithKweker()
+    public async Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(Guid productId)
     {
-        return _dbContext
+        var result = await _dbContext
             .Products.Join(
                 _dbContext.Kwekers,
                 product => product.KwekerId,
                 kweker => kweker.Id,
-                (product, kweker) =>
-                    new { product, partialKweker = new KwekerInfo(kweker.Id, kweker.CompanyName) }
+                (product, kweker) => new { product, kweker }
             )
-            .Select(x => ValueTuple.Create(x.product, x.partialKweker));
-    }
+            .Where(x => x.product.Id == productId)
+            .FirstOrDefaultAsync();
 
-    public async Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(Guid productId)
-    {
-        var result = await QueryProductWithKweker().FirstOrDefaultAsync(x => x.Product.Id == productId);
-        if (result.Product == null)
+        if (result == null)
             return null;
-        return result;
+
+        return (result.product, new KwekerInfo(result.kweker.Id, result.kweker.CompanyName));
     }
 
     public async Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(Guid productId, Guid kwekerId)
     {
-        var result = await QueryProductWithKweker()
-            .FirstOrDefaultAsync(x => x.Product.Id == productId && x.Product.KwekerId == kwekerId);
+        var result = await _dbContext
+            .Products.Join(
+                _dbContext.Kwekers,
+                product => product.KwekerId,
+                kweker => kweker.Id,
+                (product, kweker) => new { product, kweker }
+            )
+            .Where(x => x.product.Id == productId && x.product.KwekerId == kwekerId)
+            .FirstOrDefaultAsync();
 
-        if (result.Product == null)
+        if (result == null)
             return null;
 
-        return result;
+        return (result.product, new KwekerInfo(result.kweker.Id, result.kweker.CompanyName));
     }
 
     public async Task<IEnumerable<(Product Product, KwekerInfo Kweker)>> GetAllByIdsWithKwekerInfoAsync(List<Guid> ids)
     {
-        return await QueryProductWithKweker().Where(x => ids.Contains(x.Product.Id)).ToListAsync();
+        var results = await _dbContext
+            .Products.Join(
+                _dbContext.Kwekers,
+                product => product.KwekerId,
+                kweker => kweker.Id,
+                (product, kweker) => new { product, kweker }
+            )
+            .Where(x => ids.Contains(x.product.Id))
+            .ToListAsync();
+
+        return results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
     }
 
     public async Task<(
@@ -106,20 +119,27 @@ public class ProductRepository : IProductRepository
         int pageSize
     )
     {
-        var query = QueryProductWithKweker();
+        var query = _dbContext
+            .Products.Join(
+                _dbContext.Kwekers,
+                product => product.KwekerId,
+                kweker => kweker.Id,
+                (product, kweker) => new { product, kweker }
+            );
 
         if (!string.IsNullOrWhiteSpace(nameFilter))
-            query = query.Where(x => x.Product.Name.Contains(nameFilter));
+            query = query.Where(x => x.product.Name.Contains(nameFilter));
 
         if (maxPrice.HasValue)
-            query = query.Where(x => x.Product.AuctionPrice <= maxPrice.Value);
+            query = query.Where(x => x.product.AuctionPrice <= maxPrice.Value);
 
         if (kwekerId.HasValue)
-            query = query.Where(x => x.Product.KwekerId == kwekerId.Value);
+            query = query.Where(x => x.product.KwekerId == kwekerId.Value);
 
         var totalCount = await query.CountAsync();
 
-        var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        var results = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        var items = results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
 
         return (items, totalCount);
     }

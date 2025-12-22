@@ -1,9 +1,9 @@
-import { fetchResponse } from '../../utils/fetchHelpers';
-import { HttpSuccess } from '../../declarations/types/HttpSuccess';
-import { RequestLoginDTO } from '../../declarations/dtos/input/RequestLoginDTO';
-import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
-import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
-import { LocalStorageService } from '../services/localStorage';
+import {fetchResponse} from '../../utils/fetchHelpers';
+import {HttpSuccess} from '../../declarations/types/HttpSuccess';
+import {RequestLoginDTO} from '../../declarations/dtos/input/RequestLoginDTO';
+import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
+import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
+import {LocalStorageService} from '../services/localStorage';
 
 // Get regions (GET /api/account/country/region)
 export async function getRegions(): Promise<HttpSuccess<string[]>> {
@@ -55,7 +55,7 @@ export async function getAuthentication(): Promise<AuthOutputDto | null> {
 	const token = LocalStorageService.getItem<AuthOutputDto>('accessToken');
 	if (token?.accessTokenExpiresAt && new Date(token.accessTokenExpiresAt) > new Date()) return token;
 	else {
-		const reauth = await reauthenticate();
-		return reauth.data ?? null;
+		const reauth = await reauthenticate().catch(() => null);
+		return reauth?.data ?? null;
 	}
 }
