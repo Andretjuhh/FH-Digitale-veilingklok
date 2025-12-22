@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState, useCallback} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 // Define the interface for the component's props, even if empty for now.
 // This allows for future customization (e.g., passing in custom colors or count).

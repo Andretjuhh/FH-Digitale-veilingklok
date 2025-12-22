@@ -1,6 +1,6 @@
 const config = {
 	VERSION: '1.0.0',
-	API: 'http://localhost:5050/',
+	API: 'http://localhost:5219/',
 
 	X_ACCESS_TOKEN: 'X-Access-Token',
 	AUTH_OBJECT_KEY: 'auth_object',

@@ -1,104 +1,57 @@
 ﻿import React, { useCallback, useEffect, useState } from 'react';
 import Button from '../../components/buttons/Button';
 import FormInputField from '../../components/elements/FormInputField';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import Page from '../../components/nav/Page';
-import { getKwekerProducts, getKwekerStats } from '../../controllers/kweker';
-import { createProduct, getProductById } from '../../controllers/Product';
-import { ProductDetails } from '../../declarations/ProductDetails';
+import { getProducts, createProduct, getProductDetails, getKwekerStats } from '../../controllers/server/kweker';
 import { formatEur } from '../../utils/formatters';
-
-type KwekerStats = {
-	totalProducts: number;
-	activeAuctions: number;
-	totalRevenue: number;
-	stemsSold: number;
-};
-
-type Product = {
-	id: string | number;
-	title: string;
-	description: string;
-	price: number;
-};
-
-// initialStats and hook removed — state is declared inside the component
-
-const sampleProducts: Product[] = [
-	{ id: '1', title: 'Product 1', description: 'Beschrijving van product 1', price: 19.99 },
-	{ id: '2', title: 'Product 2', description: 'Beschrijving van product 2', price: 24.5 },
-	{ id: '3', title: 'Product 3', description: 'Beschrijving van product 3', price: 12.0 },
-	{ id: '4', title: 'Product 4', description: 'Beschrijving van product 4', price: 34.75 },
-	{ id: '5', title: 'Product 5', description: 'Beschrijving van product 5', price: 9.99 },
-	{ id: '6', title: 'Product 6', description: 'Beschrijving van product 6', price: 49.0 },
-	{ id: '7', title: 'Product 7', description: 'Beschrijving van product 7', price: 22.0 },
-];
-
-const sampleHistory: Product[] = [
-	{ id: 'h1', title: 'Verkocht product 1', description: 'Beschrijving verkocht item 1', price: 14.25 },
-	{ id: 'h2', title: 'Verkocht product 2', description: 'Beschrijving verkocht item 2', price: 45.0 },
-	{ id: 'h3', title: 'Verkocht product 3', description: 'Beschrijving verkocht item 3', price: 22.1 },
-	{ id: 'h4', title: 'Verkocht product 4', description: 'Beschrijving verkocht item 4', price: 37.8 },
-	{ id: 'h5', title: 'Verkocht product 5', description: 'Beschrijving verkocht item 5', price: 8.75 },
-	{ id: 'h6', title: 'Verkocht product 6', description: 'Beschrijving verkocht item 6', price: 59.99 },
-];
-
-// `formatEur` moved to `Application/src/utils/formatters.ts` and is imported above
+import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import { ProductDetailsOutputDto } from '../../declarations/dtos/output/ProductDetailsOutputDto';
+import { KwekerStatsOutputDto } from '../../declarations/dtos/output/KwekerStatsOutputDto';
+import { CreateProductDTO } from '../../declarations/dtos/input/CreateProductDTO';
 
 export default function KwekerDashboard() {
-	const [stats, setStats] = useState<KwekerStats | null>(null);
+	const [stats, setStats] = useState<KwekerStatsOutputDto | null>(null);
 	const [activeTab, setActiveTab] = useState<'my' | 'history'>('my');
-	const [products, setProducts] = useState<Product[]>(activeTab === 'my' ? sampleProducts : sampleHistory);
+	const [products, setProducts] = useState<ProductOutputDto[]>([]);
 	const [isCreating, setIsCreating] = useState(false);
 	const [showForm, setShowForm] = useState(false);
 	// Preview modal state
 	const [showPreview, setShowPreview] = useState(false);
 	const [previewLoading, setPreviewLoading] = useState(false);
 	const [previewError, setPreviewError] = useState<string | null>(null);
-	const [previewProduct, setPreviewProduct] = useState<ProductDetails | null>(null);
+	const [previewProduct, setPreviewProduct] = useState<ProductDetailsOutputDto | null>(null);
 
-	// React Hook Form for create product modal
-	type CreateForm = {
-		name: string;
-		description?: string;
-		price: number | '';
-		minimumPrice?: number | '';
-		quantity?: number | '';
-		imageUrl?: string;
-		size?: string;
-	};
-
-	const { register, handleSubmit, setError, formState: { errors }, reset, getValues } = useForm<CreateForm>({
-		defaultValues: { name: '', description: '', price: '', minimumPrice: '', quantity: '', imageUrl: '', size: '' },
+	const {
+		register,
+		handleSubmit,
+		setError,
+		formState: { errors },
+		reset,
+		getValues,
+	} = useForm<CreateProductDTO>({
+		defaultValues: { name: '', description: '', minimumPrice: 0, stock: 0, imageBase64: '', dimension: '' },
 	});
 
-	const [savedValues, setSavedValues] = useState<CreateForm | null>(null);
+	const [savedValues, setSavedValues] = useState<CreateProductDTO | null>(null);
 
 	useEffect(() => {
 		initializeProducts();
 	}, [activeTab]);
 
 	const initializeProducts = useCallback(async () => {
-		const data = await getKwekerProducts().catch(null);
-		const mappedProducts: Product[] = data.products.map((p) => {
-			const newP: Product = {
-				id: p.id,
-				title: p.name,
-				description: p.description,
-				price: p.price,
-			};
-			return newP;
-		});
-		setProducts(mappedProducts);
-
-		// Try to fetch aggregated stats from backend; if it fails, we'll fall back to client-side derived stats
 		try {
-			const s = await getKwekerStats().catch(() => null);
-			if (s) {
-				setStats(s as KwekerStats);
+			const response = await getProducts();
+			if (response.data) {
+				setProducts(response.data.data);
+			}
+
+			const statsResponse = await getKwekerStats();
+			if (statsResponse.data) {
+				setStats(statsResponse.data);
 			}
 		} catch (err) {
-			// ignore and fallback to derived stats
+			console.error('Failed to initialize dashboard', err);
 		}
 	}, []);
 
@@ -119,7 +72,7 @@ export default function KwekerDashboard() {
 				<section className="kweker-stats">
 					<div className="kweker-stat-card">
 						<div className="stat-label">Producten aangeboden</div>
-						<div className="stat-value">{products.length}</div>
+						<div className="stat-value">{stats?.totalProducts ?? 0}</div>
 					</div>
 
 					<div className="kweker-stat-card">
@@ -153,29 +106,42 @@ export default function KwekerDashboard() {
 					<div className="content-inner">
 						<div className="product-grid">
 							{products.map((p) => (
-								<article key={p.id} className="product-card clickable" role="button" tabIndex={0} onClick={async () => {
-									// open preview modal and fetch details
-									setShowPreview(true);
-									setPreviewLoading(true);
-									setPreviewError(null);
-									setPreviewProduct(null);
-									try {
-										const res = await getProductById(Number(p.id));
-										setPreviewProduct(res as ProductDetails);
-									} catch (err) {
-										console.error('Failed to load product preview', err);
-										setPreviewError('Kon het product niet laden.');
-									} finally {
-										setPreviewLoading(false);
-									}
-								}} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { (e.currentTarget as HTMLElement).click(); } }}>
+								<article
+									key={p.id}
+									className="product-card clickable"
+									role="button"
+									tabIndex={0}
+									onClick={async () => {
+										// open preview modal and fetch details
+										setShowPreview(true);
+										setPreviewLoading(true);
+										setPreviewError(null);
+										setPreviewProduct(null);
+										try {
+											const res = await getProductDetails(p.id);
+											if (res.data) {
+												setPreviewProduct(res.data);
+											}
+										} catch (err) {
+											console.error('Failed to load product preview', err);
+											setPreviewError('Kon het product niet laden.');
+										} finally {
+											setPreviewLoading(false);
+										}
+									}}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											(e.currentTarget as HTMLElement).click();
+										}
+									}}
+								>
 									<div className="product-info-kweker">
-										<h3 className="product-title">{p.title}</h3>
+										<h3 className="product-title">{p.name}</h3>
 										<p className="product-desc">{p.description}</p>
 									</div>
 									<div className="product-price">
-										<div className="product-price">{formatEur(p.price)}</div>
-										<div className="product-thumb" />
+										<div className="product-price">{formatEur(p.auctionedPrice ?? 0)}</div>
+										<div className="product-thumb" style={{ backgroundImage: `url(${p.imageUrl})` }} />
 									</div>
 								</article>
 							))}
@@ -183,7 +149,7 @@ export default function KwekerDashboard() {
 						<div className="content-footer">
 							{activeTab === 'my' && (
 								<>
-									{ !showForm && (
+									{!showForm && (
 										<Button
 											className="toevoegen-knop"
 											label={'Voeg nieuw product toe'}
@@ -196,130 +162,138 @@ export default function KwekerDashboard() {
 										</Button>
 									)}
 									{showForm && (
-										<div className="modal-overlay" onClick={() => {
-											if (!isCreating) {
-												setSavedValues(getValues());
-												setShowForm(false);
-											}
-										}}>
+										<div
+											className="modal-overlay"
+											onClick={() => {
+												if (!isCreating) {
+													setSavedValues(getValues());
+													setShowForm(false);
+												}
+											}}
+										>
 											<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
 												<div className="modal-header">
 													<h3>Nieuw product toevoegen</h3>
-													<button className="modal-close" onClick={() => {
-														setSavedValues(getValues());
-														setShowForm(false);
-													}} aria-label="Sluiten">✕</button>
+													<button
+														className="modal-close"
+														onClick={() => {
+															setSavedValues(getValues());
+															setShowForm(false);
+														}}
+														aria-label="Sluiten"
+													>
+														✕
+													</button>
 												</div>
 												<div className="modal-body">
-													<form onSubmit={handleSubmit(async (data) => {
-														if (isCreating) return;
-														setIsCreating(true);
-														try {
-															// Basic client-side check
-															if (!data.name || data.price === '' || Number(data.price) <= 0) {
-																setError('name', { type: 'manual', message: 'Vul ten minste naam en een geldige prijs in.' });
-																return;
-															}
-
-															const payload = {
-																name: data.name,
-																description: data.description || null,
-																price: Number(data.price),
-																minimumPrice: data.minimumPrice === '' || data.minimumPrice === undefined ? Number(data.price) : Number(data.minimumPrice),
-																quantity: data.quantity === '' || data.quantity === undefined ? 1 : Number(data.quantity),
-																imageUrl: data.imageUrl || null,
-																size: data.size || null,
-															};
-
-															const res = await createProduct(payload as any);
-															if (res && res.product) {
-																const p = res.product;
-																const mapped: Product = {
-																	id: p.id,
-																	title: p.name,
-																	description: p.description,
-																	price: p.price,
-																};
-																setProducts((prev) => [mapped, ...prev]);
-																setShowForm(false);
-																reset();
-																setSavedValues(null);
-															}
-														} catch (err: any) {
-															console.error('createProduct failed', err);
-															const dataErr = err?.data;
-															if (dataErr && typeof dataErr === 'object') {
-																// Map server-side field errors to RHF fields
-																for (const key of Object.keys(dataErr)) {
-																	const val = dataErr[key];
-																	const msg = Array.isArray(val) ? val.join(', ') : String(val);
-																	try {
-																		setError(key as any, { type: 'server', message: msg });
-																	} catch (setErr) {
-																		// If the server returns a form-level error
-																		setError('name', { type: 'server', message: msg });
-																	}
+													<form
+														onSubmit={handleSubmit(async (data) => {
+															if (isCreating) return;
+															setIsCreating(true);
+															try {
+																const response = await createProduct(data);
+																if (response.data) {
+																	const p = response.data;
+																	const mapped: ProductOutputDto = {
+																		id: p.id,
+																		name: p.name,
+																		description: p.description,
+																		imageUrl: p.imageBase64, // Using base64 as preview
+																		auctionedPrice: p.auctionPrice,
+																		auctionedAt: p.auctionedAt,
+																		dimension: p.dimension,
+																		stock: p.stock,
+																		companyName: p.companyName,
+																	};
+																	setProducts((prev) => [mapped, ...prev]);
+																	setShowForm(false);
+																	reset();
+																	setSavedValues(null);
 																}
-															} else {
-																// generic message
-																setError('name', { type: 'server', message: String(dataErr || err?.message || 'Onbekende fout') });
+															} catch (err: any) {
+																console.error('createProduct failed', err);
+																setError('name', { type: 'server', message: 'Onbekende fout bij het aanmaken van product' });
+															} finally {
+																setIsCreating(false);
 															}
-														} finally {
-															setIsCreating(false);
-														}
-													})} className="create-product-form">
-
+														})}
+														className="create-product-form"
+													>
 														<div className="form-row">
 															<FormInputField id="name" label="Naam" {...register('name', { required: 'Naam is verplicht' })} isError={!!errors.name} error={errors.name?.message as string} />
 														</div>
 
 														<div className="form-row">
 															<label>Beschrijving</label>
-															<textarea {...register('description')} />
+															<textarea {...register('description', { required: 'Beschrijving is verplicht' })} />
 														</div>
 
 														<div className="form-row">
-															<FormInputField id="price" label="Prijs (€)" type="number" step="0.01" {...register('price', { required: 'Prijs is verplicht' })} isError={!!errors.price} error={errors.price?.message as string} />
+															<FormInputField id="minimumPrice" label="Minimum prijs (€)" type="number" step="0.01" {...register('minimumPrice', { required: 'Minimum prijs is verplicht', min: 0 })} isError={!!errors.minimumPrice} error={errors.minimumPrice?.message as string} />
 														</div>
 
 														<div className="form-row">
-															<FormInputField id="minimumPrice" label="Minimum prijs (€)" type="number" step="0.01" {...register('minimumPrice')} isError={!!errors.minimumPrice} error={errors.minimumPrice?.message as string} />
+															<FormInputField id="stock" label="Aantal" type="number" {...register('stock', { required: 'Aantal is verplicht', min: 0 })} isError={!!errors.stock} error={errors.stock?.message as string} />
 														</div>
 
 														<div className="form-row">
-															<FormInputField id="quantity" label="Aantal" type="number" {...register('quantity')} isError={!!errors.quantity} error={errors.quantity?.message as string} />
+															<FormInputField id="imageBase64" label="Afbeelding (Base64)" {...register('imageBase64', { required: 'Afbeelding is verplicht' })} isError={!!errors.imageBase64} error={errors.imageBase64?.message as string} />
 														</div>
 
 														<div className="form-row">
-															<FormInputField id="imageUrl" label="Afbeelding URL" {...register('imageUrl')} isError={!!errors.imageUrl} error={errors.imageUrl?.message as string} />
-														</div>
-
-														<div className="form-row">
-															<FormInputField id="size" label="Maat" {...register('size')} isError={!!errors.size} error={errors.size?.message as string} />
+															<FormInputField id="dimension" label="Maat" {...register('dimension')} isError={!!errors.dimension} error={errors.dimension?.message as string} />
 														</div>
 
 														<div className="form-row form-actions">
-															<button type="submit" className="toevoegen-knop btn-primary" disabled={isCreating}>{isCreating ? 'Bezig...' : 'Voeg nieuw product toe'}</button>
-															<button type="button" className="cancel-btn" onClick={() => {
-																if (!isCreating) {
-																	setSavedValues(getValues());
-																	setShowForm(false);
-																}
-															}} disabled={isCreating}>Annuleren</button>
+															<button type="submit" className="toevoegen-knop btn-primary" disabled={isCreating}>
+																{isCreating ? 'Bezig...' : 'Voeg nieuw product toe'}
+															</button>
+															<button
+																type="button"
+																className="cancel-btn"
+																onClick={() => {
+																	if (!isCreating) {
+																		setSavedValues(getValues());
+																		setShowForm(false);
+																	}
+																}}
+																disabled={isCreating}
+															>
+																Annuleren
+															</button>
 														</div>
 													</form>
-											</div>
+												</div>
 											</div>
 										</div>
 									)}
 
 									{/* Product preview modal */}
 									{showPreview && (
-										<div className="modal-overlay" onClick={() => { if (!previewLoading) { setShowPreview(false); setPreviewProduct(null); setPreviewError(null); } }}>
+										<div
+											className="modal-overlay"
+											onClick={() => {
+												if (!previewLoading) {
+													setShowPreview(false);
+													setPreviewProduct(null);
+													setPreviewError(null);
+												}
+											}}
+										>
 											<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
 												<div className="modal-header">
 													<h3>Product</h3>
-													<button className="modal-close" onClick={() => { setShowPreview(false); setPreviewProduct(null); setPreviewError(null); }} aria-label="Sluiten">✕</button>
+													<button
+														className="modal-close"
+														onClick={() => {
+															setShowPreview(false);
+															setPreviewProduct(null);
+															setPreviewError(null);
+														}}
+														aria-label="Sluiten"
+													>
+														✕
+													</button>
 												</div>
 												<div className="modal-body">
 													{previewLoading && <div>Bezig met laden...</div>}
@@ -330,19 +304,14 @@ export default function KwekerDashboard() {
 																<div className="product-meta">
 																	<div className="product-meta-header">
 																		<h2 className="product-name">{previewProduct.name}</h2>
-																		<div className="product-price">{formatEur(previewProduct.price)}</div>
+																		<div className="product-price">{formatEur(previewProduct.auctionPrice ?? previewProduct.minimumPrice)}</div>
 																	</div>
 																	<div className="product-description">{previewProduct.description}</div>
-																	{previewProduct.quantity !== undefined && <div className="product-quantity">Aantal: {previewProduct.quantity}</div>}
-																	{previewProduct.size && <div className="product-size">Maat: {previewProduct.size}</div>}
+																	<div className="product-quantity">Voorraad: {previewProduct.stock}</div>
+																	{previewProduct.dimension && <div className="product-size">Maat: {previewProduct.dimension}</div>}
+																	<div className="product-company">Kweker: {previewProduct.companyName}</div>
 																</div>
-																<div className="product-image">
-																	{previewProduct.imageUrl ? (
-																		<img src={previewProduct.imageUrl} alt={previewProduct.name} />
-																	) : (
-																		<div className="product-image-placeholder" aria-hidden="true" />
-																	)}
-																</div>
+																<div className="product-image">{previewProduct.imageBase64 ? <img src={previewProduct.imageBase64} alt={previewProduct.name} /> : <div className="product-image-placeholder" aria-hidden="true" />}</div>
 															</div>
 														</div>
 													)}
@@ -350,8 +319,8 @@ export default function KwekerDashboard() {
 											</div>
 										</div>
 									)}
-							</>
-						)}
+								</>
+							)}
 						</div>
 					</div>
 				</section>

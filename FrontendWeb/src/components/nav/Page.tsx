@@ -12,12 +12,12 @@ type PageProps = {
 } & React.HTMLAttributes<HTMLElement>;
 
 function Page(props: PageProps) {
-	const { children, enableHeader, enableFooter, className, ...restProps } = props;
+	const {children, enableHeader, enableFooter, className, ...restProps} = props;
 	return (
 		<article className={clsx('app-page', className)} {...restProps}>
-			{enableHeader && <AppHeader />}
+			{enableHeader && <AppHeader/>}
 			{children}
-			{enableFooter && <AppFooter />}
+			{enableFooter && <AppFooter/>}
 		</article>
 	);
 }

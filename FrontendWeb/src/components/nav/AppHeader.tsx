@@ -1,16 +1,16 @@
 // External imports
-import React, { useCallback, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, {useCallback, useEffect, useState} from 'react';
+import {useLocation} from 'react-router-dom';
 
 // Internal imports
 import LanguagePicker from '../buttons/LanguagePicker';
 import clsx from 'clsx';
 import Button from '../buttons/Button';
-import { useRootContext } from '../../contexts/RootContext';
+import {useRootContext} from '../contexts/RootContext';
 
 function AppHeader() {
 	let location = useLocation();
-	const { removeAuthentication, loggedIn, t, navigate } = useRootContext();
+	const {removeAuthentication, loggedIn, t, navigate} = useRootContext();
 
 	const [scrollScale, setScrollScale] = useState(0);
 	const [isFilled, setIsFilled] = useState(false);
@@ -36,13 +36,12 @@ function AppHeader() {
 		navigate('/');
 	}, []);
 
-	console.log(location.pathname);
 
 	return (
 		<>
-			<header className={clsx('app-header', isFilled && 'app-header-filled')} style={{ '--scroll-scale': scrollScale } as React.CSSProperties}>
+			<header className={clsx('app-header', isFilled && 'app-header-filled')} style={{'--scroll-scale': scrollScale} as React.CSSProperties}>
 				<div className={'header-logo'}>
-					<img className={'header-logo-img'} src={'/svg/logo-floriclock.svg'} alt={'FloriClock'} />
+					<img className={'header-logo-img'} src={'/svg/logo-floriclock.svg'} alt={'FloriClock'}/>
 				</div>
 				<nav className="header-nav">
 					<ul className={'nav-menu'}>
@@ -79,10 +78,10 @@ function AppHeader() {
 						)}
 					</ul>
 				</nav>
-				{(!['', '/'].includes(location.pathname) || loggedIn) && <Button className={'app-home-s-btn app-header-logout'} label={t('logout')} onClick={handleLogout} />}
+				{(!['', '/'].includes(location.pathname) || loggedIn) && <Button className={'app-home-s-btn app-header-logout'} label={t('logout')} onClick={handleLogout}/>}
 			</header>
 
-			{['', '/'].includes(location.pathname) && !loggedIn && <LanguagePicker />}
+			{['', '/'].includes(location.pathname) && !loggedIn && <LanguagePicker/>}
 		</>
 	);
 }

@@ -34,6 +34,7 @@ public sealed class LogoutAccountHandler : IRequestHandler<LogoutAccountCommand>
                 ?? throw RepositoryException.NotFoundAccount();
 
             var refreshToken = _tokenService.GetContextRefreshToken();
+            _tokenService.ClearCookies();
             if (refreshToken is not null)
             {
                 account.RemoveRefreshToken(refreshToken);

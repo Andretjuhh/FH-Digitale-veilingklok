@@ -2,23 +2,23 @@ import React, { useCallback, useMemo, useState } from 'react';
 import Button from '../../buttons/Button';
 import FormInputField from '../../elements/FormInputField';
 import FormLink from '../../buttons/FormLink';
-import { useRootContext } from '../../../contexts/RootContext';
-import { AccountType } from '../../../types/AccountTypes';
+import { useRootContext } from '../../contexts/RootContext';
+import { AccountType } from '../../../declarations/enums/AccountTypes';
 import { buildFieldLayout, RegisterSteps } from '../../../constant/forms';
 import { useForm } from 'react-hook-form';
-import { InputField } from '../../../types/FormField';
-import { NewKwekerAccount } from '../../../declarations/KwekerAccount';
-import { NewKoperAccount } from '../../../declarations/KoperAccount';
-import { NewVeilingmeesterAccount } from '../../../declarations/VeilingmeesterAccount';
-import { createKoperAccount } from '../../../controllers/koper';
-import { createKwekerAccount } from '../../../controllers/kweker';
-import { createVeilingmeesterAccount } from '../../../controllers/veilingmeester';
+import { InputField } from '../../../declarations/types/FormField';
+import { CreateKoperDTO } from '../../../declarations/dtos/input/CreateKoperDTO';
+import { CreateKwekerDTO } from '../../../declarations/dtos/input/CreateKwekerDTO';
+import { CreateMeesterDTO } from '../../../declarations/dtos/input/CreateMeesterDTO';
+import { createKoperAccount } from '../../../controllers/server/koper';
+import { createKwekerAccount } from '../../../controllers/server/kweker';
+import { createVeilingmeesterAccount } from '../../../controllers/server/veilingmeester';
 import { LayoutGroup, motion } from 'framer-motion';
 import { Spring } from '../../../constant/animation';
 import { useComponentStateReducer } from '../../../hooks/useComponentStateReducer';
 import Spinner from '../../elements/Spinner';
 import { delay } from '../../../utils/standards';
-import { isHttpError } from '../../../types/HttpError';
+import { isHttpError } from '../../../declarations/types/HttpError';
 
 function RegisterContent() {
 	const { t, navigate, authenticateAccount } = useRootContext();
@@ -42,7 +42,7 @@ function RegisterContent() {
 	const renderField = useCallback(
 		(field: InputField, key: string) => {
 			const name = field.label;
-			const isRequired = field.required === true;
+			const isRequired = field.required;
 			const errorMsg = errors[name]?.message as string | undefined;
 			return (
 				<FormInputField
@@ -75,8 +75,7 @@ function RegisterContent() {
 	// Validate current step fields before going next
 	const validateStep = async () => {
 		const fieldNames = currentFields.map((f) => f.label);
-		const isValid = await trigger(fieldNames);
-		return isValid;
+		return await trigger(fieldNames);
 	};
 
 	// Form submission handler (only triggered on Create Account)
@@ -89,50 +88,59 @@ function RegisterContent() {
 				switch (selectedAccountType) {
 					case AccountType.Koper: {
 						dashboardDestination = '/koper/dashboard';
-						const account: NewKoperAccount = {
-							firstname: data['first_name'],
-							lastname: data['last_name'],
+						const account: CreateKoperDTO = {
+							firstName: data['first_name'],
+							lastName: data['last_name'],
 							email: data['email'],
 							password: data['password'],
-							address: data['address'],
-							postcode: data['postcode'],
-							regio: data['region'],
-							createdAt: new Date(),
+							telephone: data['phonenumber'],
+							address: {
+								street: data['address'],
+								city: data['region'],
+								regionOrState: data['region'],
+								postalCode: data['postcode'],
+								country: data['country'] === 'Nederland' ? 'NL' : data['country'],
+							},
 						};
 						const authResponse = await createKoperAccount(account);
-						authenticateAccount(authResponse);
+						authenticateAccount(authResponse.data);
 						break;
 					}
 
 					case AccountType.Kweker: {
 						dashboardDestination = '/kweker/dashboard';
-						const account: NewKwekerAccount = {
-							name: data['company_name'],
+						const account: CreateKwekerDTO = {
+							companyName: data['company_name'],
+							firstName: data['first_name'],
+							lastName: data['last_name'],
 							email: data['email'],
 							password: data['password'],
 							telephone: data['phonenumber'],
-							address: data['address'],
-							postcode: data['postcode'],
-							regio: data['region'],
 							kvkNumber: data['kvk_number'],
-							createdAt: new Date(),
+							address: {
+								street: data['address'],
+								city: data['region'],
+								regionOrState: data['region'],
+								postalCode: data['postcode'],
+								country: data['country'] === 'Nederland' ? 'NL' : data['country'],
+							},
 						};
 						const authResponse = await createKwekerAccount(account);
-						authenticateAccount(authResponse);
+						authenticateAccount(authResponse.data);
 						break;
 					}
 
 					case AccountType.Veilingmeester: {
 						dashboardDestination = '/veilingmeester/dashboard';
-						const account: NewVeilingmeesterAccount = {
+						const account: CreateMeesterDTO = {
 							email: data['email'],
 							password: data['password'],
-							regio: data['region'],
+							region: data['region'],
+							countryCode: data['country'] === 'Nederland' ? 'NL' : data['country'],
 							authorisatieCode: data['authorisation_code'],
-							createdAt: new Date(),
 						};
 						const authResponse = await createVeilingmeesterAccount(account);
-						authenticateAccount(authResponse);
+						authenticateAccount(authResponse.data);
 
 						break;
 					}

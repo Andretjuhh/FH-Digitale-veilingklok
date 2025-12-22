@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { joinClsx } from '../../utils/classPrefixer';
+import React, {useEffect, useRef} from 'react';
+import {joinClsx} from '../../utils/classPrefixer';
 import clsx from 'clsx';
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
 
 // ⬇️ MUST use forwardRef so RHF works correctly
 const FormInputField = React.forwardRef<HTMLInputElement, Props>((props, ref) => {
-	const { id, icon, isError, label, error, mainClassName, className, ...inputProps } = props;
+	const {id, icon, isError, label, error, mainClassName, className, ...inputProps} = props;
 	const iconRef = useRef<HTMLElement>(null);
 	const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -34,7 +34,7 @@ const FormInputField = React.forwardRef<HTMLInputElement, Props>((props, ref) =>
 			</label>
 
 			<div ref={wrapperRef} className={clsx('input-field-wrapper', joinClsx(className, 'wrapper'))}>
-				{icon && <i ref={iconRef} className={clsx('input-field-icon bi', `bi-${icon}`, joinClsx(className, 'icon'))} />}
+				{icon && <i ref={iconRef} className={clsx('input-field-icon bi', `bi-${icon}`, joinClsx(className, 'icon'))}/>}
 				{/* ⬇️ forward the ref and all RHF props */}
 				<input id={id} ref={ref} className={clsx('input-field', joinClsx(className, 'input-field'))} {...inputProps} />
 			</div>

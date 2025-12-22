@@ -4,22 +4,19 @@ import '../../../styles/pages.css'; // make sure this path is correct!
 import FormInputField from '../../elements/FormInputField';
 import FormLink from '../../buttons/FormLink';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useRootContext } from '../../../contexts/RootContext';
-import { loginAccount, saveAuthenticationResponse } from '../../../controllers/authentication';
+import { useRootContext } from '../../contexts/RootContext';
+import { loginAccount } from '../../../controllers/server/account';
 import { useComponentStateReducer } from '../../../hooks/useComponentStateReducer';
 import { LayoutGroup, motion } from 'framer-motion';
 import { Spring } from '../../../constant/animation';
 import Spinner from '../../elements/Spinner';
 import { delay } from '../../../utils/standards';
-import { HttpError, isHttpError } from '../../../types/HttpError';
-
-type LoginFormData = {
-	email: string;
-	password: string;
-};
+import { isHttpError } from '../../../declarations/types/HttpError';
+import { RequestLoginDTO } from '../../../declarations/dtos/input/RequestLoginDTO';
+import { AccountType } from '../../../declarations/enums/AccountTypes';
 
 function LoginContent() {
-	const { t, navigate } = useRootContext();
+	const { t, navigate , authenticateAccount} = useRootContext();
 	const [state, updateState] = useComponentStateReducer();
 
 	/* * NOTE: The original component used the logo as a back button.
@@ -32,36 +29,34 @@ function LoginContent() {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<LoginFormData>();
+	} = useForm<RequestLoginDTO>();
 
 	// 2. Define the submit handler function
-	const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
+	const onSubmit: SubmitHandler<RequestLoginDTO> = async (data) => {
 		try {
 			updateState({ type: 'loading', message: t('logging_in') });
 			await delay(1000); // Simulate loading delay
 			const authResponse = await loginAccount({ email: data.email, password: data.password });
 			updateState({ type: 'succeed', message: t('logged_in') });
+			authenticateAccount(authResponse.data);
 			await delay(1000); // Simulate loading delay
 
-			// Save auth session into context
-			saveAuthenticationResponse(authResponse);
-
 			// Determine dashboard by account type
-			switch (authResponse.accountType) {
-				case 'Koper':
+			switch (authResponse.data.accountType) {
+				case AccountType.Koper:
 					navigate('/koper/dashboard');
 					break;
 
-				case 'Kweker':
+				case AccountType.Kweker:
 					navigate('/kweker/dashboard');
 					break;
 
-				case 'Veilingmeester':
+				case AccountType.Veilingmeester:
 					navigate('/veilingmeester/dashboard');
 					break;
 
 				default:
-					console.error('Unknown account type:', authResponse.accountType);
+					console.error('Unknown account type:', authResponse.data.accountType);
 					navigate('/');
 			}
 		} catch (error) {

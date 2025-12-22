@@ -2,7 +2,7 @@
 import {NavigateFunction} from 'react-router-dom';
 
 // Internal imports
-import {LocalizationResources, SupportedLanguages} from './src/controllers/localization';
+import {LocalizationResources, SupportedLanguages} from './src/controllers/services/localization';
 import {AccountInfo} from "./src/declarations/AccountInfo";
 
 declare global {

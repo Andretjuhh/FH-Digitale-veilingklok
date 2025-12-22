@@ -1,4 +1,4 @@
-import {ContactFormData, ContactFormValidationErrors} from "../types/ContactFormData";
+import {ContactFormData, ContactFormValidationErrors} from "../declarations/models/ContactFormData";
 
 export function isContactFormValid(formData: FormData): [boolean, ContactFormData | undefined, ContactFormValidationErrors | undefined] {
 	const errors = {} as ContactFormValidationErrors;
