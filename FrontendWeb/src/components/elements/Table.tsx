@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import Spinner from './Spinner';
 
 export interface Column<T> {
@@ -46,25 +46,26 @@ export interface SortConfig {
 }
 
 // Table Header Component
-function TableHeader<T>({ columns, onSort, sortConfig }: TableHeaderProps<T>): React.JSX.Element {
+function TableHeader<T>({columns, onSort, sortConfig}: TableHeaderProps<T>): React.JSX.Element {
 	return (
 		<thead className="app-table-thead">
-			<tr>
-				{columns.map((column) => (
-					<th key={String(column.key)} className="app-table-th" onClick={() => column.sortable && onSort(String(column.key))}>
-						<div className="app-table-th-content">
-							{column.label}
-							{column.sortable && <i className={`bi bi-chevron-${sortConfig.key === column.key && sortConfig.direction === 'desc' ? 'up' : 'down'} app-table-sort-icon`}></i>}
-						</div>
-					</th>
-				))}
-			</tr>
+		<tr>
+			{columns.map((column) => (
+				<th key={String(column.key)} className="app-table-th" onClick={() => column.sortable && onSort(String(column.key))}>
+					<div className="app-table-th-content">
+						{column.label}
+						{column.sortable &&
+							<i className={`bi bi-chevron-${sortConfig.key === column.key && sortConfig.direction === 'desc' ? 'up' : 'down'} app-table-sort-icon`}></i>}
+					</div>
+				</th>
+			))}
+		</tr>
 		</thead>
 	);
 }
 
 // Table Row Component
-function TableRow<T extends Record<string, any>>({ item, columns, onAction }: TableRowProps<T>): React.JSX.Element {
+function TableRow<T extends Record<string, any>>({item, columns, onAction}: TableRowProps<T>): React.JSX.Element {
 	return (
 		<tr className="app-table-tbody-row">
 			{columns.map((column) => (
@@ -77,7 +78,7 @@ function TableRow<T extends Record<string, any>>({ item, columns, onAction }: Ta
 }
 
 // Pagination Component
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange, itemsPerPage, totalItems }) => {
+const Pagination: React.FC<PaginationProps> = ({currentPage, totalPages, onPageChange, itemsPerPage, totalItems}) => {
 	const startItem = (currentPage - 1) * itemsPerPage + 1;
 	const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 	return (
@@ -90,7 +91,8 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 					<i className="bi bi-chevron-left"></i>
 				</button>
 				{[...Array(totalPages)].map((_, idx) => (
-					<button key={idx} onClick={() => onPageChange(idx + 1)} className={`app-table-pagination-page-btn ${currentPage === idx + 1 ? 'app-table-pagination-page-btn-active' : 'app-table-pagination-page-btn-inactive'}`}>
+					<button key={idx} onClick={() => onPageChange(idx + 1)}
+					        className={`app-table-pagination-page-btn ${currentPage === idx + 1 ? 'app-table-pagination-page-btn-active' : 'app-table-pagination-page-btn-inactive'}`}>
 						{idx + 1}
 					</button>
 				))}
@@ -103,11 +105,20 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 };
 
 // Main Table Component
-export function DataTable<T extends Record<string, any>>({ data, columns, itemsPerPage = 5, onAction, isLazy = false, totalItems: externalTotalItems, loading = false, onFetchData }: DataTableProps<T>): React.JSX.Element {
+export function DataTable<T extends Record<string, any>>({
+	                                                         data,
+	                                                         columns,
+	                                                         itemsPerPage = 5,
+	                                                         onAction,
+	                                                         isLazy = false,
+	                                                         totalItems: externalTotalItems,
+	                                                         loading = false,
+	                                                         onFetchData
+                                                         }: DataTableProps<T>): React.JSX.Element {
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [searchTerm, setSearchTerm] = useState<string>('');
 	const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>('');
-	const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
+	const [sortConfig, setSortConfig] = useState<SortConfig>({key: null, direction: 'asc'});
 	const lastFetchedParams = useRef<string>('');
 
 	// Debounce search term
@@ -125,7 +136,7 @@ export function DataTable<T extends Record<string, any>>({ data, columns, itemsP
 
 	useEffect(() => {
 		if (isLazy && onFetchData) {
-			const params = { page: currentPage, searchTerm: debouncedSearchTerm, sortConfig };
+			const params = {page: currentPage, searchTerm: debouncedSearchTerm, sortConfig};
 			const paramsString = JSON.stringify(params);
 
 			// Only fetch if params have actually changed to avoid redundant calls
@@ -183,14 +194,14 @@ export function DataTable<T extends Record<string, any>>({ data, columns, itemsP
 		<div className="app-table-container">
 			{loading && (
 				<div className="app-table-loading-overlay">
-					<Spinner className="app-table-loading-spinner" />
+					<Spinner className="app-table-loading-spinner"/>
 				</div>
 			)}
 			<div className="app-table-header-actions">
 				<div className="app-table-actions-row">
 					<div className="app-table-search-wrapper">
 						<i className="bi bi-search app-table-search-icon"></i>
-						<input type="text" placeholder="Search..." value={searchTerm} onChange={handleSearch} className="app-table-search-input" />
+						<input type="text" placeholder="Search..." value={searchTerm} onChange={handleSearch} className="app-table-search-input"/>
 					</div>
 					<div className="app-table-filter-group">
 						<button className="app-table-filter-btn">
@@ -207,23 +218,23 @@ export function DataTable<T extends Record<string, any>>({ data, columns, itemsP
 
 			<div className="app-table-wrapper">
 				<table className="app-table">
-					<TableHeader columns={columns} onSort={handleSort} sortConfig={sortConfig} />
+					<TableHeader columns={columns} onSort={handleSort} sortConfig={sortConfig}/>
 					<tbody className="app-table-tbody">
-						{paginatedData.map((item, index) => (
-							<TableRow key={item.id || index} item={item} columns={columns} onAction={onAction} />
-						))}
-						{paginatedData.length === 0 && !loading && (
-							<tr>
-								<td colSpan={columns.length} className="app-table-empty-state">
-									No data found
-								</td>
-							</tr>
-						)}
+					{paginatedData.map((item, index) => (
+						<TableRow key={item.id || index} item={item} columns={columns} onAction={onAction}/>
+					))}
+					{paginatedData.length === 0 && !loading && (
+						<tr>
+							<td colSpan={columns.length} className="app-table-empty-state">
+								No data found
+							</td>
+						</tr>
+					)}
 					</tbody>
 				</table>
 			</div>
 
-			<Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} itemsPerPage={itemsPerPage} totalItems={totalItems} />
+			<Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} itemsPerPage={itemsPerPage} totalItems={totalItems}/>
 		</div>
 	);
 }
@@ -346,7 +357,7 @@ const mockOrders: Order[] = [
 	},
 ];
 
-const StatusBadge: React.FC<{ status: Order['status'] }> = ({ status }) => {
+export const StatusBadge: React.FC<{ status: Order['status'] }> = ({status}) => {
 	const statusClass = `app-table-status-${status.toLowerCase()}`;
 
 	return (
@@ -419,7 +430,7 @@ export default function App(): React.JSX.Element {
 				key: 'status',
 				label: 'Status',
 				sortable: true,
-				render: (item: Order) => <StatusBadge status={item.status} />,
+				render: (item: Order) => <StatusBadge status={item.status}/>,
 			},
 			{
 				key: 'action',
@@ -438,7 +449,7 @@ export default function App(): React.JSX.Element {
 		alert(`Viewing details for ${item.itemName} (${item.orderId})`);
 	};
 
-	const handleFetchData = useCallback(async ({ page, searchTerm, sortConfig }: { page: number; searchTerm: string; sortConfig: SortConfig }) => {
+	const handleFetchData = useCallback(async ({page, searchTerm, sortConfig}: { page: number; searchTerm: string; sortConfig: SortConfig }) => {
 		setLoading(true);
 
 		// Simulate API call delay
@@ -472,12 +483,13 @@ export default function App(): React.JSX.Element {
 		<div className="app-table-demo-container">
 			<div className="app-table-demo-wrapper">
 				<h1 className="app-table-demo-title">Product Orders (Client Side)</h1>
-				<DataTable<Order> data={mockOrders} columns={columns} itemsPerPage={5} onAction={handleAction} />
+				<DataTable<Order> data={mockOrders} columns={columns} itemsPerPage={5} onAction={handleAction}/>
 			</div>
 
 			<div className="app-table-demo-wrapper">
 				<h1 className="app-table-demo-title">Product Orders (Lazy Loading)</h1>
-				<DataTable<Order> data={lazyData} columns={columns} itemsPerPage={5} onAction={handleAction} isLazy={true} loading={loading} totalItems={totalItems} onFetchData={handleFetchData} />
+				<DataTable<Order> data={lazyData} columns={columns} itemsPerPage={5} onAction={handleAction} isLazy={true} loading={loading} totalItems={totalItems}
+				                  onFetchData={handleFetchData}/>
 			</div>
 		</div>
 	);
