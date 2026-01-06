@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import { initReactI18next, useTranslation } from 'react-i18next';
+import {initReactI18next, useTranslation} from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -84,7 +84,7 @@ export const resources = {
 			koper_dashboard_sub: 'Overzicht van je profiel en acties',
 			koper_supplier: 'Aanvoerder',
 			koper_avr: 'avr nr',
-			koper_product: 'Product',
+			koper_product: 'Producten',
 			koper_country: 'land',
 			koper_stems_per_bundle: 'aantal stelen per bos',
 			koper_stock: 'Voorraad: {{count}} stuks',
@@ -158,11 +158,11 @@ i18n
 		lng: 'nl', // if you're using a language detector, do not define the lng option
 		fallbackLng: 'nl',
 		debug: false,
-		interpolation: { escapeValue: false },
+		interpolation: {escapeValue: false},
 	})
 	.then(null);
 
 type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
-export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };
+export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};

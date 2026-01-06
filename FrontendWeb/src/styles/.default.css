@@ -302,12 +302,14 @@ img {
 }
 
 .account-avatar-menu {
+    width: auto !important;
+    left: unset !important;
+    right: 0 !important;
     border: 1px solid theme(colors.gray.300);
     border-radius: 1.6rem;
-    padding: 0;
+    padding: 0 0;
     overflow: hidden;
 }
-
 
 .account-avatar-btn {
     --hovered-color: theme(colors.gray.300);
@@ -378,14 +380,21 @@ img {
     color: black;
 
     display: flex;
-    flex-direction: row !important;
+    flex-direction: row-reverse !important;
     align-items: center;
-    justify-content: center !important;
-    padding: 0.4rem 0.4rem;
+    justify-content: flex-start !important;
+    padding: 0.4rem 1rem;
+    gap: 0.4rem;
 }
 
 .account-avatar-item-btn:active {
     background-color: theme(colors.primary.400) !important;
+    font-size: 1rem;
+}
+
+.account-avatar-item-btn-icon {
+    color: black;
+    font-size: 0.8rem;
 }
 
 /*#endregion */

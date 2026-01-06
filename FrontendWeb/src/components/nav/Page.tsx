@@ -9,13 +9,15 @@ import AppFooter from '../nav/AppFooter';
 type PageProps = {
 	enableHeader?: boolean;
 	enableFooter?: boolean;
+	enableHeaderAnimation?: boolean;
+	headerClassName?: string;
 } & React.HTMLAttributes<HTMLElement>;
 
 function Page(props: PageProps) {
-	const {children, enableHeader, enableFooter, className, ...restProps} = props;
+	const {children, enableHeader, enableFooter, enableHeaderAnimation = true, className, headerClassName, ...restProps} = props;
 	return (
 		<article className={clsx('app-page', className)} {...restProps}>
-			{enableHeader && <AppHeader/>}
+			{enableHeader && <AppHeader className={headerClassName} slideAnimation={enableHeaderAnimation}/>}
 			{children}
 			{enableFooter && <AppFooter/>}
 		</article>

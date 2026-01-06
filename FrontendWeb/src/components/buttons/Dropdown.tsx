@@ -1,10 +1,12 @@
 import React, {ReactNode} from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import clsx from 'clsx';
+import {joinClsx} from "../../utils/classPrefixer";
 
 export interface DropdownItem<T extends string = string> {
 	id: T;
 	label: string;
+	icon?: string;
 	action?: () => void;
 	href?: string;
 	disabled?: boolean;
@@ -103,6 +105,13 @@ function CustomDropdown<T extends string = string>({
 							type={item.type}
 							className={itemButtonClassName}
 						>
+							{
+								item.icon &&
+								<i className={
+									clsx(joinClsx(itemButtonClassName, 'icon'),
+										"bi", item.icon)}
+								/>
+							}
 							{item.label}
 						</Dropdown.Item>
 					);

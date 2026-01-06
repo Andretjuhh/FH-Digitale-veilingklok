@@ -1,22 +1,29 @@
-﻿import React, { useCallback, useEffect, useState } from 'react';
+﻿import React, {useCallback, useEffect, useState} from 'react';
 import Button from '../../components/buttons/Button';
 import FormInputField from '../../components/elements/FormInputField';
-import { useForm } from 'react-hook-form';
+import {useForm} from 'react-hook-form';
 import Page from '../../components/nav/Page';
-import { getProducts, createProduct, getProductDetails, getKwekerStats } from '../../controllers/server/kweker';
-import { formatEur } from '../../utils/formatters';
-import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
-import { ProductDetailsOutputDto } from '../../declarations/dtos/output/ProductDetailsOutputDto';
-import { KwekerStatsOutputDto } from '../../declarations/dtos/output/KwekerStatsOutputDto';
-import { CreateProductDTO } from '../../declarations/dtos/input/CreateProductDTO';
+import {createProduct, getKwekerStats, getProductDetails, getProducts} from '../../controllers/server/kweker';
+import {formatEur} from '../../utils/standards';
+import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
+import {ProductDetailsOutputDto} from '../../declarations/dtos/output/ProductDetailsOutputDto';
+import {KwekerStatsOutputDto} from '../../declarations/dtos/output/KwekerStatsOutputDto';
+import {CreateProductDTO} from '../../declarations/dtos/input/CreateProductDTO';
+import {useRootContext} from "../../components/contexts/RootContext";
+import {useComponentStateReducer} from "../../hooks/useComponentStateReducer";
+import KwekerStats from "../../components/sections/kweker/KwekerStats";
+import Table from "../../components/elements/Table";
 
 export default function KwekerDashboard() {
+	const {t, account} = useRootContext();
 	const [stats, setStats] = useState<KwekerStatsOutputDto | null>(null);
 	const [activeTab, setActiveTab] = useState<'my' | 'history'>('my');
 	const [products, setProducts] = useState<ProductOutputDto[]>([]);
 	const [isCreating, setIsCreating] = useState(false);
 	const [showForm, setShowForm] = useState(false);
-	// Preview modal state
+	const [state, updateState] = useComponentStateReducer();
+
+	// Preview modal state()
 	const [showPreview, setShowPreview] = useState(false);
 	const [previewLoading, setPreviewLoading] = useState(false);
 	const [previewError, setPreviewError] = useState<string | null>(null);
@@ -26,11 +33,11 @@ export default function KwekerDashboard() {
 		register,
 		handleSubmit,
 		setError,
-		formState: { errors },
+		formState: {errors},
 		reset,
 		getValues,
 	} = useForm<CreateProductDTO>({
-		defaultValues: { name: '', description: '', minimumPrice: 0, stock: 0, imageBase64: '', dimension: '' },
+		defaultValues: {name: '', description: '', minimumPrice: 0, stock: 0, imageBase64: '', dimension: ''},
 	});
 
 	const [savedValues, setSavedValues] = useState<CreateProductDTO | null>(null);
@@ -55,53 +62,15 @@ export default function KwekerDashboard() {
 		}
 	}, []);
 
-	// derived fallback values (minimal): prefer server stats; fallback to 0 to avoid counting unsold inventory
-	const derivedTotalProducts = products.length;
-	const derivedTotalRevenue = 0; // do not sum product prices — revenue must come from Orders (sales history)
-	const derivedActiveAuctions = 0;
-	const derivedStemsSold = 0;
-
 	return (
-		<Page enableHeader enableFooter className="kweker-page">
+		<Page enableHeader className="kweker-page" enableHeaderAnimation={false}>
 			<main className="kweker-container">
 				<section className="kweker-hallo">
-					<h1>Hallo, kweker!</h1>
+					<h1>Welcome, {account?.firstName} {account?.lastName}!</h1>
 					<p className="kweker-desc">Welkom op de dashboard pagina! Bekijk hier uw producten!</p>
 				</section>
-
-				<section className="kweker-stats">
-					<div className="kweker-stat-card">
-						<div className="stat-label">Producten aangeboden</div>
-						<div className="stat-value">{stats?.totalProducts ?? 0}</div>
-					</div>
-
-					<div className="kweker-stat-card">
-						<div className="stat-label">Producten verkocht</div>
-						<div className="stat-value">{stats?.activeAuctions ?? 0}</div>
-					</div>
-
-					<div className="kweker-stat-card">
-						<div className="stat-label">Totale omzet</div>
-						<div className="stat-value">{formatEur(stats?.totalRevenue ?? 0)}</div>
-					</div>
-
-					<div className="kweker-stat-card">
-						<div className="stat-label">Bloemstelen verkocht</div>
-						<div className="stat-value">{stats?.stemsSold ?? 0}</div>
-					</div>
-				</section>
-
-				<section className="kweker-tabs-wrap">
-					<div className="kweker-tabs">
-						<button className={`kweker-tab ${activeTab === 'my' ? 'active' : ''}`} onClick={() => setActiveTab('my')}>
-							Mijn producten
-						</button>
-						<button className={`kweker-tab ${activeTab === 'history' ? 'active' : ''}`} onClick={() => setActiveTab('history')}>
-							Product geschiedenis
-						</button>
-					</div>
-				</section>
-
+				<KwekerStats/>
+				<Table/>
 				<section className="kweker-content">
 					<div className="content-inner">
 						<div className="product-grid">
@@ -141,7 +110,7 @@ export default function KwekerDashboard() {
 									</div>
 									<div className="product-price">
 										<div className="product-price">{formatEur(p.auctionedPrice ?? 0)}</div>
-										<div className="product-thumb" style={{ backgroundImage: `url(${p.imageUrl})` }} />
+										<div className="product-thumb" style={{backgroundImage: `url(${p.imageUrl})`}}/>
 									</div>
 								</article>
 							))}
@@ -212,7 +181,7 @@ export default function KwekerDashboard() {
 																}
 															} catch (err: any) {
 																console.error('createProduct failed', err);
-																setError('name', { type: 'server', message: 'Onbekende fout bij het aanmaken van product' });
+																setError('name', {type: 'server', message: 'Onbekende fout bij het aanmaken van product'});
 															} finally {
 																setIsCreating(false);
 															}
@@ -220,28 +189,37 @@ export default function KwekerDashboard() {
 														className="create-product-form"
 													>
 														<div className="form-row">
-															<FormInputField id="name" label="Naam" {...register('name', { required: 'Naam is verplicht' })} isError={!!errors.name} error={errors.name?.message as string} />
+															<FormInputField id="name" label="Naam" {...register('name', {required: 'Naam is verplicht'})} isError={!!errors.name}
+															                error={errors.name?.message as string}/>
 														</div>
 
 														<div className="form-row">
 															<label>Beschrijving</label>
-															<textarea {...register('description', { required: 'Beschrijving is verplicht' })} />
+															<textarea {...register('description', {required: 'Beschrijving is verplicht'})} />
 														</div>
 
 														<div className="form-row">
-															<FormInputField id="minimumPrice" label="Minimum prijs (€)" type="number" step="0.01" {...register('minimumPrice', { required: 'Minimum prijs is verplicht', min: 0 })} isError={!!errors.minimumPrice} error={errors.minimumPrice?.message as string} />
+															<FormInputField id="minimumPrice" label="Minimum prijs (€)" type="number"
+															                step="0.01" {...register('minimumPrice', {required: 'Minimum prijs is verplicht', min: 0})}
+															                isError={!!errors.minimumPrice} error={errors.minimumPrice?.message as string}/>
 														</div>
 
 														<div className="form-row">
-															<FormInputField id="stock" label="Aantal" type="number" {...register('stock', { required: 'Aantal is verplicht', min: 0 })} isError={!!errors.stock} error={errors.stock?.message as string} />
+															<FormInputField id="stock" label="Aantal" type="number" {...register('stock', {
+																required: 'Aantal is verplicht',
+																min: 0
+															})} isError={!!errors.stock} error={errors.stock?.message as string}/>
 														</div>
 
 														<div className="form-row">
-															<FormInputField id="imageBase64" label="Afbeelding (Base64)" {...register('imageBase64', { required: 'Afbeelding is verplicht' })} isError={!!errors.imageBase64} error={errors.imageBase64?.message as string} />
+															<FormInputField id="imageBase64"
+															                label="Afbeelding (Base64)" {...register('imageBase64', {required: 'Afbeelding is verplicht'})}
+															                isError={!!errors.imageBase64} error={errors.imageBase64?.message as string}/>
 														</div>
 
 														<div className="form-row">
-															<FormInputField id="dimension" label="Maat" {...register('dimension')} isError={!!errors.dimension} error={errors.dimension?.message as string} />
+															<FormInputField id="dimension" label="Maat" {...register('dimension')} isError={!!errors.dimension}
+															                error={errors.dimension?.message as string}/>
 														</div>
 
 														<div className="form-row form-actions">
@@ -311,7 +289,9 @@ export default function KwekerDashboard() {
 																	{previewProduct.dimension && <div className="product-size">Maat: {previewProduct.dimension}</div>}
 																	<div className="product-company">Kweker: {previewProduct.companyName}</div>
 																</div>
-																<div className="product-image">{previewProduct.imageBase64 ? <img src={previewProduct.imageBase64} alt={previewProduct.name} /> : <div className="product-image-placeholder" aria-hidden="true" />}</div>
+																<div className="product-image">{previewProduct.imageBase64 ?
+																	<img src={previewProduct.imageBase64} alt={previewProduct.name}/> :
+																	<div className="product-image-placeholder" aria-hidden="true"/>}</div>
 															</div>
 														</div>
 													)}

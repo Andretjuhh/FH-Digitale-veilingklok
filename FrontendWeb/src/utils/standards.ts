@@ -13,3 +13,7 @@ export function getRandomColorHSL(): string {
 }
 
 export const sanitizeMessage = (value: string): string => value.replace(/\\"/g, '"').replace(/"/g, '').replace(/\s+/g, ' ').trim();
+
+export function formatEur(value: number) {
+	return value.toLocaleString('nl-NL', {style: 'currency', currency: 'EUR', minimumFractionDigits: 2});
+}
