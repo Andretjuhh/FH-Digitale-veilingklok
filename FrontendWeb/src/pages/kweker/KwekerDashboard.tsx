@@ -53,7 +53,7 @@ export default function KwekerDashboard() {
 				key: 'itemName',
 				label: 'Item Name',
 				sortable: true,
-				render: (item: Order) => (
+				render: (item: OrderOutputDto) => (
 					<div className="app-table-cell-item">
 						<div className="app-table-cell-icon">{item.icon}</div>
 						<div>
@@ -67,7 +67,7 @@ export default function KwekerDashboard() {
 				key: 'orderId',
 				label: 'Order ID',
 				sortable: true,
-				render: (item: Order) => (
+				render: (item: OrderOutputDto) => (
 					<div>
 						<div className="app-table-cell-title">{item.orderId}</div>
 						<div className="app-table-cell-subtitle">{item.orderDate}</div>
@@ -78,7 +78,7 @@ export default function KwekerDashboard() {
 				key: 'customer',
 				label: 'Customer',
 				sortable: true,
-				render: (item: Order) => (
+				render: (item: OrderOutputDto) => (
 					<div className="app-table-cell-item">
 						<div className="app-table-cell-avatar">{item.avatar}</div>
 						<div>
@@ -92,7 +92,7 @@ export default function KwekerDashboard() {
 				key: 'price',
 				label: 'Price',
 				sortable: true,
-				render: (item: Order) => (
+				render: (item: OrderOutputDto) => (
 					<div>
 						<div className="app-table-cell-title">${item.price.toFixed(2)}</div>
 						<div className="app-table-cell-subtitle">{item.paymentMethod}</div>
@@ -103,12 +103,12 @@ export default function KwekerDashboard() {
 				key: 'status',
 				label: 'Status',
 				sortable: true,
-				render: (item: Order) => <StatusBadge status={item.status}/>,
+				render: (item: OrderOutputDto) => <StatusBadge status={item.status}/>,
 			},
 			{
 				key: 'action',
 				label: 'Action',
-				render: (item: Order, onAction?: (item: Order) => void) => (
+				render: (item: OrderOutputDto, onAction?: (item: OrderOutputDto) => void) => (
 					<button onClick={() => onAction?.(item)} className="app-table-action-btn">
 						View Details
 					</button>

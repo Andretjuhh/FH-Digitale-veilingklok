@@ -65,6 +65,12 @@ function useRoot() {
 		setLoggedIn(!!response?.data);
 	}, [t, navigate, changeLanguage]);
 
+	const refreshAccount = useCallback(async () => {
+		const response = await getAccountInfo().catch(() => undefined);
+		setAccount(response?.data);
+		setLoggedIn(!!response?.data);
+	}, []);
+
 	// Authenticate account function (stub for future use)
 	const authenticateAccount = useCallback(async (account: AuthOutputDto) => {
 		console.log('Authenticating account in context...', account);
@@ -85,6 +91,7 @@ function useRoot() {
 		loggedIn,
 		account,
 		authenticateAccount,
+		refreshAccount,
 		removeAuthentication,
 		t,
 		languageCode,

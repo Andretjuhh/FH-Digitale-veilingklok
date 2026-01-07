@@ -8,6 +8,10 @@ using Domain.ValueObjects;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Seeders;
 using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Extensions;
@@ -77,17 +81,28 @@ public static class DevelopmentEndpointsExtension
 
         app.MapPost(
                 "/api/dev/veilingklok/dummy",
-                async (
-                    DevVeilingKlokRequest request,
-                    AppDbContext dbContext,
-                    IPasswordHasher passwordHasher,
-                    IMediator mediator
-                ) =>
+                async context =>
                 {
+                    var request = await context.Request.ReadFromJsonAsync<DevVeilingKlokRequest>();
+                    if (request == null)
+                    {
+                        await Results.BadRequest(new { message = "Request body is required." })
+                            .ExecuteAsync(context);
+                        return;
+                    }
+
+                    var dbContext = context.RequestServices.GetRequiredService<AppDbContext>();
+                    var passwordHasher = context.RequestServices.GetRequiredService<IPasswordHasher>();
+                    var mediator = context.RequestServices.GetRequiredService<IMediator>();
+
                     if (request.Products.Count == 0)
-                        return Results.BadRequest(
-                            new { message = "At least one product is required." }
-                        );
+                    {
+                        await Results.BadRequest(
+                                new { message = "At least one product is required." }
+                            )
+                            .ExecuteAsync(context);
+                        return;
+                    }
 
                     var meester = await EnsureDevVeilingmeesterAsync(dbContext, passwordHasher);
                     var kwekersByCompany = new Dictionary<string, Kweker>(
@@ -171,10 +186,15 @@ public static class DevelopmentEndpointsExtension
                         new CreateVeilingKlokCommand(dto, meester.Id)
                     );
 
-                    return HttpSuccess<VeilingKlokDetailsOutputDto>.Created(
-                        result,
-                        "Dev veilingklok created successfully"
+                    var actionContext = new ActionContext(
+                        context,
+                        new RouteData(),
+                        new ActionDescriptor()
                     );
+
+                    await HttpSuccess<VeilingKlokDetailsOutputDto>
+                        .Created(result, "Dev veilingklok created successfully")
+                        .ExecuteResultAsync(actionContext);
                 }
             )
             .WithName("CreateDevVeilingKlok")
