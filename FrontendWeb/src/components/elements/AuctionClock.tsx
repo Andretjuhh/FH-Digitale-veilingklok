@@ -11,6 +11,8 @@ type ClockProps = {
 	amountPerLot?: number; // "Aant/ehd"
 	minAmount?: number;
 	price?: number; // dynamic price shown
+	maxPrice?: number;
+	minPrice?: number;
 	onTick?: (remaining: number) => void;
 	onComplete?: () => void;
 };
@@ -25,6 +27,8 @@ export default function AuctionClock(props: ClockProps) {
 		amountPerLot = 150,
 		minAmount = 1,
 		price = 1,
+		maxPrice,
+		minPrice,
 		onTick,
 		onComplete,
 	} = props;
@@ -71,6 +75,17 @@ export default function AuctionClock(props: ClockProps) {
 		const elapsedMs = totalMs - remainingMs;
 		return Math.min(DOTS - 1, Math.floor((elapsedMs / totalMs) * DOTS));
 	}, [remainingMs, totalMs]);
+
+	const displayPrice = useMemo(() => {
+		if (typeof maxPrice === 'number' && typeof minPrice === 'number') {
+			const high = Math.max(maxPrice, minPrice);
+			const low = Math.min(maxPrice, minPrice);
+			if (high === low || totalMs === 0) return high;
+			const progress = (totalMs - remainingMs) / totalMs;
+			return high - (high - low) * progress;
+		}
+		return price;
+	}, [maxPrice, minPrice, price, remainingMs, totalMs]);
 
 	// Precompute ring dots
 	const dots = useMemo(() => {

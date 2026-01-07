@@ -11,6 +11,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+
+
 namespace API.Controllers;
 
 [Authorize(Roles = nameof(AccountType.Veilingmeester))]
@@ -74,17 +76,31 @@ public class MeesterController : ControllerBase
         return HttpSuccess<string>.NoContent("Order status updated successfully");
     }
 
-    [HttpPost("veilingklok")]
-    public async Task<IActionResult> CreateVeilingKlok([FromBody] CreateVeilingKlokDTO veiling)
-    {
-        var (meesterId, _) = GetUserClaim.GetInfo(User);
-        var command = new CreateVeilingKlokCommand(veiling, meesterId);
-        var result = await _mediator.Send(command);
-        return HttpSuccess<VeilingKlokDetailsOutputDto>.Created(
-            result,
-            "VeilingKlok created successfully"
-        );
-    }
+    public sealed class CreateVeilingKlokRequest
+{
+    public CreateVeilingKlokDTO Veiling { get; set; } = default!;
+}
+
+[HttpPost("veilingklok")]
+public async Task<IActionResult> CreateVeilingKlok(
+    [FromBody] CreateVeilingKlokRequest request
+)
+{
+    var (meesterId, _) = GetUserClaim.GetInfo(User);
+
+    var command = new CreateVeilingKlokCommand(
+        request.Veiling,
+        meesterId
+    );
+
+    var result = await _mediator.Send(command);
+
+    return HttpSuccess<VeilingKlokDetailsOutputDto>.Created(
+        result,
+        "VeilingKlok created successfully"
+    );
+}
+
 
     [HttpGet("veilingklok/{klokId}")]
     public async Task<IActionResult> GetVeilingKlok(Guid klokId)

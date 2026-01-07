@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Page from '../../components/nav/Page';
 import AuctionClock from '../../components/elements/AuctionClock';
 import Button from '../../components/buttons/Button';
 import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
 import { formatEur } from '../../utils/standards';
+
+import {
+	createVeilingKlok,
+	getProducts,
+	updateVeilingKlokStatus,
+	startVeilingProduct,
+} from '../../controllers/server/veilingmeester';
 
 /* =========================================================
    TYPES
@@ -25,8 +32,8 @@ type HistoryProduct = {
 };
 
 type VeilingHistory = {
-	id: string;                 // VeilingKlok.Id
-	startedAt: string;          // ScheduledAt / StartedAt
+	id: string;
+	startedAt: string | null;
 	endedAt: string | null;
 	products: HistoryProduct[];
 };
@@ -34,12 +41,12 @@ type VeilingHistory = {
 type VeilingState = 'none' | 'open' | 'running';
 
 /* =========================================================
-   DUMMY QUEUE (until backend product fetch is wired)
+   COMPONENT
    ========================================================= */
 
 const DUMMY_QUEUE: ProductOutputDto[] = [
 	{
-		id: '1',
+		id: '00000000-0000-0000-0000-000000000001',
 		name: 'Rode Rozen Premium',
 		description: 'Dieprode rozen van topkwaliteit',
 		imageUrl: '',
@@ -50,7 +57,7 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		companyName: 'Kwekerij Bloemenhof',
 	},
 	{
-		id: '2',
+		id: '00000000-0000-0000-0000-000000000002',
 		name: 'Witte Lelies',
 		description: 'Verse witte lelies, grote knoppen',
 		imageUrl: '',
@@ -62,61 +69,18 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 	},
 ];
 
-/* =========================================================
-   API HELPERS (replace URLs if needed)
-   ========================================================= */
-
-async function apiCreateVeiling(
-	products: ProductOutputDto[],
-	startPrice: number
-) {
-	return fetch('/api/veilingklok', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			scheduledAt: new Date().toISOString(),
-			veilingDurationMinutes: 60,
-			products: Object.fromEntries(
-				products.map((p) => [p.id, startPrice])
-			),
-		}),
-	}).then((r) => r.json());
-}
-
-async function apiUpdateVeilingStatus(
-	veilingId: string,
-	status: 'Started' | 'Ended'
-) {
-	return fetch(`/api/veilingklok/${veilingId}/status`, {
-		method: 'PUT',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ status }),
-	});
-}
-
-async function apiStartVeilingProduct(
-	veilingId: string,
-	productId: string
-) {
-	return fetch(`/api/veilingklok/${veilingId}/product/start`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ productId }),
-	});
-}
-
-/* =========================================================
-   COMPONENT
-   ========================================================= */
-
 export default function VeilingmeesterDashboard() {
 	const [tab, setTab] = useState<'veiling' | 'history'>('veiling');
 
-	/* ---- Veiling state ---- */
-	const [queue, setQueue] = useState<ProductOutputDto[]>(DUMMY_QUEUE);
+	/* ---- Queue & veiling state ---- */
+	const [queue, setQueue] = useState<ProductOutputDto[]>([]);
+	const [isLoadingQueue, setIsLoadingQueue] = useState(false);
+	const [queueError, setQueueError] = useState<string | null>(null);
+	const [useDevQueue, setUseDevQueue] = useState(false);
 	const [activeProduct, setActiveProduct] = useState<ProductOutputDto | null>(null);
 	const [veilingState, setVeilingState] = useState<VeilingState>('none');
 
+	/* ---- Clock state ---- */
 	const [startPrice, setStartPrice] = useState(0);
 	const [resetToken, setResetToken] = useState(0);
 
@@ -124,40 +88,119 @@ export default function VeilingmeesterDashboard() {
 	const [currentVeiling, setCurrentVeiling] = useState<VeilingHistory | null>(null);
 	const [history, setHistory] = useState<VeilingHistory[]>([]);
 
+	useEffect(() => {
+		let isActive = true;
+		const loadQueue = async () => {
+			setIsLoadingQueue(true);
+			setQueueError(null);
+			try {
+				const response = await getProducts();
+				if (!isActive) return;
+				const data = response.data.data;
+				if (data.length === 0 && process.env.NODE_ENV === 'development') {
+					setQueue(DUMMY_QUEUE);
+					setUseDevQueue(true);
+				} else {
+					setQueue(data);
+					setUseDevQueue(false);
+				}
+			} catch (err) {
+				console.error('Load products failed:', err);
+				if (!isActive) return;
+				setQueueError('Producten ophalen mislukt.');
+				if (process.env.NODE_ENV === 'development') {
+					setQueue(DUMMY_QUEUE);
+					setUseDevQueue(true);
+				}
+			} finally {
+				if (isActive) setIsLoadingQueue(false);
+			}
+		};
+		loadQueue();
+		return () => {
+			isActive = false;
+		};
+	}, []);
+
 	/* =====================================================
 	   ACTIONS
 	   ===================================================== */
 
 	/**
 	 * OPEN VEILING
-	 * Creates a VeilingKlok row in the database
+	 * → Creates VeilingKlok in DB
+	 * → NO start price required here
 	 */
 	const openVeiling = async () => {
-		if (queue.length === 0) return;
+		try {
+			if (queue.length === 0) {
+				alert('Er zijn geen producten om te veilen.');
+				return;
+			}
 
-		// --- BACKEND CALL ---
-		const klok = await apiCreateVeiling(queue, startPrice);
+			const productsMap: Record<string, number> = {};
+			queue.forEach((p) => {
+				productsMap[p.id] = p.auctionedPrice ?? 0;
+			});
 
-		// --- STORE VEILING LOCALLY ---
-		setCurrentVeiling({
-			id: klok.id,
-			startedAt: klok.scheduledAt,
-			endedAt: null,
-			products: [],
-		});
+			const payload = {
+				scheduledAt: new Date(Date.now() + 60_000).toISOString(),
+				veilingDurationMinutes: 60,
+				products: productsMap,
+			};
 
-		setActiveProduct(klok.products[0] ?? queue[0]);
-		setVeilingState('open');
+			console.log('CreateVeiling payload:', payload);
+
+			if (useDevQueue) {
+				setCurrentVeiling({
+					id: `dev-${Date.now()}`,
+					startedAt: payload.scheduledAt,
+					endedAt: null,
+					products: [],
+				});
+				setActiveProduct(queue[0]);
+				setVeilingState('open');
+				return;
+			}
+
+			const response = await createVeilingKlok(payload);
+			const klok = response.data;
+
+			setCurrentVeiling({
+				id: klok.id,
+				startedAt: klok.scheduledAt,
+				endedAt: null,
+				products: [],
+			});
+
+			setActiveProduct(queue[0]);
+			setVeilingState('open');
+		} catch (err) {
+			console.error('Open veiling failed:', err);
+			alert('Openen van veiling mislukt (zie console)');
+		}
 	};
 
 	/**
-	 * START VEILING (clock starts running)
+	 * START VEILING
+	 * → Requires valid start price
 	 */
 	const startVeiling = async () => {
 		if (!currentVeiling || !activeProduct) return;
 
-		await apiUpdateVeilingStatus(currentVeiling.id, 'Started');
-		await apiStartVeilingProduct(currentVeiling.id, activeProduct.id);
+		if (startPrice <= 0) {
+			alert('Vul eerst een geldige minimumprijs in.');
+			return;
+		}
+
+		if (useDevQueue) {
+			setVeilingState('running');
+			setResetToken((t) => t + 1);
+			return;
+		}
+
+		await updateVeilingKlokStatus(currentVeiling.id, 'Started');
+		await startVeilingProduct(currentVeiling.id, activeProduct.id);
 
 		setVeilingState('running');
 		setResetToken((t) => t + 1);
@@ -165,10 +208,9 @@ export default function VeilingmeesterDashboard() {
 
 	/**
 	 * PRODUCT FINISHED
-	 * Adds result to current veiling
 	 */
 	const onAuctionComplete = () => {
-		if (!activeProduct || !currentVeiling) return;
+		if (!currentVeiling || !activeProduct) return;
 
 		const sold: HistoryProduct = {
 			id: `hp-${activeProduct.id}-${Date.now()}`,
@@ -207,11 +249,12 @@ export default function VeilingmeesterDashboard() {
 
 	/**
 	 * END VEILING
-	 * Marks VeilingKlok as ended and moves it to history
 	 */
 	const endVeiling = async () => {
 		if (currentVeiling) {
-			await apiUpdateVeilingStatus(currentVeiling.id, 'Ended');
+			if (!useDevQueue) {
+				await updateVeilingKlokStatus(currentVeiling.id, 'Ended');
+			}
 
 			setHistory((h) => [
 				{
@@ -232,6 +275,9 @@ export default function VeilingmeesterDashboard() {
 	   RENDER
 	   ===================================================== */
 
+	const displayProduct = activeProduct ?? queue[0] ?? null;
+	const remainingProducts = displayProduct ? queue.filter((p) => p.id !== displayProduct.id) : queue;
+
 	return (
 		<Page enableHeader enableFooter>
 			<main className="vm-container">
@@ -248,61 +294,138 @@ export default function VeilingmeesterDashboard() {
 
 				{/* ================= VEILING TAB ================= */}
 				{tab === 'veiling' && (
-					<>
-						{veilingState === 'none' && (
-							<section className="vm-noVeiling">
-								<h2>Producten</h2>
-								{queue.map((p) => (
-									<div key={p.id}>{p.name}</div>
-								))}
-								<Button label="Open veiling" onClick={openVeiling} />
-							</section>
-						)}
+					<section className="vm-board">
+						<div className="vm-boardHeader">
+							<div>
+								<h2 className="vm-sectionTitle">Veiling</h2>
+								<p className="vm-sectionSub">Beheer de veiling en volg de producten.</p>
+							</div>
+							{veilingState === 'none' && (
+								<Button label="Open veiling" onClick={openVeiling} disabled={isLoadingQueue || queue.length == 0} />
+							)}
+							{veilingState !== 'none' && (
+								<Button label="Eindig veiling" onClick={endVeiling} />
+							)}
+						</div>
 
-						{veilingState !== 'none' && activeProduct && (
-							<>
-								<section className="vm-top">
-									<div className="vm-productCard">
-										<h2>{activeProduct.name}</h2>
-										<p>{activeProduct.description}</p>
+						<div className="vm-currentRow">
+							{displayProduct ? (
+								<div className="vm-currentCard">
+									<div className="vm-currentMedia">
+										{displayProduct.imageUrl ? (
+											<img
+												className="vm-currentImg"
+												src={displayProduct.imageUrl}
+												alt={displayProduct.name}
+											/>
+										) : (
+											<div className="vm-currentImg vm-currentImgPlaceholder" />
+										)}
 									</div>
+									<div className="vm-currentBody">
+										<div className="vm-currentHead">
+											<div>
+												<h3 className="vm-productName">{displayProduct.name}</h3>
+												<p className="vm-productDesc">{displayProduct.description}</p>
+											</div>
+											<div className="vm-currentTags">
+												<span className="vm-metaPill">{displayProduct.companyName}</span>
+												{displayProduct.dimension && (
+													<span className="vm-metaPill">{displayProduct.dimension}</span>
+												)}
+											</div>
+										</div>
+										<div className="vm-currentGrid">
+											<div className="vm-kv">
+												<span className="vm-kvLabel">Voorraad</span>
+												<span className="vm-kvValue">{displayProduct.stock}</span>
+											</div>
+											<div className="vm-kv">
+												<span className="vm-kvLabel">Maximumprijs (kweker)</span>
+												<span className="vm-kvValue">
+													{displayProduct.auctionedPrice != null
+														? formatEur(displayProduct.auctionedPrice || 0)
+														: 'Nog niet gezet'}
+												</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							) : (
+								<div className="vm-empty">Geen producten beschikbaar.</div>
+							)}
 
-									<div className="vm-controlCard">
-										<label>Startprijs (€)</label>
+							<div className="vm-clockCard">
+								<div className={`vm-clockCircle ${veilingState === 'running' ? 'running' : 'idle'}`}>
+									{veilingState === 'running' ? (
+										<AuctionClock
+											start
+											maxPrice={displayProduct?.auctionedPrice ?? startPrice}
+											minPrice={startPrice}
+											resetToken={resetToken}
+											onComplete={onAuctionComplete}
+										/>
+									) : (
+										<div className="vm-clockPlaceholder">Klok</div>
+									)}
+								</div>
+								{veilingState !== 'none' && (
+									<div className="vm-clockControls">
+										<label className="vm-label">Minimumprijs (veilingmeester)</label>
 										<input
+											className="vm-input"
 											type="number"
 											value={startPrice}
 											onChange={(e) => setStartPrice(Number(e.target.value))}
 										/>
-
 										{veilingState === 'open' && (
 											<Button label="Start veiling" onClick={startVeiling} />
 										)}
-
-										{veilingState === 'running' && (
-											<AuctionClock
-												start
-												price={startPrice}
-												resetToken={resetToken}
-												onComplete={onAuctionComplete}
-											/>
-										)}
-
-										<Button label="Eindig veiling" onClick={endVeiling} />
 									</div>
-								</section>
-							</>
-						)}
-					</>
+								)}
+							</div>
+						</div>
+
+						<div className="vm-list">
+							<h3 className="vm-sectionTitle">Overige producten</h3>
+							<div className="vm-queueList">
+								{isLoadingQueue && <div>Producten laden...</div>}
+								{queueError && <div>{queueError}</div>}
+								{!isLoadingQueue && !queueError && queue.length == 0 && (
+									<div>Geen producten beschikbaar.</div>
+								)}
+								{!isLoadingQueue && !queueError && remainingProducts.map((p) => (
+									<div key={p.id} className="vm-queueRow">
+										<div>
+											<div className="vm-queueName">{p.name}</div>
+											<div className="vm-queueSub">{p.description}</div>
+										</div>
+										<div className="vm-queueMid">
+											<div>{p.companyName}</div>
+											{p.dimension && <div>{p.dimension}</div>}
+											<div>Voorraad: {p.stock}</div>
+										</div>
+										<div className="vm-queueRight">
+											{p.auctionedPrice != null ? formatEur(p.auctionedPrice) : 'Nog niet gezet'}
+										</div>
+									</div>
+								))}
+							</div>
+						</div>
+					</section>
 				)}
 
 				{/* ================= HISTORY TAB ================= */}
+
 				{tab === 'history' && (
 					<section className="vm-history">
 						{history.map((v) => (
 							<details key={v.id}>
 								<summary>
-									Veiling – {new Date(v.startedAt).toLocaleString()}
+									Veiling –{' '}
+									{v.startedAt
+										? new Date(v.startedAt).toLocaleString()
+										: 'Onbekende datum'}
 								</summary>
 
 								{v.products.map((p) => (

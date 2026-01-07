@@ -69,6 +69,9 @@ public sealed class CreateVeilingHandler
                 if (!dto.Products.TryGetValue(result.Product.Id, out var price))
                     throw RepositoryException.NotFoundProduct();
 
+                if (price <= 0)
+                    price = result.Product.MinimumPrice;
+
                 // Use domain method to update the auction price (validates against minimum price)
                 result.Product.UpdateAuctionPrice(price);
 
