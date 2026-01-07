@@ -909,6 +909,46 @@
 /*#endregion*/
 
 /*#region Veilingmeester Page */
+.veiling-container {
+	max-width: 1200px;
+	margin: auto;
+	padding: 2rem;
+}
+
+.auction-live {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 2rem;
+	margin-bottom: 2rem;
+}
+
+.auction-left {
+	background: white;
+	border-radius: 12px;
+	padding: 1.5rem;
+}
+
+.auction-right {
+	background: #f7f7f7;
+	border-radius: 12px;
+	padding: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.product-list .product-row {
+	display: flex;
+	justify-content: space-between;
+	padding: 1rem;
+	border-bottom: 1px solid #eee;
+	cursor: pointer;
+}
+
+.history-row summary {
+	cursor: pointer;
+	font-weight: 600;
+}
 
 /*#endregion*/
 
