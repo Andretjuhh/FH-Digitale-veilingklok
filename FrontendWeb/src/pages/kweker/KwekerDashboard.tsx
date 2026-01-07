@@ -1,4 +1,4 @@
-﻿import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import Button from '../../components/buttons/Button';
 import FormInputField from '../../components/elements/FormInputField';
 import {useForm} from 'react-hook-form';
@@ -12,8 +12,7 @@ import {CreateProductDTO} from '../../declarations/dtos/input/CreateProductDTO';
 import {useRootContext} from "../../components/contexts/RootContext";
 import {useComponentStateReducer} from "../../hooks/useComponentStateReducer";
 import KwekerStats from "../../components/sections/kweker/KwekerStats";
-import Table, {Column, StatusBadge} from "../../components/elements/Table";
-import {OrderOutputDto} from "../../declarations/dtos/output/OrderOutputDto";
+import Table from "../../components/elements/Table";
 
 export default function KwekerDashboard() {
 	const {t, account} = useRootContext();
@@ -47,76 +46,6 @@ export default function KwekerDashboard() {
 		initializeProducts();
 	}, [activeTab]);
 
-	const productOrderColumns: Column<OrderOutputDto>[] = useMemo(
-		() => [
-			{
-				key: 'itemName',
-				label: 'Item Name',
-				sortable: true,
-				render: (item: OrderOutputDto) => (
-					<div className="app-table-cell-item">
-						<div className="app-table-cell-icon">{item.icon}</div>
-						<div>
-							<div className="app-table-cell-title">{item.itemName}</div>
-							<div className="app-table-cell-subtitle">{item.category}</div>
-						</div>
-					</div>
-				),
-			},
-			{
-				key: 'orderId',
-				label: 'Order ID',
-				sortable: true,
-				render: (item: OrderOutputDto) => (
-					<div>
-						<div className="app-table-cell-title">{item.orderId}</div>
-						<div className="app-table-cell-subtitle">{item.orderDate}</div>
-					</div>
-				),
-			},
-			{
-				key: 'customer',
-				label: 'Customer',
-				sortable: true,
-				render: (item: OrderOutputDto) => (
-					<div className="app-table-cell-item">
-						<div className="app-table-cell-avatar">{item.avatar}</div>
-						<div>
-							<div className="app-table-cell-title">{item.customer}</div>
-							<div className="app-table-cell-subtitle">{item.customerType}</div>
-						</div>
-					</div>
-				),
-			},
-			{
-				key: 'price',
-				label: 'Price',
-				sortable: true,
-				render: (item: OrderOutputDto) => (
-					<div>
-						<div className="app-table-cell-title">${item.price.toFixed(2)}</div>
-						<div className="app-table-cell-subtitle">{item.paymentMethod}</div>
-					</div>
-				),
-			},
-			{
-				key: 'status',
-				label: 'Status',
-				sortable: true,
-				render: (item: OrderOutputDto) => <StatusBadge status={item.status}/>,
-			},
-			{
-				key: 'action',
-				label: 'Action',
-				render: (item: OrderOutputDto, onAction?: (item: OrderOutputDto) => void) => (
-					<button onClick={() => onAction?.(item)} className="app-table-action-btn">
-						View Details
-					</button>
-				),
-			},
-		],
-		[]
-	);
 	const initializeProducts = useCallback(async () => {
 		try {
 			const response = await getProducts();
@@ -222,7 +151,7 @@ export default function KwekerDashboard() {
 														}}
 														aria-label="Sluiten"
 													>
-														✕
+														?
 													</button>
 												</div>
 												<div className="modal-body">
@@ -270,7 +199,7 @@ export default function KwekerDashboard() {
 														</div>
 
 														<div className="form-row">
-															<FormInputField id="minimumPrice" label="Minimum prijs (€)" type="number"
+															<FormInputField id="minimumPrice" label="Minimum prijs (�)" type="number"
 															                step="0.01" {...register('minimumPrice', {required: 'Minimum prijs is verplicht', min: 0})}
 															                isError={!!errors.minimumPrice} error={errors.minimumPrice?.message as string}/>
 														</div>
@@ -341,7 +270,7 @@ export default function KwekerDashboard() {
 														}}
 														aria-label="Sluiten"
 													>
-														✕
+														?
 													</button>
 												</div>
 												<div className="modal-body">
@@ -379,3 +308,4 @@ export default function KwekerDashboard() {
 		</Page>
 	);
 }
+
