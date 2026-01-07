@@ -41,8 +41,8 @@ public sealed class UpdateVeilingKlokStatusHandler : IRequestHandler<UpdateVeili
             var veilingKlok = await _veilingKlokRepository.GetByIdAsync(request.Id) ??
                               throw RepositoryException.NotFoundVeilingKlok();
 
-            // Check if a veiling is running
-            if (_veilingKlokEngine.IsVeillingRunning(veilingKlok.Id))
+            var isRunning = _veilingKlokEngine.IsVeillingRunning(veilingKlok.Id);
+            if (isRunning && request.Status == VeilingKlokStatus.Started)
                 throw CustomException.CannotChangeRunningVeilingKlok();
 
             veilingKlok.UpdateStatus(request.Status);
@@ -52,7 +52,7 @@ public sealed class UpdateVeilingKlokStatusHandler : IRequestHandler<UpdateVeili
                 await _veilingKlokEngine.AddActiveVeilingKlokAsync(veilingKlok, product.ToList());
                 await _veilingKlokEngine.StartVeilingAsync(veilingKlok.Id);
             }
-            else if (request.Status == VeilingKlokStatus.Stopped)
+            else if (request.Status == VeilingKlokStatus.Stopped || request.Status == VeilingKlokStatus.Ended)
             {
                 await _veilingKlokEngine.StopVeilingAsync(veilingKlok.Id);
             }

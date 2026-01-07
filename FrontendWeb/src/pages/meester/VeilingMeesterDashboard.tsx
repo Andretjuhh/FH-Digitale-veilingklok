@@ -6,6 +6,7 @@ import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDt
 import { formatEur } from '../../utils/standards';
 
 import {
+	createDevVeilingKlok,
 	createVeilingKlok,
 	getProducts,
 	updateVeilingKlokStatus,
@@ -49,8 +50,8 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		id: '00000000-0000-0000-0000-000000000001',
 		name: 'Rode Rozen Premium',
 		description: 'Dieprode rozen van topkwaliteit',
-		imageUrl: '',
-		auctionedPrice: null,
+		imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93',
+		auctionedPrice: 125,
 		auctionedAt: null,
 		dimension: '60 cm',
 		stock: 150,
@@ -60,14 +61,49 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		id: '00000000-0000-0000-0000-000000000002',
 		name: 'Witte Lelies',
 		description: 'Verse witte lelies, grote knoppen',
-		imageUrl: '',
-		auctionedPrice: null,
+		imageUrl: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
+		auctionedPrice: 90,
 		auctionedAt: null,
 		dimension: '70 cm',
 		stock: 80,
 		companyName: 'Lelie Centrum BV',
 	},
+	{
+		id: '00000000-0000-0000-0000-000000000003',
+		name: 'Zonnebloem XL',
+		description: 'Grote zonnebloemen met stevige stelen',
+		imageUrl: 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9',
+		auctionedPrice: 65,
+		auctionedAt: null,
+		dimension: '90 cm',
+		stock: 120,
+		companyName: 'Zon & Co',
+	},
+	{
+		id: '00000000-0000-0000-0000-000000000004',
+		name: 'Tulpen Mix',
+		description: 'Mix van voorjaarskleuren, premium selectie',
+		imageUrl: 'https://images.unsplash.com/photo-1508747703725-719777637510',
+		auctionedPrice: 55,
+		auctionedAt: null,
+		dimension: '40 cm',
+		stock: 200,
+		companyName: 'Tulipa Holland',
+	},
+	{
+		id: '00000000-0000-0000-0000-000000000005',
+		name: 'Orchidee Phalaenopsis',
+		description: 'Bloeiend en rijk vertakt',
+		imageUrl: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
+		auctionedPrice: 160,
+		auctionedAt: null,
+		dimension: '55 cm',
+		stock: 60,
+		companyName: 'Orchid World',
+	},
 ];
+
+const DEV_DEFAULT_MIN_RATIO = 0.6;
 
 export default function VeilingmeesterDashboard() {
 	const [tab, setTab] = useState<'veiling' | 'history'>('veiling');
@@ -77,6 +113,7 @@ export default function VeilingmeesterDashboard() {
 	const [isLoadingQueue, setIsLoadingQueue] = useState(false);
 	const [queueError, setQueueError] = useState<string | null>(null);
 	const [useDevQueue, setUseDevQueue] = useState(false);
+	const [persistedDevVeiling, setPersistedDevVeiling] = useState(false);
 	const [activeProduct, setActiveProduct] = useState<ProductOutputDto | null>(null);
 	const [veilingState, setVeilingState] = useState<VeilingState>('none');
 
@@ -87,6 +124,13 @@ export default function VeilingmeesterDashboard() {
 	/* ---- Persisted veiling ---- */
 	const [currentVeiling, setCurrentVeiling] = useState<VeilingHistory | null>(null);
 	const [history, setHistory] = useState<VeilingHistory[]>([]);
+
+	useEffect(() => {
+		if (!useDevQueue || !activeProduct || startPrice > 0) return;
+		const max = activeProduct.auctionedPrice ?? 0;
+		const suggested = Math.max(1, Math.floor(max * DEV_DEFAULT_MIN_RATIO));
+		setStartPrice(suggested);
+	}, [activeProduct, startPrice, useDevQueue]);
 
 	useEffect(() => {
 		let isActive = true;
@@ -144,7 +188,7 @@ export default function VeilingmeesterDashboard() {
 			});
 
 			const payload = {
-				scheduledAt: new Date(Date.now() + 60_000).toISOString(),
+				scheduledAt: new Date(Date.now() + 5 * 60_000).toISOString(),
 				veilingDurationMinutes: 60,
 				products: productsMap,
 			};
@@ -152,12 +196,41 @@ export default function VeilingmeesterDashboard() {
 			console.log('CreateVeiling payload:', payload);
 
 			if (useDevQueue) {
-				setCurrentVeiling({
-					id: `dev-${Date.now()}`,
-					startedAt: payload.scheduledAt,
-					endedAt: null,
-					products: [],
-				});
+				try {
+					const response = await createDevVeilingKlok({
+						scheduledAt: payload.scheduledAt,
+						veilingDurationMinutes: payload.veilingDurationMinutes,
+						products: queue.map((p) => ({
+							id: p.id,
+							name: p.name,
+							description: p.description,
+							imageUrl: p.imageUrl,
+							dimension: p.dimension ?? null,
+							stock: p.stock,
+							companyName: p.companyName,
+							maxPrice: p.auctionedPrice ?? 0,
+						})),
+					});
+
+					const klok = response.data;
+					setCurrentVeiling({
+						id: klok.id,
+						startedAt: klok.scheduledAt,
+						endedAt: null,
+						products: [],
+					});
+					setPersistedDevVeiling(true);
+				} catch (err) {
+					console.error('Persist dev veiling failed:', err);
+					setCurrentVeiling({
+						id: `dev-${Date.now()}`,
+						startedAt: payload.scheduledAt,
+						endedAt: null,
+						products: [],
+					});
+					setPersistedDevVeiling(false);
+				}
+
 				setActiveProduct(queue[0]);
 				setVeilingState('open');
 				return;
@@ -193,7 +266,7 @@ export default function VeilingmeesterDashboard() {
 			return;
 		}
 
-		if (useDevQueue) {
+		if (useDevQueue && !persistedDevVeiling) {
 			setVeilingState('running');
 			setResetToken((t) => t + 1);
 			return;
@@ -252,7 +325,7 @@ export default function VeilingmeesterDashboard() {
 	 */
 	const endVeiling = async () => {
 		if (currentVeiling) {
-			if (!useDevQueue) {
+			if (!useDevQueue || persistedDevVeiling) {
 				await updateVeilingKlokStatus(currentVeiling.id, 'Ended');
 			}
 
@@ -269,6 +342,7 @@ export default function VeilingmeesterDashboard() {
 		setActiveProduct(null);
 		setVeilingState('none');
 		setStartPrice(0);
+		setPersistedDevVeiling(false);
 	};
 
 	/* =====================================================
@@ -284,10 +358,16 @@ export default function VeilingmeesterDashboard() {
 				<h1 className="vm-title">Veilingmeester</h1>
 
 				<div className="vm-tabs">
-					<button className={tab === 'veiling' ? 'active' : ''} onClick={() => setTab('veiling')}>
+					<button
+						className={`vm-tab ${tab === 'veiling' ? 'active' : ''}`}
+						onClick={() => setTab('veiling')}
+					>
 						Veiling
 					</button>
-					<button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>
+					<button
+						className={`vm-tab ${tab === 'history' ? 'active' : ''}`}
+						onClick={() => setTab('history')}
+					>
 						History
 					</button>
 				</div>
@@ -419,22 +499,85 @@ export default function VeilingmeesterDashboard() {
 
 				{tab === 'history' && (
 					<section className="vm-history">
-						{history.map((v) => (
-							<details key={v.id}>
-								<summary>
-									Veiling –{' '}
-									{v.startedAt
-										? new Date(v.startedAt).toLocaleString()
-										: 'Onbekende datum'}
-								</summary>
+						<div className="vm-historyList">
+							{history.length === 0 && (
+								<div className="vm-empty">Nog geen veilinghistorie beschikbaar.</div>
+							)}
+							{history.map((v) => {
+								const startedLabel = v.startedAt
+									? new Date(v.startedAt).toLocaleString()
+									: 'Onbekende datum';
+								const endedLabel = v.endedAt
+									? new Date(v.endedAt).toLocaleString()
+									: '-';
+								const totalRevenue = v.products.reduce(
+									(sum, p) => sum + p.finalPrice,
+									0
+								);
 
-								{v.products.map((p) => (
-									<div key={p.id}>
-										<strong>{p.product.name}</strong> – {formatEur(p.finalPrice)}
-									</div>
-								))}
-							</details>
-						))}
+								return (
+									<details key={v.id} className="vm-historyItem">
+										<summary className="vm-historySummary">
+											<div>
+												<div className="vm-historyName">Veiling {startedLabel}</div>
+												<div className="vm-historySub">
+													{v.products.length} producten
+												</div>
+											</div>
+											<div>
+												<div className="vm-historyPriceLabel">Totale omzet</div>
+												<div className="vm-historyPrice">{formatEur(totalRevenue)}</div>
+											</div>
+										</summary>
+
+										<div className="vm-historyDetails">
+											<div className="vm-historyGrid">
+												<div className="vm-historyBox">
+													<div className="vm-historyBoxLabel">Start</div>
+													<div className="vm-historyBoxValue">{startedLabel}</div>
+												</div>
+												<div className="vm-historyBox">
+													<div className="vm-historyBoxLabel">Einde</div>
+													<div className="vm-historyBoxValue">{endedLabel}</div>
+												</div>
+												<div className="vm-historyBox">
+													<div className="vm-historyBoxLabel">Producten</div>
+													<div className="vm-historyBoxValue">{v.products.length}</div>
+												</div>
+												<div className="vm-historyBox">
+													<div className="vm-historyBoxLabel">Omzet</div>
+													<div className="vm-historyBoxValue">
+														{formatEur(totalRevenue)}
+													</div>
+												</div>
+											</div>
+
+											<div className="vm-linesTitle">Verkochte producten</div>
+											<div className="vm-lines">
+												{v.products.map((p) => {
+													const buyer = p.lines[0]?.buyerName ?? 'Onbekende koper';
+													const amount = p.lines[0]?.amount ?? 0;
+													return (
+														<div key={p.id} className="vm-lineRow">
+															<div>
+																<div className="vm-lineBuyer">{p.product.name}</div>
+																<div className="vm-lineMeta">
+																	{buyer} - {amount} stuks
+																</div>
+															</div>
+															<div className="vm-lineMeta">{p.product.companyName}</div>
+															<div className="vm-lineTotal">
+																{formatEur(p.finalPrice)}
+															</div>
+														</div>
+													);
+												})}
+											</div>
+										</div>
+									</details>
+								);
+							})}
+						</div>
 					</section>
 				)}
 			</main>

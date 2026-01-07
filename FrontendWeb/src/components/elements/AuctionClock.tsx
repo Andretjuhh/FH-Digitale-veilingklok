@@ -37,6 +37,7 @@ export default function AuctionClock(props: ClockProps) {
 	const totalMs = totalSeconds * 1000;
 	const [remainingMs, setRemainingMs] = useState<number>(totalMs);
 	const [roundCount, setRoundCount] = useState<number>(round);
+	const [isComplete, setIsComplete] = useState(false);
 
 	useEffect(() => {
 		setRoundCount(round);
@@ -45,36 +46,34 @@ export default function AuctionClock(props: ClockProps) {
 	useEffect(() => {
 		if (!start) return;
 		setRemainingMs(totalMs);
+		setIsComplete(false);
 	}, [totalMs, start]);
 
 	// External reset trigger
 	useEffect(() => {
 		if (!start) return;
 		setRemainingMs(totalMs);
+		setIsComplete(false);
 	}, [props.resetToken]);
 
 	useEffect(() => {
-		if (!start || props.paused) return;
+		if (!start || props.paused || isComplete) return;
 		const id = window.setInterval(() => {
 			setRemainingMs((r) => {
+				if (r <= 0) return 0;
 				const next = Math.max(0, r - 100);
 				const secs = Math.ceil(next / 1000);
 				onTick?.(secs);
 				if (next === 0) {
-					setRoundCount((prev) => prev + 1);
+					setIsComplete(true);
 					onComplete?.();
-					return totalMs; // reset to start position
+					return 0;
 				}
 				return next;
 			});
 		}, 100);
 		return () => window.clearInterval(id);
-	}, [start, props.paused, totalMs, onTick, onComplete]);
-
-	const progressIndex = useMemo(() => {
-		const elapsedMs = totalMs - remainingMs;
-		return Math.min(DOTS - 1, Math.floor((elapsedMs / totalMs) * DOTS));
-	}, [remainingMs, totalMs]);
+	}, [start, props.paused, totalMs, onTick, onComplete, isComplete]);
 
 	const displayPrice = useMemo(() => {
 		if (typeof maxPrice === 'number' && typeof minPrice === 'number') {
@@ -86,6 +85,29 @@ export default function AuctionClock(props: ClockProps) {
 		}
 		return price;
 	}, [maxPrice, minPrice, price, remainingMs, totalMs]);
+
+	const ringHigh = 200;
+	const ringLow = 0;
+
+	const progressIndex = useMemo(() => {
+		if (typeof maxPrice === 'number' && typeof minPrice === 'number') {
+			const clamped = Math.min(ringHigh, Math.max(ringLow, displayPrice));
+			const progress = (ringHigh - clamped) / (ringHigh - ringLow);
+			return Math.min(DOTS - 1, Math.floor(progress * DOTS));
+		}
+		const elapsedMs = totalMs - remainingMs;
+		return Math.min(DOTS - 1, Math.floor((elapsedMs / totalMs) * DOTS));
+	}, [displayPrice, maxPrice, minPrice, remainingMs, totalMs]);
+
+	const ringLabels = useMemo(() => {
+		const steps = 10;
+		const stepValue = (ringHigh - ringLow) / steps;
+		return new Array(steps + 1).fill(0).map((_, i) => ringHigh - stepValue * i);
+	}, []);
+
+	const formatRingLabel = (value: number) => {
+		return Number.isInteger(value) ? value.toString() : value.toFixed(2);
+	};
 
 	// Precompute ring dots
 	const dots = useMemo(() => {
@@ -115,15 +137,27 @@ export default function AuctionClock(props: ClockProps) {
 				))}
 
 				{/* Minute marks numbers every 10% */}
-				{[0, 10, 20, 30, 40, 50, 60, 70, 80, 90].map((n) => {
-					const i = Math.round((n / 100) * DOTS);
+				{ringLabels.map((label, index) => {
+					const percent = index / (ringLabels.length - 1);
+					const i = Math.round(percent * DOTS);
 					const r = 145;
 					const cx = 150;
 					const cy = 150;
 					const a = (i / DOTS) * 2 * Math.PI - Math.PI / 2;
 					const x = cx + Math.cos(a) * r;
 					const y = cy + Math.sin(a) * r;
-					return <text key={n} x={x} y={y} className="clock-num" textAnchor="middle" dominantBaseline="middle">{n === 0 ? 0 : n}</text>
+					return (
+						<text
+							key={label}
+							x={x}
+							y={y}
+							className="clock-num"
+							textAnchor="middle"
+							dominantBaseline="middle"
+						>
+							{formatRingLabel(label)}
+						</text>
+					);
 				})}
 
 				{/* Center panel */}
@@ -145,7 +179,7 @@ export default function AuctionClock(props: ClockProps) {
 					{/* third row */}
 					<text x={-20} y={28} className="clock-label" textAnchor="end">Prijs</text>
 					<rect x={-90} y={10} width={70} height={24} rx={6} className="clock-box"/>
-					<text x={-55} y={28} className="clock-value" textAnchor="middle">€ {price.toFixed(2)}</text>
+					<text x={-55} y={28} className="clock-value" textAnchor="middle">€ {displayPrice.toFixed(2)}</text>
 
 					<text x={58} y={28} className="clock-label" textAnchor="end">Min. aant.</text>
 					<rect x={60} y={10} width={44} height={24} rx={6} className="clock-box"/>

@@ -13,6 +13,23 @@ import { ProductDetailsOutputDto } from '../../declarations/dtos/output/ProductD
 import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
 import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
 
+export type CreateDevVeilingKlokProduct = {
+	id: string;
+	name: string;
+	description: string;
+	imageUrl?: string;
+	dimension?: string | null;
+	stock: number;
+	companyName: string;
+	maxPrice: number;
+};
+
+export type CreateDevVeilingKlokRequest = {
+	scheduledAt: string;
+	veilingDurationMinutes: number;
+	products: CreateDevVeilingKlokProduct[];
+};
+
 // Create veilingmeester account (POST /api/account/meester/create)
 export async function createVeilingmeesterAccount(account: CreateMeesterDTO): Promise<HttpSuccess<AuthOutputDto>> {
 	return fetchResponse<HttpSuccess<AuthOutputDto>>('/api/account/meester/create', {
@@ -53,6 +70,14 @@ export async function createVeilingKlok(veiling: CreateVeilingKlokDTO): Promise<
 	return fetchResponse<HttpSuccess<VeilingKlokDetailsOutputDto>>('/api/account/meester/veilingklok', {
 		method: 'POST',
 		body: JSON.stringify({ veiling }),
+	});
+}
+
+// Create dev veilingklok (POST /api/dev/veilingklok/dummy)
+export async function createDevVeilingKlok(payload: CreateDevVeilingKlokRequest): Promise<HttpSuccess<VeilingKlokDetailsOutputDto>> {
+	return fetchResponse<HttpSuccess<VeilingKlokDetailsOutputDto>>('/api/dev/veilingklok/dummy', {
+		method: 'POST',
+		body: JSON.stringify(payload),
 	});
 }
 
