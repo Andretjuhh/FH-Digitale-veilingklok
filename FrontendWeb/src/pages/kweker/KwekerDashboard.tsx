@@ -70,67 +70,23 @@ export default function KwekerDashboard() {
 					<p className="kweker-desc">Welkom op de dashboard pagina! Bekijk hier uw producten!</p>
 				</section>
 				<KwekerStats/>
-				<Table/>
+			<Table products={products}/>
 				<section className="kweker-content">
 					<div className="content-inner">
-						<div className="product-grid">
-							{products.map((p) => (
-								<article
-									key={p.id}
-									className="product-card clickable"
-									role="button"
-									tabIndex={0}
-									onClick={async () => {
-										// open preview modal and fetch details
-										setShowPreview(true);
-										setPreviewLoading(true);
-										setPreviewError(null);
-										setPreviewProduct(null);
-										try {
-											const res = await getProductDetails(p.id);
-											if (res.data) {
-												setPreviewProduct(res.data);
-											}
-										} catch (err) {
-											console.error('Failed to load product preview', err);
-											setPreviewError('Kon het product niet laden.');
-										} finally {
-											setPreviewLoading(false);
-										}
-									}}
-									onKeyDown={(e) => {
-										if (e.key === 'Enter' || e.key === ' ') {
-											(e.currentTarget as HTMLElement).click();
-										}
+						<div className="content-footer">
+							{!showForm && (
+								<Button
+									className="toevoegen-knop"
+									label={'Voeg nieuw product toe'}
+									onClick={() => {
+										setShowForm(true);
+										if (savedValues) reset(savedValues);
 									}}
 								>
-									<div className="product-info-kweker">
-										<h3 className="product-title">{p.name}</h3>
-										<p className="product-desc">{p.description}</p>
-									</div>
-									<div className="product-price">
-										<div className="product-price">{formatEur(p.auctionedPrice ?? 0)}</div>
-										<div className="product-thumb" style={{backgroundImage: `url(${p.imageUrl})`}}/>
-									</div>
-								</article>
-							))}
-						</div>
-						<div className="content-footer">
-							{activeTab === 'my' && (
-								<>
-									{!showForm && (
-										<Button
-											className="toevoegen-knop"
-											label={'Voeg nieuw product toe'}
-											onClick={() => {
-												setShowForm(true);
-												if (savedValues) reset(savedValues);
-											}}
-										>
-											Toevoegen
-										</Button>
-									)}
-									{showForm && (
+									Toevoegen
+								</Button>
+							)}
+							{showForm && (
 										<div
 											className="modal-overlay"
 											onClick={() => {
@@ -199,7 +155,7 @@ export default function KwekerDashboard() {
 														</div>
 
 														<div className="form-row">
-															<FormInputField id="minimumPrice" label="Minimum prijs (€)" type="number"
+															<FormInputField id="minimumPrice" label="Minimum prijs (ï¿½)" type="number"
 															                step="0.01" {...register('minimumPrice', {required: 'Minimum prijs is verplicht', min: 0})}
 															                isError={!!errors.minimumPrice} error={errors.minimumPrice?.message as string}/>
 														</div>
@@ -246,66 +202,12 @@ export default function KwekerDashboard() {
 										</div>
 									)}
 
-									{/* Product preview modal */}
-									{showPreview && (
-										<div
-											className="modal-overlay"
-											onClick={() => {
-												if (!previewLoading) {
-													setShowPreview(false);
-													setPreviewProduct(null);
-													setPreviewError(null);
-												}
-											}}
-										>
-											<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-												<div className="modal-header">
-													<h3>Product</h3>
-													<button
-														className="modal-close"
-														onClick={() => {
-															setShowPreview(false);
-															setPreviewProduct(null);
-															setPreviewError(null);
-														}}
-														aria-label="Sluiten"
-													>
-														?
-													</button>
-												</div>
-												<div className="modal-body">
-													{previewLoading && <div>Bezig met laden...</div>}
-													{previewError && <div className="error">{previewError}</div>}
-													{previewProduct && (
-														<div className="product-details">
-															<div className="product-details-grid">
-																<div className="product-meta">
-																	<div className="product-meta-header">
-																		<h2 className="product-name">{previewProduct.name}</h2>
-																		<div className="product-price">{formatEur(previewProduct.auctionPrice ?? previewProduct.minimumPrice)}</div>
-																	</div>
-																	<div className="product-description">{previewProduct.description}</div>
-																	<div className="product-quantity">Voorraad: {previewProduct.stock}</div>
-																	{previewProduct.dimension && <div className="product-size">Maat: {previewProduct.dimension}</div>}
-																	<div className="product-company">Kweker: {previewProduct.companyName}</div>
-																</div>
-																<div className="product-image">{previewProduct.imageBase64 ?
-																	<img src={previewProduct.imageBase64} alt={previewProduct.name}/> :
-																	<div className="product-image-placeholder" aria-hidden="true"/>}</div>
-															</div>
-														</div>
-													)}
-												</div>
-											</div>
-										</div>
-									)}
-								</>
-							)}
-						</div>
-					</div>
-				</section>
-			</main>
-		</Page>
-	);
-}
-
+									{/* Product preview modal kan verwijderd worden of behouden voor toekomstig gebruik */}
+								</div>
+							</div>
+						</section>
+					</main>
+				</Page>
+			);
+		}
+		
