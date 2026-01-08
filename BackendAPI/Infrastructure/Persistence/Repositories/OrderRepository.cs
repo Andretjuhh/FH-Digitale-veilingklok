@@ -1,4 +1,3 @@
-using Application.Common.Exceptions;
 using Application.Common.Models;
 using Application.Repositories;
 using Domain.Entities;
@@ -200,6 +199,130 @@ public class OrderRepository : IOrderRepository
             .ToListAsync();
 
         return (items, totalCount);
+    }
+
+    public async Task<(Order Order, OrderProductInfo Product, KoperInfo Koper)?> GetKwekerOrderAsync(Guid orderId,
+        Guid kwekerId)
+    {
+        var query = from order in _dbContext.Orders
+            from orderItem in order.OrderItems
+            join product in _dbContext.Products on orderItem.ProductId equals product.Id
+            join kweker in _dbContext.Kwekers on product.KwekerId equals kweker.Id
+            join koper in _dbContext.Kopers on order.KoperId equals koper.Id
+            where order.Id == orderId && kweker.Id == kwekerId
+            select new
+            {
+                Order = order,
+                OrderItem = orderItem,
+                Product = product,
+                Kweker = kweker,
+                Koper = koper,
+                KoperAddress = koper.Adresses.FirstOrDefault()
+            };
+
+        var result = await query
+            .Select(x => new
+            {
+                x.Order,
+                Product = new OrderProductInfo(
+                    x.Product.Id,
+                    x.Product.Name,
+                    x.Product.Description,
+                    x.Product.ImageUrl,
+                    x.OrderItem.PriceAtPurchase,
+                    x.Kweker.CompanyName,
+                    x.OrderItem.Quantity
+                ),
+                Koper = new KoperInfo(
+                    x.Koper.Id,
+                    x.Koper.Email,
+                    x.Koper.FirstName,
+                    x.Koper.LastName,
+                    x.Koper.Telephone,
+                    x.KoperAddress ?? new Address("", "", "", "", "")
+                )
+            })
+            .FirstOrDefaultAsync();
+
+        if (result == null)
+            return null;
+
+        return (result.Order, result.Product, result.Koper);
+    }
+
+    public async Task<(IEnumerable<(Order Order, OrderProductInfo Product, KoperInfo Koper)> Items, int TotalCount)>
+        GetAllKwekerWithFilterAsync(
+            OrderStatus? statusFilter,
+            DateTime? beforeDate,
+            DateTime? afterDate,
+            Guid? productId,
+            Guid kwekerId,
+            int pageNumber,
+            int pageSize)
+    {
+        // Build the base query
+        var baseQuery = from order in _dbContext.Orders
+            from orderItem in order.OrderItems
+            join product in _dbContext.Products on orderItem.ProductId equals product.Id
+            join kweker in _dbContext.Kwekers on product.KwekerId equals kweker.Id
+            join koper in _dbContext.Kopers on order.KoperId equals koper.Id
+            where kweker.Id == kwekerId
+            select new
+            {
+                Order = order,
+                OrderItem = orderItem,
+                Product = product,
+                Kweker = kweker,
+                Koper = koper,
+                KoperAddress = koper.Adresses.FirstOrDefault()
+            };
+
+        // Apply filters
+        if (statusFilter.HasValue)
+            baseQuery = baseQuery.Where(x => x.Order.Status == statusFilter.Value);
+
+        if (beforeDate.HasValue)
+            baseQuery = baseQuery.Where(x => x.Order.CreatedAt <= beforeDate.Value);
+
+        if (afterDate.HasValue)
+            baseQuery = baseQuery.Where(x => x.Order.CreatedAt >= afterDate.Value);
+
+        if (productId.HasValue)
+            baseQuery = baseQuery.Where(x => x.Product.Id == productId.Value);
+
+        // Get total count for pagination
+        var totalCount = await baseQuery.Select(x => x.Order.Id).Distinct().CountAsync();
+
+        // Get the actual data with pagination
+        var results = await baseQuery
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new
+            {
+                x.Order,
+                Product = new OrderProductInfo(
+                    x.Product.Id,
+                    x.Product.Name,
+                    x.Product.Description,
+                    x.Product.ImageUrl,
+                    x.OrderItem.PriceAtPurchase,
+                    x.Kweker.CompanyName,
+                    x.OrderItem.Quantity
+                ),
+                Koper = new KoperInfo(
+                    x.Koper.Id,
+                    x.Koper.Email,
+                    x.Koper.FirstName,
+                    x.Koper.LastName,
+                    x.Koper.Telephone,
+                    x.KoperAddress ?? new Address("", "", "", "", "")
+                )
+            })
+            .ToListAsync();
+
+        var mappedResults = results.Select(x => (x.Order, x.Product, x.Koper));
+
+        return (mappedResults, totalCount);
     }
 
     #endregion

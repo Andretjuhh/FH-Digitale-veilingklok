@@ -13,6 +13,13 @@ export const resources = {
 			flowers: 'Bloemen',
 			transactions: 'Transacties',
 			for: 'voor',
+			orderId: 'Order ID',
+			date: 'Datum',
+			status: 'Status',
+			total: 'Totaal',
+			items: 'Artikelen',
+			view_details: 'Bekijk details',
+			no_orders_yet: 'Nog geen bestellingen',
 
 			// Account types
 			Koper: 'Koper',

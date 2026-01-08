@@ -25,7 +25,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                 AuctionedAt = entity.AuctionedAt,
                 AuctionedCount = entity.AuctionedCount,
                 CompanyName = kweker.CompanyName,
-                KwekerId = kweker.Id,
+                KwekerId = kweker.Id
             };
 
     public static ProductDetailsOutputDto ToOutputDto(Product entity, KwekerInfo kweker)
@@ -45,7 +45,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
             AuctionedAt = entity.AuctionedAt,
             AuctionedCount = entity.AuctionedCount,
             CompanyName = kweker.CompanyName,
-            KwekerId = kweker.Id,
+            KwekerId = kweker.Id
         };
     }
 
@@ -63,7 +63,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                     Stock = entity.Stock,
                     ImageUrl = entity.ImageUrl,
                     Dimension = entity.Dimension,
-                    CompanyName = kweker.CompanyName,
+                    CompanyName = kweker.CompanyName
                 };
 
         public static ProductOutputDto ToOutputDto(Product entity, KwekerInfo kweker)
@@ -78,7 +78,40 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                 Stock = entity.Stock,
                 ImageUrl = entity.ImageUrl,
                 Dimension = entity.Dimension,
-                CompanyName = kweker.CompanyName,
+                CompanyName = kweker.CompanyName
+            };
+        }
+    }
+
+    public class FromOrderInfo : IBaseMapper<OrderProductInfo, ProductOutputDto>
+    {
+        public static Expression<Func<OrderProductInfo, ProductOutputDto>> EntityDto =>
+            entity => new ProductOutputDto
+            {
+                Id = entity.ProductId,
+                Name = entity.ProductName,
+                Description = entity.ProductDescription,
+                AuctionedPrice = entity.PriceAtPurchase,
+                AuctionedAt = null, // Not available in OrderProductInfo
+                Stock = 0, // Not available in OrderProductInfo
+                ImageUrl = entity.ProductImageUrl,
+                Dimension = "", // Not available in OrderProductInfo
+                CompanyName = entity.CompanyName
+            };
+
+        public static ProductOutputDto ToOutputDto(OrderProductInfo entity)
+        {
+            return new ProductOutputDto
+            {
+                Id = entity.ProductId,
+                Name = entity.ProductName,
+                Description = entity.ProductDescription,
+                AuctionedPrice = entity.PriceAtPurchase,
+                AuctionedAt = null, // Not available in OrderProductInfo
+                Stock = 0, // Not available in OrderProductInfo
+                ImageUrl = entity.ProductImageUrl,
+                Dimension = "", // Not available in OrderProductInfo
+                CompanyName = entity.CompanyName
             };
         }
     }

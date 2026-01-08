@@ -63,17 +63,17 @@ function AppHeader(props: { className?: string, slideAnimation?: boolean }) {
 								{
 									account?.accountType == AccountType.Kweker &&
 									<>
-										{/*<a className={'nav-menu-anchor'} href={'#'}>*/}
-										{/*	{t('dashboard')}*/}
-										{/*</a>*/}
+										<a className={'nav-menu-anchor'} href={'#'}>
+											{t('dashboard')}
+										</a>
 
-										{/*<a className={'nav-menu-anchor'} href={'#'}>*/}
-										{/*	{t('koper_product')}*/}
-										{/*</a>*/}
+										<a className={'nav-menu-anchor'} href={'#'}>
+											{t('koper_product')}
+										</a>
 
-										{/*<a className={'nav-menu-anchor'} href={'#'}>*/}
-										{/*	{t('orders')}*/}
-										{/*</a>*/}
+										<a className={'nav-menu-anchor'} href={'#'}>
+											{t('orders')}
+										</a>
 									</>
 								}
 							</>

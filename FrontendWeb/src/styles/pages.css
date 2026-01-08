@@ -249,335 +249,43 @@
 
 /*#endregion*/
 
-/*#region Modal popup for create product */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-}
-
-.modal {
-    background: var(--card);
-    border-radius: 12px;
-    max-width: 720px;
-    width: 100%;
-    box-shadow: 0 20px 40px rgba(2, 6, 23, 0.35);
-    overflow: hidden;
-    transform: translateY(0);
-}
-
-.modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid #eef2f6;
-    background: linear-gradient(90deg, #ffffff, #fbfbfd);
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: var(--accent);
-}
-
-.modal-close {
-    background: transparent;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    color: var(--muted);
-}
-
-.modal-body {
-    padding: 18px 20px 24px;
-}
-
-/* Modal-specific font bump: increase modal text sizes by ~2px without
-   affecting the rest of the app. */
-.modal {
-    /* base font-size for modal content */
-    font-size: 18px;
-}
-
-/* Modal header/title */
-.modal .modal-header h3 {
-    font-size: 20px; /* slightly larger title inside modal */
-}
-
-/* Product preview: bump sizes inside modal by ~2px */
-.modal .product-meta .product-name {
-    font-size: 20px; /* was 18px */
-}
-
-.modal .product-meta .product-price {
-    font-size: 20px; /* was 18px */
-}
-
-.modal .product-description {
-    font-size: 16px; /* was 14px */
-}
-
-.modal .product-size,
-.modal .product-quantity {
-    font-size: 15px; /* was 13px */
-}
-
-.create-product-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px 16px;
-}
-
-.create-product-form .form-row {
-    display: flex;
-    flex-direction: column;
-}
-
-.create-product-form label {
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #374151;
-    font-size: 15px;
-    line-height: 20px;
-}
-
-.create-product-form input,
-.create-product-form textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #e6e9ee;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 0.95rem;
-    box-sizing: border-box;
-    height: 44px;
-}
-
-.create-product-form textarea {
-    /* allow rows to control height, keep same input look */
-    resize: none;
-    grid-column: auto;
-    min-height: 44px;
-    height: auto;
-}
-
-.create-product-form .form-actions {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-.cancel-btn {
-    background: transparent;
-    border: 1px solid #e6e9ee;
-    padding: 10px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.cancel-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    text-align: center;
-}
-
-/* Modal action buttons: match dashboard 'toevoegen-knop' appearance and equal widths */
-.create-product-form .form-actions .toevoegen-knop,
-.create-product-form .form-actions .cancel-btn {
-    min-width: 220px;
-    padding: 10px 18px;
-    border-radius: 9999px;
-    height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    box-sizing: border-box;
-    font-weight: 600;
-}
-
-.create-product-form .form-actions .toevoegen-knop {
-    background: #361280;
-    color: white;
-    border: none;
-}
-
-.create-product-form .form-actions .cancel-btn {
-    background: transparent;
-    border: 2px solid #e6e9ee;
-    color: #374151;
-}
-
-/* Modal popup for create product */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-}
-
-.modal {
-    background: var(--card);
-    border-radius: 12px;
-    max-width: 720px;
-    width: 100%;
-    box-shadow: 0 20px 40px rgba(2, 6, 23, 0.35);
-    overflow: hidden;
-    transform: translateY(0);
-}
-
-.modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid #eef2f6;
-    background: linear-gradient(90deg, #ffffff, #fbfbfd);
-}
-
-.modal-header h3 {
-    margin: 0;
-    font-size: 1.125rem;
-    color: var(--accent);
-}
-
-.modal-close {
-    background: transparent;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    color: var(--muted);
-}
-
-.modal-body {
-    padding: 18px 20px 24px;
-}
-
-.create-product-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px 16px;
-}
-
-.create-product-form .form-row {
-    display: flex;
-    flex-direction: column;
-}
-
-.create-product-form label {
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #374151;
-}
-
-.create-product-form input,
-.create-product-form textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #e6e9ee;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 0.95rem;
-    box-sizing: border-box;
-    height: 44px; /* uniform height for inputs */
-}
-
-.create-product-form textarea {
-    grid-column: 1 / -1;
-    min-height: 120px;
-    resize: vertical;
-    height: auto;
-}
-
-.create-product-form .form-actions {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-.cancel-btn {
-    background: transparent;
-    border: 1px solid #e6e9ee;
-    padding: 10px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.cancel-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    text-align: center;
-}
-
-/* Modal action buttons: match dashboard 'toevoegen-knop' appearance and equal widths */
-.create-product-form .form-actions .toevoegen-knop,
-.create-product-form .form-actions .cancel-btn {
-    min-width: 220px;
-    padding: 10px 18px;
-    border-radius: 9999px;
-    height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    box-sizing: border-box;
-    font-weight: 600;
-}
-
-.create-product-form .form-actions .toevoegen-knop {
-    background: linear-gradient(to right, #2563eb, #1d4ed8);
-    color: white;
-    border: none;
-}
-
-.create-product-form .form-actions .cancel-btn {
-    background: transparent;
-    border: 1px solid #e6e9ee;
-    color: #374151;
-}
-
-/*#endregion*/
-
 /*#region Kweker Page*/
+.kweker-page {
+    min-height: 100vh;
+}
+
 .kweker-page .app-header {
     border-bottom-style: solid;
     border-bottom-width: 1px;
-    border-bottom-color: theme(colors.gray.300);
+    border-bottom-color: theme(colors.gray.200);
     background-color: white;
 }
 
 .kweker-container {
     width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     padding: 0 var(--side-pd);
     padding-top: var(--header-size);
+    padding-bottom: var(--side-pd);
+}
+
+.kweker-hallo {
+    margin: var(--span1-size) 0;
 }
 
 .kweker-hallo h1 {
     font-weight: 700;
-    font-size: 2rem;
-    margin-top: var(--span1-size);
-    color: theme(colors.primary.600);
+    font-size: 1.6rem;
+    /*color: theme(colors.primary.600);*/
+    color: black;
 }
 
 .kweker-desc {
     margin: 0 0 18px 0;
     font-size: 20px;
 }
-
 
 /*#region Kweker stats*/
 .kweker-stats {
@@ -590,11 +298,10 @@
 .kweker-stat-card {
     padding: 1rem 1.6rem;
     background-color: #fff;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     border-radius: 20px;
     min-width: 250px;
     flex: 1;
-    border: solid 1px theme(colors.gray.300);
+    border: solid 1px theme(colors.gray.200);
 }
 
 .kweker-stat-title {
@@ -683,11 +390,189 @@
 
 /*#endregion*/
 
-.stat-value {
-    font-weight: 700;
-    font-size: 20px;
-    color: var(--accent);
+/*#region Kweker Order Details*/
+.order-card {
+    position: relative;
+    padding: 2rem;
+    border-radius: 1.3rem;
+    background-color: theme(colors.white);
+    box-shadow: 0px 106px 42px rgba(0, 0, 0, 0.01), 0px 59px 36px rgba(0, 0, 0, 0.05), 0px 26px 26px rgba(0, 0, 0, 0.09), 0px 7px 15px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: unset !important;
+
+    min-width: 420px;
+    min-height: 420px;
+    max-width: 90%;
 }
+
+.order-header-back-button {
+    height: auto;
+    aspect-ratio: 1/1;
+    padding: 0.6rem;
+    position: absolute;
+    left: 2rem;
+    top: 2rem;
+    z-index: 100;
+    border-radius: 9999px;
+    background-color: transparent;
+    border: 1px solid theme(colors.zinc.300);
+    --hovered-color: theme(colors.zinc.400);
+}
+
+.order-header-back-button-icon {
+    color: black;
+}
+
+.order-card-logo {
+    font-size: var(--logo-size);
+    line-height: var(--logo-size);
+    margin-bottom: 0.8rem;
+    color: theme(colors.primary.main);
+}
+
+.order-card-header {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.order-card-header-text-ctn {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 1rem 0;
+}
+
+.order-header-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.4rem 0;
+}
+
+.order-header-icon {
+    color: theme(colors.zinc.500);
+    font-size: 0.8rem;
+}
+
+.order-header-txt {
+    margin-right: 0.4rem;
+    color: theme(colors.zinc.500);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.order-card-h1 {
+    white-space: nowrap;
+    color: black;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 2rem;
+    margin-bottom: 1rem;
+}
+
+.order-card-h2 {
+    color: theme(colors.zinc.500);
+    font-size: 1rem;
+    font-weight: 500;
+    /*text-transform: uppercase;*/
+}
+
+.order-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.order-client-ctn {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: grid;
+    grid-gap: 1rem;
+}
+
+.order-client-info-wrapper {
+    position: relative;
+    border: 1px solid theme(colors.zinc.300);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 1.3rem;
+}
+
+.order-client-info-h4 {
+    display: flex;
+    align-items: center;
+
+    position: absolute;
+    top: -0.4rem;
+    left: 1rem;
+    padding: 0 4px;
+
+    color: theme(colors.primary.600);
+    font-size: 0.8rem;
+    line-height: 0.8rem;
+    font-weight: 600;
+    background-color: white;
+}
+
+.order-client-info-txt {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: theme(colors.zinc.500);
+}
+
+.order-products {
+    position: relative;
+    border: 1px solid theme(colors.zinc.300);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 1.3rem;
+    margin: 1rem 0;
+}
+
+.order-products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+}
+
+.order-product {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.order-product-img-ctn {
+    width: 4rem;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: theme(colors.zinc.200);
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+/*#endregion*/
 
 .kweker-tabs-wrap {
     margin: 20px 0;
@@ -1425,3 +1310,307 @@
 }
 
 /*#endregion*/
+
+/*#region Modal popup for create product */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal {
+    border-radius: 12px;
+    max-width: 720px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(2, 6, 23, 0.35);
+    overflow: hidden;
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eef2f6;
+    background: linear-gradient(90deg, #ffffff, #fbfbfd);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--accent);
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--muted);
+}
+
+.modal-body {
+    padding: 18px 20px 24px;
+    background: white;
+}
+
+/* Modal-specific font bump: increase modal text sizes by ~2px without
+   affecting the rest of the app. */
+.modal {
+    /* base font-size for modal content */
+    font-size: 18px;
+}
+
+/* Modal header/title */
+.modal .modal-header h3 {
+    font-size: 20px; /* slightly larger title inside modal */
+}
+
+/* Product preview: bump sizes inside modal by ~2px */
+.modal .product-meta .product-name {
+    font-size: 20px; /* was 18px */
+}
+
+.modal .product-meta .product-price {
+    font-size: 20px; /* was 18px */
+}
+
+.modal .product-description {
+    font-size: 16px; /* was 14px */
+}
+
+.modal .product-size,
+.modal .product-quantity {
+    font-size: 15px; /* was 13px */
+}
+
+.create-product-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+}
+
+.create-product-form .form-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.create-product-form label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #374151;
+    font-size: 15px;
+    line-height: 20px;
+}
+
+.create-product-form input,
+.create-product-form textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e6e9ee;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    height: 44px;
+}
+
+.create-product-form textarea {
+    /* allow rows to control height, keep same input look */
+    resize: none;
+    grid-column: auto;
+    min-height: 44px;
+    height: auto;
+}
+
+.create-product-form .form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.cancel-btn {
+    background: transparent;
+    border: 1px solid #e6e9ee;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.cancel-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    text-align: center;
+}
+
+/* Modal action buttons: match dashboard 'toevoegen-knop' appearance and equal widths */
+.create-product-form .form-actions .toevoegen-knop,
+.create-product-form .form-actions .cancel-btn {
+    min-width: 220px;
+    padding: 10px 18px;
+    border-radius: 9999px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    font-weight: 600;
+}
+
+.create-product-form .form-actions .toevoegen-knop {
+    background: #361280;
+    color: white;
+    border: none;
+}
+
+.create-product-form .form-actions .cancel-btn {
+    background: transparent;
+    border: 2px solid #e6e9ee;
+    color: #374151;
+}
+
+/* Modal popup for create product */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal {
+    background: var(--card);
+    border-radius: 12px;
+    max-width: 720px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(2, 6, 23, 0.35);
+    overflow: hidden;
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eef2f6;
+    background: linear-gradient(90deg, #ffffff, #fbfbfd);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    color: var(--accent);
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--muted);
+}
+
+.modal-body {
+    padding: 18px 20px 24px;
+}
+
+.create-product-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+}
+
+.create-product-form .form-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.create-product-form label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #374151;
+}
+
+.create-product-form input,
+.create-product-form textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e6e9ee;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    height: 44px; /* uniform height for inputs */
+}
+
+.create-product-form textarea {
+    grid-column: 1 / -1;
+    min-height: 120px;
+    resize: vertical;
+    height: auto;
+}
+
+.create-product-form .form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.cancel-btn {
+    background: transparent;
+    border: 1px solid #e6e9ee;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.cancel-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    text-align: center;
+}
+
+/* Modal action buttons: match dashboard 'toevoegen-knop' appearance and equal widths */
+.create-product-form .form-actions .toevoegen-knop,
+.create-product-form .form-actions .cancel-btn {
+    min-width: 220px;
+    padding: 10px 18px;
+    border-radius: 9999px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    font-weight: 600;
+}
+
+.create-product-form .form-actions .toevoegen-knop {
+    background: linear-gradient(to right, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+}
+
+.create-product-form .form-actions .cancel-btn {
+    background: transparent;
+    border: 1px solid #e6e9ee;
+    color: #374151;
+}
+
+/*#endregion*/
+

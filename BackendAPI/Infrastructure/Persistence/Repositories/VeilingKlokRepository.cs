@@ -85,7 +85,6 @@ public class VeilingKlokRepository : IVeilingKlokRepository
 
         var totalCount = await query.CountAsync();
         var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
-
         return (items, totalCount);
     }
 
