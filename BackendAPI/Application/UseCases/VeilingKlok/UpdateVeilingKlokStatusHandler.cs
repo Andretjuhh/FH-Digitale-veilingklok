@@ -48,8 +48,8 @@ public sealed class UpdateVeilingKlokStatusHandler : IRequestHandler<UpdateVeili
             veilingKlok.UpdateStatus(request.Status);
             if (request.Status == VeilingKlokStatus.Started)
             {
-                var product = await _productRepository.GetAllByIds(veilingKlok.ProductsIds.ToList());
-                await _veilingKlokEngine.AddActiveVeilingKlokAsync(veilingKlok, product.ToList());
+                var products = await _productRepository.GetAllByVeilingKlokIdAsync(veilingKlok.Id);
+                await _veilingKlokEngine.AddActiveVeilingKlokAsync(veilingKlok, products.ToList());
                 await _veilingKlokEngine.StartVeilingAsync(veilingKlok.Id);
             }
             else if (request.Status == VeilingKlokStatus.Stopped || request.Status == VeilingKlokStatus.Ended)

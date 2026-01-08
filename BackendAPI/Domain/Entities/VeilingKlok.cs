@@ -78,9 +78,15 @@ public class VeilingKlok
 
     public void AssignVeilingmeester(Guid veilingmeesterId)
     {
-        if (Status < VeilingKlokStatus.Started)
+        if (Status >= VeilingKlokStatus.Started)
             throw KlokValidationException.KlokNotAvailableForUpdate();
         VeilingmeesterId = veilingmeesterId;
+    }
+
+    public void AddProductId(Guid productId)
+    {
+        if (!IProductsIds.Contains(productId))
+            IProductsIds.Add(productId);
     }
 
     public void SetScheduledAt(DateTimeOffset scheduledAt)

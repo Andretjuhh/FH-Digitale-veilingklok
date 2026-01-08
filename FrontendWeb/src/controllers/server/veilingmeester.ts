@@ -69,7 +69,7 @@ export async function updateOrderStatus(orderId: string, status: string): Promis
 export async function createVeilingKlok(veiling: CreateVeilingKlokDTO): Promise<HttpSuccess<VeilingKlokDetailsOutputDto>> {
 	return fetchResponse<HttpSuccess<VeilingKlokDetailsOutputDto>>('/api/account/meester/veilingklok', {
 		method: 'POST',
-		body: JSON.stringify({ veiling }),
+		body: JSON.stringify(veiling),
 	});
 }
 

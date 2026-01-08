@@ -48,12 +48,20 @@ public sealed class CreateVeilingHandler
             //  Create new VeilingKlok
             var newKlok = new Domain.Entities.VeilingKlok
             {
+                Id = Guid.NewGuid(),
                 Country = meester.CountryCode,
                 RegionOrState = meester.Region,
                 ScheduledAt = dto.ScheduledAt,
                 VeilingDurationMinutes = dto.VeilingDurationMinutes
             };
             newKlok.AssignVeilingmeester(request.MeesterId);
+
+            // Persist the clock first so product FK updates won't violate constraints.
+            await _veilingKlokRepository.AddAsync(newKlok);
+            await _unitOfWork.CommitAsync(cancellationToken);
+
+            // Start a new transaction for product updates.
+            await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
             // Assign products to the VeilingKlok
             var productIds = dto.Products.Keys.ToList();
@@ -77,6 +85,7 @@ public sealed class CreateVeilingHandler
 
                 // Mark as being auctioned on the veiling klok
                 result.Product.AddToVeilingKlok(newKlok.Id);
+                newKlok.AddProductId(result.Product.Id);
 
                 // Recalculate klok price range
                 newKlok.UpdatePriceRange(price);
@@ -84,9 +93,6 @@ public sealed class CreateVeilingHandler
                 // Persist change on product repository (unit of work will commit)
                 _productRepository.Update(result.Product);
             }
-
-            await _veilingKlokRepository.AddAsync(newKlok);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
 
             // Map to output DTO (use Minimal mapper for list view)

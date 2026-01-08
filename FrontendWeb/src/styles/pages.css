@@ -1416,6 +1416,25 @@
     box-sizing: border-box;
 }
 
+.settings-main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.settings-main-header {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.settings-back-btn {
+    background: transparent;
+    border: 1px solid #e5e7eb;
+    --text-color: #111827;
+    --hovered-color: theme(colors.primary.500);
+    --hovered-text-color: #ffffff;
+}
+
 .settings-sidebar {
     display: flex;
     flex-direction: column;

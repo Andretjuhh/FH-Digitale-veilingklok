@@ -32,8 +32,24 @@ public class VeilingKlokState
         RegionOrState = veilingKlok.RegionOrState;
 
         LowestPriceRange = 0;
-        CurrentPrice = products[CurrentProductIndex].AuctionPrice!.Value;
-        HighestPriceRange = decimal.ToInt32(products.Max(p => p.AuctionPrice!.Value));
+
+        if (products.Count == 0)
+        {
+            CurrentProductIndex = 0;
+            CurrentPrice = 0;
+            HighestPriceRange = 0;
+            return;
+        }
+
+        if (CurrentProductIndex < 0 || CurrentProductIndex >= products.Count)
+            CurrentProductIndex = 0;
+
+        var auctionPrices = products
+            .Select(p => p.AuctionPrice ?? 0)
+            .ToList();
+
+        CurrentPrice = auctionPrices[CurrentProductIndex];
+        HighestPriceRange = decimal.ToInt32(auctionPrices.Max());
         foreach (var product in products)
             Products.Add(VeilingProductState.Create(product));
     }
