@@ -47,10 +47,14 @@ publish/
 
 # dependencies
 /node_modules
+**/node_modules
 package-lock.json
 yarn.lock
 /.pnp
 .pnp.js
+
+# Oude project folder
+VeilingKlokKlas1Groep2/
 
 # testing
 /coverage
