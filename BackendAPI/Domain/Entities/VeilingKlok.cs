@@ -96,7 +96,7 @@ public class VeilingKlok
 
     public void SetBiddingProductIndex(int newIndex)
     {
-        if (newIndex < 0 || newIndex >= IProductsIds.Count)
+        if (IProductsIds.Count > 0 && (newIndex < 0 || newIndex >= IProductsIds.Count))
             throw KlokValidationException.InvalidProductIndex();
         BiddingProductIndex = newIndex;
     }

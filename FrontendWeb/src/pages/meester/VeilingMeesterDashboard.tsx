@@ -116,6 +116,8 @@ export default function VeilingmeesterDashboard() {
 	const [persistedDevVeiling, setPersistedDevVeiling] = useState(false);
 	const [activeProduct, setActiveProduct] = useState<ProductOutputDto | null>(null);
 	const [veilingState, setVeilingState] = useState<VeilingState>('none');
+	const [hasVeilingStarted, setHasVeilingStarted] = useState(false);
+	const [durationSeconds, setDurationSeconds] = useState(60);
 
 	/* ---- Clock state ---- */
 	const [startPrice, setStartPrice] = useState(0);
@@ -189,7 +191,7 @@ export default function VeilingmeesterDashboard() {
 
 			const payload = {
 				scheduledAt: new Date(Date.now() + 5 * 60_000).toISOString(),
-				veilingDurationMinutes: 60,
+				veilingDurationMinutes: Math.max(1, Math.ceil(durationSeconds / 60)),
 				products: productsMap,
 			};
 
@@ -233,6 +235,7 @@ export default function VeilingmeesterDashboard() {
 
 				setActiveProduct(queue[0]);
 				setVeilingState('open');
+				setHasVeilingStarted(false);
 				return;
 			}
 
@@ -248,6 +251,7 @@ export default function VeilingmeesterDashboard() {
 
 			setActiveProduct(queue[0]);
 			setVeilingState('open');
+			setHasVeilingStarted(false);
 		} catch (err) {
 			console.error('Open veiling failed:', err);
 			alert('Openen van veiling mislukt (zie console)');
@@ -269,10 +273,14 @@ export default function VeilingmeesterDashboard() {
 		if (useDevQueue && !persistedDevVeiling) {
 			setVeilingState('running');
 			setResetToken((t) => t + 1);
+			setHasVeilingStarted(true);
 			return;
 		}
 
-		await updateVeilingKlokStatus(currentVeiling.id, 'Started');
+		if (!hasVeilingStarted) {
+			await updateVeilingKlokStatus(currentVeiling.id, 'Started');
+			setHasVeilingStarted(true);
+		}
 		await startVeilingProduct(currentVeiling.id, activeProduct.id);
 
 		setVeilingState('running');
@@ -343,6 +351,7 @@ export default function VeilingmeesterDashboard() {
 		setVeilingState('none');
 		setStartPrice(0);
 		setPersistedDevVeiling(false);
+		setHasVeilingStarted(false);
 	};
 
 	/* =====================================================
@@ -440,6 +449,7 @@ export default function VeilingmeesterDashboard() {
 									{veilingState === 'running' ? (
 										<AuctionClock
 											start
+											totalSeconds={durationSeconds}
 											maxPrice={displayProduct?.auctionedPrice ?? startPrice}
 											minPrice={startPrice}
 											resetToken={resetToken}
@@ -451,6 +461,14 @@ export default function VeilingmeesterDashboard() {
 								</div>
 								{veilingState !== 'none' && (
 									<div className="vm-clockControls">
+										<label className="vm-label">Duur (seconden)</label>
+										<input
+											className="vm-input"
+											type="number"
+											min={1}
+											value={durationSeconds}
+											onChange={(e) => setDurationSeconds(Number(e.target.value))}
+										/>
 										<label className="vm-label">Minimumprijs (veilingmeester)</label>
 										<input
 											className="vm-input"
