@@ -26,7 +26,13 @@ function AccountAvatar({className}: Props) {
 			removeAuthentication();
 			navigate('/', {replace: true});
 		}
-	}, []);
+		if (item.id === 'settings') {
+			navigate('/settings');
+		}
+		if (item.id === 'manage-account') {
+			navigate('/settings?section=account');
+		}
+	}, [navigate, removeAuthentication]);
 
 	return (
 		<CustomDropdown

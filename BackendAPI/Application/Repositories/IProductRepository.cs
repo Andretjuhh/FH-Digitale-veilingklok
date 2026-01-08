@@ -15,6 +15,7 @@ public interface IProductRepository
     Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(Guid productId, Guid kwekerId);
 
     Task<IEnumerable<Product>> GetAllByIds(List<Guid> productIds);
+    Task<IEnumerable<Product>> GetAllByVeilingKlokIdAsync(Guid veilingKlokId);
     Task<IEnumerable<(Product Product, KwekerInfo Kweker)>> GetAllByIdsWithKwekerInfoAsync(List<Guid> ids);
 
     Task<(

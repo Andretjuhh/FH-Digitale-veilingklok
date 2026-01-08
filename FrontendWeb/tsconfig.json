@@ -16,6 +16,11 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "types": [
+      "react",
+      "react-dom",
+      "react-scripts"
+    ],
     // "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx"
@@ -23,7 +28,8 @@
   "include": [
     "src",
     "src/index",
-    "declaration.d.ts"
+    "declaration.d.ts",
+    "react-app-env.d.ts"
   ],
   "exclude": [
     "node_modules",

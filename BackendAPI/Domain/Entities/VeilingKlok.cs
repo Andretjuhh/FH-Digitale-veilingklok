@@ -78,9 +78,15 @@ public class VeilingKlok
 
     public void AssignVeilingmeester(Guid veilingmeesterId)
     {
-        if (Status < VeilingKlokStatus.Started)
+        if (Status >= VeilingKlokStatus.Started)
             throw KlokValidationException.KlokNotAvailableForUpdate();
         VeilingmeesterId = veilingmeesterId;
+    }
+
+    public void AddProductId(Guid productId)
+    {
+        if (!IProductsIds.Contains(productId))
+            IProductsIds.Add(productId);
     }
 
     public void SetScheduledAt(DateTimeOffset scheduledAt)
@@ -90,7 +96,7 @@ public class VeilingKlok
 
     public void SetBiddingProductIndex(int newIndex)
     {
-        if (newIndex < 0 || newIndex >= IProductsIds.Count)
+        if (IProductsIds.Count > 0 && (newIndex < 0 || newIndex >= IProductsIds.Count))
             throw KlokValidationException.InvalidProductIndex();
         BiddingProductIndex = newIndex;
     }

@@ -13,4 +13,6 @@ export interface AccountOutputDto {
 	countryCode?: string;
 	region?: string;
 	address?: AddressOutputDto;
+	primaryAddressId?: number;
+	addresses?: AddressOutputDto[];
 }

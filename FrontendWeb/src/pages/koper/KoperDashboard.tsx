@@ -1,21 +1,27 @@
 // External imports
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 
 // Internal imports
 import Page from '../../components/nav/Page';
 import Button from '../../components/buttons/Button';
 import AuctionClock from '../../components/elements/AuctionClock';
 import { useRootContext } from '../../components/contexts/RootContext';
+import { getAuthentication } from '../../controllers/server/account';
 import { getProducts, orderProduct } from '../../controllers/server/koper';
+import config from '../../constant/application';
+import { RegionVeilingStartedNotification, VeilingPriceTickNotification, VeilingProductChangedNotification } from '../../declarations/models/VeilingNotifications';
 import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
 
 function UserDashboard() {
-	const { t } = useRootContext();
+	const { t, account } = useRootContext();
 	const CLOCK_SECONDS = 4;
 	const [price, setPrice] = useState<number>(0.65);
 	const [products, setProducts] = useState<ProductOutputDto[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [productIndex, setProductIndex] = useState<number>(0);
+	const [isClockRunning, setIsClockRunning] = useState(false);
+	const connectionRef = useRef<HubConnection | null>(null);
 
 	const initializeProducts = useCallback(async () => {
 		setLoading(true);
@@ -44,6 +50,13 @@ function UserDashboard() {
 		}
 	}, [current]);
 
+	useEffect(() => {
+		if (!current) return;
+		if (!isClockRunning) {
+			setPrice(current.auctionedPrice ?? 0.65);
+		}
+	}, [current, isClockRunning]);
+
 	const upcoming = useMemo(() => {
 		if (products.length === 0) return [];
 		const after = products.slice(productIndex + 1);
@@ -53,6 +66,76 @@ function UserDashboard() {
 
 	const [paused, setPaused] = useState<boolean>(false);
 	const [resetToken, setResetToken] = useState<number>(0);
+
+	useEffect(() => {
+		const country = account?.countryCode ?? account?.address?.country;
+		const region = account?.region ?? account?.address?.regionOrState;
+		if (!country || !region) return;
+		let isActive = true;
+
+		const startSignalR = async () => {
+			const connection = new HubConnectionBuilder()
+				.withUrl(`${config.API}hubs/veiling-klok`, {
+					accessTokenFactory: async () => {
+						const auth = await getAuthentication();
+						return auth?.accessToken ?? '';
+					},
+				})
+				.withAutomaticReconnect()
+				.configureLogging(LogLevel.Warning)
+				.build();
+
+			connection.on('RegionVeilingStarted', (notification: RegionVeilingStartedNotification) => {
+				if (!isActive) return;
+				setIsClockRunning(true);
+				setPaused(false);
+				setResetToken((v) => v + 1);
+				connection.invoke('JoinClock', notification.clockId).catch((err) => {
+					console.error('JoinClock failed:', err);
+				});
+			});
+
+			connection.on('VeilingPriceTick', (notification: VeilingPriceTickNotification) => {
+				if (!isActive) return;
+				setPrice(notification.currentPrice);
+			});
+
+			connection.on('VeilingProductChanged', (notification: VeilingProductChangedNotification) => {
+				if (!isActive) return;
+				setPrice(notification.startingPrice);
+			});
+
+			connection.on('VeilingEnded', () => {
+				if (!isActive) return;
+				setIsClockRunning(false);
+			});
+
+			connection.on('RegionVeilingEnded', () => {
+				if (!isActive) return;
+				setIsClockRunning(false);
+			});
+
+			try {
+				await connection.start();
+				await connection.invoke('JoinRegion', country, region);
+			} catch (err) {
+				console.error('SignalR connection failed:', err);
+			}
+
+			connectionRef.current = connection;
+		};
+
+		startSignalR();
+
+		return () => {
+			isActive = false;
+			const connection = connectionRef.current;
+			connectionRef.current = null;
+			if (connection) {
+				connection.stop().catch(() => undefined);
+			}
+		};
+	}, [account?.countryCode, account?.region, account?.address?.country, account?.address?.regionOrState]);
 
 	const [qty, setQty] = useState<number>(5);
 	const currentStock = current?.stock ?? 0;
@@ -125,18 +208,14 @@ function UserDashboard() {
 					<div className="user-card-center">
 						<AuctionClock
 							totalSeconds={CLOCK_SECONDS}
-							start
-							paused={paused}
+							start={isClockRunning}
+							paused={paused || !isClockRunning}
 							resetToken={resetToken}
 							round={1}
 							coin={1}
 							amountPerLot={1}
 							minAmount={1}
 							price={price}
-							onTick={(secs) => {
-								const p = Math.max(0, (secs / CLOCK_SECONDS) * 0.65);
-								setPrice(+p.toFixed(2));
-							}}
 						/>
 
 						<div className="stock-text">{t('koper_stock', { count: currentStock })}</div>
@@ -165,7 +244,7 @@ function UserDashboard() {
 
 											setTimeout(() => {
 												setResetToken((v) => v + 1);
-												setPrice(0.65);
+												setPrice(current.auctionedPrice ?? 0.65);
 												setPaused(false);
 												if (nextStock <= 0) {
 													setProductIndex((i) => (i + 1) % products.length);

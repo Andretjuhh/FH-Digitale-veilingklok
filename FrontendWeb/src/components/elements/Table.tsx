@@ -369,10 +369,31 @@ export const StatusBadge: React.FC<{ status: Order['status'] }> = ({status}) => 
 };
 
 // App Component with Column Configuration
-export default function App(): React.JSX.Element {
+export default function App({products}: {products?: any[]}): React.JSX.Element {
 	const [lazyData, setLazyData] = useState<Order[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [totalItems, setTotalItems] = useState(0);
+
+	// Convert products to orders format if products are provided
+	const ordersData = useMemo(() => {
+		if (products && products.length > 0) {
+			return products.map((product, index) => ({
+				id: product.id || index,
+				itemName: product.name || 'Unknown Product',
+				category: product.dimension || 'N/A',
+				orderId: `#PROD${String(product.id).slice(0, 8).toUpperCase()}`,
+				orderDate: product.createdAt ? new Date(product.createdAt).toLocaleDateString() : 'N/A',
+				customer: product.companyName || 'Unknown',
+				customerType: 'Kweker',
+				avatar: '🌱',
+				price: product.auctionedPrice || product.minimumPrice || 0,
+				paymentMethod: product.auctionedPrice ? 'Sold' : 'Not Sold',
+				status: (product.auctionedPrice ? 'Completed' : 'Pending') as Order['status'],
+				icon: '🌿',
+			}));
+		}
+		return mockOrders;
+	}, [products]);
 
 	const columns: Column<Order>[] = useMemo(
 		() => [
@@ -482,14 +503,8 @@ export default function App(): React.JSX.Element {
 	return (
 		<div className="app-table-demo-container">
 			<div className="app-table-demo-wrapper">
-				<h1 className="app-table-demo-title">Product Orders (Client Side)</h1>
-				<DataTable<Order> data={mockOrders} columns={columns} itemsPerPage={5} onAction={handleAction}/>
-			</div>
-
-			<div className="app-table-demo-wrapper">
-				<h1 className="app-table-demo-title">Product Orders (Lazy Loading)</h1>
-				<DataTable<Order> data={lazyData} columns={columns} itemsPerPage={5} onAction={handleAction} isLazy={true} loading={loading} totalItems={totalItems}
-				                  onFetchData={handleFetchData}/>
+				<h1 className="app-table-demo-title">Product Orders</h1>
+				<DataTable<Order> data={ordersData} columns={columns} itemsPerPage={5} onAction={handleAction}/>
 			</div>
 		</div>
 	);
