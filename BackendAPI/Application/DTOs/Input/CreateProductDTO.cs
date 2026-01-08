@@ -20,8 +20,7 @@ public class CreateProductDTO
     [Range(0, int.MaxValue, ErrorMessage = "PRODUCT.STOCK_INVALID")]
     public int Stock { get; set; }
 
-    [Base64String(ErrorMessage = "PRODUCT.IMAGE_INVALID_BASE64")]
-    public required string ImageBase64 { get; set; }
+    public string? ImageBase64 { get; set; }
 
     public string? Dimension { get; set; }
 }

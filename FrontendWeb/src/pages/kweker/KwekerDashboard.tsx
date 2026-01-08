@@ -213,7 +213,7 @@ export default function KwekerDashboard() {
 
 														<div className="form-row">
 															<FormInputField id="imageBase64"
-															                label="Afbeelding (Base64)" {...register('imageBase64', {required: 'Afbeelding is verplicht'})}
+															                label="Afbeelding (Base64)" {...register('imageBase64')}
 															                isError={!!errors.imageBase64} error={errors.imageBase64?.message as string}/>
 														</div>
 
