@@ -1,18 +1,18 @@
-import { fetchResponse } from '../../utils/fetchHelpers';
-import { HttpSuccess } from '../../declarations/types/HttpSuccess';
-import { CreateKoperDTO } from '../../declarations/dtos/input/CreateKoperDTO';
-import { UpdateKoperDTO } from '../../declarations/dtos/input/UpdateKoperDTO';
-import { AddressInputDTO } from '../../declarations/dtos/input/AddressInputDTO';
-import { CreateOrderDTO } from '../../declarations/dtos/input/CreateOrderDTO';
-import { AddressOutputDto } from '../../declarations/dtos/output/AddressOutputDto';
-import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
-import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
-import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
-import { OrderDetailsOutputDto } from '../../declarations/dtos/output/OrderDetailsOutputDto';
-import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
-import { OrderItemOutputDto } from '../../declarations/dtos/output/OrderItemOutputDto';
-import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
-import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import {fetchResponse} from '../../utils/fetchHelpers';
+import {HttpSuccess} from '../../declarations/types/HttpSuccess';
+import {CreateKoperDTO} from '../../declarations/dtos/input/CreateKoperDTO';
+import {UpdateKoperDTO} from '../../declarations/dtos/input/UpdateKoperDTO';
+import {AddressInputDTO} from '../../declarations/dtos/input/AddressInputDTO';
+import {CreateOrderDTO} from '../../declarations/dtos/input/CreateOrderDTO';
+import {AddressOutputDto} from '../../declarations/dtos/output/AddressOutputDto';
+import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
+import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
+import {OrderOutputDto} from '../../declarations/dtos/output/OrderOutputDto';
+import {OrderDetailsOutputDto} from '../../declarations/dtos/output/OrderDetailsOutputDto';
+import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
+import {OrderItemOutputDto} from '../../declarations/dtos/output/OrderItemOutputDto';
+import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
+import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
 
 // Create koper account (POST /api/account/koper/create)
 export async function createKoperAccount(account: CreateKoperDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -83,9 +83,10 @@ export async function getProduct(productId: string): Promise<HttpSuccess<Product
 }
 
 // Get products (GET /api/account/koper/products)
-export async function getProducts(nameFilter?: string, maxPrice?: number, kwekerId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<ProductOutputDto>>> {
+export async function getProducts(nameFilter?: string, regionFilter?: string, maxPrice?: number, kwekerId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<ProductOutputDto>>> {
 	const params = new URLSearchParams();
 	if (nameFilter) params.append('nameFilter', nameFilter);
+	if (regionFilter) params.append('regionFilter', regionFilter);
 	if (maxPrice) params.append('maxPrice', maxPrice.toString());
 	if (kwekerId) params.append('kwekerId', kwekerId);
 	params.append('pageNumber', pageNumber.toString());

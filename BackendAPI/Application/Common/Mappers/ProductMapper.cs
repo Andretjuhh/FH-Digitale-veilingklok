@@ -21,6 +21,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                 Stock = entity.Stock,
                 ImageBase64 = entity.ImageUrl,
                 Dimension = entity.Dimension,
+                Region = entity.Region,
                 Auctioned = entity.Auctioned,
                 AuctionedAt = entity.AuctionedAt,
                 AuctionedCount = entity.AuctionedCount,
@@ -41,6 +42,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
             Stock = entity.Stock,
             ImageBase64 = entity.ImageUrl,
             Dimension = entity.Dimension,
+            Region = entity.Region,
             Auctioned = entity.Auctioned,
             AuctionedAt = entity.AuctionedAt,
             AuctionedCount = entity.AuctionedCount,
@@ -63,6 +65,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                     Stock = entity.Stock,
                     ImageUrl = entity.ImageUrl,
                     Dimension = entity.Dimension,
+                    Region = entity.Region,
                     CompanyName = kweker.CompanyName
                 };
 
@@ -78,6 +81,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                 Stock = entity.Stock,
                 ImageUrl = entity.ImageUrl,
                 Dimension = entity.Dimension,
+                Region = entity.Region,
                 CompanyName = kweker.CompanyName
             };
         }
@@ -92,11 +96,12 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                 Name = entity.ProductName,
                 Description = entity.ProductDescription,
                 AuctionedPrice = entity.PriceAtPurchase,
+                ImageUrl = entity.ProductImageUrl,
+                CompanyName = entity.CompanyName,
+                Region = null, // Not available in OrderProductInfo
                 AuctionedAt = null, // Not available in OrderProductInfo
                 Stock = 0, // Not available in OrderProductInfo
-                ImageUrl = entity.ProductImageUrl,
-                Dimension = "", // Not available in OrderProductInfo
-                CompanyName = entity.CompanyName
+                Dimension = "" // Not available in OrderProductInfo
             };
 
         public static ProductOutputDto ToOutputDto(OrderProductInfo entity)
@@ -107,11 +112,12 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                 Name = entity.ProductName,
                 Description = entity.ProductDescription,
                 AuctionedPrice = entity.PriceAtPurchase,
+                ImageUrl = entity.ProductImageUrl,
+                CompanyName = entity.CompanyName,
+                Region = null, // Not available in OrderProductInfo
                 AuctionedAt = null, // Not available in OrderProductInfo
                 Stock = 0, // Not available in OrderProductInfo
-                ImageUrl = entity.ProductImageUrl,
-                Dimension = "", // Not available in OrderProductInfo
-                CompanyName = entity.CompanyName
+                Dimension = "" // Not available in OrderProductInfo
             };
         }
     }

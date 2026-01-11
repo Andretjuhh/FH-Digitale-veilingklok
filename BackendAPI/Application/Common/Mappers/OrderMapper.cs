@@ -154,9 +154,10 @@ public class OrderMapper : IBaseMapper<Order, OrderOutputDto>
         }
     }
 
-    public class KwekerOrders : IBaseMapper<(Order Order, OrderProductInfo Product, KoperInfo Koper), OrderKwekerOutput>
+    public class KwekerOrders : IBaseMapper<(Order Order, OrderProductInfo OProductInfo, KoperInfo Koper),
+        OrderKwekerOutput>
     {
-        public static Expression<Func<(Order Order, OrderProductInfo Product, KoperInfo Koper), OrderKwekerOutput>>
+        public static Expression<Func<(Order Order, OrderProductInfo OProductInfo, KoperInfo Koper), OrderKwekerOutput>>
             EntityDto =>
             data => new OrderKwekerOutput
             {
@@ -164,13 +165,13 @@ public class OrderMapper : IBaseMapper<Order, OrderOutputDto>
                 CreatedAt = data.Order.CreatedAt,
                 Status = data.Order.Status,
                 ClosedAt = data.Order.ClosedAt,
-                Quantity = data.Product.Quantity,
-                TotalPrice = data.Product.PriceAtPurchase * data.Product.Quantity,
-                Product = ProductMapper.FromOrderInfo.EntityDto.Compile()(data.Product),
+                Quantity = data.OProductInfo.Quantity,
+                TotalPrice = data.OProductInfo.PriceAtPurchase * data.OProductInfo.Quantity,
+                Product = ProductMapper.FromOrderInfo.EntityDto.Compile()(data.OProductInfo),
                 KoperInfo = KoperMapper.Info.EntityDto.Compile()(data.Koper)
             };
 
-        public static OrderKwekerOutput ToOutputDto((Order Order, OrderProductInfo Product, KoperInfo Koper) data)
+        public static OrderKwekerOutput ToOutputDto((Order Order, OrderProductInfo OProductInfo, KoperInfo Koper) data)
         {
             return new OrderKwekerOutput
             {
@@ -178,9 +179,9 @@ public class OrderMapper : IBaseMapper<Order, OrderOutputDto>
                 CreatedAt = data.Order.CreatedAt,
                 Status = data.Order.Status,
                 ClosedAt = data.Order.ClosedAt,
-                Quantity = data.Product.Quantity,
-                TotalPrice = data.Product.PriceAtPurchase * data.Product.Quantity,
-                Product = ProductMapper.FromOrderInfo.ToOutputDto(data.Product),
+                Quantity = data.OProductInfo.Quantity,
+                TotalPrice = data.OProductInfo.PriceAtPurchase * data.OProductInfo.Quantity,
+                Product = ProductMapper.FromOrderInfo.ToOutputDto(data.OProductInfo),
                 KoperInfo = KoperMapper.Info.ToOutputDto(data.Koper)
             };
         }

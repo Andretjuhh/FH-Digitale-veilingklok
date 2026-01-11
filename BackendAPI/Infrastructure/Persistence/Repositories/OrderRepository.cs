@@ -201,7 +201,7 @@ public class OrderRepository : IOrderRepository
         return (items, totalCount);
     }
 
-    public async Task<(Order Order, OrderProductInfo Product, KoperInfo Koper)?> GetKwekerOrderAsync(Guid orderId,
+    public async Task<(Order Order, OrderProductInfo OProductInfo, KoperInfo Koper)?> GetKwekerOrderAsync(Guid orderId,
         Guid kwekerId)
     {
         var query = from order in _dbContext.Orders

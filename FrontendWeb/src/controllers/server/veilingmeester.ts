@@ -1,17 +1,17 @@
-import { fetchResponse } from '../../utils/fetchHelpers';
-import { HttpSuccess } from '../../declarations/types/HttpSuccess';
-import { CreateMeesterDTO } from '../../declarations/dtos/input/CreateMeesterDTO';
-import { UpdateVeilingMeesterDTO } from '../../declarations/dtos/input/UpdateVeilingMeesterDTO';
-import { CreateVeilingKlokDTO } from '../../declarations/dtos/input/CreateVeilingKlokDTO';
-import { UpdateProductDTO } from '../../declarations/dtos/input/UpdateProductDTO';
-import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
-import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
-import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
-import { VeilingKlokDetailsOutputDto } from '../../declarations/dtos/output/VeilingKlokDetailsOutputDto';
-import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
-import { ProductDetailsOutputDto } from '../../declarations/dtos/output/ProductDetailsOutputDto';
-import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
-import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import {fetchResponse} from '../../utils/fetchHelpers';
+import {HttpSuccess} from '../../declarations/types/HttpSuccess';
+import {CreateMeesterDTO} from '../../declarations/dtos/input/CreateMeesterDTO';
+import {UpdateVeilingMeesterDTO} from '../../declarations/dtos/input/UpdateVeilingMeesterDTO';
+import {CreateVeilingKlokDTO} from '../../declarations/dtos/input/CreateVeilingKlokDTO';
+import {UpdateProductDTO} from '../../declarations/dtos/input/UpdateProductDTO';
+import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
+import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
+import {OrderOutputDto} from '../../declarations/dtos/output/OrderOutputDto';
+import {VeilingKlokDetailsOutputDto} from '../../declarations/dtos/output/VeilingKlokDetailsOutputDto';
+import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import {ProductDetailsOutputDto} from '../../declarations/dtos/output/ProductDetailsOutputDto';
+import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
+import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 
 // Create veilingmeester account (POST /api/account/meester/create)
 export async function createVeilingmeesterAccount(account: CreateMeesterDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -75,11 +75,12 @@ export async function updateProductPrice(productId: string, kwekerId: string, pr
 }
 
 // Get products (GET /api/account/meester/products)
-export async function getProducts(nameFilter?: string, maxPrice?: number, kwekerId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<ProductOutputDto>>> {
+export async function getProducts(nameFilter?: string, regionFilter?: string, maxPrice?: number, kwekerId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<ProductOutputDto>>> {
 	const params = new URLSearchParams();
 	if (nameFilter) params.append('nameFilter', nameFilter);
 	if (maxPrice) params.append('maxPrice', maxPrice.toString());
 	if (kwekerId) params.append('kwekerId', kwekerId);
+	if (regionFilter) params.append('regionFilter', regionFilter);
 	params.append('pageNumber', pageNumber.toString());
 	params.append('pageSize', pageSize.toString());
 

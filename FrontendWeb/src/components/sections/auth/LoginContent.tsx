@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../../buttons/Button';
-import FormInputField from '../../elements/FormInputField';
+import FormInputField from '../../form-elements/FormInputField';
 import FormLink from '../../buttons/FormLink';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import {useRootContext} from '../../contexts/RootContext';
@@ -8,11 +8,11 @@ import {loginAccount} from '../../../controllers/server/account';
 import {useComponentStateReducer} from '../../../hooks/useComponentStateReducer';
 import {LayoutGroup, motion} from 'framer-motion';
 import {Spring} from '../../../constant/animation';
-import Spinner from '../../elements/Spinner';
 import {delay} from '../../../utils/standards';
 import {isHttpError} from '../../../declarations/types/HttpError';
 import {RequestLoginDTO} from '../../../declarations/dtos/input/RequestLoginDTO';
 import {AccountType} from '../../../declarations/enums/AccountTypes';
+import ComponentState from "../../elements/ComponentState";
 
 function LoginContent() {
 	const {t, navigate, authenticateAccount} = useRootContext();
@@ -74,8 +74,8 @@ function LoginContent() {
 				{state.type === 'idle' && (
 					<>
 						<div className="auth-header">
-							<Button className="auth-header-back-button" icon="bi-x" onClick={handleGoBack} type="button" aria-label={t('back_button_aria')}/>
-							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('back_button_aria')} onClick={handleGoBack}/>
+							<Button className="auth-header-back-button" icon="bi-x" onClick={handleGoBack} type="button" aria-label={t('aria_back_button')}/>
+							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('aria_back_button')} onClick={handleGoBack}/>
 							<div className="auth-text-ctn">
 								<h2 className={'auth-header-h1'} aria-label={t('login_title')}>
 									{t('login_title')}
@@ -121,24 +121,19 @@ function LoginContent() {
 								error={errors.password?.message || 'Incorrect Password'}
 							/>
 
-							<Button type="submit" className="auth-submit-btn" label={t('login')} aria-label={t('login_button_aria')}/>
+							<Button type="submit" className="auth-submit-btn" label={t('login')} aria-label={t('aria_login_button')}/>
 
 							{/* Still need to add forgotten link nav */}
 							<div className="flex flex-col">
-								<FormLink className="auth-form-link" label={t('forgot_password')} onClick={() => navigate('/')} aria-label={t('forgot_password_aria')}/>
-								<FormLink className="auth-form-link" label={t('create_account')} onClick={() => navigate('/register')} aria-label={t('create_account_aria')}/>
+								<FormLink className="auth-form-link" label={t('forgot_password')} onClick={() => navigate('/')} aria-label={t('aria_forgot_password')}/>
+								<FormLink className="auth-form-link" label={t('create_account')} onClick={() => navigate('/register')} aria-label={t('aria_create_account')}/>
 							</div>
 						</form>
 					</>
 				)}
 
 				{state.type !== 'idle' && (
-					<div className="auth-state">
-						{state.type === 'loading' && <Spinner/>}
-						{state.type === 'succeed' && <i className="bi bi-check-circle-fill text-green-500"></i>}
-						{state.type === 'error' && <i className="bi bi-x-circle-fill text-red-500"></i>}
-						<p className="auth-state-text">{state.message}</p>
-					</div>
+					<ComponentState state={state}/>
 				)}
 			</motion.div>
 		</LayoutGroup>

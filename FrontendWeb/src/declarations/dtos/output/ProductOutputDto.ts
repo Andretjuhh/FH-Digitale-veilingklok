@@ -6,6 +6,7 @@ export interface ProductOutputDto {
 	imageUrl: string;
 	auctionedPrice: number | null;
 	auctionedAt: string | null;
+	region?: string;
 	dimension: string;
 	stock: number;
 	companyName: string;

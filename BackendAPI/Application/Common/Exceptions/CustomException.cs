@@ -73,6 +73,14 @@ public class CustomException : ProcessException
         );
     }
 
+    public static CustomException InvalidOperationKlokStillRunning()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.INVALID_OPERATION_KLOK_STILL_RUNNING"
+        );
+    }
+
     public static CustomException InvalidProductPrice()
     {
         return new CustomException(

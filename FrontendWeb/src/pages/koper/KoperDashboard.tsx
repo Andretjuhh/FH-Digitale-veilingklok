@@ -1,16 +1,16 @@
 // External imports
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 
 // Internal imports
 import Page from '../../components/nav/Page';
 import Button from '../../components/buttons/Button';
 import AuctionClock from '../../components/elements/AuctionClock';
-import { useRootContext } from '../../components/contexts/RootContext';
-import { getProducts, orderProduct } from '../../controllers/server/koper';
-import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import {useRootContext} from '../../components/contexts/RootContext';
+import {getProducts} from '../../controllers/server/koper';
+import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 
 function UserDashboard() {
-	const { t } = useRootContext();
+	const {t} = useRootContext();
 	const CLOCK_SECONDS = 4;
 	const [price, setPrice] = useState<number>(0.65);
 	const [products, setProducts] = useState<ProductOutputDto[]>([]);
@@ -77,7 +77,7 @@ function UserDashboard() {
 			<Page enableHeader className="user-dashboard">
 				<div className="flex flex-col items-center justify-center h-64">
 					<p className="text-gray-500 mb-4">{t('no_products_available')}</p>
-					<Button label={t('refresh')} onClick={initializeProducts} />
+					<Button label={t('refresh')} onClick={initializeProducts}/>
 				</div>
 			</Page>
 		);
@@ -100,7 +100,8 @@ function UserDashboard() {
 				<div className="user-card">
 					{/* Left media block */}
 					<div className="user-card-mediaBlock">
-						<img className="user-card-media" src={imgSrc} onError={() => setImgSrc((prev) => (prev.endsWith('.svg') ? '/pictures/kweker.png' : '/pictures/roses.svg'))} alt="Rozen" />
+						<img className="user-card-media" src={imgSrc} onError={() => setImgSrc((prev) => (prev.endsWith('.svg') ? '/pictures/kweker.png' : '/pictures/roses.svg'))}
+						     alt="Rozen"/>
 						<div className="product-info">
 							<div className="prod-row">
 								<span className="prod-label">{t('koper_supplier')}</span>
@@ -109,7 +110,7 @@ function UserDashboard() {
 								<span className="prod-val">{current.id.substring(0, 8)}</span>
 							</div>
 							<div className="prod-row">
-								<span className="prod-label">{t('koper_product')}</span>
+								<span className="prod-label">{t('products')}</span>
 								<span className="prod-val prod-val--wide">{current.name}</span>
 								{/*<span className="prod-label">{t('koper_dimension')}</span>*/}
 								<span className="prod-val">{current.dimension}</span>
@@ -139,7 +140,7 @@ function UserDashboard() {
 							}}
 						/>
 
-						<div className="stock-text">{t('koper_stock', { count: currentStock })}</div>
+						<div className="stock-text">{t('koper_stock', {count: currentStock})}</div>
 
 						<div className="user-actions">
 							<div className="buy-controls">
@@ -161,7 +162,7 @@ function UserDashboard() {
 											// as the backend integration for "buying" on the clock is complex (SignalR usually).
 
 											const nextStock = currentStock - qty;
-											setProducts((prev) => prev.map((p, i) => (i === productIndex ? { ...p, stock: nextStock } : p)));
+											setProducts((prev) => prev.map((p, i) => (i === productIndex ? {...p, stock: nextStock} : p)));
 
 											setTimeout(() => {
 												setResetToken((v) => v + 1);
@@ -194,7 +195,8 @@ function UserDashboard() {
 										}}
 										aria-label={t('koper_qty_input_aria')}
 									/>
-									<Button className="qty-max-btn btn-outline" label={t('koper_max_stock')} aria-label={t('koper_max_stock')} onClick={() => setQty(currentStock)} disabled={currentStock === 0} />
+									<Button className="qty-max-btn btn-outline" label={t('koper_max_stock')} aria-label={t('koper_max_stock')} onClick={() => setQty(currentStock)}
+									        disabled={currentStock === 0}/>
 								</div>
 							</div>
 						</div>
@@ -202,7 +204,7 @@ function UserDashboard() {
 
 					{/* Right side: compacte wachtrij */}
 					<aside className="upcoming-side">
-						<h4 className="upcoming-side-title">{t('koper_upcoming')}</h4>
+						<h4 className="upcoming-side-title">{t('next')}</h4>
 						<ul className="upcoming-side-list">
 							{upcoming.map((p, i) => (
 								<li className="upcoming-side-item" key={p.id}>

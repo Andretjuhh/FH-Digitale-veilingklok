@@ -1,0 +1,330 @@
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import {CreateProductDTO} from '../../../declarations/dtos/input/CreateProductDTO';
+import {UpdateProductDTO} from '../../../declarations/dtos/input/UpdateProductDTO';
+import {useRootContext} from '../../contexts/RootContext';
+import {useComponentStateReducer} from '../../../hooks/useComponentStateReducer';
+import {LayoutGroup, motion} from 'framer-motion';
+import {ProductOutputDto} from '../../../declarations/dtos/output/ProductOutputDto';
+import Button from '../../buttons/Button';
+import ComponentState from '../../elements/ComponentState';
+import {useForm} from 'react-hook-form';
+import FormInputField from '../../form-elements/FormInputField';
+import FormSelectField from '../../form-elements/FormSelectField';
+import FormTextareaField from '../../form-elements/FormTextareaField';
+import clsx from 'clsx';
+import {buildFieldLayout, ProductFormFields} from '../../../constant/forms';
+import {InputField} from '../../../declarations/types/FormField';
+import {createProduct, updateProduct} from "../../../controllers/server/kweker";
+import {delay} from "../../../utils/standards";
+import {isHttpError} from "../../../declarations/types/HttpError";
+
+type Props = {
+	editProduct?: ProductOutputDto;
+	onClose?: () => void;
+	onCreate?: (product: CreateProductDTO) => void;
+	onUpdate?: (product: UpdateProductDTO) => void;
+};
+type Region = {
+	id: string;
+	name: string;
+};
+
+// Define the form data shape
+type ProductFormState = {
+	product_name: string;
+	product_description: string;
+	region: string;
+	minimum_price: number;
+	stock: number;
+	dimension: string;
+	imageBase64: string;
+};
+
+function CreateEditProduct(props: Props) {
+	const {editProduct, onClose, onCreate, onUpdate} = props;
+	const {t} = useRootContext();
+	const [state, updateState] = useComponentStateReducer();
+
+	const {
+		register,
+		handleSubmit,
+		setValue,
+		watch,
+		formState: {errors},
+	} = useForm<ProductFormState>({
+		defaultValues: {
+			product_name: editProduct?.name || '',
+			product_description: editProduct?.description || '',
+			region: '', // Default, map if needed
+			minimum_price: 0,
+			stock: editProduct?.stock || 0,
+			dimension: editProduct?.dimension || '',
+			imageBase64: '',
+		},
+	});
+	const imageBase64 = watch('imageBase64');
+
+	// State for image preview
+	const [imagePreview, setImagePreview] = useState<string | null>(editProduct?.imageUrl || null);
+	const [regions, setRegions] = useState<Region[]>([]);
+	const [loadingRegions, setLoadingRegions] = useState(false);
+
+	const regionOptions = useMemo(() => regions.map((r) => ({value: r.id, label: r.name})), [regions]);
+	const orderedFields = useMemo(() => buildFieldLayout(ProductFormFields), []);
+
+	// Populate form when editProduct changes (if needed, though defaultValues handles initial render)
+	useEffect(() => {
+		if (editProduct) {
+			setValue('product_name', editProduct.name);
+			setValue('product_description', editProduct.description);
+			setValue('stock', editProduct.stock);
+			setValue('dimension', editProduct.dimension);
+			if (editProduct.imageUrl) {
+				setImagePreview(editProduct.imageUrl);
+			}
+			// Map other fields if they exist in DTO
+		}
+	}, [editProduct, setValue]);
+
+	useEffect(() => {
+		initializeRegions();
+	}, []);
+
+	const initializeRegions = async () => {
+		try {
+			setLoadingRegions(true);
+			// updateState({type: 'loading', message: t('loading_regions')});
+			// Replace with your actual API call
+			setTimeout(() => {
+				const mockRegions: Region[] = [
+					{id: 'null', name: t('select_region')},
+					{id: '1', name: 'North America'},
+					{id: '2', name: 'Europe'},
+					{id: '3', name: 'Asia Pacific'},
+					{id: '4', name: 'Latin America'},
+					{id: '5', name: 'Middle East & Africa'},
+				];
+				setRegions(mockRegions);
+				setLoadingRegions(false);
+				updateState({type: 'idle'});
+			}, 500);
+		} catch (error) {
+			console.error('Failed to load regions:', error);
+			updateState({type: 'error', message: t('failed_load_regions')});
+			setLoadingRegions(false);
+		}
+	};
+	const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file) {
+			if (!file.type.startsWith('image/')) {
+				// Handle error
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				const base64String = (reader.result as string).split(',')[1];
+				setImagePreview(reader.result as string);
+				setValue('imageBase64', base64String);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+	const onFormSubmit = useCallback(async (data: ProductFormState) => {
+		const productData: CreateProductDTO | UpdateProductDTO = {
+			name: data.product_name,
+			description: data.product_description,
+			minimumPrice: Number(data.minimum_price), // cast string input to number if necessary
+			stock: Number(data.stock),
+			dimension: data.dimension,
+			imageBase64: data.imageBase64,
+		};
+
+		if (editProduct)
+			await onUpdateProduct(productData as UpdateProductDTO);
+		else
+			await onCreateProduct(productData as CreateProductDTO);
+	}, [editProduct, onCreate, onUpdate]);
+	const onCreateProduct = async (createProductDTO: CreateProductDTO) => {
+		try {
+			updateState({type: 'loading', message: t('product_creating')});
+			await createProduct(createProductDTO);
+			await delay(1500);
+			updateState({type: 'succeed', message: t('product_created_success')});
+			onCreate?.(createProductDTO);
+			await delay(1000);
+			return onClose?.();
+		} catch (e: any) {
+			await delay(2000);
+
+			// Display error message
+			if (isHttpError(e) && e.message)
+				updateState({type: 'error', message: e.message});
+			else
+				updateState({type: 'error', message: t('product_created_error')});
+
+		} finally {
+			await delay(1500);
+			updateState({type: 'idle'});
+		}
+	}
+	const onUpdateProduct = async (updateProductDTO: UpdateProductDTO) => {
+		try {
+			if (!editProduct) return;
+			updateState({type: 'loading', message: t('product_updating')});
+			await updateProduct(editProduct.id, updateProductDTO);
+			await delay(1500);
+			updateState({type: 'succeed', message: t('product_updated_success')});
+			onUpdate?.(updateProductDTO);
+			await delay(1000);
+			return onClose?.();
+		} catch (e: any) {
+			await delay(2000);
+
+			// Display error message
+			if (isHttpError(e) && e.message)
+				updateState({type: 'error', message: e.message});
+			else
+				updateState({type: 'error', message: t('product_updated_error')});
+
+		} finally {
+			await delay(1500);
+			updateState({type: 'idle'});
+		}
+	}
+
+	const renderField = useCallback(
+		(field: InputField, key: string) => {
+			const name = field.label as keyof ProductFormState;
+			const isRequired = field.required;
+			const errorMsg = errors[name]?.message;
+
+			const commonProps = {
+				id: name,
+				label: isRequired ? `${t(field.label)} *` : t(field.label),
+				placeholder: field.placeholderLocalizedKey ? t(field.placeholderLocalizedKey) : field.placeholder,
+				isError: !!errorMsg,
+				error: errorMsg,
+			};
+
+			if (field.type === 'textarea') {
+				return <FormTextareaField
+					key={key}
+					rows={field.rows || 4}
+					{...commonProps}
+					{...register(name, {
+						required: isRequired ? `${t(field.label)}  ${t('is')} ${t('required')}` : false,
+					})}
+				/>;
+			}
+
+			if (field.type === 'select') {
+				// @ts-ignore
+				return <FormSelectField
+					key={key}
+					icon={field.icon}
+					options={regionOptions}
+					disabled={loadingRegions}
+					{...commonProps}
+					{...register(name, {
+						required: isRequired ? `${t(field.label)}  ${t('is')} ${t('required')}` : false,
+					})}
+				/>;
+			}
+
+			return (
+				<FormInputField
+					key={key}
+					{...commonProps}
+					type={field.type === 'number' ? 'number' : 'text'}
+					step={field.step}
+					min={field.min}
+					icon={field.icon}
+					{...register(name, {
+						required: isRequired ? `${t(field.label)}  ${t('is')} ${t('required')}` : false,
+						min: field.min ? {value: field.min, message: t('required_field')} : undefined, // simplified validation
+					})}
+				/>
+			);
+		},
+		[errors, register, t, loadingRegions, regionOptions]
+	);
+
+	return (
+		<LayoutGroup>
+			<motion.div layout className={'create-product-card'} onClick={(e) => e.stopPropagation()}>
+				{state.type === 'idle' && (
+					<>
+						<div className={'create-product-card-header'}>
+							<Button className="create-product-card-back-button" icon="bi-x" onClick={() => onClose?.()} type="button" aria-label={t('aria_back_button')}/>
+
+							<div className={'create-product-card-header-text-ctn'}>
+								<h1 className={'create-product-card-h1'}>
+									<i className="bi bi-bag-plus-fill create-product-card-header-icon"></i>
+									{editProduct ? t('edit_product') : t('create_product')}
+								</h1>
+							</div>
+						</div>
+
+						<div className="create_edit-product-card-body">
+							<form
+								className="create-product-card-form"
+								onSubmit={handleSubmit(onFormSubmit)}
+							>
+								<div className="image-section">
+									<span className="upload-input-area-label">{t('product_image')} *</span>
+									<div className="upload-input-ctn">
+										<input className="upload-input" type="file" accept="image/*" id="upload-input" onChange={handleImageUpload}/>
+										<label htmlFor="upload-input" className={clsx('upload-input-label', imagePreview && 'has-preview', errors.imageBase64 && 'has-error')}>
+											{imagePreview ? (
+												<div className="upload-input-content">
+													<div className={'upload-input-img-parent'}>
+														<img src={imagePreview} alt="Preview" className="upload-input-img"/>
+													</div>
+													<p className="upload-input-change-txt">{t('change_image')}</p>
+												</div>
+											) : (
+												<div className="upload-input-content">
+													<i className="bi bi-upload upload-input-icon"/>
+													<div>
+														<p className="upload-input-txt-primary">{t('upload_image')}</p>
+														<p className="upload-input-txt-secondary">{t('image_upload_instructions')}</p>
+													</div>
+												</div>
+											)}
+										</label>
+									</div>
+								</div>
+
+								<div className="create-product-card-inputs-section">
+									{orderedFields.map((item) =>
+										item.type === 'group' ? (
+											<div key={`group-${item.groupName}`} className="create-product-card-form-grid">
+												{item.fields.map((field, fieldIndex) => renderField(field, `${item.groupName}-${field.label}-${fieldIndex}`))}
+											</div>
+										) : (
+											renderField(item.field, `field-${item.field.label}`)
+										)
+									)}
+								</div>
+
+								<div className="create-product-card-submit-section">
+									<Button
+										className="submit-btn"
+										label={editProduct ? t('update_product_button') : t('create_product_button')}
+										onClick={handleSubmit(onFormSubmit)}
+									/>
+								</div>
+							</form>
+						</div>
+					</>
+				)}
+
+				{state.type !== 'idle' && <ComponentState state={state}/>}
+			</motion.div>
+		</LayoutGroup>
+	);
+}
+
+export default CreateEditProduct;

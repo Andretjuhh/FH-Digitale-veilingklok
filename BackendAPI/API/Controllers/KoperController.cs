@@ -125,13 +125,14 @@ public class KoperController : ControllerBase
     [HttpGet("products")]
     public async Task<IActionResult> GetProducts(
         [FromQuery] string? nameFilter,
+        [FromQuery] string? regionFilter,
         [FromQuery] decimal? maxPrice,
         [FromQuery] Guid? kwekerId,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10
     )
     {
-        var query = new GetProductsQuery(nameFilter, maxPrice, kwekerId, pageNumber, pageSize);
+        var query = new GetProductsQuery(nameFilter, regionFilter, maxPrice, kwekerId, pageNumber, pageSize);
         var result = await _mediator.Send(query);
         return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }

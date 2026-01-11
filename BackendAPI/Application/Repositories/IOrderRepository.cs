@@ -11,7 +11,9 @@ public interface IOrderRepository
     Task<(Order order, VeilingKlokStatus klokStatus)?> GetWithKlokStatusByIdAsync(Guid id, Guid koperId);
     Task<(Order order, List<OrderProductInfo> products)?> GetWithProductsByIdAsync(Guid id);
     Task<(Order order, List<OrderProductInfo> products)?> GetWithProductsByIdAsync(Guid id, Guid koperId);
-    Task<(Order Order, OrderProductInfo Product, KoperInfo Koper)?> GetKwekerOrderAsync(Guid orderId, Guid kwekerId);
+
+    Task<(Order Order, OrderProductInfo OProductInfo, KoperInfo Koper)?> GetKwekerOrderAsync(Guid orderId,
+        Guid kwekerId);
 
     Task AddAsync(Order order);
     void Update(Order order);

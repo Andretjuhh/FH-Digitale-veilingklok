@@ -113,6 +113,7 @@ public class ProductRepository : IProductRepository
         int TotalCount
         )> GetAllWithFilterAsync(
         string? nameFilter,
+        string? regionFilter,
         decimal? maxPrice,
         Guid? kwekerId,
         int pageNumber,
@@ -129,6 +130,9 @@ public class ProductRepository : IProductRepository
 
         if (!string.IsNullOrWhiteSpace(nameFilter))
             query = query.Where(x => x.product.Name.Contains(nameFilter));
+
+        if (!string.IsNullOrWhiteSpace(regionFilter))
+            query = query.Where(x => x.product.Region == regionFilter);
 
         if (maxPrice.HasValue)
             query = query.Where(x => x.product.AuctionPrice <= maxPrice.Value);

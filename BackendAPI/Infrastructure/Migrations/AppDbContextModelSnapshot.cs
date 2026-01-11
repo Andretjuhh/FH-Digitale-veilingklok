@@ -258,7 +258,7 @@ namespace Infrastructure.Migrations
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnName("image_base64");
+                        .HasColumnName("image_url");
 
                     b.Property<Guid>("KwekerId")
                         .HasColumnType("uniqueidentifier")
@@ -273,6 +273,10 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("name");
+
+                    b.Property<string>("Region")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("region");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()

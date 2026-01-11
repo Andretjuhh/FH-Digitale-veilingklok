@@ -8,6 +8,7 @@ public class ProductOutputDto
     public required string ImageUrl { get; set; }
     public required decimal? AuctionedPrice { get; set; }
     public required DateTimeOffset? AuctionedAt { get; set; }
+    public required string? Region { get; set; }
     public required string Dimension { get; set; }
     public required int Stock { get; set; }
     public required string CompanyName { get; set; }

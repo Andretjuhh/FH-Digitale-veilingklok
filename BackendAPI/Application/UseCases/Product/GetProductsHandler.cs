@@ -7,6 +7,7 @@ namespace Application.UseCases.Product;
 
 public sealed record GetProductsQuery(
     string? NameFilter,
+    string? RegionFilter,
     decimal? MaxPrice,
     Guid? KwekerId,
     int PageNumber = 1,
@@ -30,6 +31,7 @@ public sealed class GetProductsHandler
     {
         var (items, totalCount) = await _productRepository.GetAllWithFilterAsync(
             request.NameFilter,
+            request.RegionFilter,
             request.MaxPrice,
             request.KwekerId,
             request.PageNumber,
@@ -43,7 +45,7 @@ public sealed class GetProductsHandler
                 .ToList(),
             TotalCount = totalCount,
             Page = request.PageNumber,
-            Limit = request.PageSize,
+            Limit = request.PageSize
         };
     }
 }

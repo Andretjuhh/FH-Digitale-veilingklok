@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.Output;
 using Application.Repositories;
 using Application.Common.Mappers;
+using Application.Common.Models;
 using Domain.Exceptions;
 using MediatR;
 

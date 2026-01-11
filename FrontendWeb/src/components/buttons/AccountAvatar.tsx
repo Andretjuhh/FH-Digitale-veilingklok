@@ -5,8 +5,8 @@ import CustomDropdown, {DropdownItem} from './Dropdown';
 import clsx from 'clsx';
 import {joinClsx} from '../../utils/classPrefixer';
 import {useRootContext} from '../contexts/RootContext';
-import {getRandomColorHSL} from "../../utils/standards";
 import {AccountType} from "../../declarations/enums/AccountTypes";
+import {getRandomColor} from "../../utils/standards";
 
 type Props = {
 	className?: string;
@@ -14,7 +14,7 @@ type Props = {
 
 function AccountAvatar({className}: Props) {
 	const {t, account, removeAuthentication, navigate} = useRootContext();
-	const defaultColor = useRef<string>(getRandomColorHSL());
+	const defaultColor = useRef<string>(getRandomColor(`${account?.firstName} ${account?.lastName}`));
 	const menuOptions = useRef<DropdownItem[]>([
 		{id: 'logout', label: t("logout"), icon: 'bi-door-open-fill', type: 'button', as: 'button'},
 		{id: 'manage-account', label: t("manage_account"), icon: 'bi-person-lines-fill', type: 'button', as: 'button'},
@@ -36,7 +36,7 @@ function AccountAvatar({className}: Props) {
 			itemButtonClassName={clsx('account-avatar-item-btn', joinClsx(className, 'item-btn'))}
 			buttonChildren={
 				<>
-					<div className={'account-avatar-round'} style={{'--random-color': defaultColor.current} as React.CSSProperties}>
+					<div className={'account-avatar-round'} style={{backgroundColor: defaultColor.current} as React.CSSProperties}>
 						<h1 className={'account-initial-txt'}>{avatarName.current?.charAt(0)}</h1>
 					</div>
 					<div className={'account-avatar-info'}>

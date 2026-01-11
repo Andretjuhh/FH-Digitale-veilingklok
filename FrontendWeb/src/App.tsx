@@ -9,10 +9,12 @@ import RootContext from './components/contexts/RootContext';
 import Home from './pages/general/Home';
 import Login from './pages/general/Login';
 import Register from './pages/general/Register';
-import KwekerDashboard from './pages/kweker/KwekerDashboard2';
+import KwekerDashboard from './pages/kweker/KwekerDashboard';
 import ProductDetails from './pages/kweker/ProductDetails';
 import VeilingMeesterDashboard from './pages/meester/VeilingMeesterDashboard';
 import KoperDashboard from './pages/koper/KoperDashboard';
+import KwekerOrders from "./pages/kweker/KwekerOrders";
+import KwekerProducts from "./pages/kweker/KwekerProducts";
 
 function App() {
 	const location = useLocation();
@@ -21,12 +23,23 @@ function App() {
 		<RootContext>
 			<AnimatePresence initial={false}>
 				<Routes location={location} key={location.pathname}>
+					{/*Root Routes*/}
 					<Route path="/" element={<Home/>}/>
+
+					{/*Authentication Routes*/}
 					<Route path="/login" element={<Login/>}/>
 					<Route path="/register" element={<Register/>}/>
+
+					{/*Veilingmeester Routes*/}
 					<Route path="/veilingmeester/dashboard" element={<VeilingMeesterDashboard/>}/>
+
+					{/*Koper Routes*/}
 					<Route path="/koper/dashboard" element={<KoperDashboard/>}/>
+
+					{/*Kweker Routes*/}
 					<Route path="/kweker/dashboard" element={<KwekerDashboard/>}/>
+					<Route path="/kweker/products" element={<KwekerProducts/>}/>
+					<Route path="/kweker/orders" element={<KwekerOrders/>}/>
 					<Route path="/kweker/product/:id" element={<ProductDetails/>}/>
 				</Routes>
 			</AnimatePresence>

@@ -22,6 +22,7 @@ public interface IProductRepository
         int TotalCount
         )> GetAllWithFilterAsync(
         string? nameFilter,
+        string? regionFilter,
         decimal? maxPrice,
         Guid? kwekerId,
         int pageNumber,

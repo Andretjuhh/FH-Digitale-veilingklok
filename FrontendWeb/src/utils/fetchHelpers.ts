@@ -1,8 +1,8 @@
 // Internal exports
 import config from '../constant/application';
-import { getAuthentication } from '../controllers/server/account';
-import { HttpError } from '../declarations/types/HttpError';
-import { ProcessError } from '../declarations/types/ProcessError';
+import {getAuthentication} from '../controllers/server/account';
+import {HttpError} from '../declarations/types/HttpError';
+import {ProcessError} from '../declarations/types/ProcessError';
 
 /** Make an application fetch request */
 export async function appFetch(request: RequestInfo | URL, options: RequestInit = {}) {
@@ -22,14 +22,15 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 	// Set default options for proper cookie handling
 	const defaultOptions: RequestInit = isAppFetch
 		? {
-				method: 'GET',
-				credentials: 'include', // Include cookies in the request
-				headers: {
-					'Content-Type': 'application/json',
-					Accept: 'application/json',
-					...(auth ? { Authorization: `Bearer ${auth?.accessToken}` } : {}),
-				},
-		  }
+			method: 'GET',
+			...(options.method !== 'PUT' ? {credentials: 'include'} : {}),
+			// credentials: 'include', // Include cookies in the request
+			headers: {
+				'Content-Type': 'application/json',
+				Accept: 'application/json',
+				...(auth ? {Authorization: `Bearer ${auth?.accessToken}`} : {}),
+			},
+		}
 		: {};
 
 	// Merge with user options

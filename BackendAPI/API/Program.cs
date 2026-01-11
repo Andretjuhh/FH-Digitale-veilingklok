@@ -36,9 +36,9 @@ app.UseSwaggerDocumentation();
 if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 
-app.UseCors("AllowFrontend");
-app.UseExceptionHandler();
 app.UseRouting();
+app.UseCors("AllowFrontend"); // Must come after UseRouting but before UseAuthorization
+app.UseExceptionHandler();
 app.UseAuthentication(); // Must come before UseAuthorization
 app.UseAuthorization();
 app.MapControllers();

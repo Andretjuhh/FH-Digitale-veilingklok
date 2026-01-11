@@ -11,7 +11,7 @@ type Props = {
 	className?: string;
 };
 
-function LanguagePicker({className}: Props) {
+function LanguageDropdown({className}: Props) {
 	const {t, changeLanguage} = useRootContext();
 
 	const languages: DropdownItem<SupportedLanguages>[] = [
@@ -39,13 +39,7 @@ function LanguagePicker({className}: Props) {
 			items={languages}
 			onItemSelect={({id}) => changeLanguage(id)}
 		/>
-
-		// <Button
-		// 	className={'app-home-s-btn app-header-s-btn-language  !bg-primary-main'}
-		// 	label={window.application.languageCode.toUpperCase()}
-		// 	icon={'bi-globe-americas'}
-		// />
 	);
 }
 
-export default LanguagePicker;
+export default LanguageDropdown;

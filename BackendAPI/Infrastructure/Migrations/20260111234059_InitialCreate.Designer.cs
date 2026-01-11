@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251221140833_InitialCreate")]
+    [Migration("20260111234059_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -261,7 +261,7 @@ namespace Infrastructure.Migrations
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnName("image_base64");
+                        .HasColumnName("image_url");
 
                     b.Property<Guid>("KwekerId")
                         .HasColumnType("uniqueidentifier")
@@ -276,6 +276,10 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("name");
+
+                    b.Property<string>("Region")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("region");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()

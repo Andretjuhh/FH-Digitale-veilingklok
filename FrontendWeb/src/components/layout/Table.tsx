@@ -1,6 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import Spinner from './Spinner';
-import {OrderStatus} from '../../declarations/enums/OrderStatus';
+import Spinner from '../ui/Spinner';
 import Button from "../buttons/Button";
 
 export interface Column<T> {
@@ -30,10 +29,16 @@ export interface PaginationProps {
 	totalItems: number;
 }
 
+export interface SortConfig {
+	key: string | null;
+	direction: 'asc' | 'desc';
+}
+
 export interface DataTableProps<T> {
 	icon?: React.JSX.Element;
 	data: T[];
 	title: string;
+	emptyText: string;
 	columns: Column<T>[];
 	itemsPerPage?: number;
 	onAction?: (item: T) => void;
@@ -43,22 +48,6 @@ export interface DataTableProps<T> {
 	loading?: boolean;
 	onFetchData?: (params: { page: number; searchTerm: string; sortConfig: SortConfig }) => void | Promise<void>;
 }
-
-export interface SortConfig {
-	key: string | null;
-	direction: 'asc' | 'desc';
-}
-
-export const StatusBadge: React.FC<{ status: OrderStatus }> = ({status}) => {
-	const statusClass = `app-table-status-${status.toLocaleString().toLowerCase()}`;
-
-	return (
-		<span className={`app-table-status-badge ${statusClass}`}>
-			<span className="app-table-status-dot"></span>
-			{status}
-		</span>
-	);
-};
 
 // Table Header Component
 function TableHeader<T>({columns, onSort, sortConfig}: TableHeaderProps<T>): React.JSX.Element {
@@ -93,7 +82,7 @@ function TableRow<T extends Record<string, any>>({item, columns, onAction}: Tabl
 }
 
 // Pagination Component
-const Pagination: React.FC<PaginationProps> = ({currentPage, totalPages, onPageChange, itemsPerPage, totalItems}) => {
+export const Pagination: React.FC<PaginationProps> = ({currentPage, totalPages, onPageChange, itemsPerPage, totalItems}) => {
 	const startItem = (currentPage - 1) * itemsPerPage + 1;
 	const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 	return (
@@ -131,6 +120,7 @@ export function DataTable<T extends Record<string, any>>(props: DataTableProps<T
 		isLazy = false,
 		totalItems: externalTotalItems,
 		loading = false,
+		emptyText,
 		onFetchData
 	} = props;
 	const [currentPage, setCurrentPage] = useState<number>(1);
@@ -250,7 +240,7 @@ export function DataTable<T extends Record<string, any>>(props: DataTableProps<T
 					{paginatedData.length === 0 && !loading && (
 						<tr>
 							<td colSpan={columns.length} className="app-table-empty-state">
-								No data found
+								{emptyText}
 							</td>
 						</tr>
 					)}
