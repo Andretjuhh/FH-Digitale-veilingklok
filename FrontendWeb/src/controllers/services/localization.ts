@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import {initReactI18next, useTranslation} from 'react-i18next';
+import { initReactI18next, useTranslation } from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -61,7 +61,8 @@ export const resources = {
 
 			// Home page Texts
 			what_is_flori_clock: 'Wat is FloriClock?',
-			what_is_flori_clock_description: 'FloriClock is een digitaal veilingplatform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen. Ons doel is om de veilinghandel in bloemen en planten te vereenvoudigen en te optimaliseren door middel van een gebruiksvriendelijke online marktplaats.',
+			what_is_flori_clock_description:
+				'FloriClock is een digitaal veilingplatform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen. Ons doel is om de veilinghandel in bloemen en planten te vereenvoudigen en te optimaliseren door middel van een gebruiksvriendelijke online marktplaats.',
 			how_it_works: 'Hoe werkt het?',
 			flower_types: 'Bloemsoorten',
 			flower_types_description: 'Ontdek een breed scala aan bloemsoorten die beschikbaar zijn op ons platform. Van rozen tot tulpen, vind precies wat je zoekt.',
@@ -176,6 +177,17 @@ export const resources = {
 			dashboard: 'Dashboard',
 			manage_account: 'Account beheren',
 			settings: 'Instellingen',
+			settings_account: 'Account',
+			settings_privacy: 'Privacy',
+			settings_notifications: 'Meldingen',
+			settings_preferences: 'Voorkeuren',
+			settings_preferences_title: 'Voorkeuren',
+			settings_preferences_subtitle: 'Pas thema en taal aan voor je account.',
+			settings_theme_label: 'Weergavemodus',
+			settings_theme_aria: 'Schakel tussen licht en donker thema',
+			settings_theme_dark: 'Donkere modus',
+			settings_theme_light: 'Lichte modus',
+			settings_language_label: 'Taal',
 			orders: 'Orders',
 			back: 'Terug',
 
@@ -211,6 +223,9 @@ export const resources = {
 	fr: {
 		translation: {},
 	},
+	de: {
+		translation: {},
+	},
 };
 i18n
 	.use(initReactI18next)
@@ -219,11 +234,11 @@ i18n
 		lng: 'nl', // if you're using a language detector, do not define the lng option
 		fallbackLng: 'nl',
 		debug: false,
-		interpolation: {escapeValue: false},
+		interpolation: { escapeValue: false },
 	})
 	.then(null);
 
 type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
-export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};
+export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };
