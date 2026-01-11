@@ -4,6 +4,7 @@ import AuctionClock from '../../components/elements/AuctionClock';
 import Button from '../../components/buttons/Button';
 import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
 import { formatEur } from '../../utils/standards';
+import {useTranslation} from '../../controllers/services/localization';
 
 import {
 	createDevVeilingKlok,
@@ -45,67 +46,68 @@ type VeilingState = 'none' | 'open' | 'running';
    COMPONENT
    ========================================================= */
 
-const DUMMY_QUEUE: ProductOutputDto[] = [
-	{
-		id: '00000000-0000-0000-0000-000000000001',
-		name: 'Rode Rozen Premium',
-		description: 'Dieprode rozen van topkwaliteit',
-		imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93',
-		auctionedPrice: 125,
-		auctionedAt: null,
-		dimension: '60 cm',
-		stock: 150,
-		companyName: 'Kwekerij Bloemenhof',
-	},
-	{
-		id: '00000000-0000-0000-0000-000000000002',
-		name: 'Witte Lelies',
-		description: 'Verse witte lelies, grote knoppen',
-		imageUrl: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
-		auctionedPrice: 90,
-		auctionedAt: null,
-		dimension: '70 cm',
-		stock: 80,
-		companyName: 'Lelie Centrum BV',
-	},
-	{
-		id: '00000000-0000-0000-0000-000000000003',
-		name: 'Zonnebloem XL',
-		description: 'Grote zonnebloemen met stevige stelen',
-		imageUrl: 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9',
-		auctionedPrice: 65,
-		auctionedAt: null,
-		dimension: '90 cm',
-		stock: 120,
-		companyName: 'Zon & Co',
-	},
-	{
-		id: '00000000-0000-0000-0000-000000000004',
-		name: 'Tulpen Mix',
-		description: 'Mix van voorjaarskleuren, premium selectie',
-		imageUrl: 'https://images.unsplash.com/photo-1508747703725-719777637510',
-		auctionedPrice: 55,
-		auctionedAt: null,
-		dimension: '40 cm',
-		stock: 200,
-		companyName: 'Tulipa Holland',
-	},
-	{
-		id: '00000000-0000-0000-0000-000000000005',
-		name: 'Orchidee Phalaenopsis',
-		description: 'Bloeiend en rijk vertakt',
-		imageUrl: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
-		auctionedPrice: 160,
-		auctionedAt: null,
-		dimension: '55 cm',
-		stock: 60,
-		companyName: 'Orchid World',
-	},
-];
-
 const DEV_DEFAULT_MIN_RATIO = 0.6;
 
 export default function VeilingmeesterDashboard() {
+	const {t} = useTranslation();
+	const buildDummyQueue = (): ProductOutputDto[] => [
+		{
+			id: '00000000-0000-0000-0000-000000000001',
+			name: t('vm_queue_name_1'),
+			description: t('vm_queue_desc_1'),
+			imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93',
+			auctionedPrice: 125,
+			auctionedAt: null,
+			dimension: '60 cm',
+			stock: 150,
+			companyName: t('vm_queue_company_1'),
+		},
+		{
+			id: '00000000-0000-0000-0000-000000000002',
+			name: t('vm_queue_name_2'),
+			description: t('vm_queue_desc_2'),
+			imageUrl: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
+			auctionedPrice: 90,
+			auctionedAt: null,
+			dimension: '70 cm',
+			stock: 80,
+			companyName: t('vm_queue_company_2'),
+		},
+		{
+			id: '00000000-0000-0000-0000-000000000003',
+			name: t('vm_queue_name_3'),
+			description: t('vm_queue_desc_3'),
+			imageUrl: 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9',
+			auctionedPrice: 65,
+			auctionedAt: null,
+			dimension: '90 cm',
+			stock: 120,
+			companyName: t('vm_queue_company_3'),
+		},
+		{
+			id: '00000000-0000-0000-0000-000000000004',
+			name: t('vm_queue_name_4'),
+			description: t('vm_queue_desc_4'),
+			imageUrl: 'https://images.unsplash.com/photo-1508747703725-719777637510',
+			auctionedPrice: 55,
+			auctionedAt: null,
+			dimension: '40 cm',
+			stock: 200,
+			companyName: t('vm_queue_company_4'),
+		},
+		{
+			id: '00000000-0000-0000-0000-000000000005',
+			name: t('vm_queue_name_5'),
+			description: t('vm_queue_desc_5'),
+			imageUrl: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
+			auctionedPrice: 160,
+			auctionedAt: null,
+			dimension: '55 cm',
+			stock: 60,
+			companyName: t('vm_queue_company_5'),
+		},
+	];
+
 	const [tab, setTab] = useState<'veiling' | 'history'>('veiling');
 
 	/* ---- Queue & veiling state ---- */
@@ -144,7 +146,7 @@ export default function VeilingmeesterDashboard() {
 				if (!isActive) return;
 				const data = response.data.data;
 				if (data.length === 0 && process.env.NODE_ENV === 'development') {
-					setQueue(DUMMY_QUEUE);
+					setQueue(buildDummyQueue());
 					setUseDevQueue(true);
 				} else {
 					setQueue(data);
@@ -153,9 +155,9 @@ export default function VeilingmeesterDashboard() {
 			} catch (err) {
 				console.error('Load products failed:', err);
 				if (!isActive) return;
-				setQueueError('Producten ophalen mislukt.');
+				setQueueError(t('vm_queue_load_error'));
 				if (process.env.NODE_ENV === 'development') {
-					setQueue(DUMMY_QUEUE);
+					setQueue(buildDummyQueue());
 					setUseDevQueue(true);
 				}
 			} finally {
@@ -166,7 +168,7 @@ export default function VeilingmeesterDashboard() {
 		return () => {
 			isActive = false;
 		};
-	}, []);
+	}, [t]);
 
 	/* =====================================================
 	   ACTIONS
@@ -180,7 +182,7 @@ export default function VeilingmeesterDashboard() {
 	const openVeiling = async () => {
 		try {
 			if (queue.length === 0) {
-				alert('Er zijn geen producten om te veilen.');
+				alert(t('vm_alert_no_products'));
 				return;
 			}
 
@@ -254,7 +256,7 @@ export default function VeilingmeesterDashboard() {
 			setHasVeilingStarted(false);
 		} catch (err) {
 			console.error('Open veiling failed:', err);
-			alert('Openen van veiling mislukt (zie console)');
+			alert(t('vm_alert_open_failed'));
 		}
 	};
 
@@ -266,7 +268,7 @@ export default function VeilingmeesterDashboard() {
 		if (!currentVeiling || !activeProduct) return;
 
 		if (startPrice <= 0) {
-			alert('Vul eerst een geldige minimumprijs in.');
+			alert(t('vm_alert_min_price_invalid'));
 			return;
 		}
 
@@ -305,7 +307,7 @@ export default function VeilingmeesterDashboard() {
 			auctionedAt: new Date().toISOString(),
 			lines: [
 				{
-					buyerName: 'Demo koper',
+					buyerName: t('vm_demo_buyer'),
 					amount: activeProduct.stock,
 					price: startPrice,
 				},
@@ -364,20 +366,22 @@ export default function VeilingmeesterDashboard() {
 	return (
 		<Page enableHeader enableFooter>
 			<main className="vm-container">
-				<h1 className="vm-title">Veilingmeester</h1>
+				<h1 className="vm-title">{t('vm_title')}</h1>
 
 				<div className="vm-tabs">
 					<button
 						className={`vm-tab ${tab === 'veiling' ? 'active' : ''}`}
+						aria-label={t('vm_tab_auction_aria')}
 						onClick={() => setTab('veiling')}
 					>
-						Veiling
+						{t('vm_tab_auction')}
 					</button>
 					<button
 						className={`vm-tab ${tab === 'history' ? 'active' : ''}`}
+						aria-label={t('vm_tab_history_aria')}
 						onClick={() => setTab('history')}
 					>
-						History
+						{t('vm_tab_history')}
 					</button>
 				</div>
 
@@ -386,14 +390,23 @@ export default function VeilingmeesterDashboard() {
 					<section className="vm-board">
 						<div className="vm-boardHeader">
 							<div>
-								<h2 className="vm-sectionTitle">Veiling</h2>
-								<p className="vm-sectionSub">Beheer de veiling en volg de producten.</p>
+								<h2 className="vm-sectionTitle">{t('vm_tab_auction')}</h2>
+								<p className="vm-sectionSub">{t('vm_section_subtitle')}</p>
 							</div>
 							{veilingState === 'none' && (
-								<Button label="Open veiling" onClick={openVeiling} disabled={isLoadingQueue || queue.length == 0} />
+								<Button
+									label={t('vm_button_open_auction')}
+									aria-label={t('vm_button_open_auction_aria')}
+									onClick={openVeiling}
+									disabled={isLoadingQueue || queue.length == 0}
+								/>
 							)}
 							{veilingState !== 'none' && (
-								<Button label="Eindig veiling" onClick={endVeiling} />
+								<Button
+									label={t('vm_button_end_auction')}
+									aria-label={t('vm_button_end_auction_aria')}
+									onClick={endVeiling}
+								/>
 							)}
 						</div>
 
@@ -426,22 +439,22 @@ export default function VeilingmeesterDashboard() {
 										</div>
 										<div className="vm-currentGrid">
 											<div className="vm-kv">
-												<span className="vm-kvLabel">Voorraad</span>
+												<span className="vm-kvLabel">{t('vm_stock_label')}</span>
 												<span className="vm-kvValue">{displayProduct.stock}</span>
 											</div>
 											<div className="vm-kv">
-												<span className="vm-kvLabel">Maximumprijs (kweker)</span>
+												<span className="vm-kvLabel">{t('vm_max_price_label')}</span>
 												<span className="vm-kvValue">
 													{displayProduct.auctionedPrice != null
 														? formatEur(displayProduct.auctionedPrice || 0)
-														: 'Nog niet gezet'}
+														: t('vm_price_not_set')}
 												</span>
 											</div>
 										</div>
 									</div>
 								</div>
 							) : (
-								<div className="vm-empty">Geen producten beschikbaar.</div>
+								<div className="vm-empty">{t('vm_empty_no_products')}</div>
 							)}
 
 							<div className="vm-clockCard">
@@ -456,28 +469,40 @@ export default function VeilingmeesterDashboard() {
 											onComplete={onAuctionComplete}
 										/>
 									) : (
-										<div className="vm-clockPlaceholder">Klok</div>
+										<div className="vm-clockPlaceholder">{t('vm_clock_placeholder')}</div>
 									)}
 								</div>
 								{veilingState !== 'none' && (
 									<div className="vm-clockControls">
-										<label className="vm-label">Duur (seconden)</label>
+										<label className="vm-label" htmlFor="vm-duration-seconds">
+											{t('vm_label_duration_seconds')}
+										</label>
 										<input
 											className="vm-input"
+											id="vm-duration-seconds"
 											type="number"
 											min={1}
 											value={durationSeconds}
+											aria-label={t('vm_input_duration_aria')}
 											onChange={(e) => setDurationSeconds(Number(e.target.value))}
 										/>
-										<label className="vm-label">Minimumprijs (veilingmeester)</label>
+										<label className="vm-label" htmlFor="vm-min-price">
+											{t('vm_label_min_price')}
+										</label>
 										<input
 											className="vm-input"
+											id="vm-min-price"
 											type="number"
 											value={startPrice}
+											aria-label={t('vm_input_min_price_aria')}
 											onChange={(e) => setStartPrice(Number(e.target.value))}
 										/>
 										{veilingState === 'open' && (
-											<Button label="Start veiling" onClick={startVeiling} />
+											<Button
+												label={t('vm_button_start_auction')}
+												aria-label={t('vm_button_start_auction_aria')}
+												onClick={startVeiling}
+											/>
 										)}
 									</div>
 								)}
@@ -485,12 +510,12 @@ export default function VeilingmeesterDashboard() {
 						</div>
 
 						<div className="vm-list">
-							<h3 className="vm-sectionTitle">Overige producten</h3>
+							<h3 className="vm-sectionTitle">{t('vm_section_other_products')}</h3>
 							<div className="vm-queueList">
-								{isLoadingQueue && <div>Producten laden...</div>}
+								{isLoadingQueue && <div>{t('vm_loading_products')}</div>}
 								{queueError && <div>{queueError}</div>}
 								{!isLoadingQueue && !queueError && queue.length == 0 && (
-									<div>Geen producten beschikbaar.</div>
+									<div>{t('vm_empty_no_products')}</div>
 								)}
 								{!isLoadingQueue && !queueError && remainingProducts.map((p) => (
 									<div key={p.id} className="vm-queueRow">
@@ -501,10 +526,10 @@ export default function VeilingmeesterDashboard() {
 										<div className="vm-queueMid">
 											<div>{p.companyName}</div>
 											{p.dimension && <div>{p.dimension}</div>}
-											<div>Voorraad: {p.stock}</div>
+											<div>{t('vm_stock_value', {count: p.stock})}</div>
 										</div>
 										<div className="vm-queueRight">
-											{p.auctionedPrice != null ? formatEur(p.auctionedPrice) : 'Nog niet gezet'}
+											{p.auctionedPrice != null ? formatEur(p.auctionedPrice) : t('vm_price_not_set')}
 										</div>
 									</div>
 								))}
@@ -519,12 +544,12 @@ export default function VeilingmeesterDashboard() {
 					<section className="vm-history">
 						<div className="vm-historyList">
 							{history.length === 0 && (
-								<div className="vm-empty">Nog geen veilinghistorie beschikbaar.</div>
+								<div className="vm-empty">{t('vm_history_empty')}</div>
 							)}
 							{history.map((v) => {
 								const startedLabel = v.startedAt
 									? new Date(v.startedAt).toLocaleString()
-									: 'Onbekende datum';
+									: t('vm_history_unknown_date');
 								const endedLabel = v.endedAt
 									? new Date(v.endedAt).toLocaleString()
 									: '-';
@@ -535,15 +560,22 @@ export default function VeilingmeesterDashboard() {
 
 								return (
 									<details key={v.id} className="vm-historyItem">
-										<summary className="vm-historySummary">
+										<summary
+											className="vm-historySummary"
+											aria-label={t('vm_history_summary_aria', {date: startedLabel})}
+										>
 											<div>
-												<div className="vm-historyName">Veiling {startedLabel}</div>
+												<div className="vm-historyName">
+													{t('vm_history_auction_title', {date: startedLabel})}
+												</div>
 												<div className="vm-historySub">
-													{v.products.length} producten
+													{t('vm_history_products_count', {count: v.products.length})}
 												</div>
 											</div>
 											<div>
-												<div className="vm-historyPriceLabel">Totale omzet</div>
+												<div className="vm-historyPriceLabel">
+													{t('vm_history_total_revenue_label')}
+												</div>
 												<div className="vm-historyPrice">{formatEur(totalRevenue)}</div>
 											</div>
 										</summary>
@@ -551,36 +583,46 @@ export default function VeilingmeesterDashboard() {
 										<div className="vm-historyDetails">
 											<div className="vm-historyGrid">
 												<div className="vm-historyBox">
-													<div className="vm-historyBoxLabel">Start</div>
+													<div className="vm-historyBoxLabel">
+														{t('vm_history_start_label')}
+													</div>
 													<div className="vm-historyBoxValue">{startedLabel}</div>
 												</div>
 												<div className="vm-historyBox">
-													<div className="vm-historyBoxLabel">Einde</div>
+													<div className="vm-historyBoxLabel">
+														{t('vm_history_end_label')}
+													</div>
 													<div className="vm-historyBoxValue">{endedLabel}</div>
 												</div>
 												<div className="vm-historyBox">
-													<div className="vm-historyBoxLabel">Producten</div>
+													<div className="vm-historyBoxLabel">
+														{t('vm_history_products_label')}
+													</div>
 													<div className="vm-historyBoxValue">{v.products.length}</div>
 												</div>
 												<div className="vm-historyBox">
-													<div className="vm-historyBoxLabel">Omzet</div>
+													<div className="vm-historyBoxLabel">
+														{t('vm_history_revenue_label')}
+													</div>
 													<div className="vm-historyBoxValue">
 														{formatEur(totalRevenue)}
 													</div>
 												</div>
 											</div>
 
-											<div className="vm-linesTitle">Verkochte producten</div>
+											<div className="vm-linesTitle">
+												{t('vm_history_sold_products_title')}
+											</div>
 											<div className="vm-lines">
 												{v.products.map((p) => {
-													const buyer = p.lines[0]?.buyerName ?? 'Onbekende koper';
+													const buyer = p.lines[0]?.buyerName ?? t('vm_history_unknown_buyer');
 													const amount = p.lines[0]?.amount ?? 0;
 													return (
 														<div key={p.id} className="vm-lineRow">
 															<div>
 																<div className="vm-lineBuyer">{p.product.name}</div>
 																<div className="vm-lineMeta">
-																	{buyer} - {amount} stuks
+																	{buyer} - {t('vm_history_piece_count', {count: amount})}
 																</div>
 															</div>
 															<div className="vm-lineMeta">{p.product.companyName}</div>
@@ -602,3 +644,6 @@ export default function VeilingmeesterDashboard() {
 		</Page>
 	);
 }
+
+
+
