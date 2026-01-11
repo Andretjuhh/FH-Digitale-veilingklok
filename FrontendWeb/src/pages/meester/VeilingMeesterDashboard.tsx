@@ -4,15 +4,9 @@ import AuctionClock from '../../components/elements/AuctionClock';
 import Button from '../../components/buttons/Button';
 import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
 import { formatEur } from '../../utils/standards';
-import {useTranslation} from '../../controllers/services/localization';
+import { useTranslation } from '../../controllers/services/localization';
 
-import {
-	createDevVeilingKlok,
-	createVeilingKlok,
-	getProducts,
-	updateVeilingKlokStatus,
-	startVeilingProduct,
-} from '../../controllers/server/veilingmeester';
+import { createDevVeilingKlok, createVeilingKlok, getProducts, updateVeilingKlokStatus, startVeilingProduct } from '../../controllers/server/veilingmeester';
 
 /* =========================================================
    TYPES
@@ -49,7 +43,7 @@ type VeilingState = 'none' | 'open' | 'running';
 const DEV_DEFAULT_MIN_RATIO = 0.6;
 
 export default function VeilingmeesterDashboard() {
-	const {t} = useTranslation();
+	const { t } = useTranslation();
 	const buildDummyQueue = (): ProductOutputDto[] => [
 		{
 			id: '00000000-0000-0000-0000-000000000001',
@@ -314,9 +308,7 @@ export default function VeilingmeesterDashboard() {
 			],
 		};
 
-		setCurrentVeiling((v) =>
-			v ? { ...v, products: [...v.products, sold] } : v
-		);
+		setCurrentVeiling((v) => (v ? { ...v, products: [...v.products, sold] } : v));
 
 		const remaining = queue.filter((p) => p.id !== activeProduct.id);
 		setQueue(remaining);
@@ -369,18 +361,10 @@ export default function VeilingmeesterDashboard() {
 				<h1 className="vm-title">{t('vm_title')}</h1>
 
 				<div className="vm-tabs">
-					<button
-						className={`vm-tab ${tab === 'veiling' ? 'active' : ''}`}
-						aria-label={t('vm_tab_auction_aria')}
-						onClick={() => setTab('veiling')}
-					>
+					<button className={`vm-tab ${tab === 'veiling' ? 'active' : ''}`} aria-label={t('vm_tab_auction_aria')} onClick={() => setTab('veiling')}>
 						{t('vm_tab_auction')}
 					</button>
-					<button
-						className={`vm-tab ${tab === 'history' ? 'active' : ''}`}
-						aria-label={t('vm_tab_history_aria')}
-						onClick={() => setTab('history')}
-					>
+					<button className={`vm-tab ${tab === 'history' ? 'active' : ''}`} aria-label={t('vm_tab_history_aria')} onClick={() => setTab('history')}>
 						{t('vm_tab_history')}
 					</button>
 				</div>
@@ -394,20 +378,9 @@ export default function VeilingmeesterDashboard() {
 								<p className="vm-sectionSub">{t('vm_section_subtitle')}</p>
 							</div>
 							{veilingState === 'none' && (
-								<Button
-									label={t('vm_button_open_auction')}
-									aria-label={t('vm_button_open_auction_aria')}
-									onClick={openVeiling}
-									disabled={isLoadingQueue || queue.length == 0}
-								/>
+								<Button label={t('vm_button_open_auction')} aria-label={t('vm_button_open_auction_aria')} onClick={openVeiling} disabled={isLoadingQueue || queue.length == 0} />
 							)}
-							{veilingState !== 'none' && (
-								<Button
-									label={t('vm_button_end_auction')}
-									aria-label={t('vm_button_end_auction_aria')}
-									onClick={endVeiling}
-								/>
-							)}
+							{veilingState !== 'none' && <Button label={t('vm_button_end_auction')} aria-label={t('vm_button_end_auction_aria')} onClick={endVeiling} />}
 						</div>
 
 						<div className="vm-currentRow">
@@ -415,11 +388,7 @@ export default function VeilingmeesterDashboard() {
 								<div className="vm-currentCard">
 									<div className="vm-currentMedia">
 										{displayProduct.imageUrl ? (
-											<img
-												className="vm-currentImg"
-												src={displayProduct.imageUrl}
-												alt={displayProduct.name}
-											/>
+											<img className="vm-currentImg" src={displayProduct.imageUrl} alt={displayProduct.name} />
 										) : (
 											<div className="vm-currentImg vm-currentImgPlaceholder" />
 										)}
@@ -432,9 +401,7 @@ export default function VeilingmeesterDashboard() {
 											</div>
 											<div className="vm-currentTags">
 												<span className="vm-metaPill">{displayProduct.companyName}</span>
-												{displayProduct.dimension && (
-													<span className="vm-metaPill">{displayProduct.dimension}</span>
-												)}
+												{displayProduct.dimension && <span className="vm-metaPill">{displayProduct.dimension}</span>}
 											</div>
 										</div>
 										<div className="vm-currentGrid">
@@ -444,11 +411,7 @@ export default function VeilingmeesterDashboard() {
 											</div>
 											<div className="vm-kv">
 												<span className="vm-kvLabel">{t('vm_max_price_label')}</span>
-												<span className="vm-kvValue">
-													{displayProduct.auctionedPrice != null
-														? formatEur(displayProduct.auctionedPrice || 0)
-														: t('vm_price_not_set')}
-												</span>
+												<span className="vm-kvValue">{displayProduct.auctionedPrice != null ? formatEur(displayProduct.auctionedPrice || 0) : t('vm_price_not_set')}</span>
 											</div>
 										</div>
 									</div>
@@ -497,13 +460,7 @@ export default function VeilingmeesterDashboard() {
 											aria-label={t('vm_input_min_price_aria')}
 											onChange={(e) => setStartPrice(Number(e.target.value))}
 										/>
-										{veilingState === 'open' && (
-											<Button
-												label={t('vm_button_start_auction')}
-												aria-label={t('vm_button_start_auction_aria')}
-												onClick={startVeiling}
-											/>
-										)}
+										{veilingState === 'open' && <Button label={t('vm_button_start_auction')} aria-label={t('vm_button_start_auction_aria')} onClick={startVeiling} />}
 									</div>
 								)}
 							</div>
@@ -514,25 +471,23 @@ export default function VeilingmeesterDashboard() {
 							<div className="vm-queueList">
 								{isLoadingQueue && <div>{t('vm_loading_products')}</div>}
 								{queueError && <div>{queueError}</div>}
-								{!isLoadingQueue && !queueError && queue.length == 0 && (
-									<div>{t('vm_empty_no_products')}</div>
-								)}
-								{!isLoadingQueue && !queueError && remainingProducts.map((p) => (
-									<div key={p.id} className="vm-queueRow">
-										<div>
-											<div className="vm-queueName">{p.name}</div>
-											<div className="vm-queueSub">{p.description}</div>
+								{!isLoadingQueue && !queueError && queue.length == 0 && <div>{t('vm_empty_no_products')}</div>}
+								{!isLoadingQueue &&
+									!queueError &&
+									remainingProducts.map((p) => (
+										<div key={p.id} className="vm-queueRow">
+											<div>
+												<div className="vm-queueName">{p.name}</div>
+												<div className="vm-queueSub">{p.description}</div>
+											</div>
+											<div className="vm-queueMid">
+												<div>{p.companyName}</div>
+												{p.dimension && <div>{p.dimension}</div>}
+												<div>{t('vm_stock_value', { count: p.stock })}</div>
+											</div>
+											<div className="vm-queueRight">{p.auctionedPrice != null ? formatEur(p.auctionedPrice) : t('vm_price_not_set')}</div>
 										</div>
-										<div className="vm-queueMid">
-											<div>{p.companyName}</div>
-											{p.dimension && <div>{p.dimension}</div>}
-											<div>{t('vm_stock_value', {count: p.stock})}</div>
-										</div>
-										<div className="vm-queueRight">
-											{p.auctionedPrice != null ? formatEur(p.auctionedPrice) : t('vm_price_not_set')}
-										</div>
-									</div>
-								))}
+									))}
 							</div>
 						</div>
 					</section>
@@ -543,39 +498,21 @@ export default function VeilingmeesterDashboard() {
 				{tab === 'history' && (
 					<section className="vm-history">
 						<div className="vm-historyList">
-							{history.length === 0 && (
-								<div className="vm-empty">{t('vm_history_empty')}</div>
-							)}
+							{history.length === 0 && <div className="vm-empty">{t('vm_history_empty')}</div>}
 							{history.map((v) => {
-								const startedLabel = v.startedAt
-									? new Date(v.startedAt).toLocaleString()
-									: t('vm_history_unknown_date');
-								const endedLabel = v.endedAt
-									? new Date(v.endedAt).toLocaleString()
-									: '-';
-								const totalRevenue = v.products.reduce(
-									(sum, p) => sum + p.finalPrice,
-									0
-								);
+								const startedLabel = v.startedAt ? new Date(v.startedAt).toLocaleString() : t('vm_history_unknown_date');
+								const endedLabel = v.endedAt ? new Date(v.endedAt).toLocaleString() : '-';
+								const totalRevenue = v.products.reduce((sum, p) => sum + p.finalPrice, 0);
 
 								return (
 									<details key={v.id} className="vm-historyItem">
-										<summary
-											className="vm-historySummary"
-											aria-label={t('vm_history_summary_aria', {date: startedLabel})}
-										>
+										<summary className="vm-historySummary" aria-label={t('vm_history_summary_aria', { date: startedLabel })}>
 											<div>
-												<div className="vm-historyName">
-													{t('vm_history_auction_title', {date: startedLabel})}
-												</div>
-												<div className="vm-historySub">
-													{t('vm_history_products_count', {count: v.products.length})}
-												</div>
+												<div className="vm-historyName">{t('vm_history_auction_title', { date: startedLabel })}</div>
+												<div className="vm-historySub">{t('vm_history_products_count', { count: v.products.length })}</div>
 											</div>
 											<div>
-												<div className="vm-historyPriceLabel">
-													{t('vm_history_total_revenue_label')}
-												</div>
+												<div className="vm-historyPriceLabel">{t('vm_history_total_revenue_label')}</div>
 												<div className="vm-historyPrice">{formatEur(totalRevenue)}</div>
 											</div>
 										</summary>
@@ -583,36 +520,24 @@ export default function VeilingmeesterDashboard() {
 										<div className="vm-historyDetails">
 											<div className="vm-historyGrid">
 												<div className="vm-historyBox">
-													<div className="vm-historyBoxLabel">
-														{t('vm_history_start_label')}
-													</div>
+													<div className="vm-historyBoxLabel">{t('vm_history_start_label')}</div>
 													<div className="vm-historyBoxValue">{startedLabel}</div>
 												</div>
 												<div className="vm-historyBox">
-													<div className="vm-historyBoxLabel">
-														{t('vm_history_end_label')}
-													</div>
+													<div className="vm-historyBoxLabel">{t('vm_history_end_label')}</div>
 													<div className="vm-historyBoxValue">{endedLabel}</div>
 												</div>
 												<div className="vm-historyBox">
-													<div className="vm-historyBoxLabel">
-														{t('vm_history_products_label')}
-													</div>
+													<div className="vm-historyBoxLabel">{t('vm_history_products_label')}</div>
 													<div className="vm-historyBoxValue">{v.products.length}</div>
 												</div>
 												<div className="vm-historyBox">
-													<div className="vm-historyBoxLabel">
-														{t('vm_history_revenue_label')}
-													</div>
-													<div className="vm-historyBoxValue">
-														{formatEur(totalRevenue)}
-													</div>
+													<div className="vm-historyBoxLabel">{t('vm_history_revenue_label')}</div>
+													<div className="vm-historyBoxValue">{formatEur(totalRevenue)}</div>
 												</div>
 											</div>
 
-											<div className="vm-linesTitle">
-												{t('vm_history_sold_products_title')}
-											</div>
+											<div className="vm-linesTitle">{t('vm_history_sold_products_title')}</div>
 											<div className="vm-lines">
 												{v.products.map((p) => {
 													const buyer = p.lines[0]?.buyerName ?? t('vm_history_unknown_buyer');
@@ -622,13 +547,11 @@ export default function VeilingmeesterDashboard() {
 															<div>
 																<div className="vm-lineBuyer">{p.product.name}</div>
 																<div className="vm-lineMeta">
-																	{buyer} - {t('vm_history_piece_count', {count: amount})}
+																	{buyer} - {t('vm_history_piece_count', { count: amount })}
 																</div>
 															</div>
 															<div className="vm-lineMeta">{p.product.companyName}</div>
-															<div className="vm-lineTotal">
-																{formatEur(p.finalPrice)}
-															</div>
+															<div className="vm-lineTotal">{formatEur(p.finalPrice)}</div>
 														</div>
 													);
 												})}
@@ -644,6 +567,3 @@ export default function VeilingmeesterDashboard() {
 		</Page>
 	);
 }
-
-
-
