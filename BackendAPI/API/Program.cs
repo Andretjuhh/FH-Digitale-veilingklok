@@ -47,9 +47,6 @@ app.MapControllers();
 // Clients connect to this URL to establish real-time connection
 app.MapHub<VeilingHub>("/hubs/veiling-klok");
 
-// Map development endpoints (seeder, testing utilities, etc.)
-app.MapDevelopmentEndpoints();
-
 #region Home Page Routing
 
 // Restored the simple root endpoint.

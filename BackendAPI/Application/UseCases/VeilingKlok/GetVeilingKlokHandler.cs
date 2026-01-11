@@ -34,13 +34,20 @@ public sealed class GetVeilingKlokHandler
         var bidCount = result.BidCount;
 
         // Get products associated with the VeilingKlok
-        var productIds = veilingKlok.ProductsIds.ToList();
-        var products = productIds.Count == 0
-            ? new List<ProductOutputDto>()
-            : (await _productRepository.GetAllByIdsWithKwekerInfoAsync(productIds))
+        var products = (await _productRepository.GetAllByVeilingKlokIdWithKwekerInfoAsync(veilingKlok.Id))
             .Select(r => ProductMapper.Minimal.ToOutputDto(r.Product, r.Kweker)).ToList();
+        if (products.Count == 0)
+        {
+            products = (await _productRepository.GetAllByOrderItemsVeilingKlokIdWithKwekerInfoAsync(veilingKlok.Id))
+                .Select(r => ProductMapper.Minimal.ToOutputDto(r.Product, r.Kweker)).ToList();
+        }
 
-        var info = new VeilingKlokExtraInfo<ProductOutputDto>(bidCount, products);
+        var info = new VeilingKlokExtraInfo<ProductOutputDto>(
+            bidCount,
+            products,
+            veilingKlok.HighestPrice,
+            veilingKlok.LowestPrice
+        );
         return VeilingKlokMapper.Minimal.ToOutputDto(veilingKlok, info);
     }
 }

@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Page from '../../components/nav/Page';
 import AuctionClock from '../../components/elements/AuctionClock';
 import Button from '../../components/buttons/Button';
 import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
 import { formatEur } from '../../utils/standards';
 import { useTranslation } from '../../controllers/services/localization';
 
-import { createDevVeilingKlok, createVeilingKlok, getProducts, updateVeilingKlokStatus, startVeilingProduct } from '../../controllers/server/veilingmeester';
+import { createVeilingKlok, getProducts, updateVeilingKlokStatus, startVeilingProduct, getVeilingKlokken } from '../../controllers/server/veilingmeester';
 
 /* =========================================================
    TYPES
@@ -40,67 +41,8 @@ type VeilingState = 'none' | 'open' | 'running';
    COMPONENT
    ========================================================= */
 
-const DEV_DEFAULT_MIN_RATIO = 0.6;
-
 export default function VeilingmeesterDashboard() {
 	const { t } = useTranslation();
-	const buildDummyQueue = (): ProductOutputDto[] => [
-		{
-			id: '00000000-0000-0000-0000-000000000001',
-			name: t('vm_queue_name_1'),
-			description: t('vm_queue_desc_1'),
-			imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93',
-			auctionedPrice: 125,
-			auctionedAt: null,
-			dimension: '60 cm',
-			stock: 150,
-			companyName: t('vm_queue_company_1'),
-		},
-		{
-			id: '00000000-0000-0000-0000-000000000002',
-			name: t('vm_queue_name_2'),
-			description: t('vm_queue_desc_2'),
-			imageUrl: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
-			auctionedPrice: 90,
-			auctionedAt: null,
-			dimension: '70 cm',
-			stock: 80,
-			companyName: t('vm_queue_company_2'),
-		},
-		{
-			id: '00000000-0000-0000-0000-000000000003',
-			name: t('vm_queue_name_3'),
-			description: t('vm_queue_desc_3'),
-			imageUrl: 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9',
-			auctionedPrice: 65,
-			auctionedAt: null,
-			dimension: '90 cm',
-			stock: 120,
-			companyName: t('vm_queue_company_3'),
-		},
-		{
-			id: '00000000-0000-0000-0000-000000000004',
-			name: t('vm_queue_name_4'),
-			description: t('vm_queue_desc_4'),
-			imageUrl: 'https://images.unsplash.com/photo-1508747703725-719777637510',
-			auctionedPrice: 55,
-			auctionedAt: null,
-			dimension: '40 cm',
-			stock: 200,
-			companyName: t('vm_queue_company_4'),
-		},
-		{
-			id: '00000000-0000-0000-0000-000000000005',
-			name: t('vm_queue_name_5'),
-			description: t('vm_queue_desc_5'),
-			imageUrl: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
-			auctionedPrice: 160,
-			auctionedAt: null,
-			dimension: '55 cm',
-			stock: 60,
-			companyName: t('vm_queue_company_5'),
-		},
-	];
 
 	const [tab, setTab] = useState<'veiling' | 'history'>('veiling');
 
@@ -108,8 +50,6 @@ export default function VeilingmeesterDashboard() {
 	const [queue, setQueue] = useState<ProductOutputDto[]>([]);
 	const [isLoadingQueue, setIsLoadingQueue] = useState(false);
 	const [queueError, setQueueError] = useState<string | null>(null);
-	const [useDevQueue, setUseDevQueue] = useState(false);
-	const [persistedDevVeiling, setPersistedDevVeiling] = useState(false);
 	const [activeProduct, setActiveProduct] = useState<ProductOutputDto | null>(null);
 	const [veilingState, setVeilingState] = useState<VeilingState>('none');
 	const [hasVeilingStarted, setHasVeilingStarted] = useState(false);
@@ -122,13 +62,8 @@ export default function VeilingmeesterDashboard() {
 	/* ---- Persisted veiling ---- */
 	const [currentVeiling, setCurrentVeiling] = useState<VeilingHistory | null>(null);
 	const [history, setHistory] = useState<VeilingHistory[]>([]);
-
-	useEffect(() => {
-		if (!useDevQueue || !activeProduct || startPrice > 0) return;
-		const max = activeProduct.auctionedPrice ?? 0;
-		const suggested = Math.max(1, Math.floor(max * DEV_DEFAULT_MIN_RATIO));
-		setStartPrice(suggested);
-	}, [activeProduct, startPrice, useDevQueue]);
+	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+	const [historyError, setHistoryError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let isActive = true;
@@ -139,21 +74,11 @@ export default function VeilingmeesterDashboard() {
 				const response = await getProducts();
 				if (!isActive) return;
 				const data = response.data.data;
-				if (data.length === 0 && process.env.NODE_ENV === 'development') {
-					setQueue(buildDummyQueue());
-					setUseDevQueue(true);
-				} else {
-					setQueue(data);
-					setUseDevQueue(false);
-				}
+				setQueue(data);
 			} catch (err) {
 				console.error('Load products failed:', err);
 				if (!isActive) return;
 				setQueueError(t('vm_queue_load_error'));
-				if (process.env.NODE_ENV === 'development') {
-					setQueue(buildDummyQueue());
-					setUseDevQueue(true);
-				}
 			} finally {
 				if (isActive) setIsLoadingQueue(false);
 			}
@@ -163,6 +88,58 @@ export default function VeilingmeesterDashboard() {
 			isActive = false;
 		};
 	}, [t]);
+
+	const mapVeilingKlokToHistory = (klok: VeilingKlokOutputDto): VeilingHistory => {
+		const products: HistoryProduct[] = klok.products.map((p) => {
+			const price = p.auctionedPrice ?? 0;
+			return {
+				id: `hp-${klok.id}-${p.id}`,
+				product: p,
+				startPrice: price,
+				finalPrice: price,
+				auctionedAt: p.auctionedAt ?? klok.endedAt ?? klok.startedAt ?? klok.scheduledAt ?? klok.createdAt,
+				lines: [
+					{
+						buyerName: p.companyName,
+						amount: p.stock,
+						price,
+					},
+				],
+			};
+		});
+
+		return {
+			id: klok.id,
+			startedAt: klok.startedAt ?? klok.scheduledAt ?? klok.createdAt ?? null,
+			endedAt: klok.endedAt ?? null,
+			products,
+		};
+	};
+
+	const loadHistory = useCallback(async () => {
+		setIsLoadingHistory(true);
+		setHistoryError(null);
+		try {
+			const response = await getVeilingKlokken();
+			const items: VeilingHistory[] = response.data.map(mapVeilingKlokToHistory);
+			items.sort((a: VeilingHistory, b: VeilingHistory) => {
+				const aTime = a.startedAt ? Date.parse(a.startedAt) : a.endedAt ? Date.parse(a.endedAt) : 0;
+				const bTime = b.startedAt ? Date.parse(b.startedAt) : b.endedAt ? Date.parse(b.endedAt) : 0;
+				return bTime - aTime;
+			});
+			setHistory(items);
+		} catch (err) {
+			console.error('Load veiling history failed:', err);
+			setHistoryError(t('vm_history_load_error'));
+		} finally {
+			setIsLoadingHistory(false);
+		}
+	}, [t]);
+
+	useEffect(() => {
+		if (tab !== 'history') return;
+		void loadHistory();
+	}, [tab, loadHistory]);
 
 	/* =====================================================
 	   ACTIONS
@@ -193,48 +170,6 @@ export default function VeilingmeesterDashboard() {
 
 			console.log('CreateVeiling payload:', payload);
 
-			if (useDevQueue) {
-				try {
-					const response = await createDevVeilingKlok({
-						scheduledAt: payload.scheduledAt,
-						veilingDurationMinutes: payload.veilingDurationMinutes,
-						products: queue.map((p) => ({
-							id: p.id,
-							name: p.name,
-							description: p.description,
-							imageUrl: p.imageUrl,
-							dimension: p.dimension ?? null,
-							stock: p.stock,
-							companyName: p.companyName,
-							maxPrice: p.auctionedPrice ?? 0,
-						})),
-					});
-
-					const klok = response.data;
-					setCurrentVeiling({
-						id: klok.id,
-						startedAt: klok.scheduledAt,
-						endedAt: null,
-						products: [],
-					});
-					setPersistedDevVeiling(true);
-				} catch (err) {
-					console.error('Persist dev veiling failed:', err);
-					setCurrentVeiling({
-						id: `dev-${Date.now()}`,
-						startedAt: payload.scheduledAt,
-						endedAt: null,
-						products: [],
-					});
-					setPersistedDevVeiling(false);
-				}
-
-				setActiveProduct(queue[0]);
-				setVeilingState('open');
-				setHasVeilingStarted(false);
-				return;
-			}
-
 			const response = await createVeilingKlok(payload);
 			const klok = response.data;
 
@@ -263,13 +198,6 @@ export default function VeilingmeesterDashboard() {
 
 		if (startPrice <= 0) {
 			alert(t('vm_alert_min_price_invalid'));
-			return;
-		}
-
-		if (useDevQueue && !persistedDevVeiling) {
-			setVeilingState('running');
-			setResetToken((t) => t + 1);
-			setHasVeilingStarted(true);
 			return;
 		}
 
@@ -327,24 +255,14 @@ export default function VeilingmeesterDashboard() {
 	 */
 	const endVeiling = async () => {
 		if (currentVeiling) {
-			if (!useDevQueue || persistedDevVeiling) {
-				await updateVeilingKlokStatus(currentVeiling.id, 'Ended');
-			}
-
-			setHistory((h) => [
-				{
-					...currentVeiling,
-					endedAt: new Date().toISOString(),
-				},
-				...h,
-			]);
+			await updateVeilingKlokStatus(currentVeiling.id, 'Ended');
+			await loadHistory();
 		}
 
 		setCurrentVeiling(null);
 		setActiveProduct(null);
 		setVeilingState('none');
 		setStartPrice(0);
-		setPersistedDevVeiling(false);
 		setHasVeilingStarted(false);
 	};
 
@@ -364,7 +282,14 @@ export default function VeilingmeesterDashboard() {
 					<button className={`vm-tab ${tab === 'veiling' ? 'active' : ''}`} aria-label={t('vm_tab_auction_aria')} onClick={() => setTab('veiling')}>
 						{t('vm_tab_auction')}
 					</button>
-					<button className={`vm-tab ${tab === 'history' ? 'active' : ''}`} aria-label={t('vm_tab_history_aria')} onClick={() => setTab('history')}>
+					<button
+						className={`vm-tab ${tab === 'history' ? 'active' : ''}`}
+						aria-label={t('vm_tab_history_aria')}
+						onClick={() => {
+							setTab('history');
+							void loadHistory();
+						}}
+					>
 						{t('vm_tab_history')}
 					</button>
 				</div>
@@ -498,7 +423,9 @@ export default function VeilingmeesterDashboard() {
 				{tab === 'history' && (
 					<section className="vm-history">
 						<div className="vm-historyList">
-							{history.length === 0 && <div className="vm-empty">{t('vm_history_empty')}</div>}
+							{isLoadingHistory && <div className="vm-empty">{t('vm_history_loading')}</div>}
+							{historyError && <div className="vm-empty">{historyError}</div>}
+							{!isLoadingHistory && !historyError && history.length === 0 && <div className="vm-empty">{t('vm_history_empty')}</div>}
 							{history.map((v) => {
 								const startedLabel = v.startedAt ? new Date(v.startedAt).toLocaleString() : t('vm_history_unknown_date');
 								const endedLabel = v.endedAt ? new Date(v.endedAt).toLocaleString() : '-';
@@ -539,6 +466,7 @@ export default function VeilingmeesterDashboard() {
 
 											<div className="vm-linesTitle">{t('vm_history_sold_products_title')}</div>
 											<div className="vm-lines">
+												{v.products.length === 0 && <div className="vm-empty">{t('vm_empty_no_products')}</div>}
 												{v.products.map((p) => {
 													const buyer = p.lines[0]?.buyerName ?? t('vm_history_unknown_buyer');
 													const amount = p.lines[0]?.amount ?? 0;
@@ -547,7 +475,10 @@ export default function VeilingmeesterDashboard() {
 															<div>
 																<div className="vm-lineBuyer">{p.product.name}</div>
 																<div className="vm-lineMeta">
-																	{buyer} - {t('vm_history_piece_count', { count: amount })}
+																	{p.product.description} • {t('vm_history_piece_count', { count: amount })}
+																</div>
+																<div className="vm-lineMeta">
+																	{buyer} • {t('vm_stock_value', { count: p.product.stock })}
 																</div>
 															</div>
 															<div className="vm-lineMeta">{p.product.companyName}</div>
