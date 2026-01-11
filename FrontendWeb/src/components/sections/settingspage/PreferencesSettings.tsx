@@ -39,13 +39,13 @@ function PreferencesSettings() {
 
 	const languages = useMemo<LanguageOption[]>(
 		() => [
-			{ id: 'nl', label: 'Nederlands' },
-			{ id: 'en', label: 'English' },
-			{ id: 'fr', label: 'Francais' },
-			{ id: 'es', label: 'Espanol' },
-			{ id: 'de', label: 'Deutsch' },
+			{ id: 'nl', label: t('language_dutch') },
+			{ id: 'en', label: t('language_english') },
+			{ id: 'fr', label: t('language_french') },
+			{ id: 'es', label: t('language_spanish') },
+			{ id: 'de', label: t('language_german') },
 		],
-		[]
+		[t]
 	);
 
 	return (

@@ -183,7 +183,12 @@ function UserDashboard() {
 				<div className="user-card">
 					{/* Left media block */}
 					<div className="user-card-mediaBlock">
-						<img className="user-card-media" src={imgSrc} onError={() => setImgSrc((prev) => (prev.endsWith('.svg') ? '/pictures/kweker.png' : '/pictures/roses.svg'))} alt="Rozen" />
+						<img
+							className="user-card-media"
+							src={imgSrc}
+							onError={() => setImgSrc((prev) => (prev.endsWith('.svg') ? '/pictures/kweker.png' : '/pictures/roses.svg'))}
+							alt={t('koper_product_image_alt')}
+						/>
 						<div className="product-info">
 							<div className="prod-row">
 								<span className="prod-label">{t('koper_supplier')}</span>
@@ -296,10 +301,10 @@ function UserDashboard() {
 									<div className="upcoming-side-info">
 										<div className="upcoming-side-name">{p.name}</div>
 										<div className="upcoming-side-meta">
-											{p.companyName} • {p.dimension}
+											{t('koper_upcoming_meta', {company: p.companyName, dimension: p.dimension ?? ''})}
 										</div>
 									</div>
-									<span className="upcoming-side-badge">A1</span>
+									<span className="upcoming-side-badge">{t('koper_upcoming_badge')}</span>
 								</li>
 							))}
 						</ul>
@@ -361,3 +366,6 @@ function UserDashboard() {
 }
 
 export default UserDashboard;
+
+
+
