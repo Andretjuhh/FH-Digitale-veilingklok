@@ -190,6 +190,7 @@ namespace Infrastructure.Migrations
                         .HasColumnName("order_id");
 
                     b.Property<decimal>("PriceAtPurchase")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("price_at_purchase");
 
