@@ -9,6 +9,7 @@ public interface IVeilingKlokRepository
     Task<VeilingKlokStatus?> GetStatusAsync(Guid klokId, CancellationToken ct);
     Task<VeilingKlok?> GetByIdAsync(Guid id);
     Task<(VeilingKlok VeilingKlok, int BidCount)?> GetByIdWithBidsCount(Guid id);
+    Task<IEnumerable<(VeilingKlok VeilingKlok, int BidCount)>> GetAllByMeesterIdWithBidsCountAsync(Guid meesterId);
 
     Task AddAsync(VeilingKlok veilingKlok);
     void Update(VeilingKlok veilingKlok);

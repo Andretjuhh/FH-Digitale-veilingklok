@@ -406,6 +406,7 @@ public class TestDataSeeder : ITestDataSeeder
     {
         var veilingklokken = new List<VeilingKlok>();
         var random = new Random(46);
+        var availableProducts = new List<Product>(allProducts);
         var regions = new[]
         {
             "Noord-Holland",
@@ -437,12 +438,12 @@ public class TestDataSeeder : ITestDataSeeder
             await _context.Veilingklokken.AddAsync(veilingKlok);
             await _context.SaveChangesAsync(); // Save to get ID
 
-            // 70% chance to add products (30% empty klokken)
-            if (random.NextDouble() > 0.3)
+            // Assign unique products to each klok so historical auctions keep their products.
+            var productCount = Math.Min(random.Next(5, 16), availableProducts.Count);
+            if (productCount > 0)
             {
-                // Add 5-15 random products
-                var productCount = random.Next(5, 16);
-                var selectedProducts = allProducts
+                // Add 5-15 random products from the remaining pool
+                var selectedProducts = availableProducts
                     .OrderBy(x => random.Next())
                     .Take(productCount)
                     .ToList();
@@ -453,6 +454,7 @@ public class TestDataSeeder : ITestDataSeeder
                 foreach (var product in selectedProducts)
                 {
                     product.AddToVeilingKlok(veilingKlok.Id);
+                    availableProducts.Remove(product);
 
                     if (product.MinimumPrice < lowestPrice)
                         lowestPrice = product.MinimumPrice;

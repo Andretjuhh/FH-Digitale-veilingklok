@@ -56,6 +56,20 @@ public class VeilingKlokRepository : IVeilingKlokRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<(VeilingKlok VeilingKlok, int BidCount)>>
+        GetAllByMeesterIdWithBidsCountAsync(Guid meesterId)
+    {
+        return await _dbContext
+            .Veilingklokken.Where(vk => vk.VeilingmeesterId == meesterId)
+            .Select(vk => new
+            {
+                VeilingKlok = vk,
+                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id)
+            })
+            .Select(x => ValueTuple.Create(x.VeilingKlok, x.BidsCount))
+            .ToListAsync();
+    }
+
     public async Task<(IEnumerable<VeilingKlok> Items, int TotalCount)> GetAllWithFilterAsync(
         VeilingKlokStatus? statusFilter,
         DateTime? scheduledAfter,

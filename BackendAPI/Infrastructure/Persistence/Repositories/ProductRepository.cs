@@ -113,6 +113,39 @@ public class ProductRepository : IProductRepository
         return results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
     }
 
+    public async Task<IEnumerable<(Product Product, KwekerInfo Kweker)>> GetAllByVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId)
+    {
+        var results = await _dbContext
+            .Products.Join(
+                _dbContext.Kwekers,
+                product => product.KwekerId,
+                kweker => kweker.Id,
+                (product, kweker) => new { product, kweker }
+            )
+            .Where(x => x.product.VeilingKlokId == veilingKlokId)
+            .ToListAsync();
+
+        return results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
+    }
+
+    public async Task<IEnumerable<(Product Product, KwekerInfo Kweker)>> GetAllByOrderItemsVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId)
+    {
+        var results = await _dbContext
+            .OrderItems.Where(oi => oi.VeilingKlokId == veilingKlokId)
+            .Select(oi => oi.ProductId)
+            .Distinct()
+            .Join(_dbContext.Products, productId => productId, product => product.Id, (_, product) => product)
+            .Join(
+                _dbContext.Kwekers,
+                product => product.KwekerId,
+                kweker => kweker.Id,
+                (product, kweker) => new { product, kweker }
+            )
+            .ToListAsync();
+
+        return results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
+    }
+
     public async Task<(
         IEnumerable<(Product Product, KwekerInfo Kweker)> Items,
         int TotalCount

@@ -96,6 +96,15 @@ public class MeesterController : ControllerBase
         return HttpSuccess<VeilingKlokOutputDto>.Ok(result);
     }
 
+    [HttpGet("veilingklokken")]
+    public async Task<IActionResult> GetVeilingKlokken()
+    {
+        var (meesterId, _) = GetUserClaim.GetInfo(User);
+        var command = new GetVeilingKlokkenByMeesterCommand(meesterId);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<List<VeilingKlokOutputDto>>.Ok(result);
+    }
+
     [HttpGet("product/{productId}/details")]
     public async Task<IActionResult> GetProductDetails(Guid productId)
     {
