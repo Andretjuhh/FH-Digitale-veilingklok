@@ -45,8 +45,10 @@ export async function getOrder(orderId: string): Promise<HttpSuccess<OrderKweker
 }
 
 // Get orders (GET /api/account/kweker/orders)
-export async function getOrders(statusFilter?: string, beforeDate?: string, afterDate?: string, productId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<OrderKwekerOutput>>> {
+export async function getOrders(productNameFilter?: string, koperNameFilter?: string, statusFilter?: string, beforeDate?: string, afterDate?: string, productId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<OrderKwekerOutput>>> {
 	const params = new URLSearchParams();
+	if (productNameFilter) params.append('productNameFilter', productNameFilter);
+	if (koperNameFilter) params.append('koperNameFilter', koperNameFilter);
 	if (statusFilter) params.append('statusFilter', statusFilter);
 	if (beforeDate) params.append('beforeDate', beforeDate);
 	if (afterDate) params.append('afterDate', afterDate);

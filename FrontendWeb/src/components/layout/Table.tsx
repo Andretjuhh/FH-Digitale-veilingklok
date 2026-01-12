@@ -34,19 +34,29 @@ export interface SortConfig {
 	direction: 'asc' | 'desc';
 }
 
+export interface OnFetchHandlerParams {
+	page: number;
+	searchTerm: string;
+	sortConfig: SortConfig;
+}
+
 export interface DataTableProps<T> {
-	icon?: React.JSX.Element;
 	data: T[];
+
 	title: string;
+	icon?: React.JSX.Element;
 	emptyText: string;
 	columns: Column<T>[];
 	itemsPerPage?: number;
-	onAction?: (item: T) => void;
+
 	// Lazy loading props
 	isLazy?: boolean;
 	totalItems?: number;
+
 	loading?: boolean;
-	onFetchData?: (params: { page: number; searchTerm: string; sortConfig: SortConfig }) => void | Promise<void>;
+	onAction?: (item: T) => void;
+	getItemKey: (item: T, index: number) => string | number;
+	onFetchData?: (params: OnFetchHandlerParams) => void | Promise<void>;
 }
 
 // Table Header Component
@@ -115,13 +125,14 @@ export function DataTable<T extends Record<string, any>>(props: DataTableProps<T
 		data,
 		title,
 		columns,
-		itemsPerPage = 5,
+		itemsPerPage = 10,
 		onAction,
 		isLazy = false,
 		totalItems: externalTotalItems,
 		loading = false,
 		emptyText,
-		onFetchData
+		onFetchData,
+		getItemKey
 	} = props;
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [searchTerm, setSearchTerm] = useState<string>('');
@@ -235,7 +246,7 @@ export function DataTable<T extends Record<string, any>>(props: DataTableProps<T
 					<TableHeader columns={columns} onSort={handleSort} sortConfig={sortConfig}/>
 					<tbody className="app-table-tbody">
 					{paginatedData.map((item, index) => (
-						<TableRow key={item.id || index} item={item} columns={columns} onAction={onAction}/>
+						<TableRow key={getItemKey(item, index)} item={item} columns={columns} onAction={onAction}/>
 					))}
 					{paginatedData.length === 0 && !loading && (
 						<tr>

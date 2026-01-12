@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260111234059_InitialCreate")]
+    [Migration("20260112012126_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -191,6 +191,10 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("order_id");
+
+                    b.Property<decimal>("PriceAtPurchase")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("price_at_purchase");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier")

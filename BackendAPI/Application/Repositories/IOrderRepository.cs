@@ -36,6 +36,8 @@ public interface IOrderRepository
 
     Task<(IEnumerable<(Order Order, OrderProductInfo Product, KoperInfo Koper)> Items, int TotalCount)>
         GetAllKwekerWithFilterAsync(
+            string? ProductNameFilter,
+            string? KoperNameFilter,
             OrderStatus? statusFilter,
             DateTime? beforeDate,
             DateTime? afterDate,

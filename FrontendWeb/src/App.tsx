@@ -9,7 +9,7 @@ import RootContext from './components/contexts/RootContext';
 import Home from './pages/general/Home';
 import Login from './pages/general/Login';
 import Register from './pages/general/Register';
-import KwekerDashboard from './pages/kweker/KwekerDashboard';
+import {KwekerDashboard} from './pages/kweker/KwekerDashboard';
 import ProductDetails from './pages/kweker/ProductDetails';
 import VeilingMeesterDashboard from './pages/meester/VeilingMeesterDashboard';
 import KoperDashboard from './pages/koper/KoperDashboard';

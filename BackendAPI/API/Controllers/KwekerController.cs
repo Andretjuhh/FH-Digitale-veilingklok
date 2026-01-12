@@ -66,6 +66,8 @@ public class KwekerController : ControllerBase
 
     [HttpGet("orders")]
     public async Task<IActionResult> GetOrders(
+        [FromQuery] string? productNameFilter,
+        [FromQuery] string? koperNameFilter,
         [FromQuery] OrderStatus? statusFilter,
         [FromQuery] DateTime? beforeDate,
         [FromQuery] DateTime? afterDate,
@@ -77,6 +79,8 @@ public class KwekerController : ControllerBase
         var (kwekerId, _) = GetUserClaim.GetInfo(User);
         var command = new GetKwekerOrdersCommand(
             kwekerId,
+            productNameFilter,
+            koperNameFilter,
             statusFilter,
             beforeDate,
             afterDate,

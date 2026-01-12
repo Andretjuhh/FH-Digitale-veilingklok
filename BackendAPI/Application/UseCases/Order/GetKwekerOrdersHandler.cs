@@ -8,6 +8,8 @@ namespace Application.UseCases.Order;
 
 public sealed record GetKwekerOrdersCommand(
     Guid KwekerId,
+    string? ProductNameFilter,
+    string? KoperNameFilter,
     OrderStatus? StatusFilter = null,
     DateTime? BeforeDate = null,
     DateTime? AfterDate = null,
@@ -20,6 +22,7 @@ public class GetKwekerOrdersHandler : IRequestHandler<GetKwekerOrdersCommand, Pa
 {
     private readonly IOrderRepository _orderRepository;
 
+
     public GetKwekerOrdersHandler(IOrderRepository orderRepository)
     {
         _orderRepository = orderRepository;
@@ -31,6 +34,8 @@ public class GetKwekerOrdersHandler : IRequestHandler<GetKwekerOrdersCommand, Pa
     {
         // Use the optimized repository method with filters
         var (orderData, totalCount) = await _orderRepository.GetAllKwekerWithFilterAsync(
+            request.ProductNameFilter,
+            request.KoperNameFilter,
             request.StatusFilter,
             request.BeforeDate,
             request.AfterDate,

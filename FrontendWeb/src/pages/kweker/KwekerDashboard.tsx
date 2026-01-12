@@ -1,5 +1,5 @@
 // External imports
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -10,29 +10,26 @@ import {OrderKwekerOutput} from '../../declarations/dtos/output/OrderKwekerOutpu
 import {delay, formatEur} from '../../utils/standards';
 
 // Components
-import {Column, DataTable} from '../../components/layout/Table';
+import {Column, DataTable, OnFetchHandlerParams} from '../../components/layout/Table';
 import {KwekerDashboardStats} from '../../components/sections/kweker/KwekerStats';
 import Button from "../../components/buttons/Button";
 import {ClientAvatar} from "../../components/elements/ClientAvatar";
 import OrderDetails from "../../components/sections/kweker/OrderDetails";
 import Page from '../../components/nav/Page';
 import {StatusBadge} from "../../components/elements/StatusBadge";
+import {PaginatedOutputDto} from "../../declarations/dtos/output/PaginatedOutputDto";
+import {useComponentStateReducer} from "../../hooks/useComponentStateReducer";
 
 
-export default function KwekerDashboard() {
+export function KwekerDashboard() {
 	const {t, account} = useRootContext();
 	const pdfRef = React.useRef<HTMLDivElement>(null);
 
-	const [orders, setOrders] = useState<OrderKwekerOutput[]>([]);
+	const [paginatedOrdersState, setPaginatedOrdersState] = useComponentStateReducer();
+	const [paginatedOrders, setPaginatedOrders] = useState<PaginatedOutputDto<OrderKwekerOutput>>();
 	const [selectedOrder, setSelectedOrder] = useState<OrderKwekerOutput | null>(null);
 	const [generatingPdf, setGeneratingPdf] = useState(false);
 	const [showOrderModal, setShowOrderModal] = useState({visible: false, editMode: false});
-
-	// PDF Generation state
-
-	useEffect(() => {
-		initializeDashboard();
-	}, []);
 
 	const orderColumns: Column<OrderKwekerOutput>[] = useMemo(
 		() => [
@@ -112,20 +109,25 @@ export default function KwekerDashboard() {
 		[t]
 	);
 
-	const initializeDashboard = useCallback(async () => {
+	const handleFetchOrders = useCallback(async (params: OnFetchHandlerParams) => {
 		try {
-			// Fetch orders
-			const orderResponse = await getOrders();
-			if (orderResponse.data) {
-				// Remove duplicates by id
-				const uniqueOrders = Array.from(
-					new Map(orderResponse.data.data.map(order => [String(order.id), order])).values()
-				);
-				setOrders(uniqueOrders);
-			}
+			setPaginatedOrdersState({type: 'loading'});
+			const orderResponse = await getOrders(
+				params.searchTerm,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				params.page,
+				20
+			);
+			if (orderResponse.data) setPaginatedOrders(orderResponse.data);
+			setPaginatedOrdersState({type: 'succeed'});
 		} catch (err) {
-			console.error('Failed to initialize dashboard', err);
+			console.error('Failed to fetch orders', err);
 		}
+
 	}, []);
 	const showOrder = useCallback((open: boolean, editMode: boolean = false) => {
 		setShowOrderModal({visible: open, editMode});
@@ -184,9 +186,14 @@ export default function KwekerDashboard() {
 
 				<KwekerDashboardStats/>
 				<DataTable<OrderKwekerOutput>
-					data={orders}
+					isLazy
+					loading={paginatedOrdersState.type == 'loading'}
+					data={paginatedOrders?.data || []}
+					totalItems={paginatedOrders?.totalCount || 0}
+					getItemKey={item => item.id + item.product.id}
+					onFetchData={handleFetchOrders}
 					columns={orderColumns}
-					itemsPerPage={5}
+					itemsPerPage={20}
 					icon={<i className="bi bi-cart4"></i>}
 					title={t('recent_orders')}
 					emptyText={t('no_orders')}

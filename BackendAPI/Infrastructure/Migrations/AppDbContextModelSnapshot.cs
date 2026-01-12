@@ -189,6 +189,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("order_id");
 
+                    b.Property<decimal>("PriceAtPurchase")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("price_at_purchase");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("product_id");

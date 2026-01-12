@@ -727,6 +727,7 @@ img {
     border-radius: 1rem 1rem 0 0;
     background-color: inherit;
     border-bottom: 1px solid theme(colors.gray.200);
+    z-index: 10;
 }
 
 .app-table-actions-row {

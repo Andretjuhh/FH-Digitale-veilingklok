@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {Pagination} from "./Table";
+import {OnFetchHandlerParams, Pagination} from "./Table";
 import Spinner from "../ui/Spinner";
 import clsx from "clsx";
 import {joinClsx} from "../../utils/classPrefixer";
@@ -10,19 +10,21 @@ export interface SortConfig {
 }
 
 export interface DataGridProps<T> {
-	icon?: React.JSX.Element;
 	data: T[];
 	renderItem: (item: T, index: number) => React.JSX.Element;
 	renderFilterButtons?: () => React.JSX.Element;
+
+	icon?: React.JSX.Element;
 	className?: string;
 
 	title: string;
 	emptyText: string;
 	itemsPerPage?: number;
-	isLazy?: boolean;
 	totalItems?: number;
+
+	isLazy?: boolean;
 	loading?: boolean;
-	onFetchData?: (params: { page: number; searchTerm: string; sortConfig: SortConfig }) => void | Promise<void>;
+	onFetchData?: (params: OnFetchHandlerParams) => void | Promise<void>;
 }
 
 function GridTable<T>(props: DataGridProps<T>): React.JSX.Element {
@@ -31,7 +33,7 @@ function GridTable<T>(props: DataGridProps<T>): React.JSX.Element {
 		data,
 		className,
 		title,
-		itemsPerPage = 14,
+		itemsPerPage = 10,
 		totalItems: externalTotalItems,
 		loading = false,
 		isLazy = false,
@@ -117,6 +119,14 @@ function GridTable<T>(props: DataGridProps<T>): React.JSX.Element {
 							{renderItem(item, index)}
 						</div>
 					))}
+
+					{
+						paginatedData.length === 0 && !loading && (
+							<div className="app-table-empty-state">
+								<p>{emptyText}</p>
+							</div>
+						)
+					}
 				</div>
 			</div>
 

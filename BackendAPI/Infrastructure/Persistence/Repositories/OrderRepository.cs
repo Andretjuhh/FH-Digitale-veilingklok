@@ -252,6 +252,8 @@ public class OrderRepository : IOrderRepository
 
     public async Task<(IEnumerable<(Order Order, OrderProductInfo Product, KoperInfo Koper)> Items, int TotalCount)>
         GetAllKwekerWithFilterAsync(
+            string? ProductNameFilter,
+            string? KoperNameFilter,
             OrderStatus? statusFilter,
             DateTime? beforeDate,
             DateTime? afterDate,
@@ -281,6 +283,12 @@ public class OrderRepository : IOrderRepository
         if (statusFilter.HasValue)
             baseQuery = baseQuery.Where(x => x.Order.Status == statusFilter.Value);
 
+        if (!string.IsNullOrEmpty(ProductNameFilter))
+            baseQuery = baseQuery.Where(x => x.Product.Name.Contains(ProductNameFilter));
+
+        if (!string.IsNullOrEmpty(KoperNameFilter))
+            baseQuery = baseQuery.Where(x => (x.Koper.FirstName + " " + x.Koper.LastName).Contains(KoperNameFilter));
+
         if (beforeDate.HasValue)
             baseQuery = baseQuery.Where(x => x.Order.CreatedAt <= beforeDate.Value);
 
@@ -291,12 +299,13 @@ public class OrderRepository : IOrderRepository
             baseQuery = baseQuery.Where(x => x.Product.Id == productId.Value);
 
         // Get total count for pagination
-        var totalCount = await baseQuery.Select(x => x.Order.Id).Distinct().CountAsync();
+        var totalCount = await baseQuery.Select(x => x.Order.Id).CountAsync();
 
         // Get the actual data with pagination
         var results = await baseQuery
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
+            .OrderBy(x => x.Product.Name)
             .Select(x => new
             {
                 x.Order,
@@ -321,7 +330,6 @@ public class OrderRepository : IOrderRepository
             .ToListAsync();
 
         var mappedResults = results.Select(x => (x.Order, x.Product, x.Koper));
-
         return (mappedResults, totalCount);
     }
 
