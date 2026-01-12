@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import Page from "../../components/nav/Page";
 import {useRootContext} from "../../components/contexts/RootContext";
 import {KwekerProductStats} from "../../components/sections/kweker/KwekerStats";
@@ -6,12 +6,37 @@ import GridTable from "../../components/layout/GridTable";
 import ProductCard from "../../components/elements/ProductCard";
 import {ProductOutputDto} from "../../declarations/dtos/output/ProductOutputDto";
 import CreateEditProduct from "../../components/sections/kweker/CreateEditProduct";
+import {PaginatedOutputDto} from "../../declarations/dtos/output/PaginatedOutputDto";
+import {useComponentStateReducer} from "../../hooks/useComponentStateReducer";
+import {OnFetchHandlerParams} from "../../components/layout/Table";
+import {getProducts} from "../../controllers/server/kweker";
+import Button from "../../components/buttons/Button";
 
 function KwekerProducts() {
 	const {t, account} = useRootContext();
 
 	// State for Create/Edit Product Modal
+	const [paginatedProductsState, setPaginatedProductsState] = useComponentStateReducer();
+	const [paginatedProducts, setPaginatedProducts] = useState<PaginatedOutputDto<ProductOutputDto>>();
 	const [openCreateEditModal, setOpenCreateEditModal] = useState<{ visible: boolean; edit?: ProductOutputDto }>({visible: false});
+
+	const handleFetchProducts = useCallback(async (params: OnFetchHandlerParams) => {
+		try {
+			setPaginatedProductsState({type: 'loading'});
+			const response = await getProducts(
+				params.searchTerm,
+				undefined,
+				undefined,
+				params.page,
+				params.pageSize
+			);
+			if (response.data) setPaginatedProducts(response.data);
+			setPaginatedProductsState({type: 'succeed'});
+		} catch (err) {
+			console.error('Failed to fetch orders', err);
+		}
+
+	}, []);
 
 	return (
 		<Page enableHeader className="kweker-page" enableHeaderAnimation={false}>
@@ -24,12 +49,38 @@ function KwekerProducts() {
 						{t('kweker_products_description')}
 					</h2>
 				</section>
-				<KwekerProductStats/>
+
+				<section className={'kweker-stats-wrapper'}>
+					<KwekerProductStats/>
+					<div className="kweker-add-product-card">
+						<div className="kweker-add-product-card-title">
+					        <span>
+						         <i className={'bi bi-bag-plus-fill'}/>
+			                </span>
+							<p className="kweker-stat-txt">
+								{t('products')}
+							</p>
+						</div>
+
+						<Button
+							className={'kweker-add-product-btn'}
+							icon={'bi bi-plus-circle-fill'}
+							onClick={() => setOpenCreateEditModal({visible: true})}
+							label={t('create_product')}
+						/>
+					</div>
+				</section>
+
 				<GridTable
-					data={Array(100).fill({})}
-					itemsPerPage={24}
-					icon={<i className="bi bi-bag-fill"></i>}
+					isLazy
+					itemsPerPage={12}
+					data={paginatedProducts?.data || []}
+					loading={paginatedProductsState.type == 'loading'}
+					totalItems={paginatedProducts?.totalCount || 0}
+					onFetchData={handleFetchProducts}
+
 					title={t('your_products')}
+					icon={<i className="bi bi-bag-fill"></i>}
 					renderItem={(item, index) => (
 						<ProductCard
 							product={item}

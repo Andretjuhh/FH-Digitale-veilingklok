@@ -2,6 +2,7 @@ import React, {useCallback} from 'react';
 import {useRootContext} from "../contexts/RootContext";
 import {ProductOutputDto} from "../../declarations/dtos/output/ProductOutputDto";
 import CustomDropdown, {DropdownItem} from "../buttons/Dropdown";
+import {formatEur} from "../../utils/standards";
 
 type ProductCardProps = {
 	index: number;
@@ -37,19 +38,22 @@ function ProductCard(props: ProductCardProps) {
 					<img src="/pictures/flower-test.avif" alt={t('alt_flower_picture')}/>
 				</div>
 				<div className="product-card__text">
-					<p className="product-card__title">Premium Design</p>
-					<p className="product-card__description">Hover to reveal stunning effects</p>
-					<span className="product-card__icon-txt text-primary-800">
+					<p className="product-card__title">{product.name}</p>
+					<p className="product-card__description">{product.description}</p>
+					{
+						product.region &&
+						<span className="product-card__icon-txt text-primary-800">
 						<i className="bi bi-geo-alt-fill"></i>
-						Amsterdam, Netherlands
+							{product.region}, Netherlands
 					</span>
+					}
 					<span className="product-card__icon-txt">
 						<i className="bi bi-inbox-fill"></i>
-						{t('stock')}: 1500 pcs
+						{t('stock_quantity')}: {product.stock} pcs
 					</span>
 				</div>
 				<div className="product-card__footer">
-					<div className="product-card__price">$49.99</div>
+					<div className="product-card__price">{formatEur(product.auctionedPrice ?? 0.00)}</div>
 					<CustomDropdown
 						className={'product-card-dropdown'}
 						menuClassName={'product-card-dropdown-menu'}

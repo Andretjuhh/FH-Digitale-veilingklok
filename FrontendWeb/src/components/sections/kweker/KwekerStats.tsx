@@ -94,7 +94,7 @@ export function KwekerProductStats() {
 	const {t} = useRootContext();
 
 	return (
-		<section className="kweker-stats">
+		<section className="kweker-stats kweker-product-stats">
 			<StatsCard
 				title={t('total_products')}
 				icon={<i className="bi bi-bag-fill"></i>}

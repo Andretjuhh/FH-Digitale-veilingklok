@@ -303,9 +303,10 @@ public class OrderRepository : IOrderRepository
 
         // Get the actual data with pagination
         var results = await baseQuery
+            .OrderByDescending(x => x.Order.CreatedAt) // PRIMARY sort
+            .ThenBy(x => x.Product.Name) // SECONDARY sort
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .OrderBy(x => x.Product.Name)
             .Select(x => new
             {
                 x.Order,

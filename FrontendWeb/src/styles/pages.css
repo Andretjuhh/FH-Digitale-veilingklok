@@ -287,7 +287,12 @@
     color: theme(colors.gray.500);
 }
 
-.kweker-products-grid-table-header {
+.kweker-stats-wrapper {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
 }
 
 /*#endregion*/

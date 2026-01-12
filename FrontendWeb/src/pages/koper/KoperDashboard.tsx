@@ -58,7 +58,7 @@ function UserDashboard() {
 	const currentStock = current?.stock ?? 0;
 
 	useEffect(() => {
-		// clamp quantity when product or stock changes
+		// clamp quantity when product or stock_quantity changes
 		setQty((q) => Math.max(0, Math.min(currentStock, q)));
 	}, [currentStock, productIndex]);
 
@@ -158,7 +158,7 @@ function UserDashboard() {
 											// Or better, just show a success message for now if we don't have the full flow.
 											// But the user asked to "fix this" and "make it match".
 
-											// For now, let's just simulate the stock reduction locally and move to next product if empty
+											// For now, let's just simulate the stock_quantity reduction locally and move to next product if empty
 											// as the backend integration for "buying" on the clock is complex (SignalR usually).
 
 											const nextStock = currentStock - qty;

@@ -702,12 +702,16 @@
 
 /*#endregion */
 
-/*#region Kweker stats*/
+/*#region Kweker stats & add Card*/
 .kweker-stats {
     display: flex;
     flex-direction: row;
     gap: 2rem;
     margin-bottom: 18px;
+}
+
+.kweker-product-stats {
+    flex: 5;
 }
 
 .kweker-stat-card {
@@ -720,11 +724,32 @@
     border: solid 1px theme(colors.gray.200);
 }
 
+.kweker-product-stats .kweker-stat-card {
+    max-width: 40%;
+}
+
+.kweker-add-product-card {
+    flex: 1;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+
+    padding: 1rem 1.6rem;
+    background-color: #fff;
+    border-radius: 20px;
+    min-width: 250px;
+    margin-bottom: 18px;
+
+    border: solid 1px theme(colors.gray.200);
+}
+
+.kweker-add-product-card-title,
 .kweker-stat-title {
     display: flex;
     align-items: center;
 }
 
+.kweker-add-product-card-title span,
 .kweker-stat-title span {
     position: relative;
     padding: 1rem;
@@ -734,6 +759,11 @@
     border-radius: 9999px;
 }
 
+.kweker-add-product-card-title span {
+    background-color: theme(colors.secondary.500);
+}
+
+.kweker-add-product-card-title span i,
 .kweker-stat-title span i {
     position: absolute;
     top: 50%;
@@ -743,6 +773,7 @@
     font-size: 0.8rem;
 }
 
+.kweker-add-product-card-title span svg,
 .kweker-stat-title span svg {
     position: absolute;
     top: 50%;
@@ -757,6 +788,16 @@
     color: #374151;
     font-size: 1.2rem;
     white-space: nowrap;
+}
+
+.kweker-add-product-btn {
+    --hovered-color: theme(colors.secondary.800);
+    width: 100%;
+    margin-top: auto;
+    background-color: theme(colors.secondary.500);
+    padding: 0.6rem 1.6rem;
+    border-radius: 0.8rem;
+    font-size: 1.1rem;
 }
 
 .kweker-stat-data {

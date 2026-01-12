@@ -67,7 +67,7 @@ function GridTable<T>(props: DataGridProps<T>): React.JSX.Element {
 
 	useEffect(() => {
 		if (isLazy && onFetchData) {
-			const params = {page: currentPage, searchTerm: debouncedSearchTerm, sortConfig};
+			const params = {page: currentPage, pageSize: itemsPerPage, searchTerm: debouncedSearchTerm, sortConfig};
 			const paramsString = JSON.stringify(params);
 
 			// Only fetch if params have actually changed to avoid redundant calls

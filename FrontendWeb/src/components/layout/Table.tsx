@@ -36,6 +36,7 @@ export interface SortConfig {
 
 export interface OnFetchHandlerParams {
 	page: number;
+	pageSize: number;
 	searchTerm: string;
 	sortConfig: SortConfig;
 }
@@ -126,9 +127,9 @@ export function DataTable<T extends Record<string, any>>(props: DataTableProps<T
 		title,
 		columns,
 		itemsPerPage = 10,
+		totalItems: externalTotalItems,
 		onAction,
 		isLazy = false,
-		totalItems: externalTotalItems,
 		loading = false,
 		emptyText,
 		onFetchData,
@@ -155,7 +156,7 @@ export function DataTable<T extends Record<string, any>>(props: DataTableProps<T
 
 	useEffect(() => {
 		if (isLazy && onFetchData) {
-			const params = {page: currentPage, searchTerm: debouncedSearchTerm, sortConfig};
+			const params = {page: currentPage, pageSize: itemsPerPage, searchTerm: debouncedSearchTerm, sortConfig};
 			const paramsString = JSON.stringify(params);
 
 			// Only fetch if params have actually changed to avoid redundant calls

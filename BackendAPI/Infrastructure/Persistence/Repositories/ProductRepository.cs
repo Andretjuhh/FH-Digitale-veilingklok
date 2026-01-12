@@ -141,7 +141,12 @@ public class ProductRepository : IProductRepository
             query = query.Where(x => x.product.KwekerId == kwekerId.Value);
 
         var totalCount = await query.CountAsync();
-        var results = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        var results = await query
+            .OrderByDescending(x => x.product.CreatedAt)
+            .ThenBy(x => x.product.Name)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
         var items = results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
 
         return (items, totalCount);

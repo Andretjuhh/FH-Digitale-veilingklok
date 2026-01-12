@@ -17,6 +17,7 @@ import {InputField} from '../../../declarations/types/FormField';
 import {createProduct, updateProduct} from "../../../controllers/server/kweker";
 import {delay} from "../../../utils/standards";
 import {isHttpError} from "../../../declarations/types/HttpError";
+import {getRegions} from "../../../controllers/server/account";
 
 type Props = {
 	editProduct?: ProductOutputDto;
@@ -31,13 +32,13 @@ type Region = {
 
 // Define the form data shape
 type ProductFormState = {
+	imageBase64: string;
 	product_name: string;
 	product_description: string;
 	region: string;
 	minimum_price: number;
-	stock: number;
-	dimension: string;
-	imageBase64: string;
+	stock_quantity: number;
+	product_dimension: string;
 };
 
 function CreateEditProduct(props: Props) {
@@ -55,10 +56,10 @@ function CreateEditProduct(props: Props) {
 		defaultValues: {
 			product_name: editProduct?.name || '',
 			product_description: editProduct?.description || '',
-			region: '', // Default, map if needed
-			minimum_price: 0,
-			stock: editProduct?.stock || 0,
-			dimension: editProduct?.dimension || '',
+			region: editProduct?.region || '', // Default, map if needed
+			minimum_price: editProduct?.auctionedPrice || 0,
+			stock_quantity: editProduct?.stock || 0,
+			product_dimension: editProduct?.dimension || '',
 			imageBase64: '',
 		},
 	});
@@ -72,42 +73,40 @@ function CreateEditProduct(props: Props) {
 	const regionOptions = useMemo(() => regions.map((r) => ({value: r.id, label: r.name})), [regions]);
 	const orderedFields = useMemo(() => buildFieldLayout(ProductFormFields), []);
 
+	useEffect(() => {
+		initializeRegions();
+	}, []);
+
 	// Populate form when editProduct changes (if needed, though defaultValues handles initial render)
 	useEffect(() => {
 		if (editProduct) {
 			setValue('product_name', editProduct.name);
 			setValue('product_description', editProduct.description);
-			setValue('stock', editProduct.stock);
-			setValue('dimension', editProduct.dimension);
+			setValue('stock_quantity', editProduct.stock);
+			setValue('product_dimension', editProduct.dimension);
+			setValue('region', editProduct.region || '');
+			setValue('minimum_price', editProduct.auctionedPrice || 0);
+
 			if (editProduct.imageUrl) {
 				setImagePreview(editProduct.imageUrl);
 			}
 			// Map other fields if they exist in DTO
 		}
-	}, [editProduct, setValue]);
-
-	useEffect(() => {
-		initializeRegions();
-	}, []);
+	}, [editProduct, setValue, regions]);
 
 	const initializeRegions = async () => {
 		try {
 			setLoadingRegions(true);
-			// updateState({type: 'loading', message: t('loading_regions')});
-			// Replace with your actual API call
-			setTimeout(() => {
-				const mockRegions: Region[] = [
-					{id: 'null', name: t('select_region')},
-					{id: '1', name: 'North America'},
-					{id: '2', name: 'Europe'},
-					{id: '3', name: 'Asia Pacific'},
-					{id: '4', name: 'Latin America'},
-					{id: '5', name: 'Middle East & Africa'},
-				];
-				setRegions(mockRegions);
-				setLoadingRegions(false);
-				updateState({type: 'idle'});
-			}, 500);
+			const response = await getRegions();
+			setRegions(
+				[
+					{id: '', name: t('select_region')} as Region,
+					...response.data!.map((region) => ({id: region, name: region})),
+				]
+			);
+			setLoadingRegions(false);
+			updateState({type: 'idle'});
+
 		} catch (error) {
 			console.error('Failed to load regions:', error);
 			updateState({type: 'error', message: t('failed_load_regions')});
@@ -136,11 +135,12 @@ function CreateEditProduct(props: Props) {
 			name: data.product_name,
 			description: data.product_description,
 			minimumPrice: Number(data.minimum_price), // cast string input to number if necessary
-			stock: Number(data.stock),
-			dimension: data.dimension,
+			stock: Number(data.stock_quantity),
+			dimension: data.product_dimension,
 			imageBase64: data.imageBase64,
+			region: data.region == '' ? undefined : data.region,
 		};
-
+		console.log('Submitting product data:', productData);
 		if (editProduct)
 			await onUpdateProduct(productData as UpdateProductDTO);
 		else
