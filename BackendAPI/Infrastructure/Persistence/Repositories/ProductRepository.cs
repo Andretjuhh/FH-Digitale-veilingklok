@@ -50,6 +50,11 @@ public class ProductRepository : IProductRepository
         return await _dbContext.Products.Where(p => productIds.Contains(p.Id)).ToListAsync();
     }
 
+    public async Task<IEnumerable<Product>> GetAllByVeilingKlokIdAsync(Guid veilingKlokId)
+    {
+        return await _dbContext.Products.Where(p => p.VeilingKlokId == veilingKlokId).ToListAsync();
+    }
+
     public async Task<IEnumerable<Product>> GetProductsByKwekerIdAsync(Guid kwekerId)
     {
         return await _dbContext.Products.Where(p => p.KwekerId == kwekerId).ToListAsync();

@@ -55,6 +55,10 @@ public sealed class CreateVeilingHandler
             };
             newKlok.AssignVeilingmeester(request.MeesterId);
 
+            // Persist the clock first so product FK updates won't violate constraints.
+            await _veilingKlokRepository.AddAsync(newKlok);
+            await _unitOfWork.CommitAsync(cancellationToken);
+
             // Assign products to the VeilingKlok
             var productIds = dto.Products.Keys.ToList();
             var results = (await _productRepository.GetAllByIdsWithKwekerInfoAsync(productIds)).ToList();
@@ -74,6 +78,7 @@ public sealed class CreateVeilingHandler
 
                 // Mark as being auctioned on the veiling klok
                 result.Product.AddToVeilingKlok(newKlok.Id);
+                newKlok.AddProductId(result.Product.Id);
 
                 // Recalculate klok price range
                 newKlok.UpdatePriceRange(price);
@@ -81,8 +86,6 @@ public sealed class CreateVeilingHandler
                 // Persist change on product repository (unit of work will commit)
                 _productRepository.Update(result.Product);
             }
-
-            await _veilingKlokRepository.AddAsync(newKlok);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
 

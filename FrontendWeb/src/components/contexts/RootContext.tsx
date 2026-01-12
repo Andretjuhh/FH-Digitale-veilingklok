@@ -20,6 +20,7 @@ type RootContextProps = {
 
 	/** Authenticate and store account information */
 	authenticateAccount: (account: AuthOutputDto) => void;
+	refreshAccount: () => Promise<void> | void;
 	removeAuthentication: () => void;
 
 	changeLanguage: (code: SupportedLanguages) => Promise<void> | void;
@@ -34,6 +35,7 @@ const RootContext = React.createContext<RootContextProps>({
 	account: undefined,
 
 	authenticateAccount: () => undefined,
+	refreshAccount: () => Promise.resolve(),
 	removeAuthentication: () => undefined,
 	changeLanguage: () => Promise.resolve(),
 	navigate: () => undefined,

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@microsoft/signalr": "^10.0.0",
     "audit": "^0.0.6",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
