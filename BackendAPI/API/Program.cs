@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
             policy
                 .WithOrigins("http://localhost:3000", "https://yourdomain.com")
                 .AllowAnyHeader()
-                .AllowAnyMethod()
+                .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .AllowCredentials(); // REQUIRED for SignalR
         }
     );
@@ -37,15 +37,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 
 app.UseRouting();
-app.UseCors("AllowFrontend"); // Must come after UseRouting but before UseAuthorization
-app.UseExceptionHandler();
+app.UseCors("AllowFrontend"); // Must come after UseRouting but before authentication
 app.UseAuthentication(); // Must come before UseAuthorization
 app.UseAuthorization();
+app.UseExceptionHandler();
 app.MapControllers();
 
 // This creates the WebSocket endpoint at: ws://localhost:5000/hubs/veiling-klok
 // Clients connect to this URL to establish real-time connection
-app.MapHub<VeilingHub>("/hubs/veiling-klok");
+app.MapHub<VeilingHub>("/hubs/veiling-klok").RequireCors("AllowFrontend");
 
 // Map development endpoints (seeder, testing utilities, etc.)
 app.MapDevelopmentEndpoints();
