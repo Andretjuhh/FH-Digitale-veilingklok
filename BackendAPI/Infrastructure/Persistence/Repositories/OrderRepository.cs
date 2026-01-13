@@ -114,6 +114,7 @@ public class OrderRepository : IOrderRepository
                         x.Product.Description,
                         x.Product.ImageUrl,
                         x.OrderItem.PriceAtPurchase,
+                        x.OrderItem.ProductMinimumPrice,
                         k.CompanyName,
                         x.OrderItem.Quantity
                     )
@@ -154,6 +155,7 @@ public class OrderRepository : IOrderRepository
                         x.Product.Description,
                         x.Product.ImageUrl,
                         x.OrderItem.PriceAtPurchase,
+                        x.OrderItem.ProductMinimumPrice,
                         k.CompanyName,
                         x.OrderItem.Quantity
                     )
@@ -230,6 +232,7 @@ public class OrderRepository : IOrderRepository
                     x.Product.Description,
                     x.Product.ImageUrl,
                     x.OrderItem.PriceAtPurchase,
+                    x.OrderItem.ProductMinimumPrice,
                     x.Kweker.CompanyName,
                     x.OrderItem.Quantity
                 ),
@@ -316,6 +319,7 @@ public class OrderRepository : IOrderRepository
                     x.Product.Description,
                     x.Product.ImageUrl,
                     x.OrderItem.PriceAtPurchase,
+                    x.OrderItem.ProductMinimumPrice,
                     x.Kweker.CompanyName,
                     x.OrderItem.Quantity
                 ),

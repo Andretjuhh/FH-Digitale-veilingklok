@@ -83,6 +83,7 @@ function KwekerProducts() {
 					icon={<i className="bi bi-bag-fill"></i>}
 					renderItem={(item, index) => (
 						<ProductCard
+							isKoper={false}
 							product={item}
 							index={index}
 							onEdit={(product) => setOpenCreateEditModal({visible: true, edit: product})}

@@ -186,6 +186,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         // Decimal precision for OrderItem price
         modelBuilder.Entity<OrderItem>().Property(oi => oi.PriceAtPurchase).HasPrecision(18, 2);
+        modelBuilder.Entity<OrderItem>().Property(oi => oi.ProductMinimumPrice).HasPrecision(18, 2);
 
         // Check Constraint: MinimumPrice <= AuctionPrice (when AuctionPrice is not null)
         modelBuilder
@@ -247,3 +248,4 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         #endregion
     }
 }
+

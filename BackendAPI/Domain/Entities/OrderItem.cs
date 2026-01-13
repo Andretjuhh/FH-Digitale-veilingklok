@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
 using Domain.Exceptions;
 
 namespace Domain.Entities;
@@ -23,8 +22,13 @@ public class OrderItem
     [Range(0.00, double.MaxValue)]
     public decimal PriceAtPurchase { get; private set; }
 
+    [Column("product_minimum_price")]
+    [Required]
+    [Range(0.00, double.MaxValue)]
+    public decimal ProductMinimumPrice { get; init; }
+
     // --- Product Relationship ---
-    [Column("veilingklok_id")] [Required] public required Guid VeilingKlokId { get; init; }
+    [Column("veilingklok_id")] [Required] public Guid VeilingKlokId { get; init; }
 
     [Column("product_id")] [Required] public Guid ProductId { get; }
 
@@ -49,6 +53,8 @@ public class OrderItem
         Quantity = quantity;
         OrderId = orderId;
         ProductId = product.Id;
+        ProductMinimumPrice = product.MinimumPrice;
+        VeilingKlokId = product.VeilingKlokId ?? throw new InvalidOperationException("Product must have a VeilingKlokId");
     }
 
     public void UpdateQuantity(int newQuantity)

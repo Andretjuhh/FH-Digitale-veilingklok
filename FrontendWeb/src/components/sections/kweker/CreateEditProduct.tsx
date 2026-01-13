@@ -57,7 +57,7 @@ function CreateEditProduct(props: Props) {
 			product_name: editProduct?.name || '',
 			product_description: editProduct?.description || '',
 			region: editProduct?.region || '', // Default, map if needed
-			minimum_price: editProduct?.auctionedPrice || 0,
+			minimum_price: editProduct?.minimumPrice || 0,
 			stock_quantity: editProduct?.stock || 0,
 			product_dimension: editProduct?.dimension || '',
 			imageBase64: '',
@@ -85,7 +85,7 @@ function CreateEditProduct(props: Props) {
 			setValue('stock_quantity', editProduct.stock);
 			setValue('product_dimension', editProduct.dimension);
 			setValue('region', editProduct.region || '');
-			setValue('minimum_price', editProduct.auctionedPrice || 0);
+			setValue('minimum_price', editProduct.minimumPrice || 0);
 
 			if (editProduct.imageUrl) {
 				setImagePreview(editProduct.imageUrl);

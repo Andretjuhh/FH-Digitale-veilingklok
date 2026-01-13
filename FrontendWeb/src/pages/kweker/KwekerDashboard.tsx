@@ -9,7 +9,7 @@ import {KwekerDashboardStats} from '../../components/sections/kweker/KwekerStats
 import Page from '../../components/nav/Page';
 
 
-export function KwekerDashboard() {
+function KwekerDashboard() {
 	const {t, account} = useRootContext();
 
 	return (
@@ -22,8 +22,9 @@ export function KwekerDashboard() {
 				</section>
 
 				<KwekerDashboardStats/>
-
 			</main>
 		</Page>
 	);
 }
+
+export default KwekerDashboard;

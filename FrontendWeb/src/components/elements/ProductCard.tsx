@@ -6,6 +6,7 @@ import {formatEur} from "../../utils/standards";
 
 type ProductCardProps = {
 	index: number;
+	isKoper: boolean;
 	product: ProductOutputDto
 	onEdit?: (product: ProductOutputDto, index: number) => void;
 	onDelete?: (product: ProductOutputDto, index: number) => void;
@@ -53,7 +54,7 @@ function ProductCard(props: ProductCardProps) {
 					</span>
 				</div>
 				<div className="product-card__footer">
-					<div className="product-card__price">{formatEur(product.auctionedPrice ?? 0.00)}</div>
+					<div className="product-card__price">{formatEur((props.isKoper ? product.auctionedPrice : product.minimumPrice) ?? 0.00)}</div>
 					<CustomDropdown
 						className={'product-card-dropdown'}
 						menuClassName={'product-card-dropdown-menu'}

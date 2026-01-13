@@ -6,7 +6,8 @@ public class ProductOutputDto
     public required string Name { get; set; } = string.Empty;
     public required string Description { get; set; }
     public required string ImageUrl { get; set; }
-    public required decimal? AuctionedPrice { get; set; }
+    public required decimal? AuctionedPrice { get; set; } // Always returned
+    public required decimal? MinimumPrice { get; set; } // If koper requests it return null
     public required DateTimeOffset? AuctionedAt { get; set; }
     public required string? Region { get; set; }
     public required string Dimension { get; set; }

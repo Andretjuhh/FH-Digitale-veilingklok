@@ -1,17 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Page from '../../components/nav/Page';
 import AuctionClock from '../../components/elements/AuctionClock';
 import Button from '../../components/buttons/Button';
-import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
-import { formatEur } from '../../utils/standards';
+import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
+import {formatEur} from '../../utils/standards';
 
-import {
-	createDevVeilingKlok,
-	createVeilingKlok,
-	getProducts,
-	updateVeilingKlokStatus,
-	startVeilingProduct,
-} from '../../controllers/server/veilingmeester';
+import {createDevVeilingKlok, createVeilingKlok, getProducts, startVeilingProduct, updateVeilingKlokStatus,} from '../../controllers/server/veilingmeester';
 
 /* =========================================================
    TYPES
@@ -52,6 +46,7 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		description: 'Dieprode rozen van topkwaliteit',
 		imageUrl: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93',
 		auctionedPrice: 125,
+		minimumPrice: null,
 		auctionedAt: null,
 		dimension: '60 cm',
 		stock: 150,
@@ -62,6 +57,7 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		name: 'Witte Lelies',
 		description: 'Verse witte lelies, grote knoppen',
 		imageUrl: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
+		minimumPrice: null,
 		auctionedPrice: 90,
 		auctionedAt: null,
 		dimension: '70 cm',
@@ -74,6 +70,7 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		description: 'Grote zonnebloemen met stevige stelen',
 		imageUrl: 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9',
 		auctionedPrice: 65,
+		minimumPrice: null,
 		auctionedAt: null,
 		dimension: '90 cm',
 		stock: 120,
@@ -82,6 +79,7 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 	{
 		id: '00000000-0000-0000-0000-000000000004',
 		name: 'Tulpen Mix',
+		minimumPrice: null,
 		description: 'Mix van voorjaarskleuren, premium selectie',
 		imageUrl: 'https://images.unsplash.com/photo-1508747703725-719777637510',
 		auctionedPrice: 55,
@@ -95,6 +93,7 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		name: 'Orchidee Phalaenopsis',
 		description: 'Bloeiend en rijk vertakt',
 		imageUrl: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6',
+		minimumPrice: null,
 		auctionedPrice: 160,
 		auctionedAt: null,
 		dimension: '55 cm',
@@ -313,7 +312,7 @@ export default function VeilingmeesterDashboard() {
 		};
 
 		setCurrentVeiling((v) =>
-			v ? { ...v, products: [...v.products, sold] } : v
+			v ? {...v, products: [...v.products, sold]} : v
 		);
 
 		const remaining = queue.filter((p) => p.id !== activeProduct.id);
@@ -390,10 +389,10 @@ export default function VeilingmeesterDashboard() {
 								<p className="vm-sectionSub">Beheer de veiling en volg de producten.</p>
 							</div>
 							{veilingState === 'none' && (
-								<Button label="Open veiling" onClick={openVeiling} disabled={isLoadingQueue || queue.length == 0} />
+								<Button label="Open veiling" onClick={openVeiling} disabled={isLoadingQueue || queue.length == 0}/>
 							)}
 							{veilingState !== 'none' && (
-								<Button label="Eindig veiling" onClick={endVeiling} />
+								<Button label="Eindig veiling" onClick={endVeiling}/>
 							)}
 						</div>
 
@@ -408,7 +407,7 @@ export default function VeilingmeesterDashboard() {
 												alt={displayProduct.name}
 											/>
 										) : (
-											<div className="vm-currentImg vm-currentImgPlaceholder" />
+											<div className="vm-currentImg vm-currentImgPlaceholder"/>
 										)}
 									</div>
 									<div className="vm-currentBody">
@@ -477,7 +476,7 @@ export default function VeilingmeesterDashboard() {
 											onChange={(e) => setStartPrice(Number(e.target.value))}
 										/>
 										{veilingState === 'open' && (
-											<Button label="Start veiling" onClick={startVeiling} />
+											<Button label="Start veiling" onClick={startVeiling}/>
 										)}
 									</div>
 								)}
