@@ -23,7 +23,11 @@ const NavBar = (props: Props) => {
 						type="radio"
 						name="navbar-tabs"
 						className="navbar-tab-input"
-						defaultChecked={page.strict ?? true ? routeName === page.location : routeName.startsWith(page.location)}
+						defaultChecked={
+							page.strict
+								? routeName === page.location
+								: routeName.startsWith(page.location + '/') || routeName === page.location
+						}
 						onChange={() => navigate(page.location)}
 					/>
 

@@ -86,7 +86,7 @@ function AppHeader(props: { className?: string, slideAnimation?: boolean }) {
 								account?.accountType == AccountType.Veilingmeester &&
 								<NavBar
 									pages={[
-										{key: 'manage_auction', name: t('manage_auction'), location: '/veilingmeester/veilingen-beheren', icon: 'bi-grid-fill'},
+										{key: 'manage_auction', name: t('manage_auction'), location: '/veilingmeester/veilingen-beheren', icon: 'bi-grid-fill', strict: false},
 										{key: 'auctions', name: t('auctions'), location: '/veilingmeester/veilingen', icon: 'bi-clock-history', strict: false},
 										{key: 'region_flowers', name: t('region_flowers'), location: '/veilingmeester/region-flowers', icon: 'bi-tags-fill'},
 									]}
