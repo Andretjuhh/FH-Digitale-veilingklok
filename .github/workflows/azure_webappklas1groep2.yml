@@ -27,7 +27,7 @@ jobs:
         run: dotnet build BackendAPI/API/API.csproj --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish BackendAPI/API/API.csproj -c Release -r win-x64 --self-contained true -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish BackendAPI/API/API.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -61,3 +61,4 @@ jobs:
           app-name: WebAppKlas1Groep2
           slot-name: Production
           package: .
+
