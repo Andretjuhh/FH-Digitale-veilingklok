@@ -191,6 +191,8 @@ if (app.Environment.IsDevelopment())
 // =====================
 // Root landing page
 // =====================
+app.MapGet("/health", () => "API is alive");
+
 app.MapGet("/", async context =>
 {
     var fullPath = Path.Combine(
