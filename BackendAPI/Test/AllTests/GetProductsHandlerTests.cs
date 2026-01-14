@@ -50,6 +50,8 @@ internal sealed class FakeProductRepository : IProductRepository
 	public Task<IEnumerable<Product>> GetAllByIds(List<Guid> productIds) => Task.FromResult<IEnumerable<Product>>(Array.Empty<Product>());
 	public Task<IEnumerable<Product>> GetAllByVeilingKlokIdAsync(Guid veilingKlokId) => Task.FromResult<IEnumerable<Product>>(Array.Empty<Product>());
 	public Task<IEnumerable<(Product Product, KwekerInfo Kweker)>> GetAllByIdsWithKwekerInfoAsync(List<Guid> ids) => Task.FromResult<IEnumerable<(Product, KwekerInfo)>>(_items);
+	public Task<IEnumerable<(Product Product, KwekerInfo Kweker)>> GetAllByVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId) => Task.FromResult<IEnumerable<(Product, KwekerInfo)>>(_items);
+	public Task<IEnumerable<(Product Product, KwekerInfo Kweker)>> GetAllByOrderItemsVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId) => Task.FromResult<IEnumerable<(Product, KwekerInfo)>>(_items);
 
 	public Task<(IEnumerable<(Product Product, KwekerInfo Kweker)> Items, int TotalCount)> GetAllWithFilterAsync(
 		string? nameFilter,
