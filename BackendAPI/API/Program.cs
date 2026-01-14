@@ -34,6 +34,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontend");
 app.UseExceptionHandler();
+app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
