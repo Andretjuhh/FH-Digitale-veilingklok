@@ -16,16 +16,16 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'   # change if you use 7 or 6
+          dotnet-version: '8.0.x'   # change if your project uses 7.0 or 6.0
 
-      - name: Restore dependencies
-        run: dotnet restore BackendAPI
+      - name: Restore
+        run: dotnet restore BackendAPI/API
 
       - name: Build
-        run: dotnet build BackendAPI --configuration Release --no-restore
+        run: dotnet build BackendAPI/API --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish BackendAPI --configuration Release --output ./publish
+        run: dotnet publish BackendAPI/API --configuration Release --output ./publish
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
