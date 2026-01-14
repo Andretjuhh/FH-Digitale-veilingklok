@@ -26,7 +26,9 @@ builder.Services.AddProblemsExtension();
 
 var app = builder.Build();
 
+app.UseDefaultFiles();
 app.UseStaticFiles();
+
 app.UseSwaggerDocumentation();
 
 if (!app.Environment.IsDevelopment())
@@ -34,7 +36,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontend");
 app.UseExceptionHandler();
-app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
