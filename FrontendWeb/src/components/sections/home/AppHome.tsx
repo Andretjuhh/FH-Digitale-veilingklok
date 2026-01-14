@@ -14,7 +14,7 @@ function AppHome() {
 		} else if (account?.accountType === AccountType.Koper) {
 			navigate('/koper/dashboard');
 		} else if (account?.accountType === AccountType.Veilingmeester) {
-			navigate('/veilingmeester/dashboard');
+			navigate('/veilingmeester/veilingen-beheren');
 		}
 	};
 

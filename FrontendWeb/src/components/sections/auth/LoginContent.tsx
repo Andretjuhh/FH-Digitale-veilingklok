@@ -51,7 +51,7 @@ function LoginContent() {
 					break;
 
 				case AccountType.Veilingmeester:
-					navigate('/veilingmeester/dashboard');
+					navigate('/veilingmeester/veilingen-beheren');
 					break;
 
 				default:

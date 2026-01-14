@@ -131,7 +131,7 @@ function RegisterContent() {
 					}
 
 					case AccountType.Veilingmeester: {
-						dashboardDestination = '/veilingmeester/dashboard';
+						dashboardDestination = '/veilingmeester/veilingen-beheren';
 						const account: CreateMeesterDTO = {
 							email: data['email'],
 							password: data['password'],
