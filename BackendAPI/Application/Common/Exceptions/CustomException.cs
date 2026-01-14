@@ -49,6 +49,11 @@ public class CustomException : ProcessException
         return new CustomException(StatusCodes.Status401Unauthorized, "CUSTOM.INVALID_CREDENTIALS");
     }
 
+    public static CustomException AccountSoftDeleted()
+    {
+        return new CustomException(StatusCodes.Status403Forbidden, "CUSTOM.ACCOUNT_SOFT_DELETED");
+    }
+
     public static CustomException InvalidVeilingKlokStatus()
     {
         return new CustomException(

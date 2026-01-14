@@ -4,7 +4,10 @@ import {FieldOrGroup, InputField} from '../declarations/types/FormField';
 export const Regions = ['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Overijssel', 'Limburg', 'Friesland', 'Drenthe', 'Flevoland', 'Groningen', 'Zeeland'] as const;
 export const Country = ['Nederland'] as const;
 
-export const RegisterSteps = {
+// Account types that can be registered (excludes Admin)
+export type RegisterableAccountType = Exclude<AccountType, AccountType.Admin>;
+
+export const RegisterSteps: Readonly<Record<RegisterableAccountType, readonly (readonly InputField[])[]>> = {
 	[AccountType.Koper]: [
 		[
 			{label: 'first_name', type: 'text', placeholder: 'Steve', required: true, group: 'name'},
@@ -50,7 +53,7 @@ export const RegisterSteps = {
 			{label: 'authorisation_code', type: 'text', placeholder: '123456', required: true},
 		],
 	],
-} as const satisfies Readonly<Record<AccountType, readonly (readonly InputField[])[]>>;
+} as const;
 
 export const buildFieldLayout = (fields: ReadonlyArray<InputField>): FieldOrGroup[] => {
 	const orderedItems: FieldOrGroup[] = [];
