@@ -3,6 +3,7 @@ import {HttpSuccess} from '../../declarations/types/HttpSuccess';
 import {RequestLoginDTO} from '../../declarations/dtos/input/RequestLoginDTO';
 import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
 import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
+import {AccountListItemDTO} from '../../declarations/dtos/output/AccountListItemDTO';
 import {LocalStorageService} from '../services/localStorage';
 
 // Get regions (GET /api/account/country/region)
@@ -69,4 +70,22 @@ export async function getAuthentication(): Promise<AuthOutputDto | null> {
 		const reauth = await reauthenticate().catch(() => null);
 		return reauth?.data ?? null;
 	}
+}
+
+// Admin endpoints
+export async function getAllAccounts(): Promise<HttpSuccess<AccountListItemDTO[]>> {
+	return fetchResponse<HttpSuccess<AccountListItemDTO[]>>('/api/account/admin/accounts');
+}
+
+export async function deleteAccount(accountId: string, hardDelete: boolean): Promise<HttpSuccess<string>> {
+	const queryParam = hardDelete ? '?hardDelete=true' : '';
+	return fetchResponse<HttpSuccess<string>>(`/api/account/admin/${accountId}${queryParam}`, {
+		method: 'DELETE',
+	});
+}
+
+export async function reactivateAccount(accountId: string): Promise<HttpSuccess<string>> {
+	return fetchResponse<HttpSuccess<string>>(`/api/account/admin/${accountId}/reactivate`, {
+		method: 'PATCH',
+	});
 }

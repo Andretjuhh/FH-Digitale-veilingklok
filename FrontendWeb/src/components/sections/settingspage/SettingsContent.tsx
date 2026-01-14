@@ -5,6 +5,7 @@ import React from 'react';
 import AccountSettings from './AccountSettings';
 import PrivacySettings from './PrivacySettings';
 import NotificationsSettings from './NotificationsSettings';
+import PreferencesSettings from './PreferencesSettings';
 
 type SettingsContentProps = {
 	active: string;
@@ -16,6 +17,8 @@ function SettingsContent({ active }: SettingsContentProps) {
 			return <PrivacySettings />;
 		case 'notifications':
 			return <NotificationsSettings />;
+		case 'preferences':
+			return <PreferencesSettings />;
 		case 'account':
 		default:
 			return <AccountSettings />;

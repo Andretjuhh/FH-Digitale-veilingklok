@@ -8,6 +8,8 @@ public interface IUserRepository
     Task<bool> ExistingAccountAsync(Guid accountId);
     Task<Account?> GetByEmailAsync(string email);
     Task<Account?> GetByIdAsync(Guid accountId);
+    Task<List<Account>> GetAllAccountsAsync();
     Task DeleteAccountAsync(Guid id, bool softDelete = true);
+    Task ReactivateAccountAsync(Guid id);
     Task<List<string>> GetCountryRegionsAsync(string country);
 }

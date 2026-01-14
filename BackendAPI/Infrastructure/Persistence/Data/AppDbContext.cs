@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<Account, IdentityRole<Guid>, Guid>(options)
 {
     public DbSet<Address> Addresses { get; set; }
+    public DbSet<Admin> Admins { get; set; }
     public DbSet<Koper> Kopers { get; set; }
     public DbSet<Kweker> Kwekers { get; set; }
     public DbSet<Order> Orders { get; set; }

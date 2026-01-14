@@ -71,9 +71,12 @@ function useRoot() {
 		setLoggedIn(!!response?.data);
 	}, []);
 
-	// Authenticate account function (stub for future use)
-	const authenticateAccount = useCallback(async (account: AuthOutputDto) => {
-		console.log('Authenticating account in context...', account);
+	// Authenticate account function (saves token and refreshes account info)
+	const authenticateAccount = useCallback(async (authData: AuthOutputDto) => {
+		console.log('Authenticating account in context...', authData);
+		// Save the authentication token to localStorage
+		LocalStorageService.setItem('accessToken', authData);
+		// Fetch and set the full account info
 		const response = await getAccountInfo().catch(() => undefined);
 		setAccount(response?.data);
 		setLoggedIn(!!response?.data);
