@@ -1,25 +1,25 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import Page from "../../components/nav/Page";
 import {useRootContext} from "../../components/contexts/RootContext";
 import {useComponentStateReducer} from "../../hooks/useComponentStateReducer";
 import {PaginatedOutputDto} from "../../declarations/dtos/output/PaginatedOutputDto";
 import {ProductOutputDto} from "../../declarations/dtos/output/ProductOutputDto";
-import {OnFetchHandlerParams} from "../../components/layout/Table";
+import {Column, DataTable, OnFetchHandlerParams} from "../../components/layout/Table";
 import {getProducts, getVeilingKlok, getVeilingKlokOrders} from "../../controllers/server/veilingmeester";
 import GridTable from "../../components/layout/GridTable";
 import Button from "../../components/buttons/Button";
 import LabeledInfoCard from "../../components/cards/LabeledInfoCard";
-import {KlokStatusBadge} from "../../components/elements/StatusBadge";
+import {KlokStatusBadge, StatusBadge} from "../../components/elements/StatusBadge";
 import AuctionProductCard from "../../components/cards/AuctionProductCard";
 import AddProductCard from "../../components/cards/AddProductCard";
 import {VeilingKlokOutputDto} from "../../declarations/dtos/output/VeilingKlokOutputDto";
 import {useParams} from "react-router-dom";
 import {isHttpError} from "../../declarations/types/HttpError";
-import {delay} from "../../utils/standards";
+import {delay, formatDate, formatEur} from "../../utils/standards";
 import ComponentState from "../../components/elements/ComponentState";
 import {OrderOutputDto} from "../../declarations/dtos/output/OrderOutputDto";
 
-function VeilingmeesterVeilingBeheren() {
+function VeilingmeesterKlokDetails() {
 	const {t, account, languageCode, navigate} = useRootContext();
 	const {klokId: id} = useParams<{ klokId: string }>();
 
@@ -80,6 +80,35 @@ function VeilingmeesterVeilingBeheren() {
 	}, [id, state]);
 	const onClose = () => navigate('/veilingmeester/veilingen-beheren');
 
+	const orderColumn: Column<OrderOutputDto>[] = useMemo(() => [
+		{
+			key: 'id',
+			label: t('order_id'),
+			sortable: true,
+			render: (item) => <span className="font-medium">{item.id}</span>,
+		},
+		{
+			key: 'status',
+			label: t('order_status'),
+			sortable: true,
+			render: (item) => <StatusBadge status={item.status}/>,
+		},
+		{
+			key: 'totalPrice',
+			label: t('total_value'),
+			sortable: true,
+			render: (item) => {
+				return <span className="font-semibold">{formatEur(item.totalAmount)}</span>;
+			},
+		},
+		{
+			key: 'createdAt',
+			label: t('order_datum'),
+			sortable: true,
+			render: (item) => <span>{formatDate(item.createdAt, languageCode, 0)}</span>,
+		},
+	], [t]);
+
 	return (
 		<Page enableHeader className="vm-veiling-info-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
 			<main className="vm-veiling-info-page-ctn">
@@ -118,14 +147,7 @@ function VeilingmeesterVeilingBeheren() {
 												{t('created')}:
 											 </span>
 											<span className={'vm-veiling-info-detail-value'}>
-												{new Date(currentVeilingKlok.createdAt).toLocaleString(languageCode, {
-													weekday: 'long',
-													year: 'numeric',
-													month: 'long',
-													day: 'numeric',
-													hour: '2-digit',
-													minute: '2-digit'
-												})}
+												{formatDate(currentVeilingKlok.createdAt, languageCode, 3)}
 											 </span>
 										</div>
 									</div>
@@ -134,18 +156,7 @@ function VeilingmeesterVeilingBeheren() {
 										<LabeledInfoCard
 											color={'!bg-blue-500 border-blue-100 !shadow-blue-500/10'}
 											title={t('scheduledDate')}
-											value={new Date(currentVeilingKlok.scheduledAt)
-												.toLocaleString('en-US', {
-													day: 'numeric',
-													month: 'short',
-													year: 'numeric',
-													hour: 'numeric',
-													minute: '2-digit',
-													hour12: true
-												})
-												.toUpperCase()      // Changes "jan" to "JAN" and "am" to "AM"
-												.replace(/\./g, '') // Removes dots from "A.M."
-												.replace(',', '')}
+											value={formatDate(currentVeilingKlok.scheduledAt, languageCode, 0)}
 											icon={<i className="bi bi-calendar-event-fill"></i>}
 										/>
 										<LabeledInfoCard
@@ -193,10 +204,18 @@ function VeilingmeesterVeilingBeheren() {
 														veilingId={id}
 													/>)
 												}
-												emptyText={t('no_orders')}
+												emptyText={t('no_products')}
 											/>
 											:
-											<></>
+											<DataTable<OrderOutputDto>
+												data={currentVeilingOrders}
+												getItemKey={item => item.id}
+
+												title={t('recent_orders')}
+												icon={<i className="bi bi-cart4"></i>}
+												columns={orderColumn}
+												emptyText={t('no_orders')}
+											/>
 									}
 								</>
 							</section>
@@ -235,5 +254,5 @@ function VeilingmeesterVeilingBeheren() {
 	);
 }
 
-export default VeilingmeesterVeilingBeheren;
+export default VeilingmeesterKlokDetails;
 

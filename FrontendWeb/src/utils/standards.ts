@@ -93,3 +93,47 @@ export function toIsoStringWithOffset(date: Date) {
 		':' + pad(date.getSeconds()) +
 		dif + pad(tzo / 60) + ':' + pad(tzo % 60);
 }
+
+export function formatDate(dateString: string, locale: string = 'en-US', type: number = 0): string {
+	if (type == 0) {
+		return new Date(dateString)
+			.toLocaleString('en-US', {
+				day: 'numeric',
+				month: 'short',
+				year: 'numeric',
+				hour: 'numeric',
+				minute: '2-digit',
+				hour12: true
+			})
+			.toUpperCase()      // Changes "jan" to "JAN" and "am" to "AM"
+			.replace(/\./g, '') // Removes dots from "A.M."
+			.replace(',', '');
+	} else if (type == 1) {
+		return new Date(dateString)
+			.toLocaleDateString(locale, {
+				day: '2-digit',
+				month: '2-digit',
+				year: 'numeric',
+			});
+	} else if (type == 2) {
+		return new Date(dateString)
+			.toLocaleString(locale, {
+				day: '2-digit',
+				month: '2-digit',
+				year: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit',
+			});
+	} else if (type == 3) {
+		return new Date(dateString).toLocaleString(locale, {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit'
+		});
+	}
+
+	return '-- -- ----';
+}

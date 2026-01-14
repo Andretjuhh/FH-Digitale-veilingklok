@@ -285,6 +285,403 @@
 
 /*#endregion*/
 
+/*#region Veilingmeester Veiling Manage Page */
+
+.vm-veiling-info-page-ctn {
+    display: grid;
+    grid-template-columns: 4fr 2fr;
+    align-items: start;
+    gap: 2rem;
+}
+
+.vm-veiling-info-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1.6rem;
+}
+
+.vm-veiling-info-btn {
+    font-size: 1.4rem;
+    padding: 1rem;
+}
+
+.vm-veiling-info-h1 {
+    display: flex;
+    gap: 1rem;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+    font-weight: 700;
+    color: theme(colors.yellow.500);
+}
+
+.vm-veiling-info-h2 {
+    display: flex;
+    gap: 1rem;
+    font-size: 1.25rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: theme(colors.primary.700);
+    margin: 0;
+}
+
+.vm-veiling-info-details {
+    padding: 1.2rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem
+}
+
+.vm-veiling-info-detail-item {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.vm-veiling-info-detail-label {
+    font-size: 0.875rem;
+    line-height: 0.875rem;
+    color: theme(colors.gray.500);
+}
+
+.vm-veiling-info-detail-value {
+    font-size: 1rem;
+    line-height: 1rem;
+    font-weight: 600;
+    color: theme(colors.gray.700);
+}
+
+.vm-veiling-info-status {
+    /*margin-left: auto;*/
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin-bottom: 0.4rem;
+}
+
+
+.vm-veiling-info-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+}
+
+.vm-veiling-info-col {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 2rem;
+    width: auto;
+    flex: 4;
+}
+
+.vm-veiling-info-left-panel {
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 2rem;
+}
+
+.vm-veiling-info-right-panel {
+    width: auto;
+    height: calc(100vh - (var(--header-size) + var(--top-pd) + var(--top-pd)));
+    position: sticky;
+    top: calc(var(--header-size) + var(--top-pd));
+
+    display: flex;
+}
+
+.vm-veiling-info-data-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 2rem;
+    padding: 1.2rem 4rem;
+}
+
+.vm-veiling-info-products,
+.vm-veiling-info-data {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    width: 100%;
+
+    flex: 2;
+    background-color: white;
+    border-radius: 1rem;
+    position: relative;
+    padding: 1.6rem;
+    border: 1px solid theme(colors.gray.200);
+}
+
+.vm-veiling-info-data {
+    flex: 4;
+}
+
+.vm-veiling-info-products-scroll {
+    height: 100%;
+    overflow: auto;
+    --scrollbar-thumb: theme(colors.gray.300);
+    padding-right: 1rem;
+}
+
+.vm-veiling-info-products-list {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    gap: 1rem;
+
+}
+
+.vm-veiling-info-footer {
+    display: flex;
+    flex-direction: column;
+    justify-items: flex-start;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 4rem;
+    padding-bottom: 0;
+}
+
+.vm-veiling-info-line {
+    margin-bottom: 1rem;
+    width: 100%;
+    height: 1px;
+    background-color: theme(colors.gray.200);
+}
+
+/*#endregion*/
+
+/*#region Settings Page */
+.settings-page {
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.settings-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 24px;
+    padding: calc(var(--header-size) + var(--top-pd)) var(--side-pd) var(--top-pd);
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.settings-main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.settings-main-header {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.settings-back-btn {
+    background: transparent;
+    border: 1px solid #e5e7eb;
+    --text-color: #111827;
+    --hovered-color: theme(colors.primary.500);
+    --hovered-text-color: #ffffff;
+}
+
+.settings-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    height: fit-content;
+}
+
+.sidebar-account-button {
+    --text-color: #111827;
+    --hovered-color: theme(colors.primary.500);
+    --hovered-text-color: #ffffff;
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    justify-content: flex-start;
+    padding: 0.65rem 1rem;
+    box-shadow: none;
+}
+
+.sidebar-account-button.active {
+    background: theme(colors.primary.500);
+    border-color: theme(colors.primary.500);
+    --text-color: #ffffff;
+}
+
+.settings-panel {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.06);
+    display: grid;
+    gap: 20px;
+}
+
+.settings-panel-header h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #111827;
+}
+
+.settings-panel-header p {
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.settings-panel-body {
+    display: grid;
+    gap: 16px;
+}
+
+.settings-field {
+    display: grid;
+    gap: 8px;
+}
+
+.settings-field label {
+    font-weight: 600;
+    color: #111827;
+}
+
+.settings-input {
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 0 12px;
+    font-size: 0.95rem;
+}
+
+.settings-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.settings-toggle input {
+    width: 18px;
+    height: 18px;
+}
+
+.settings-primary-btn {
+    justify-self: start;
+    border: none;
+    background: theme(colors.secondary.main);
+    color: #ffffff;
+    padding: 0.7rem 1.8rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.settings-primary-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.settings-notice {
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.settings-notice.success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.settings-notice.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.settings-notice.saving {
+    background: #e0f2fe;
+    color: #075985;
+}
+
+.settings-field-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.settings-edit-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.settings-edit-btn i {
+    font-size: 14px;
+    color: #111827;
+}
+
+.settings-section-toggle {
+    margin-top: 4px;
+}
+
+.settings-input[readonly] {
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.settings-password-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.settings-inline-actions {
+    margin-top: 6px;
+}
+
+.settings-link-btn {
+    background: transparent;
+    border: none;
+    color: theme(colors.secondary.main);
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+}
+
+.settings-link-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 980px) {
+    .settings-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/*#endregion*/
+
 /*#region Veilingmeester Page */
 .vm-header {
     margin-bottom: 14px;
@@ -880,407 +1277,6 @@
 
     .vm-historyGrid {
         grid-template-columns: 1fr 1fr;
-    }
-}
-
-/*#endregion*/
-
-/*#region Veilingmeester Veiling Manage Page */
-
-.vm-veiling-info-page-ctn {
-    display: grid;
-    grid-template-columns: 4fr 2fr;
-    align-items: start;
-    gap: 2rem;
-}
-
-.vm-veiling-info-header {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    margin-bottom: 1rem;
-    gap: 1.6rem;
-}
-
-.vm-veiling-info-btn {
-    font-size: 1.4rem;
-    padding: 1rem;
-}
-
-.vm-veiling-info-h1 {
-    display: flex;
-    gap: 1rem;
-    font-size: 1.5rem;
-    line-height: 1.5rem;
-    font-weight: 700;
-    color: theme(colors.yellow.500);
-}
-
-.vm-veiling-info-h2 {
-    display: flex;
-    gap: 1rem;
-    font-size: 1.25rem;
-    line-height: 1.25rem;
-    font-weight: 600;
-    color: theme(colors.primary.700);
-    margin: 0;
-}
-
-.vm-veiling-info-details {
-    padding: 1.2rem 4rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem
-}
-
-.vm-veiling-info-detail-item {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 0.2rem;
-}
-
-.vm-veiling-info-detail-label {
-    font-size: 0.875rem;
-    line-height: 0.875rem;
-    color: theme(colors.gray.500);
-}
-
-.vm-veiling-info-detail-value {
-    font-size: 1rem;
-    line-height: 1rem;
-    font-weight: 600;
-    color: theme(colors.gray.700);
-}
-
-.vm-veiling-info-status {
-    /*margin-left: auto;*/
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    margin-bottom: 0.4rem;
-}
-
-
-.vm-veiling-info-row {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    gap: 2rem;
-}
-
-.vm-veiling-info-col {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    gap: 2rem;
-    width: auto;
-    flex: 4;
-}
-
-.vm-veiling-info-left-panel {
-    align-self: start;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    gap: 2rem;
-}
-
-.vm-veiling-info-right-panel {
-    width: auto;
-    height: calc(100vh - (var(--header-size) + var(--top-pd) + var(--top-pd)));
-    position: sticky;
-    top: calc(var(--header-size) + var(--top-pd));
-
-    display: flex;
-}
-
-.vm-veiling-info-data-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 1fr;
-    gap: 2rem;
-    padding: 1.2rem 4rem;
-}
-
-.vm-veiling-info-products,
-.vm-veiling-info-data {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    width: 100%;
-
-    flex: 2;
-    background-color: white;
-    border-radius: 1rem;
-    position: relative;
-    padding: 1.6rem;
-    border: 1px solid theme(colors.gray.200);
-}
-
-.vm-veiling-info-data {
-    flex: 4;
-}
-
-.vm-veiling-info-products-scroll {
-    height: 100%;
-    overflow: auto;
-    --scrollbar-thumb: theme(colors.gray.300);
-    padding-right: 1rem;
-}
-
-.vm-veiling-info-products-list {
-    display: flex;
-    flex-wrap: nowrap;
-    flex-direction: column;
-    gap: 1rem;
-
-}
-
-.vm-veiling-info-footer {
-    display: flex;
-    flex-direction: column;
-    justify-items: flex-start;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.2rem 4rem;
-    padding-bottom: 0;
-}
-
-.vm-veiling-info-line {
-    margin-bottom: 1rem;
-    width: 100%;
-    height: 1px;
-    background-color: theme(colors.gray.200);
-}
-
-/*#endregion*/
-
-/*#region Koper Page */
-
-/*#endregion*/
-
-/*#region Settings Page */
-.settings-page {
-    background: #f8fafc;
-    min-height: 100vh;
-}
-
-.settings-layout {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    gap: 24px;
-    padding: calc(var(--header-size) + var(--top-pd)) var(--side-pd) var(--top-pd);
-    min-height: 100vh;
-    box-sizing: border-box;
-}
-
-.settings-main {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.settings-main-header {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.settings-back-btn {
-    background: transparent;
-    border: 1px solid #e5e7eb;
-    --text-color: #111827;
-    --hovered-color: theme(colors.primary.500);
-    --hovered-text-color: #ffffff;
-}
-
-.settings-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-    height: fit-content;
-}
-
-.sidebar-account-button {
-    --text-color: #111827;
-    --hovered-color: theme(colors.primary.500);
-    --hovered-text-color: #ffffff;
-    width: 100%;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    justify-content: flex-start;
-    padding: 0.65rem 1rem;
-    box-shadow: none;
-}
-
-.sidebar-account-button.active {
-    background: theme(colors.primary.500);
-    border-color: theme(colors.primary.500);
-    --text-color: #ffffff;
-}
-
-.settings-panel {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 24px;
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.06);
-    display: grid;
-    gap: 20px;
-}
-
-.settings-panel-header h2 {
-    margin: 0;
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: #111827;
-}
-
-.settings-panel-header p {
-    margin-top: 6px;
-    color: #6b7280;
-    font-size: 0.95rem;
-}
-
-.settings-panel-body {
-    display: grid;
-    gap: 16px;
-}
-
-.settings-field {
-    display: grid;
-    gap: 8px;
-}
-
-.settings-field label {
-    font-weight: 600;
-    color: #111827;
-}
-
-.settings-input {
-    height: 44px;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    padding: 0 12px;
-    font-size: 0.95rem;
-}
-
-.settings-toggle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 600;
-    color: #111827;
-}
-
-.settings-toggle input {
-    width: 18px;
-    height: 18px;
-}
-
-.settings-primary-btn {
-    justify-self: start;
-    border: none;
-    background: theme(colors.secondary.main);
-    color: #ffffff;
-    padding: 0.7rem 1.8rem;
-    border-radius: 9999px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.settings-primary-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-.settings-notice {
-    padding: 0.75rem 1rem;
-    border-radius: 12px;
-    font-weight: 600;
-    background: #f3f4f6;
-    color: #111827;
-}
-
-.settings-notice.success {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.settings-notice.error {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.settings-notice.saving {
-    background: #e0f2fe;
-    color: #075985;
-}
-
-.settings-field-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.settings-edit-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    border: 1px solid #e5e7eb;
-    background: #ffffff;
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-}
-
-.settings-edit-btn i {
-    font-size: 14px;
-    color: #111827;
-}
-
-.settings-section-toggle {
-    margin-top: 4px;
-}
-
-.settings-input[readonly] {
-    background: #f8fafc;
-    color: #64748b;
-}
-
-.settings-password-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.settings-inline-actions {
-    margin-top: 6px;
-}
-
-.settings-link-btn {
-    background: transparent;
-    border: none;
-    color: theme(colors.secondary.main);
-    font-weight: 700;
-    cursor: pointer;
-    padding: 0;
-}
-
-.settings-link-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-@media (max-width: 980px) {
-    .settings-layout {
-        grid-template-columns: 1fr;
     }
 }
 

@@ -12,9 +12,11 @@ import Register from './pages/general/Register';
 import Settings from './pages/general/Settings';
 
 // Veilingmeester Pages
-import VeilingmeesterDashboard from './pages/meester/VeilingmeesterDashboard';
-import VeilingmeesterVeilingBeheren from './pages/meester/VeilingmeesterVeilingBeheren';
-import VeilingmeesterVeilingen from './pages/meester/VeilingmeesterVeilingen';
+import VeilingmeesterKlokManage from './pages/meester/VeilingmeesterKlokManage';
+import VeilingmeesterDashboard2 from './pages/meester/VeilingmeesterDashboard2';
+
+import VeilingmeesterKlokDetails from './pages/meester/VeilingmeesterKlokDetails';
+import VeilingmeesterVeilingen from './pages/meester/VeilingmeesterKlokken';
 import VeilingmeesterProducts from './pages/meester/VeilingmeesterProducts';
 
 // Koper Pages
@@ -42,9 +44,11 @@ function App() {
 					<Route path="/settings" element={<Settings/>}/>
 
 					{/*Veilingmeester Routes*/}
-					<Route path="/veilingmeester/dashboard" element={<VeilingmeesterDashboard/>}/>
-					<Route path="/veilingmeester/veilingen-beheren" element={<VeilingmeesterVeilingen/>}/>
-					<Route path="/veilingmeester/veilingen-beheren/:klokId" element={<VeilingmeesterVeilingBeheren/>}/>
+					<Route path="/veilingmeester/dashboard2" element={<VeilingmeesterDashboard2/>}/>
+					<Route path="/veilingmeester/veilingen-beheren" element={<VeilingmeesterKlokManage/>}/>
+					<Route path="/veilingmeester/veilingen-beheren/:klokId" element={<VeilingmeesterKlokManage/>}/>
+					<Route path="/veilingmeester/veilingen" element={<VeilingmeesterVeilingen/>}/>
+					<Route path="/veilingmeester/veilingen/:klokId" element={<VeilingmeesterKlokDetails/>}/>
 					<Route path="/veilingmeester/region-flowers" element={<VeilingmeesterProducts/>}/>
 
 					{/*Koper Routes*/}

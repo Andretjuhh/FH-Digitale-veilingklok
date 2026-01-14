@@ -210,7 +210,12 @@ export const resources = {
 			view_details: 'Bekijk details',
 			no_orders: 'Geen bestellingen gevonden',
 			no_orders_yet: 'Nog geen bestellingen',
-
+			order_id: 'Order ID',
+			order_status: 'Order Status',
+			order_datum: 'Order datum',
+			total_value: 'Total waarde',
+			no_products: 'Geen product gevonden',
+			
 			loading_regions: "Regio's laden...",
 			failed_load_regions: "Fout bij het laden van regio's",
 			regions_loaded: "Regio's succesvol geladen",
