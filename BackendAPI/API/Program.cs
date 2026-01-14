@@ -103,6 +103,12 @@ app.MapGet(
     )
     .ExcludeFromDescription(); // Exclude this endpoint from the Swagger documentation
 
+app.MapGet("/db-test", async (AppDbContext db) =>
+{
+    await db.Database.ExecuteSqlRawAsync("SELECT 1");
+    return "DB CONNECTED";
+});
+
 #endregion
 
 app.Run();
