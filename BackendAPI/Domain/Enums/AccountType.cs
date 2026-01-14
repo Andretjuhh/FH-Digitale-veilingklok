@@ -5,5 +5,6 @@ namespace Domain.Enums
         Koper,
         Kweker,
         Veilingmeester,
+        Admin,
     }
 }

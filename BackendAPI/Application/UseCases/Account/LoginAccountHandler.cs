@@ -38,9 +38,16 @@ public sealed class LoginAccountHandler : IRequestHandler<LoginAccountCommand, A
         try
         {
             var dto = request.Payload;
-            var account =
-                await _userRepository.GetByEmailAsync(dto.Email)
-                ?? throw CustomException.InvalidCredentials();
+            var account = await _userRepository.GetByEmailAsync(dto.Email);
+            
+            // Check if account exists first, but check if soft deleted before throwing invalid credentials
+            if (account == null)
+                throw CustomException.InvalidCredentials();
+            
+            // Check if account is soft deleted BEFORE checking password
+            if (account.DeletedAt.HasValue)
+                throw CustomException.AccountSoftDeleted();
+            
             var isValid = account.Password.Verify(dto.Password, _passwordHasher);
             if (!isValid)
                 throw CustomException.InvalidCredentials();

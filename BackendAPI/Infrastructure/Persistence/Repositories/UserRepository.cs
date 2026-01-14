@@ -34,9 +34,17 @@ public class UserRepository : IUserRepository
         return await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
     }
 
+    public async Task<List<Account>> GetAllAccountsAsync()
+    {
+        return await _dbContext.Accounts.ToListAsync();
+    }
+
     public async Task DeleteAccountAsync(Guid id, bool softDelete = true)
     {
-        var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id);
+        var account = await _dbContext.Accounts
+            .Include(a => a.RefreshTokens)
+            .FirstOrDefaultAsync(a => a.Id == id);
+        
         if (account == null)
             return;
 
@@ -47,8 +55,101 @@ public class UserRepository : IUserRepository
         }
         else
         {
+            // Hard delete: remove all related entities first in the correct order
+            
+            // 1. Remove refresh tokens (should cascade, but doing explicitly to be safe)
+            if (account.RefreshTokens.Any())
+            {
+                _dbContext.RefreshTokens.RemoveRange(account.RefreshTokens);
+            }
+
+            // 2. If this is a Veilingmeester, remove all VeilingKlok entities
+            var veilingKlokken = await _dbContext.Veilingklokken
+                .Where(vk => vk.VeilingmeesterId == id)
+                .ToListAsync();
+            
+            if (veilingKlokken.Any())
+            {
+                _dbContext.Veilingklokken.RemoveRange(veilingKlokken);
+            }
+
+            // 3. If this is a Kweker, remove all products (and their related data)
+            var products = await _dbContext.Products
+                .Where(p => p.KwekerId == id)
+                .ToListAsync();
+            
+            if (products.Any())
+            {
+                // First remove order items that reference these products
+                var productIds = products.Select(p => p.Id).ToList();
+                var orderItems = await _dbContext.OrderItems
+                    .Where(oi => productIds.Contains(oi.ProductId))
+                    .ToListAsync();
+                
+                if (orderItems.Any())
+                {
+                    _dbContext.OrderItems.RemoveRange(orderItems);
+                }
+
+                // Then remove the products themselves
+                _dbContext.Products.RemoveRange(products);
+            }
+
+            // 4. If this is a Koper, remove all orders and clear PrimaryAdressId
+            var orders = await _dbContext.Orders
+                .Include(o => o.OrderItems)
+                .Where(o => o.KoperId == id)
+                .ToListAsync();
+            
+            if (orders.Any())
+            {
+                foreach (var order in orders)
+                {
+                    if (order.OrderItems.Any())
+                    {
+                        _dbContext.OrderItems.RemoveRange(order.OrderItems);
+                    }
+                }
+                _dbContext.Orders.RemoveRange(orders);
+            }
+
+            // Clear PrimaryAdressId if this is a Koper (to avoid foreign key constraint)
+            var koper = await _dbContext.Kopers.FirstOrDefaultAsync(k => k.Id == id);
+            if (koper != null && koper.PrimaryAdressId.HasValue)
+            {
+                typeof(Koper).GetProperty(nameof(Koper.PrimaryAdressId))?.SetValue(koper, null);
+                _dbContext.Kopers.Update(koper);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            // 5. Remove addresses linked to this account
+            var addresses = await _dbContext.Addresses
+                .Where(a => a.AccountId == id)
+                .ToListAsync();
+            
+            if (addresses.Any())
+            {
+                _dbContext.Addresses.RemoveRange(addresses);
+            }
+
+            // 6. Finally, remove the account itself
             _dbContext.Accounts.Remove(account);
         }
+    }
+
+    public async Task ReactivateAccountAsync(Guid id)
+    {
+        var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id);
+        if (account == null)
+            return;
+
+        // Only reactivate if account is actually soft deleted
+        if (!account.DeletedAt.HasValue)
+            return;
+
+        // Reset DeletedAt to null to reactivate
+        typeof(Account).GetProperty(nameof(Account.DeletedAt))?.SetValue(account, null);
+        _dbContext.Accounts.Update(account);
     }
 
     public async Task<List<string>> GetCountryRegionsAsync(string country)

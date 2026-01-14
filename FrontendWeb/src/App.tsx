@@ -14,6 +14,8 @@ import KwekerDashboard from './pages/kweker/KwekerDashboard';
 import ProductDetails from './pages/kweker/ProductDetails';
 import VeilingMeesterDashboard from './pages/meester/VeilingMeesterDashboard';
 import KoperDashboard from './pages/koper/KoperDashboard';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 function App() {
 	const location = useLocation();
@@ -30,6 +32,8 @@ function App() {
 					<Route path="/koper/dashboard" element={<KoperDashboard/>}/>
 					<Route path="/kweker/dashboard" element={<KwekerDashboard/>}/>
 					<Route path="/kweker/product/:id" element={<ProductDetails/>}/>
+					<Route path="/admin" element={<AdminLogin/>}/>
+					<Route path="/admin/dashboard" element={<AdminDashboard/>}/>
 				</Routes>
 			</AnimatePresence>
 		</RootContext>

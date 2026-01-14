@@ -4,7 +4,7 @@ import FormInputField from '../../elements/FormInputField';
 import FormLink from '../../buttons/FormLink';
 import { useRootContext } from '../../contexts/RootContext';
 import { AccountType } from '../../../declarations/enums/AccountTypes';
-import { buildFieldLayout, RegisterSteps } from '../../../constant/forms';
+import { buildFieldLayout, RegisterSteps, RegisterableAccountType } from '../../../constant/forms';
 import { useForm } from 'react-hook-form';
 import { InputField } from '../../../declarations/types/FormField';
 import { CreateKoperDTO } from '../../../declarations/dtos/input/CreateKoperDTO';
@@ -32,7 +32,7 @@ function RegisterContent() {
 	} = useForm();
 
 	const [step, setStep] = useState(1);
-	const [selectedAccountType, setAccountType] = useState<AccountType>(AccountType.Koper);
+	const [selectedAccountType, setAccountType] = useState<RegisterableAccountType>(AccountType.Koper);
 
 	const totalSteps = RegisterSteps[selectedAccountType].length;
 	const currentFields = RegisterSteps[selectedAccountType][step - 1];
@@ -196,22 +196,22 @@ function RegisterContent() {
 
 							{/* Tabs */}
 							<div className="auth-tabs" role="tablist" aria-label="Select user type">
-								{Object.values(AccountType).map((type) => (
-									<div
-										key={type}
-										className={`auth-tab ${selectedAccountType === type ? 'active' : ''}`}
-										onClick={() => {
-											setAccountType(type);
-											setStep(1);
-										}}
-										role="tab"
-										aria-selected={selectedAccountType === type}
-										tabIndex={0}
-										aria-label={`Register as ${type}`}
-									>
-										{type.charAt(0).toUpperCase() + type.slice(1)}
-									</div>
-								))}
+							{(Object.values(AccountType).filter(type => type !== AccountType.Admin) as RegisterableAccountType[]).map((type) => (
+								<div
+									key={type}
+									className={`auth-tab ${selectedAccountType === type ? 'active' : ''}`}
+									onClick={() => {
+										setAccountType(type);
+										setStep(1);
+									}}
+									role="tab"
+									aria-selected={selectedAccountType === type}
+									tabIndex={0}
+									aria-label={`Register as ${type}`}
+								>
+									{type.charAt(0).toUpperCase() + type.slice(1)}
+								</div>
+							))}
 							</div>
 						</div>
 
