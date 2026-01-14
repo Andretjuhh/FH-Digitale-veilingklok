@@ -166,6 +166,14 @@ public class KoperController : ControllerBase
         return HttpSuccess<List<PriceHistoryItemOutputDto>>.Ok(result);
     }
 
+    [HttpGet("prices/average")]
+    public async Task<IActionResult> GetOverallAveragePrice()
+    {
+        var query = new GetOverallAveragePriceQuery();
+        var result = await _mediator.Send(query);
+        return HttpSuccess<OverallAveragePriceOutputDto>.Ok(result);
+    }
+
     [HttpGet("veilingklok/{klokId}")]
     public async Task<IActionResult> GetVeilingKlok(Guid klokId)
     {

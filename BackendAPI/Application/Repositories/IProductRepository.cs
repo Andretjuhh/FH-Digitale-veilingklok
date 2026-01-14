@@ -22,6 +22,7 @@ public interface IProductRepository
     Task<List<PriceHistoryItem>> GetLatestPricesByKwekerAsync(Guid kwekerId, int limit);
     Task<List<PriceHistoryItem>> GetLatestPricesAsync(int limit);
     Task<KwekerPriceAverage?> GetAveragePriceByKwekerAsync(Guid kwekerId, int? limit);
+    Task<(decimal AveragePrice, int SampleCount)> GetAveragePriceAllAsync();
 
     Task<(
         IEnumerable<(Product Product, KwekerInfo Kweker)> Items,

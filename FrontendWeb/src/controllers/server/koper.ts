@@ -15,6 +15,7 @@ import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDt
 import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
 import { PriceHistoryItemOutputDto } from '../../declarations/dtos/output/PriceHistoryItemOutputDto';
 import { KwekerAveragePriceOutputDto } from '../../declarations/dtos/output/KwekerAveragePriceOutputDto';
+import { OverallAveragePriceOutputDto } from '../../declarations/dtos/output/OverallAveragePriceOutputDto';
 
 // Create koper account (POST /api/account/koper/create)
 export async function createKoperAccount(account: CreateKoperDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -115,4 +116,9 @@ export async function getKwekerAveragePrice(kwekerId: string, limit?: number): P
 // Get last prices across all kwekers (GET /api/account/koper/prices)
 export async function getLatestPrices(limit: number = 10): Promise<HttpSuccess<PriceHistoryItemOutputDto[]>> {
 	return fetchResponse<HttpSuccess<PriceHistoryItemOutputDto[]>>(`/api/account/koper/prices?limit=${limit}`);
+}
+
+// Get overall average price (GET /api/account/koper/prices/average)
+export async function getOverallAveragePrice(): Promise<HttpSuccess<OverallAveragePriceOutputDto>> {
+	return fetchResponse<HttpSuccess<OverallAveragePriceOutputDto>>('/api/account/koper/prices/average');
 }

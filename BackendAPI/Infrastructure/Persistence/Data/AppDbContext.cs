@@ -203,6 +203,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .OnDelete(DeleteBehavior.SetNull)
             .IsRequired(false); // A  Product may or may not be associated with a VeilingKlok.
 
+        // Indexes to speed up price history queries
+        modelBuilder.Entity<OrderItem>().HasIndex(oi => oi.CreatedAt);
+        modelBuilder.Entity<OrderItem>().HasIndex(oi => new { oi.ProductId, oi.CreatedAt });
+
         // OrderItem -> Product (Restrict Delete)
         modelBuilder
             .Entity<Product>()

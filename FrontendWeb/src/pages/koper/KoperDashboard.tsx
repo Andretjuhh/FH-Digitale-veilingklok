@@ -16,12 +16,14 @@ import {
 	getKwekerAveragePrice,
 	getKwekerPriceHistory,
 	getLatestPrices,
+	getOverallAveragePrice,
 } from '../../controllers/server/koper';
 import config from '../../constant/application';
 import { RegionVeilingStartedNotification, VeilingPriceTickNotification, VeilingProductChangedNotification } from '../../declarations/models/VeilingNotifications';
 import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
 import { PriceHistoryItemOutputDto } from '../../declarations/dtos/output/PriceHistoryItemOutputDto';
 import { KwekerAveragePriceOutputDto } from '../../declarations/dtos/output/KwekerAveragePriceOutputDto';
+import { OverallAveragePriceOutputDto } from '../../declarations/dtos/output/OverallAveragePriceOutputDto';
 import { formatEur } from '../../utils/standards';
 
 function UserDashboard() {
@@ -41,6 +43,8 @@ function UserDashboard() {
 	const [kwekerAverage, setKwekerAverage] = useState<KwekerAveragePriceOutputDto | null>(null);
 	const [allHistory, setAllHistory] = useState<PriceHistoryItemOutputDto[]>([]);
 	const [historyLoading, setHistoryLoading] = useState<boolean>(false);
+	const [overallAverage, setOverallAverage] = useState<OverallAveragePriceOutputDto | null>(null);
+	const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
 	const connectionRef = useRef<HubConnection | null>(null);
 
 	const initializeProducts = useCallback(async () => {
@@ -64,32 +68,25 @@ function UserDashboard() {
 		initializeProducts();
 	}, [initializeProducts]);
 
-	useEffect(() => {
+	const loadHistory = useCallback(async () => {
 		if (!currentKwekerId) return;
-		let isActive = true;
 		setHistoryLoading(true);
-		Promise.all([
-			getKwekerPriceHistory(currentKwekerId, 10),
-			getKwekerAveragePrice(currentKwekerId),
-			getLatestPrices(10),
-		])
-			.then(([kwekerHistoryResp, kwekerAvgResp, allHistoryResp]) => {
-				if (!isActive) return;
-				setKwekerHistory(kwekerHistoryResp.data ?? []);
-				setKwekerAverage(kwekerAvgResp.data ?? null);
-				setAllHistory(allHistoryResp.data ?? []);
-			})
-			.catch((err) => {
-				if (!isActive) return;
-				console.error('Failed to fetch price history:', err);
-			})
-			.finally(() => {
-				if (isActive) setHistoryLoading(false);
-			});
-
-		return () => {
-			isActive = false;
-		};
+		try {
+			const [kwekerHistoryResp, kwekerAvgResp, allHistoryResp, overallAvgResp] = await Promise.all([
+				getKwekerPriceHistory(currentKwekerId, 10),
+				getKwekerAveragePrice(currentKwekerId),
+				getLatestPrices(10),
+				getOverallAveragePrice(),
+			]);
+			setKwekerHistory(kwekerHistoryResp.data ?? []);
+			setKwekerAverage(kwekerAvgResp.data ?? null);
+			setAllHistory(allHistoryResp.data ?? []);
+			setOverallAverage(overallAvgResp.data ?? null);
+		} catch (err) {
+			console.error('Failed to fetch price history:', err);
+		} finally {
+			setHistoryLoading(false);
+		}
 	}, [currentKwekerId]);
 
 	// afbeelding bron per product
@@ -324,6 +321,14 @@ function UserDashboard() {
 										}
 									}}
 								/>
+								<Button
+									className="user-action-btn btn-outline"
+									label="Prijshistorie"
+									onClick={() => {
+										setShowHistoryModal(true);
+										loadHistory();
+									}}
+								/>
 								<div className="buy-inline">
 									<input
 										type="number"
@@ -468,6 +473,55 @@ function UserDashboard() {
 					</ul>
 				</div>
 			</footer>
+			{showHistoryModal && (
+				<div className="modal-overlay" onClick={() => setShowHistoryModal(false)}>
+					<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+						<div className="modal-header">
+							<h3>Prijshistorie</h3>
+							<button className="modal-close" onClick={() => setShowHistoryModal(false)} aria-label="Sluiten">
+								?
+							</button>
+						</div>
+						<div className="modal-body">
+							<h4>Laatste 10 prijzen (kweker)</h4>
+							{historyLoading ? (
+								<div className="text-gray-500">Laden...</div>
+							) : kwekerHistory.length === 0 ? (
+								<div className="text-gray-500">Geen data</div>
+							) : (
+								<ul className="user-footer-list">
+									{kwekerHistory.map((item) => (
+										<li key={`${item.productId}-${item.purchasedAt}`}>
+											{new Date(item.purchasedAt).toLocaleDateString()} - {item.productName} - {formatEur(item.price)}
+										</li>
+									))}
+								</ul>
+							)}
+							<p className="text-gray-500">
+								Gemiddelde prijs (kweker): {kwekerAverage ? formatEur(kwekerAverage.averagePrice) : '-'}
+							</p>
+
+							<h4 className="mt-4">Laatste 10 prijzen (alle kwekers)</h4>
+							{historyLoading ? (
+								<div className="text-gray-500">Laden...</div>
+							) : allHistory.length === 0 ? (
+								<div className="text-gray-500">Geen data</div>
+							) : (
+								<ul className="user-footer-list">
+									{allHistory.map((item) => (
+										<li key={`${item.productId}-${item.purchasedAt}-all`}>
+											{item.kwekerName} - {new Date(item.purchasedAt).toLocaleDateString()} - {formatEur(item.price)}
+										</li>
+									))}
+								</ul>
+							)}
+							<p className="text-gray-500">
+								Gemiddelde prijs (alle orders): {overallAverage ? formatEur(overallAverage.averagePrice) : '-'}
+							</p>
+						</div>
+					</div>
+				</div>
+			)}
 		</Page>
 	);
 }
