@@ -189,6 +189,9 @@ export const resources = {
 			pause_veiling_klok: 'Pause Veilingklok',
 			resume_veiling_klok: 'Hervat Veilingklok',
 			live_views: 'Live weergaven',
+			updating_veilingklok: 'Veilingklok bijwerken...',
+			veilingklok_updated: 'Veilingklok succesvol bijgewerkt',
+			veilingklok_update_error: 'Fout bij het bijwerken van veilingklok',
 
 			// Clock Text
 			munt: 'Munt',

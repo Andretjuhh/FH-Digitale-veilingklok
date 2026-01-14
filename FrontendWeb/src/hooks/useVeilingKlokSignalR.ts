@@ -7,7 +7,8 @@ import config from '../constant/application';
 
 interface UseVeilingKlokSignalRProps {
 	hubUrl?: string;
-	regionGroupName: string;
+	country?: string;
+	region: string;
 	clockRef: React.RefObject<AuctionClockRef | null>;
 	onVeilingStarted?: (state: RegionVeilingStartedNotification) => void;
 	onVeilingEnded?: () => void;
@@ -20,7 +21,7 @@ interface UseVeilingKlokSignalRProps {
 }
 
 export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
-	const { hubUrl = config.KLOK_HUB_URL, regionGroupName, clockRef, onVeilingStarted, onVeilingEnded, onBidPlaced, onProductChanged, onAuctionEnded, onViewerCountChanged, onPriceTick, onProductWaitingForNext } = props;
+	const { hubUrl = config.KLOK_HUB_URL, country = 'Nederlands', region, clockRef, onVeilingStarted, onVeilingEnded, onBidPlaced, onProductChanged, onAuctionEnded, onViewerCountChanged, onPriceTick, onProductWaitingForNext } = props;
 
 	const connectionRef = useRef<signalR.HubConnection | null>(null);
 	const [klokConnectionStatus, setKlokConnectionStatus] = useState<signalR.HubConnectionState>(signalR.HubConnectionState.Disconnected);
@@ -107,7 +108,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 			console.log('SignalR reconnected:', connectionId);
 			setKlokConnectionStatus(signalR.HubConnectionState.Connected);
 			// Rejoin the group after reconnection
-			connection.invoke('JoinRegionGroup', regionGroupName).catch((err) => {
+			connection.invoke('JoinRegionGroup', region).catch((err) => {
 				console.error('Failed to rejoin group:', err);
 			});
 		});
@@ -125,8 +126,8 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 			setKlokConnectionStatus(signalR.HubConnectionState.Connected);
 
 			// Join the region group
-			await connection.invoke('JoinRegion', regionGroupName);
-			console.log(`Joined region group: ${regionGroupName}`);
+			await joinRegion(country, region);
+			console.log(`Joined region group: ${country}, ${region}`);
 
 			connectionRef.current = connection;
 		} catch (error) {
@@ -134,11 +135,11 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 			connectionRef.current = null;
 			setKlokConnectionStatus(signalR.HubConnectionState.Disconnected);
 		}
-	}, [hubUrl, regionGroupName, clockRef, onVeilingStarted, onVeilingEnded, onBidPlaced, onProductChanged, onAuctionEnded, onViewerCountChanged, onPriceTick, onProductWaitingForNext]);
+	}, [hubUrl, region, clockRef, onVeilingStarted, onVeilingEnded, onBidPlaced, onProductChanged, onAuctionEnded, onViewerCountChanged, onPriceTick, onProductWaitingForNext]);
 	const disconnect = useCallback(async () => {
 		if (connectionRef.current) {
 			try {
-				await connectionRef.current.invoke('LeaveRegionGroup', regionGroupName);
+				await connectionRef.current.invoke('LeaveRegionGroup', region);
 				await connectionRef.current.stop();
 				console.log('SignalR disconnected');
 			} catch (error) {
@@ -146,7 +147,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 			}
 			connectionRef.current = null;
 		}
-	}, [regionGroupName]);
+	}, [region]);
 
 	const joinRegion = useCallback(async (country: string, region: string) => {
 		if (connectionRef.current?.state === signalR.HubConnectionState.Connected) {
@@ -154,7 +155,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 				await connectionRef.current.invoke('JoinRegion', country, region);
 				console.log(`Joined region: ${country}, ${region}`);
 			} catch (error) {
-				console.error('Error joining region:', error);
+				console.error(`Error joining region: ${country}, ${region}`, error);
 			}
 		}
 	}, []);
@@ -165,7 +166,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 				await connectionRef.current.invoke('LeaveRegion', country, region);
 				console.log(`Left region: ${country}, ${region}`);
 			} catch (error) {
-				console.error('Error leaving region:', error);
+				console.error(`Error leaving region: ${country}, ${region}`, error);
 			}
 		}
 	}, []);
@@ -178,7 +179,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 				console.log(`Joined clock: ${klokId}`);
 				setKlokConnectionStatus(signalR.HubConnectionState.Connected);
 			} catch (error) {
-				console.error('Error joining clock:', error);
+				console.error(`Error joining clock: ${klokId}`, error);
 				setKlokConnectionStatus(signalR.HubConnectionState.Disconnected);
 			}
 		}
@@ -191,7 +192,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 				console.log(`Left clock: ${klokId}`);
 				setKlokConnectionStatus(signalR.HubConnectionState.Disconnected);
 			} catch (error) {
-				console.error('Error leaving clock:', error);
+				console.error(`Error leaving clock: ${klokId}`, error);
 			}
 		}
 	}, []);

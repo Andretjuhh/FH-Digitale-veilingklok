@@ -281,7 +281,7 @@ export default function VeilingmeesterDashboard() {
 		}
 
 		if (!hasVeilingStarted) {
-			await updateVeilingKlokStatus(currentVeiling.id, 'Started');
+			await updateVeilingKlokStatus(currentVeiling.id, 'Started' as any);
 			setHasVeilingStarted(true);
 		}
 		await startVeilingProduct(currentVeiling.id, activeProduct.id);
@@ -337,7 +337,7 @@ export default function VeilingmeesterDashboard() {
 	const endVeiling = async () => {
 		if (currentVeiling) {
 			if (!useDevQueue || persistedDevVeiling) {
-				await updateVeilingKlokStatus(currentVeiling.id, 'Ended');
+				await updateVeilingKlokStatus(currentVeiling.id, 'Ended' as any);
 			}
 
 			setHistory((h) => [

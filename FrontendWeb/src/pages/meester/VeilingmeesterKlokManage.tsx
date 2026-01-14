@@ -5,18 +5,18 @@ import {useParams} from 'react-router-dom';
 import {useComponentStateReducer} from '../../hooks/useComponentStateReducer';
 import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
 import {delay, formatDate, formatEur, getNormalizedVeilingKlokStatus} from '../../utils/standards';
-import {getVeilingKlok} from '../../controllers/server/veilingmeester';
+import {getVeilingKlok, updateVeilingKlokStatus} from '../../controllers/server/veilingmeester';
 import {isHttpError} from '../../declarations/types/HttpError';
-import ComponentState from '../../components/elements/ComponentState';
+import ComponentState, {ComponentStateCard} from '../../components/elements/ComponentState';
 import Button from '../../components/buttons/Button';
 import {KlokStatusBadge} from '../../components/elements/StatusBadge';
 import AuctionClock, {AuctionClockRef} from '../../components/elements/AuctionClock';
 import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
-import ClockProductCard from "../../components/cards/ClockProductCard";
-import {HubConnectionState} from "@microsoft/signalr";
-import clsx from "clsx";
-import {useVeilingKlokSignalR} from "../../hooks/useVeilingKlokSignalR";
+import ClockProductCard from '../../components/cards/ClockProductCard';
+import clsx from 'clsx';
+import {useVeilingKlokSignalR} from '../../hooks/useVeilingKlokSignalR';
+import Modal from '../../components/elements/Modal';
 
 function VeilingmeesterKlokManage() {
 	const {klokId: id} = useParams<{ klokId: string }>();
@@ -25,7 +25,6 @@ function VeilingmeesterKlokManage() {
 	const klokRef = useRef<AuctionClockRef | null>(null);
 
 	// Component state
-	const klokSignalR = useVeilingKlokSignalR({regionGroupName: account?.region!, clockRef: klokRef});
 	const [state, updateState] = useComponentStateReducer();
 	const [actionState, updateActionState] = useComponentStateReducer();
 	const [currentVeilingKlok, setCurrentVeilingKlok] = useState<VeilingKlokOutputDto>();
@@ -43,7 +42,6 @@ function VeilingmeesterKlokManage() {
 		companyName: 'Bloemenexport BV',
 		auctionPlanned: true,
 	});
-	const [paginatedProductsState, setPaginatedProductsState] = useComponentStateReducer();
 	const onClose = () => navigate('/veilingmeester/veilingen-beheren');
 
 	useEffect(() => {
@@ -66,16 +64,45 @@ function VeilingmeesterKlokManage() {
 		}
 	}, [id]);
 
+	const updateKlokStatus = async (status: VeilingKlokStatus) => {
+		if (!currentVeilingKlok) return;
+		try {
+			updateActionState({type: 'loading', message: t('updating_veilingklok')});
+			await updateVeilingKlokStatus(currentVeilingKlok.id, status);
+			await delay(1500);
+			updateActionState({type: 'succeed', message: t('veilingklok_updated')});
+
+			// Update prev state with the new status
+			setCurrentVeilingKlok({
+				...currentVeilingKlok,
+				status: status,
+			});
+		} catch (e: any) {
+			if (isHttpError(e) && e.message) updateActionState({type: 'error', message: e.message});
+			else updateActionState({type: 'error', message: t('veilingklok_update_error')});
+		} finally {
+			await delay(2000);
+			updateActionState({type: 'idle'});
+		}
+	};
 	const startVeilingKlok = useCallback(async () => {
+		await updateKlokStatus(VeilingKlokStatus.Started);
 	}, [id]);
 	const stopVeilingKlok = useCallback(async () => {
+		await updateKlokStatus(VeilingKlokStatus.Stopped);
 	}, [id]);
 	const pauseVeilingKlok = useCallback(async () => {
+		await updateKlokStatus(VeilingKlokStatus.Paused);
 	}, [id]);
 	const resumeVeilingKlok = useCallback(async () => {
+		await updateKlokStatus(VeilingKlokStatus.Started);
 	}, [id]);
 	const startProductVeiling = useCallback(async (productId: string) => {
+
 	}, [id]);
+
+	// Veiling klok SignalR hook
+	const klokSignalR = useVeilingKlokSignalR({region: account?.region!, clockRef: klokRef});
 
 	return (
 		<Page enableHeader className="vm-veiling-info-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
@@ -92,15 +119,10 @@ function VeilingmeesterKlokManage() {
 									</h2>
 
 									<div className={'vm-veiling-info-status !ml-auto'}>
-											<span
-												className={clsx(
-													`app-table-status-badge text-[0.875rem]`,
-													"app-table-status-" + HubConnectionState.Connected.toLowerCase()
-												)}
-											>
-												<i className="app-table-status-icon bi-wifi"/>
-												{t('Connected')}
-											</span>
+										<span className={clsx(`app-table-status-badge text-[0.875rem]`, 'app-table-status-' + klokSignalR.klokConnectionStatus.toLowerCase())}>
+											<i className="app-table-status-icon bi-wifi"/>
+											{t(klokSignalR.klokConnectionStatus as any)}
+										</span>
 									</div>
 								</div>
 
@@ -132,41 +154,21 @@ function VeilingmeesterKlokManage() {
 											</div>
 
 											{currentVeilingKlok.status === ('Scheduled' as any) &&
-												<Button
-													className={'vm-veiling-info-klok-action-primary-btn start'}
-													label={t('start_veiling_klok')}
-													icon="bi-play-fill"
-													onClick={startVeilingKlok}
-												/>
-											}
+												<Button className={'vm-veiling-info-klok-action-primary-btn start'} label={t('start_veiling_klok')} icon="bi-play-fill"
+												        onClick={startVeilingKlok}/>}
 
 											{currentVeilingKlok.status === ('Started' as any) &&
-												<Button
-													className={'vm-veiling-info-klok-action-primary-btn pause'}
-													label={t('pause_veiling_klok')}
-													icon="bi-pause-fill"
-													onClick={pauseVeilingKlok}
-												/>
-											}
+												<Button className={'vm-veiling-info-klok-action-primary-btn pause'} label={t('pause_veiling_klok')} icon="bi-pause-fill"
+												        onClick={pauseVeilingKlok}/>}
 
-											{
-												currentVeilingKlok.status === ('Paused' as any) &&
-												<Button
-													className={'vm-veiling-info-klok-action-primary-btn resume'}
-													label={t('resume_veiling_klok')}
-													icon="bi-play-fill"
-													onClick={resumeVeilingKlok}
-												/>
-											}
+											{currentVeilingKlok.status === ('Paused' as any) &&
+												<Button className={'vm-veiling-info-klok-action-primary-btn resume'} label={t('resume_veiling_klok')} icon="bi-play-fill"
+												        onClick={resumeVeilingKlok}/>}
 
 											{getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! !== VeilingKlokStatus.Scheduled && getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! < VeilingKlokStatus.Ended && (
 												<>
-													<Button
-														className={'vm-veiling-info-klok-action-secondary-btn end'}
-														label={t('stop_veiling_klok')}
-														icon="bi-stop-fill"
-														onClick={stopVeilingKlok}
-													/>
+													<Button className={'vm-veiling-info-klok-action-secondary-btn end'} label={t('stop_veiling_klok')} icon="bi-stop-fill"
+													        onClick={stopVeilingKlok}/>
 												</>
 											)}
 										</div>
@@ -267,6 +269,10 @@ function VeilingmeesterKlokManage() {
 				)}
 
 				{(state.type !== 'idle' || currentVeilingKlok) && <ComponentState state={state}/>}
+
+				<Modal enabled={actionState.type !== 'idle'} onClose={() => actionState.type !== 'loading' && updateActionState({type: 'idle'})}>
+					<ComponentStateCard state={actionState}/>
+				</Modal>
 			</main>
 		</Page>
 	);

@@ -179,7 +179,7 @@ export async function removeProductFromVeilingKlok(klokId: string, productId: st
 }
 
 // Update veilingklok status (PUT /api/account/meester/veilingklok/{klokId}/status?status=)
-export async function updateVeilingKlokStatus(klokId: string, status: string): Promise<HttpSuccess<string>> {
+export async function updateVeilingKlokStatus(klokId: string, status: VeilingKlokStatus): Promise<HttpSuccess<string>> {
 	return fetchResponse<HttpSuccess<string>>(`/api/account/meester/veilingklok/${klokId}/status?status=${status}`, {
 		method: 'PUT',
 	});

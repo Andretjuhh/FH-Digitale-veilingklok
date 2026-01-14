@@ -53,7 +53,7 @@ public class TokenService : ITokenService
     public ClaimsPrincipal? ValidateAccessToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_configuration.Secret);
+        var key = Encoding.UTF8.GetBytes(_configuration.Secret);
 
         try
         {
@@ -66,7 +66,7 @@ public class TokenService : ITokenService
                 ValidateAudience = true,
                 ValidAudience = _configuration.Audience,
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero // No tolerance for expiration
+                ClockSkew = TimeSpan.Zero, // No tolerance for expiration
             };
 
             var principal = tokenHandler.ValidateToken(
@@ -95,7 +95,7 @@ public class TokenService : ITokenService
 
     public (string token, Guid jti, DateTimeOffset expireAt) GenerateAccessToken(Account account)
     {
-        var key = Encoding.ASCII.GetBytes(_configuration.Secret);
+        var key = Encoding.UTF8.GetBytes(_configuration.Secret);
         var expires = DateTimeOffset.UtcNow.AddMinutes(_configuration.AccessTokenExpirationMinutes);
 
         // Create claims for the token
@@ -104,7 +104,7 @@ public class TokenService : ITokenService
             new(ClaimTypes.NameIdentifier, account.Id.ToString()),
             new(ClaimTypes.Email, account.Email),
             new(ClaimTypes.Role, account.AccountType.ToString()),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Token ID
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // Token ID
         };
 
         // Extract the JTI claim value
@@ -123,7 +123,7 @@ public class TokenService : ITokenService
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature
-            )
+            ),
         };
 
         // Token creation
@@ -144,7 +144,7 @@ public class TokenService : ITokenService
             Token = token,
             Jti = jti,
             AccountId = accountId,
-            ExpiresAt = DateTimeOffset.UtcNow.AddDays(_configuration.RefreshTokenExpirationDays)
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(_configuration.RefreshTokenExpirationDays),
         };
     }
 
@@ -162,18 +162,17 @@ public class TokenService : ITokenService
             Secure = _httpContextAccessor.HttpContext?.Request.IsHttps ?? true, // Only send over HTTPS in production
             IsEssential = true, // Necessary for the site to function
             SameSite = SameSiteMode.Strict, // Prevent CSRF attacks
-            Expires = refreshToken.ExpiresAt // Set the cookie expiry to match the refresh token expiry
+            Expires = refreshToken.ExpiresAt, // Set the cookie expiry to match the refresh token expiry
         };
 
-        SetCookie("refreshToken", refreshToken.Token,
-            cookieOptions); // Assuming RefreshToken entity has a 'Token' property
+        SetCookie("refreshToken", refreshToken.Token, cookieOptions); // Assuming RefreshToken entity has a 'Token' property
 
         return (
             new AuthOutputDto
             {
                 AccessToken = accessToken,
                 AccessTokenExpiresAt = expires,
-                AccountType = account.AccountType
+                AccountType = account.AccountType,
             },
             refreshToken
         );
@@ -206,7 +205,7 @@ public class TokenService : ITokenService
         var options = new CookieOptions
         {
             Expires = DateTimeOffset.UtcNow.AddDays(-1),
-            HttpOnly = true
+            HttpOnly = true,
         };
         _httpContextAccessor.HttpContext?.Response.Cookies.Append(key, "", options);
     }
