@@ -11,4 +11,5 @@ public class ProductOutputDto
     public required string Dimension { get; set; }
     public required int Stock { get; set; }
     public required string CompanyName { get; set; }
+    public required Guid KwekerId { get; set; }
 }

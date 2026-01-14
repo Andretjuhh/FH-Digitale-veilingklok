@@ -204,6 +204,7 @@ export default function KwekerDashboard() {
 																	dimension: p.dimension,
 																	stock: p.stock,
 																	companyName: p.companyName,
+																	kwekerId: p.kwekerId,
 																};
 																setProducts((prev) => [mapped, ...prev]);
 																setCreatedProducts((prev) => [mapped, ...prev]);

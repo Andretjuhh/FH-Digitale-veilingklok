@@ -146,6 +146,66 @@ public class ProductRepository : IProductRepository
         return results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
     }
 
+    public async Task<List<PriceHistoryItem>> GetLatestPricesByKwekerAsync(Guid kwekerId, int limit)
+    {
+        var query = _dbContext.OrderItems
+            .Join(_dbContext.Products, oi => oi.ProductId, p => p.Id, (oi, p) => new { oi, p })
+            .Join(_dbContext.Kwekers, x => x.p.KwekerId, k => k.Id, (x, k) => new { x.oi, x.p, k })
+            .Where(x => x.p.KwekerId == kwekerId)
+            .OrderByDescending(x => x.oi.CreatedAt)
+            .Take(limit)
+            .Select(x => new PriceHistoryItem(
+                x.p.Id,
+                x.p.Name,
+                x.k.Id,
+                x.k.CompanyName,
+                x.oi.PriceAtPurchase,
+                x.oi.CreatedAt
+            ));
+
+        return await query.ToListAsync();
+    }
+
+    public async Task<List<PriceHistoryItem>> GetLatestPricesAsync(int limit)
+    {
+        var query = _dbContext.OrderItems
+            .Join(_dbContext.Products, oi => oi.ProductId, p => p.Id, (oi, p) => new { oi, p })
+            .Join(_dbContext.Kwekers, x => x.p.KwekerId, k => k.Id, (x, k) => new { x.oi, x.p, k })
+            .OrderByDescending(x => x.oi.CreatedAt)
+            .Take(limit)
+            .Select(x => new PriceHistoryItem(
+                x.p.Id,
+                x.p.Name,
+                x.k.Id,
+                x.k.CompanyName,
+                x.oi.PriceAtPurchase,
+                x.oi.CreatedAt
+            ));
+
+        return await query.ToListAsync();
+    }
+
+    public async Task<KwekerPriceAverage?> GetAveragePriceByKwekerAsync(Guid kwekerId, int? limit)
+    {
+        var baseQuery = _dbContext.OrderItems
+            .Join(_dbContext.Products, oi => oi.ProductId, p => p.Id, (oi, p) => new { oi, p })
+            .Join(_dbContext.Kwekers, x => x.p.KwekerId, k => k.Id, (x, k) => new { x.oi, x.p, k })
+            .Where(x => x.p.KwekerId == kwekerId);
+
+        if (limit.HasValue && limit.Value > 0)
+            baseQuery = baseQuery.OrderByDescending(x => x.oi.CreatedAt).Take(limit.Value);
+
+        var items = await baseQuery
+            .Select(x => new { x.k.Id, x.k.CompanyName, x.oi.PriceAtPurchase })
+            .ToListAsync();
+
+        if (items.Count == 0)
+            return null;
+
+        var average = items.Average(x => x.PriceAtPurchase);
+        return new KwekerPriceAverage(kwekerId, items[0].CompanyName, average, items.Count);
+    }
+
     public async Task<(
         IEnumerable<(Product Product, KwekerInfo Kweker)> Items,
         int TotalCount

@@ -13,6 +13,8 @@ import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutp
 import { OrderItemOutputDto } from '../../declarations/dtos/output/OrderItemOutputDto';
 import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
 import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import { PriceHistoryItemOutputDto } from '../../declarations/dtos/output/PriceHistoryItemOutputDto';
+import { KwekerAveragePriceOutputDto } from '../../declarations/dtos/output/KwekerAveragePriceOutputDto';
 
 // Create koper account (POST /api/account/koper/create)
 export async function createKoperAccount(account: CreateKoperDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -97,4 +99,20 @@ export async function getProducts(nameFilter?: string, maxPrice?: number, kweker
 // Get veilingklok (GET /api/account/koper/veilingklok/{klokId})
 export async function getVeilingKlok(klokId: string): Promise<HttpSuccess<VeilingKlokOutputDto>> {
 	return fetchResponse<HttpSuccess<VeilingKlokOutputDto>>(`/api/account/koper/veilingklok/${klokId}`);
+}
+
+// Get last prices for a kweker (GET /api/account/koper/kweker/{kwekerId}/prices)
+export async function getKwekerPriceHistory(kwekerId: string, limit: number = 10): Promise<HttpSuccess<PriceHistoryItemOutputDto[]>> {
+	return fetchResponse<HttpSuccess<PriceHistoryItemOutputDto[]>>(`/api/account/koper/kweker/${kwekerId}/prices?limit=${limit}`);
+}
+
+// Get average price for a kweker (GET /api/account/koper/kweker/{kwekerId}/price-average)
+export async function getKwekerAveragePrice(kwekerId: string, limit?: number): Promise<HttpSuccess<KwekerAveragePriceOutputDto>> {
+	const query = typeof limit === 'number' ? `?limit=${limit}` : '';
+	return fetchResponse<HttpSuccess<KwekerAveragePriceOutputDto>>(`/api/account/koper/kweker/${kwekerId}/price-average${query}`);
+}
+
+// Get last prices across all kwekers (GET /api/account/koper/prices)
+export async function getLatestPrices(limit: number = 10): Promise<HttpSuccess<PriceHistoryItemOutputDto[]>> {
+	return fetchResponse<HttpSuccess<PriceHistoryItemOutputDto[]>>(`/api/account/koper/prices?limit=${limit}`);
 }

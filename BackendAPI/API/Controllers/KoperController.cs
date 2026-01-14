@@ -136,6 +136,36 @@ public class KoperController : ControllerBase
         return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }
 
+    [HttpGet("kweker/{kwekerId}/prices")]
+    public async Task<IActionResult> GetKwekerPriceHistory(
+        Guid kwekerId,
+        [FromQuery] int limit = 10
+    )
+    {
+        var query = new GetKwekerPriceHistoryQuery(kwekerId, limit);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<List<PriceHistoryItemOutputDto>>.Ok(result);
+    }
+
+    [HttpGet("kweker/{kwekerId}/price-average")]
+    public async Task<IActionResult> GetKwekerAveragePrice(
+        Guid kwekerId,
+        [FromQuery] int? limit = null
+    )
+    {
+        var query = new GetKwekerAveragePriceQuery(kwekerId, limit);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<KwekerAveragePriceOutputDto>.Ok(result);
+    }
+
+    [HttpGet("prices")]
+    public async Task<IActionResult> GetLatestPrices([FromQuery] int limit = 10)
+    {
+        var query = new GetLatestPricesQuery(limit);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<List<PriceHistoryItemOutputDto>>.Ok(result);
+    }
+
     [HttpGet("veilingklok/{klokId}")]
     public async Task<IActionResult> GetVeilingKlok(Guid klokId)
     {

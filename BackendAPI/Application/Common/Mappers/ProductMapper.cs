@@ -64,6 +64,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                     ImageUrl = entity.ImageUrl,
                     Dimension = entity.Dimension,
                     CompanyName = kweker.CompanyName,
+                    KwekerId = kweker.Id,
                 };
 
         public static ProductOutputDto ToOutputDto(Product entity, KwekerInfo kweker)
@@ -79,6 +80,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                 ImageUrl = entity.ImageUrl,
                 Dimension = entity.Dimension,
                 CompanyName = kweker.CompanyName,
+                KwekerId = kweker.Id,
             };
         }
     }

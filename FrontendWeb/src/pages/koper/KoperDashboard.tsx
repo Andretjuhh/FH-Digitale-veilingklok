@@ -8,19 +8,39 @@ import Button from '../../components/buttons/Button';
 import AuctionClock from '../../components/elements/AuctionClock';
 import { useRootContext } from '../../components/contexts/RootContext';
 import { getAuthentication } from '../../controllers/server/account';
-import { getProducts, orderProduct } from '../../controllers/server/koper';
+import {
+	createOrder,
+	getProducts,
+	orderProduct,
+	getVeilingKlok,
+	getKwekerAveragePrice,
+	getKwekerPriceHistory,
+	getLatestPrices,
+} from '../../controllers/server/koper';
 import config from '../../constant/application';
 import { RegionVeilingStartedNotification, VeilingPriceTickNotification, VeilingProductChangedNotification } from '../../declarations/models/VeilingNotifications';
 import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import { PriceHistoryItemOutputDto } from '../../declarations/dtos/output/PriceHistoryItemOutputDto';
+import { KwekerAveragePriceOutputDto } from '../../declarations/dtos/output/KwekerAveragePriceOutputDto';
+import { formatEur } from '../../utils/standards';
 
 function UserDashboard() {
 	const { t, account } = useRootContext();
 	const CLOCK_SECONDS = 4;
+	const DEFAULT_COUNTRY = 'NL';
+	const DEFAULT_REGION = 'Noord-Holland';
 	const [price, setPrice] = useState<number>(0.65);
 	const [products, setProducts] = useState<ProductOutputDto[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [productIndex, setProductIndex] = useState<number>(0);
 	const [isClockRunning, setIsClockRunning] = useState(false);
+	const [clockId, setClockId] = useState<string | null>(null);
+	const [orderId, setOrderId] = useState<string | null>(null);
+	const [isHydratingClock, setIsHydratingClock] = useState<boolean>(false);
+	const [kwekerHistory, setKwekerHistory] = useState<PriceHistoryItemOutputDto[]>([]);
+	const [kwekerAverage, setKwekerAverage] = useState<KwekerAveragePriceOutputDto | null>(null);
+	const [allHistory, setAllHistory] = useState<PriceHistoryItemOutputDto[]>([]);
+	const [historyLoading, setHistoryLoading] = useState<boolean>(false);
 	const connectionRef = useRef<HubConnection | null>(null);
 
 	const initializeProducts = useCallback(async () => {
@@ -37,11 +57,41 @@ function UserDashboard() {
 		}
 	}, []);
 
+	const current = products[productIndex];
+	const currentKwekerId = current?.kwekerId ?? null;
+
 	useEffect(() => {
 		initializeProducts();
 	}, [initializeProducts]);
 
-	const current = products[productIndex];
+	useEffect(() => {
+		if (!currentKwekerId) return;
+		let isActive = true;
+		setHistoryLoading(true);
+		Promise.all([
+			getKwekerPriceHistory(currentKwekerId, 10),
+			getKwekerAveragePrice(currentKwekerId),
+			getLatestPrices(10),
+		])
+			.then(([kwekerHistoryResp, kwekerAvgResp, allHistoryResp]) => {
+				if (!isActive) return;
+				setKwekerHistory(kwekerHistoryResp.data ?? []);
+				setKwekerAverage(kwekerAvgResp.data ?? null);
+				setAllHistory(allHistoryResp.data ?? []);
+			})
+			.catch((err) => {
+				if (!isActive) return;
+				console.error('Failed to fetch price history:', err);
+			})
+			.finally(() => {
+				if (isActive) setHistoryLoading(false);
+			});
+
+		return () => {
+			isActive = false;
+		};
+	}, [currentKwekerId]);
+
 	// afbeelding bron per product
 	const [imgSrc, setImgSrc] = useState<string>('');
 	useEffect(() => {
@@ -68,9 +118,8 @@ function UserDashboard() {
 	const [resetToken, setResetToken] = useState<number>(0);
 
 	useEffect(() => {
-		const country = account?.countryCode ?? account?.address?.country;
-		const region = account?.region ?? account?.address?.regionOrState;
-		if (!country || !region) return;
+		const country = account?.countryCode ?? account?.address?.country ?? DEFAULT_COUNTRY;
+		const region = account?.region ?? account?.address?.regionOrState ?? DEFAULT_REGION;
 		let isActive = true;
 
 		const startSignalR = async () => {
@@ -87,9 +136,23 @@ function UserDashboard() {
 
 			connection.on('RegionVeilingStarted', (notification: RegionVeilingStartedNotification) => {
 				if (!isActive) return;
+				setClockId(notification.clockId);
+				setOrderId(null);
 				setIsClockRunning(true);
 				setPaused(false);
 				setResetToken((v) => v + 1);
+				setIsHydratingClock(true);
+				getVeilingKlok(notification.clockId)
+					.then((resp) => {
+						const list = resp?.data?.products ?? [];
+						setProducts(list);
+						setProductIndex(0);
+						if (list[0]) {
+							setPrice(list[0].auctionedPrice ?? 0.65);
+						}
+					})
+					.catch((err) => console.error('Failed to hydrate veilingklok:', err))
+					.finally(() => setIsHydratingClock(false));
 				connection.invoke('JoinClock', notification.clockId).catch((err) => {
 					console.error('JoinClock failed:', err);
 				});
@@ -103,6 +166,11 @@ function UserDashboard() {
 			connection.on('VeilingProductChanged', (notification: VeilingProductChangedNotification) => {
 				if (!isActive) return;
 				setPrice(notification.startingPrice);
+				setProducts((prev) => {
+					const idx = prev.findIndex((p) => p.id === notification.productId);
+					if (idx >= 0) setProductIndex(idx);
+					return prev;
+				});
 			});
 
 			connection.on('VeilingEnded', () => {
@@ -145,7 +213,7 @@ function UserDashboard() {
 		setQty((q) => Math.max(0, Math.min(currentStock, q)));
 	}, [currentStock, productIndex]);
 
-	if (loading) {
+	if (loading || isHydratingClock) {
 		return (
 			<Page enableHeader className="user-dashboard">
 				<div className="flex items-center justify-center h-64">
@@ -231,30 +299,25 @@ function UserDashboard() {
 									className="user-action-btn !bg-primary-main buy-full"
 									label={`${t('koper_buy')} (${qty})`}
 									onClick={async () => {
-										if (qty <= 0) return;
+										if (qty <= 0 || !current) return;
 										setPaused(true);
 										try {
-											// In a real app, we'd need an orderId.
-											// For now, we might need to create an order first or use a default one.
-											// The backend has createOrder.
-											// Let's assume for this demo we just call orderProduct with a dummy orderId if none exists.
-											// Or better, just show a success message for now if we don't have the full flow.
-											// But the user asked to "fix this" and "make it match".
+											let currentOrderId = orderId;
+											if (!currentOrderId && clockId) {
+												const orderResp = await createOrder({ veilingKlokId: clockId });
+												currentOrderId = (orderResp as any)?.data?.id ?? (orderResp as any)?.data?.data?.id ?? null;
+												if (currentOrderId) setOrderId(currentOrderId);
+											}
 
-											// For now, let's just simulate the stock reduction locally and move to next product if empty
-											// as the backend integration for "buying" on the clock is complex (SignalR usually).
+											if (!currentOrderId) throw new Error('Geen orderId beschikbaar om aankoop te plaatsen.');
 
-											const nextStock = currentStock - qty;
+											await orderProduct(currentOrderId, current.id, qty);
+
+											const nextStock = Math.max(0, currentStock - qty);
 											setProducts((prev) => prev.map((p, i) => (i === productIndex ? { ...p, stock: nextStock } : p)));
-
-											setTimeout(() => {
-												setResetToken((v) => v + 1);
-												setPrice(current.auctionedPrice ?? 0.65);
-												setPaused(false);
-												if (nextStock <= 0) {
-													setProductIndex((i) => (i + 1) % products.length);
-												}
-											}, 500);
+											setResetToken((v) => v + 1);
+											setPrice(current.auctionedPrice ?? 0.65);
+											if (nextStock <= 0) setProductIndex((i) => (i + 1) % products.length);
 										} catch (error) {
 											console.error('Order failed:', error);
 											setPaused(false);
@@ -308,6 +371,50 @@ function UserDashboard() {
 								</li>
 							))}
 						</ul>
+						<div className="price-history-block">
+							<h4 className="upcoming-side-title">Laatste 10 prijzen (kweker)</h4>
+							{historyLoading ? (
+								<div className="text-gray-500">Laden...</div>
+							) : kwekerHistory.length === 0 ? (
+								<div className="text-gray-500">Geen data</div>
+							) : (
+								<ul className="upcoming-side-list">
+									{kwekerHistory.map((item) => (
+										<li className="upcoming-side-item" key={`${item.productId}-${item.purchasedAt}`}>
+											<div className="upcoming-side-info">
+												<div className="upcoming-side-name">{item.productName}</div>
+												<div className="upcoming-side-meta">{new Date(item.purchasedAt).toLocaleDateString()}</div>
+											</div>
+											<span className="upcoming-side-badge">{formatEur(item.price)}</span>
+										</li>
+									))}
+								</ul>
+							)}
+							<div className="text-gray-500">
+								Gemiddelde prijs:{' '}
+								{kwekerAverage ? formatEur(kwekerAverage.averagePrice) : '-'}
+							</div>
+						</div>
+						<div className="price-history-block">
+							<h4 className="upcoming-side-title">Laatste 10 prijzen (alle kwekers)</h4>
+							{historyLoading ? (
+								<div className="text-gray-500">Laden...</div>
+							) : allHistory.length === 0 ? (
+								<div className="text-gray-500">Geen data</div>
+							) : (
+								<ul className="upcoming-side-list">
+									{allHistory.map((item) => (
+										<li className="upcoming-side-item" key={`${item.productId}-${item.purchasedAt}-all`}>
+											<div className="upcoming-side-info">
+												<div className="upcoming-side-name">{item.kwekerName}</div>
+												<div className="upcoming-side-meta">{formatEur(item.price)}</div>
+											</div>
+											<span className="upcoming-side-badge">{new Date(item.purchasedAt).toLocaleDateString()}</span>
+										</li>
+									))}
+								</ul>
+							)}
+						</div>
 					</aside>
 				</div>
 			</section>
