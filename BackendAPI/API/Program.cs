@@ -1,7 +1,10 @@
-using API.Extensions;
+﻿using API.Extensions;
 using Application;
 using Infrastructure;
 using Infrastructure.Microservices.SignalR.Hubs;
+using Infrastructure.Persistence.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Threading;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,10 +24,8 @@ builder.Services.AddCors(options =>
             policy
                 .WithOrigins("http://localhost:3000", "https://yourdomain.com")
                 .AllowAnyHeader()
-                .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .AllowCredentials() // REQUIRED for SignalR and credentials: 'include'
-                .WithExposedHeaders("Content-Disposition", "Content-Length")
-                .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
+                .AllowAnyMethod()
+                .AllowCredentials(); // REQUIRED for SignalR
         }
     );
 });
@@ -38,19 +39,36 @@ app.UseSwaggerDocumentation();
 if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 
+app.UseCors("AllowFrontend");
+app.UseExceptionHandler();
 app.UseRouting();
-app.UseCors("AllowFrontend"); // Must come after UseRouting but before authentication
 app.UseAuthentication(); // Must come before UseAuthorization
 app.UseAuthorization();
-app.UseExceptionHandler();
 app.MapControllers();
 
 // This creates the WebSocket endpoint at: ws://localhost:5000/hubs/veiling-klok
 // Clients connect to this URL to establish real-time connection
-app.MapHub<VeilingHub>("/hubs/veiling-klok").RequireCors("AllowFrontend");
+app.MapHub<VeilingHub>("/hubs/veiling-klok");
 
-// Map development endpoints (seeder, testing utilities, etc.)
-app.MapDevelopmentEndpoints();
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    const int maxRetries = 5;
+    for (var attempt = 1; attempt <= maxRetries; attempt++)
+    {
+        try
+        {
+            db.Database.Migrate();
+            break;
+        }
+        catch (Exception ex) when (attempt < maxRetries)
+        {
+            logger.LogWarning(ex, "Database unavailable, retrying ({Attempt}/{Max})...", attempt, maxRetries);
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+        }
+    }
+}
 
 #region Home Page Routing
 

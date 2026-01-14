@@ -1,0 +1,19 @@
+services:
+  backend:
+    build:
+      context: ./BackendAPI
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Server=YOUR_DB_HOST,1433;Database=VeilingKlokDb;User Id=YOUR_DB_USER;Password=YOUR_DB_PASSWORD;TrustServerCertificate=true;"
+    ports:
+      - "5219:5219"
+
+  frontend:
+    build:
+      context: ./FrontendWeb
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
