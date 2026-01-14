@@ -11,6 +11,7 @@ public interface IVeilingKlokEngine
     // Manage Veiling Klok State
     public bool IsVeillingRunning(Guid klokId);
     public Task StartVeilingAsync(Guid klokId);
+    public Task PauseVeilingAsync(Guid klokId);
     public Task StopVeilingAsync(Guid klokId);
     public Task PlaceVeilingBidAsync(Guid klokId, Guid productId, DateTimeOffset placedAt, int quantity);
     public Task ChangeVeilingProductAsync(Guid klokId, Guid newProductId);

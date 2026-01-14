@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260113054023_InitialCreate")]
+    [Migration("20260114155524_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -426,9 +426,13 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("total_products");
 
-                    b.Property<int>("VeilingDurationMinutes")
+                    b.Property<int>("VeilingDurationSeconds")
                         .HasColumnType("int")
                         .HasColumnName("veiling_duration");
+
+                    b.Property<int>("VeilingRounds")
+                        .HasColumnType("int")
+                        .HasColumnName("veiling_rounds");
 
                     b.Property<Guid>("VeilingmeesterId")
                         .HasColumnType("uniqueidentifier")

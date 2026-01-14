@@ -15,6 +15,9 @@ export interface VeilingKlokOutputDto {
 	startedAt: string | null;
 	endedAt: string | null;
 	veilingDurationSeconds: number;
+
+	veilingRounds: number | null;
+	currentProductIndex: number | null;
 	highestBidAmount: number | null;
 	lowestBidAmount: number | null;
 	products: ProductOutputDto[];

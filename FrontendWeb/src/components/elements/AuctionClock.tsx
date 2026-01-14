@@ -1,8 +1,8 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
-import { formatEur } from '../../utils/standards';
-import { useRootContext } from '../contexts/RootContext';
-import { VeilingPriceTickNotification } from '../../declarations/models/VeilingNotifications';
+import React, {forwardRef, useEffect, useImperativeHandle, useMemo, useState} from 'react';
+import {motion} from 'framer-motion';
+import {formatEur} from '../../utils/standards';
+import {useRootContext} from '../contexts/RootContext';
+import {VeilingPriceTickNotification} from '../../declarations/models/VeilingNotifications';
 
 interface AuctionClockProps {
 	// Clock configuration
@@ -38,9 +38,24 @@ export interface AuctionClockRef {
 }
 
 const AuctionClock = forwardRef<AuctionClockRef, AuctionClockProps>((props, ref) => {
-	const { totalDots = 100, dotSize = 3, dotSpacing = 135, highestPrice = 200, lowestPrice = 0, currentPrice: initialPrice, round = 1, coin = 1, amountStock = 150, minAmount = 1, autoStart = false, paused = false, onTick, onComplete } = props;
+	const {
+		totalDots = 100,
+		dotSize = 3,
+		dotSpacing = 135,
+		highestPrice = 200,
+		lowestPrice = 0,
+		currentPrice: initialPrice,
+		round = 1,
+		coin = 1,
+		amountStock = 150,
+		minAmount = 1,
+		autoStart = false,
+		paused = false,
+		onTick,
+		onComplete
+	} = props;
 
-	const { t } = useRootContext();
+	const {t} = useRootContext();
 	const [currentPrice, setCurrentPrice] = useState<number>(initialPrice ?? highestPrice);
 	const [isPaused, setIsPaused] = useState(paused);
 	const [isComplete, setIsComplete] = useState(false);
@@ -72,7 +87,7 @@ const AuctionClock = forwardRef<AuctionClockRef, AuctionClockProps>((props, ref)
 			const angle = -((i / totalDots) * 2 * Math.PI) - Math.PI / 2; // start from top, go counter-clockwise
 			const x = cx + Math.cos(angle) * dotSpacing;
 			const y = cy + Math.sin(angle) * dotSpacing;
-			return { x, y };
+			return {x, y};
 		});
 	}, [totalDots, dotSpacing]);
 

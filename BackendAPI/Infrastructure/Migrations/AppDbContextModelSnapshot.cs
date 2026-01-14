@@ -427,6 +427,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("veiling_duration");
 
+                    b.Property<int>("VeilingRounds")
+                        .HasColumnType("int")
+                        .HasColumnName("veiling_rounds");
+
                     b.Property<Guid>("VeilingmeesterId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("veilingmeester_id");

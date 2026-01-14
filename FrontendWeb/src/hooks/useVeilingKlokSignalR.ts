@@ -1,8 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import * as signalR from '@microsoft/signalr';
-import { AuctionClockRef } from '../components/elements/AuctionClock';
-import { getAuthentication } from '../controllers/server/account';
-import { RegionVeilingStartedNotification, VeilingBodNotification, VeilingPriceTickNotification, VeilingProductChangedNotification, VeilingProductWaitingNotification } from '../declarations/models/VeilingNotifications';
+import {AuctionClockRef} from '../components/elements/AuctionClock';
+import {getAuthentication} from '../controllers/server/account';
+import {
+	RegionVeilingStartedNotification,
+	VeilingBodNotification,
+	VeilingPriceTickNotification,
+	VeilingProductChangedNotification,
+	VeilingProductWaitingNotification
+} from '../declarations/models/VeilingNotifications';
 import config from '../constant/application';
 
 interface UseVeilingKlokSignalRProps {
@@ -21,7 +27,20 @@ interface UseVeilingKlokSignalRProps {
 }
 
 export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
-	const { hubUrl = config.KLOK_HUB_URL, country = 'Nederlands', region, clockRef, onVeilingStarted, onVeilingEnded, onBidPlaced, onProductChanged, onAuctionEnded, onViewerCountChanged, onPriceTick, onProductWaitingForNext } = props;
+	const {
+		hubUrl = config.KLOK_HUB_URL,
+		country = 'NL',
+		region,
+		clockRef,
+		onVeilingStarted,
+		onVeilingEnded,
+		onBidPlaced,
+		onProductChanged,
+		onAuctionEnded,
+		onViewerCountChanged,
+		onPriceTick,
+		onProductWaitingForNext
+	} = props;
 
 	const connectionRef = useRef<signalR.HubConnection | null>(null);
 	const [klokConnectionStatus, setKlokConnectionStatus] = useState<signalR.HubConnectionState>(signalR.HubConnectionState.Disconnected);
@@ -92,7 +111,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 		});
 
 		connection.on('ProductWaitingForNext', (klokId: string, completedProductId: string) => {
-			const notification: VeilingProductWaitingNotification = { clockId: klokId, completedProductId };
+			const notification: VeilingProductWaitingNotification = {clockId: klokId, completedProductId};
 			console.log('Product waiting for next:', notification);
 			clockRef.current?.pause();
 			onProductWaitingForNext?.(notification);

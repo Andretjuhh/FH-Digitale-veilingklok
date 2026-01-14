@@ -65,6 +65,13 @@ public class CustomException : ProcessException
         );
     }
 
+    public static CustomException InvalidVeilingKlokNoProduct()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.INVALID_VEILING_KLOK_NO_PRODUCT");
+    }
+
     public static CustomException CannotChangeRunningVeilingKlok()
     {
         return new CustomException(

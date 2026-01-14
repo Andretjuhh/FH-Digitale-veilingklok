@@ -53,7 +53,7 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        // Disable error WARNING CS4014 
+        // Disable error WARNING CS4014
 #pragma warning disable CS4014
         // Stop all veiling klok activities and clean up timers
         foreach (var veilingKlok in _activeVeilingClocks)
@@ -110,7 +110,7 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
     {
         if (_activeVeilingClocks.TryGetValue(klokId, out var currentState))
             return currentState.Status == VeilingKlokStatus.Started
-                   && !currentState.CurrentProductVeilingEnded();
+                && !currentState.CurrentProductVeilingEnded();
         else
             return false;
     }
@@ -146,6 +146,28 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         StartPriceTicker(klokId, state);
 
         _logger.LogInformation($"Started veiling klok {klokId}");
+        return Task.CompletedTask;
+    }
+
+    // Pause the veiling klok
+    public Task PauseVeilingAsync(Guid klokId)
+    {
+        if (!_activeVeilingClocks.TryGetValue(klokId, out var state))
+        {
+            _logger.LogError($"Cannot pause veiling klok {klokId}: not found in active clocks");
+            return Task.CompletedTask;
+        }
+
+        // Update status
+        state.Status = VeilingKlokStatus.Paused;
+
+        // Stop the price ticker
+        StopPriceTicker(klokId);
+
+        // Notify clients about the pause (state update)
+        _notifier.NotifyPriceTick(GetConnectionGroupName(klokId), state);
+
+        _logger.LogInformation($"Paused veiling klok {klokId}");
         return Task.CompletedTask;
     }
 
@@ -193,7 +215,7 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
 
         // Update product state
         if (quantity > productState.RemainingStock)
-            CustomException.InsufficientStock();
+            throw CustomException.InsufficientStock();
 
         // Place the bid on the product
         productState.PlaceBid(bidPrice, quantity);

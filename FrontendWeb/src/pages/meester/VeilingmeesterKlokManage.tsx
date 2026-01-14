@@ -40,7 +40,7 @@ function VeilingmeesterKlokManage() {
 			await delay(1500);
 			const response = await getVeilingKlok(id as string);
 			setCurrentVeilingKlok(response.data);
-			setCurrentProduct(response.data.products[0]);
+			setCurrentProduct(response.data.products[(response.data.currentProductIndex || 0) % response.data.products.length ?? 0]);
 			updateState({type: 'succeed', message: t('veilingklok_loaded')});
 		} catch (e) {
 			if (isHttpError(e) && e.message) updateState({type: 'error', message: e.message});
@@ -187,7 +187,14 @@ function VeilingmeesterKlokManage() {
 									</div>
 
 									<div className={'vm-veiling-info-klok-ctn'}>
-										<AuctionClock ref={klokRef}/>
+										<AuctionClock
+											ref={klokRef}
+											highestPrice={currentVeilingKlok.highestBidAmount ?? 0}
+											lowestPrice={currentVeilingKlok.lowestBidAmount ?? 0}
+											currentPrice={currentProduct?.auctionedPrice ?? 0}
+											amountStock={currentProduct?.stock ?? 0}
+											round={currentVeilingKlok.veilingRounds ?? 0}
+										/>
 									</div>
 								</div>
 							</div>

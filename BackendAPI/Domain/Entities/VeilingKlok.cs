@@ -14,18 +14,15 @@ public class VeilingKlok
 
     [Column("peaked_live_views")] public int PeakedLiveViews { get; private set; } = 0;
 
-    [Column("bidding_product_index")] public int BiddingProductIndex { get; private set; } = 0;
-
     [Column("veiling_duration")] public required int VeilingDurationSeconds { get; init; } = 0;
 
     [Column("scheduled_at")] public required DateTimeOffset ScheduledAt { get; set; }
-
     [Column("started_at")] public DateTimeOffset? StartedAt { get; private set; }
-
     [Column("ended_at")] public DateTimeOffset? EndedAt { get; private set; }
-
     [Column("created_at")] public DateTimeOffset CreatedAt { get; init; }
 
+    [Column("veiling_rounds")] public int VeilingRounds { get; set; } = 0;
+    [Column("bidding_product_index")] public int BiddingProductIndex { get; private set; } = 0;
     [Column("highest_price")] public decimal HighestPrice { get; set; } = 0;
     [Column("lowest_price")] public decimal LowestPrice { get; set; } = 0;
 
@@ -40,6 +37,7 @@ public class VeilingKlok
     [Required]
     [MaxLength(2)]
     public required string Country { get; init; }
+
 
     [Column("veilingmeester_id")]
     [Required]
