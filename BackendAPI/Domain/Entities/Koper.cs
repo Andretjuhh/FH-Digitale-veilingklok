@@ -30,14 +30,11 @@ namespace Domain.Entities
         private readonly List<Address> IAdresses = new List<Address>();
         public IReadOnlyCollection<Address> Adresses => IAdresses;
 
-        [NotMapped]
-        public override AccountType AccountType => AccountType.Koper;
-
         private Koper()
-            : base() { }
+            : base(AccountType.Koper) { }
 
-        public Koper(string email, Password password)
-            : base(email, password) { }
+        public Koper(string email)
+            : base(email, AccountType.Koper) { }
 
         public void AddNewAdress(Address newAdress, bool makePrimary = false)
         {

@@ -1,12 +1,14 @@
 using Domain.Entities;
 using Domain.ValueObjects;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Data;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options)
+    : IdentityDbContext<Account, IdentityRole<Guid>, Guid>(options)
 {
-    public DbSet<Account> Accounts { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<Koper> Kopers { get; set; }
     public DbSet<Kweker> Kwekers { get; set; }
@@ -23,8 +25,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         base.OnModelCreating(modelBuilder);
 
         #region GLOBAL DEFAULTS (IDs & Timestamps)
-
-        modelBuilder.Entity<Account>().Property(a => a.Id).HasDefaultValueSql("NEWID()");
 
         modelBuilder.Entity<Order>().Property(o => o.Id).HasDefaultValueSql("NEWID()");
 
@@ -62,6 +62,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .Property(rt => rt.CreatedAt)
             .HasDefaultValueSql("SYSDATETIMEOFFSET()");
 
+        // Account RowVersion - IdentityUser has ConcurrencyStamp, but we kept RowVersion in Account.cs
         modelBuilder.Entity<Account>().Property(p => p.RowVersion).IsRowVersion();
         modelBuilder.Entity<Order>().Property(p => p.RowVersion).IsRowVersion();
         modelBuilder.Entity<OrderItem>().Property(p => p.RowVersion).IsRowVersion();
@@ -72,18 +73,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         #region ACCOUNT HIERARCHY & AUTHENTICATION
 
-        // Password Value Object Conversion
-        modelBuilder
-            .Entity<Account>()
-            .Property(a => a.Password)
-            .HasConversion(password => password.Value, hash => Password.FromHash(hash))
-            .HasColumnName("password");
-
         // Table-Per-Type (TPT) Strategy
         modelBuilder.Entity<Account>().UseTptMappingStrategy();
 
-        // Unique Email Index
-        modelBuilder.Entity<Account>().HasIndex(a => a.Email).IsUnique();
+        // Map Identity Tables to clean names if desired, but sticking to defaults for Identity tables is standard.
+        // Account table is already mapped via [Table("Account")] in entity.
 
         // RefreshToken Configuration
         modelBuilder.Entity<RefreshToken>().HasIndex(rt => rt.Jti);

@@ -7,7 +7,6 @@ import Page from '../../components/nav/Page';
 import Button from '../../components/buttons/Button';
 import AuctionClock from '../../components/elements/AuctionClock2';
 import {useRootContext} from '../../components/contexts/RootContext';
-import {getAuthentication} from '../../controllers/server/account';
 import {getProducts} from '../../controllers/server/koper';
 import config from '../../constant/application';
 import {RegionVeilingStartedNotification, VeilingPriceTickNotification, VeilingProductChangedNotification} from '../../declarations/models/VeilingNotifications';
@@ -76,10 +75,10 @@ function UserDashboard() {
 		const startSignalR = async () => {
 			const connection = new HubConnectionBuilder()
 				.withUrl(`${config.API}hubs/veiling-klok`, {
-					accessTokenFactory: async () => {
-						const auth = await getAuthentication();
-						return auth?.accessToken ?? '';
-					},
+					// accessTokenFactory: async () => {
+					// 	const auth = await getAuthentication();
+					// 	return auth?.accessToken ?? '';
+					// },
 				})
 				.withAutomaticReconnect()
 				.configureLogging(LogLevel.Warning)

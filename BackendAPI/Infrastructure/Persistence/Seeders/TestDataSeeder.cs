@@ -3,6 +3,7 @@ using Domain.Enums;
 using Domain.Interfaces;
 using Domain.ValueObjects;
 using Infrastructure.Persistence.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -17,7 +18,8 @@ public interface ITestDataSeeder
 public class TestDataSeeder : ITestDataSeeder
 {
     private readonly AppDbContext _context;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly UserManager<Account> _userManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly ILogger<TestDataSeeder> _logger;
 
     // Default Password is : Test1234!
@@ -160,12 +162,14 @@ public class TestDataSeeder : ITestDataSeeder
 
     public TestDataSeeder(
         AppDbContext context,
-        IPasswordHasher passwordHasher,
+        UserManager<Account> userManager,
+        RoleManager<IdentityRole<Guid>> roleManager,
         ILogger<TestDataSeeder> logger
     )
     {
         _context = context;
-        _passwordHasher = passwordHasher;
+        _userManager = userManager;
+        _roleManager = roleManager;
         _logger = logger;
     }
 
@@ -179,6 +183,10 @@ public class TestDataSeeder : ITestDataSeeder
             await ClearAllDataAsync();
 
             await _context.Database.BeginTransactionAsync();
+
+            // Seed Roles
+            await SeedRolesAsync();
+
             // Seed in order of dependencies
             var kwekers = await SeedKwekersAsync(5);
             var kopers = await SeedKopersAsync(10);
@@ -208,21 +216,72 @@ public class TestDataSeeder : ITestDataSeeder
     {
         _logger.LogInformation("Clearing existing test data...");
 
-        // Delete in reverse order of dependencies
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [OrderItem]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Order]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [VeilingKlokProduct]"); // Delete join table before Product and Veilingklok
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Product]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Veilingklok]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [RefreshToken]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Veilingmeester]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Kweker]"); // Delete Kweker before Adresses (has FK to Adresses)
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Koper]"); // Delete Koper before Adresses (has FK to Adresses)
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Adresses]"); // Delete Adresses after Kweker and Koper
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Account]");
+        // Helper to execute SQL and ignore "table not found" errors
+        async Task Exec(string table)
+        {
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync($"DELETE FROM [{table}]");
+            }
+            catch (Exception ex)
+            {
+                // Log but continue - mostly for tables that might not exist or empty
+                _logger.LogWarning($"Could not clear table {table}: {ex.Message}");
+            }
+        }
+
+        // 1. Delete Child/Leaf Tables
+        await Exec("OrderItem");
+        await Exec("VeilingKlokProduct");
+
+        // 2. Delete Main Tables
+        await Exec("Order");
+        await Exec("Product");
+        await Exec("Veilingklok");
+
+        // 3. Delete Identity Tables (Children of Account)
+        await Exec("RefreshToken");
+        await Exec("AspNetUserClaims");
+        await Exec("AspNetUserLogins");
+        await Exec("AspNetUserRoles");
+        await Exec("AspNetUserTokens");
+
+        // 4. Delete Account Subtypes (TPT) - Free up References to Address
+        await Exec("Veilingmeester");
+        await Exec("Kweker");
+        await Exec("Koper");
+
+        // 5. Delete Address (References Account, referenced by Koper/Kweker)
+        await Exec("Adresses"); // Check correct spelling
+        await Exec("Addresses"); // Check common spelling
+
+        // 6. Delete Account (Root)
+        await Exec("Account");
+        await Exec("AspNetUsers"); // Fallback
+
+        // 7. Last resort cleanup for Roles if used
+        await Exec("AspNetRoles");
 
         await _context.SaveChangesAsync();
         _logger.LogInformation("Existing data cleared.");
+    }
+
+    private async Task SeedRolesAsync()
+    {
+        string[] roles =
+        {
+            nameof(AccountType.Koper),
+            nameof(AccountType.Kweker),
+            nameof(AccountType.Veilingmeester),
+        };
+
+        foreach (var role in roles)
+        {
+            if (!await _roleManager.RoleExistsAsync(role))
+            {
+                await _roleManager.CreateAsync(new IdentityRole<Guid>(role));
+            }
+        }
     }
 
     private async Task<List<Kweker>> SeedKwekersAsync(int count)
@@ -234,9 +293,8 @@ public class TestDataSeeder : ITestDataSeeder
         {
             var firstName = FirstNames[random.Next(FirstNames.Length)];
             var lastName = LastNames[random.Next(LastNames.Length)];
-            var password = Password.Create("Test1234!", _passwordHasher);
 
-            var kweker = new Kweker($"kweker{i + 1}@test.nl", password)
+            var kweker = new Kweker($"kweker{i + 1}@test.nl")
             {
                 KvkNumber = $"{60000000 + i + random.Next(1000, 9999)}",
                 CompanyName = CompanyNames[i % CompanyNames.Length],
@@ -245,8 +303,8 @@ public class TestDataSeeder : ITestDataSeeder
                 Telephone = $"+31 6 {random.Next(10000000, 99999999)}",
             };
 
-            await _context.Kwekers.AddAsync(kweker);
-            await _context.SaveChangesAsync(); // Save to get Kweker ID
+            await _userManager.CreateAsync(kweker, "Test1234!");
+            await _userManager.AddToRoleAsync(kweker, nameof(AccountType.Kweker));
             kwekers.Add(kweker);
 
             var location = DutchLocations[i % DutchLocations.Length];
@@ -278,17 +336,16 @@ public class TestDataSeeder : ITestDataSeeder
         {
             var firstName = FirstNames[random.Next(FirstNames.Length)];
             var lastName = LastNames[random.Next(LastNames.Length)];
-            var password = Password.Create("Test1234!", _passwordHasher);
 
-            var koper = new Koper($"koper{i + 1}@test.nl", password)
+            var koper = new Koper($"koper{i + 1}@test.nl")
             {
                 FirstName = firstName,
                 LastName = lastName,
                 Telephone = $"+31 6 {random.Next(10000000, 99999999)}",
             };
 
-            await _context.Kopers.AddAsync(koper);
-            await _context.SaveChangesAsync(); // Save to get koper ID
+            await _userManager.CreateAsync(koper, "Test1234!");
+            await _userManager.AddToRoleAsync(koper, nameof(AccountType.Koper));
 
             // Add 1-3 addresses per koper
             var addressCount = random.Next(1, 4);
@@ -346,16 +403,15 @@ public class TestDataSeeder : ITestDataSeeder
 
         for (var i = 0; i < count; i++)
         {
-            var password = Password.Create("Test1234!", _passwordHasher);
-
-            var veilingmeester = new Veilingmeester($"veilingmeester{i + 1}@test.nl", password)
+            var veilingmeester = new Veilingmeester($"veilingmeester{i + 1}@test.nl")
             {
                 CountryCode = "NL",
                 Region = regions[i % regions.Length],
                 AuthorisatieCode = $"VM{1000 + i}-NL",
             };
 
-            await _context.Veilingmeesters.AddAsync(veilingmeester);
+            await _userManager.CreateAsync(veilingmeester, "Test1234!");
+            await _userManager.AddToRoleAsync(veilingmeester, nameof(AccountType.Veilingmeester));
             veilingmeesters.Add(veilingmeester);
         }
 

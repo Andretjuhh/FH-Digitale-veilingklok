@@ -31,7 +31,7 @@ public class KwekerController : ControllerBase
     {
         var command = new CreateKwekerCommand(account);
         var result = await _mediator.Send(command);
-        return HttpSuccess<AuthOutputDto>.Ok(result, "Kweker account created successfully");
+        return HttpSuccess<Guid>.Ok(result, "Kweker account created successfully");
     }
 
     [HttpPut("update")]
@@ -163,7 +163,15 @@ public class KwekerController : ControllerBase
     )
     {
         var (kwekerId, _) = GetUserClaim.GetInfo(User);
-        var query = new GetProductsQuery(nameFilter, regionFilter, maxPrice, kwekerId, null, pageNumber, pageSize);
+        var query = new GetProductsQuery(
+            nameFilter,
+            regionFilter,
+            maxPrice,
+            kwekerId,
+            null,
+            pageNumber,
+            pageSize
+        );
         var result = await _mediator.Send(query);
         return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }

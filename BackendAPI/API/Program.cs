@@ -1,5 +1,6 @@
 using API.Extensions;
 using Application;
+using Application.Common.Exceptions;
 using Infrastructure;
 using Infrastructure.Microservices.SignalR.Hubs;
 
@@ -45,6 +46,57 @@ app.UseAuthorization();
 app.UseExceptionHandler();
 app.MapControllers();
 
+// Identity API Endpoints
+app.MapGroup("/api/account")
+    .MapIdentityApi<Domain.Entities.Account>()
+    .AddEndpointFilter(
+        async (context, next) =>
+        {
+            var result = await next(context);
+
+            // The Path property does NOT include the QueryString, so EndsWith("/login") is safe
+            // regardless of parameters like ?useCookies=true
+            if (
+                context.HttpContext.Request.Path.Value?.EndsWith(
+                    "/login",
+                    StringComparison.OrdinalIgnoreCase
+                ) == true
+            )
+            {
+                // Identity API returns Results<Ok<AccessTokenResponse>, EmptyHttpResult, ProblemHttpResult>
+                // We need to unwrap the actual result using reflection
+                var resultType = result?.GetType();
+                var resultProperty = resultType?.GetProperty("Result");
+                var actualResult = resultProperty?.GetValue(result);
+
+                // Check for ProblemDetails response (LockedOut, NotAllowed, InvalidCredentials, etc.)
+                if (actualResult is Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult problem)
+                {
+                    if (problem.StatusCode == 401)
+                    {
+                        if (problem.ProblemDetails.Detail == "LockedOut")
+                        {
+                            throw CustomException.AccountLocked();
+                        }
+                        else
+                        {
+                            // Other 401 problem details (NotAllowed, Failed, etc.)
+                            throw CustomException.InvalidCredentials();
+                        }
+                    }
+                }
+
+                // Fallback: Check for standard 401 status code
+                if (actualResult is IStatusCodeHttpResult { StatusCode: 401 })
+                {
+                    throw CustomException.InvalidCredentials();
+                }
+            }
+
+            return result;
+        }
+    );
+
 // This creates the WebSocket endpoint at: ws://localhost:5000/hubs/veiling-klok
 // Clients connect to this URL to establish real-time connection
 app.MapHub<VeilingHub>("/hubs/veiling-klok").RequireCors("AllowFrontend");
@@ -84,7 +136,6 @@ app.MapGet(
         }
     )
     .ExcludeFromDescription(); // Exclude this endpoint from the Swagger documentation
-
 #endregion
 
 app.Run();

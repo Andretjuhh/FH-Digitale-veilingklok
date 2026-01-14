@@ -108,11 +108,8 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
 
     public bool IsVeillingRunning(Guid klokId)
     {
-        if (_activeVeilingClocks.TryGetValue(klokId, out var currentState))
-            return currentState.Status == VeilingKlokStatus.Started
-                   && !currentState.CurrentProductVeilingEnded();
-        else
-            return false;
+        // Check if there's an active ticker (timer) for this clock
+        return _clockTimers.ContainsKey(klokId);
     }
 
     // Add a new active veiling klok

@@ -3,8 +3,10 @@ using API.Utils;
 using Application.DTOs.Input;
 using Application.DTOs.Output;
 using Application.UseCases.Account;
+using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -15,10 +17,18 @@ namespace API.Controllers;
 public class AccountController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly UserManager<Account> _userManager;
+    private readonly SignInManager<Account> _signInManager;
 
-    public AccountController(IMediator mediator)
+    public AccountController(
+        IMediator mediator,
+        UserManager<Account> userManager,
+        SignInManager<Account> signInManager
+    )
     {
         _mediator = mediator;
+        _userManager = userManager;
+        _signInManager = signInManager;
     }
 
     [HttpGet("country/region")]
@@ -29,49 +39,39 @@ public class AccountController : ControllerBase
         return HttpSuccess<List<string>>.Ok(result, "Regions retrieved successfully");
     }
 
-    [HttpPost("login")]
-    [AllowAnonymous]
-    public async Task<IActionResult> Login([FromBody] RequestLoginDTO loginRequest)
-    {
-        var command = new LoginAccountCommand(loginRequest);
-        var result = await _mediator.Send(command);
-        return HttpSuccess<AuthOutputDto>.Ok(result, "Login successful");
-    }
+    // Login is now handled by Identity API Endpoints mapped in Program.cs
+    // POST /api/account/login
 
     [HttpGet("info")]
     public async Task<IActionResult> GetAccountInfo()
     {
-        var (accountId, accountType) = GetUserClaim.GetInfo(User);
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Unauthorized();
 
-        var command = new GetAccountCommand(accountId, accountType);
+        var command = new GetAccountCommand(user.Id, user.AccountType);
         var result = await _mediator.Send(command);
+
         return HttpSuccess<object>.Ok(result, "Account information retrieved successfully");
     }
 
     [HttpGet("logout")]
     public async Task<IActionResult> Logout()
     {
-        var (accountId, _) = GetUserClaim.GetInfo(User);
-        var command = new LogoutAccountCommand(accountId);
-        await _mediator.Send(command);
+        await _signInManager.SignOutAsync();
         return HttpSuccess<string>.NoContent("Logout successful");
-    }
-
-    [HttpGet("reauthenticate")]
-    [AllowAnonymous]
-    public async Task<IActionResult> Reauthenticate()
-    {
-        var command = new ReauthenticateTokenCommand();
-        var result = await _mediator.Send(command);
-        return HttpSuccess<AuthOutputDto>.Ok(result, "Reauthentication successful");
     }
 
     [HttpGet("revoke-devices")]
     public async Task<IActionResult> RevokeDevices()
     {
-        var (accountId, _) = GetUserClaim.GetInfo(User);
-        var command = new RevokeTokensCommand(accountId);
-        await _mediator.Send(command);
+        var user = await _userManager.GetUserAsync(User);
+        if (user != null)
+        {
+            // Identity doesn't strictly have "revoke devices" same as refresh tokens list unless we implement it.
+            // But we can update SecurityStamp to invalidate all cookies/tokens.
+            await _userManager.UpdateSecurityStampAsync(user);
+        }
         return HttpSuccess<string>.NoContent("All devices revoked successfully");
     }
 }

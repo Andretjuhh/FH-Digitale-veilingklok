@@ -17,11 +17,15 @@ public class VeilingKlok
     [Column("veiling_duration")] public required int VeilingDurationSeconds { get; init; } = 0;
 
     [Column("scheduled_at")] public required DateTimeOffset ScheduledAt { get; set; }
+
     [Column("started_at")] public DateTimeOffset? StartedAt { get; private set; }
+
     [Column("ended_at")] public DateTimeOffset? EndedAt { get; private set; }
+
     [Column("created_at")] public DateTimeOffset CreatedAt { get; init; }
 
     [Column("veiling_rounds")] public int VeilingRounds { get; set; } = 0;
+
     [Column("bidding_product_index")] public int BiddingProductIndex { get; private set; } = 0;
 
     [Column("total_products")] public int TotalProducts { get; private set; } = 0;
@@ -35,7 +39,6 @@ public class VeilingKlok
     [Required]
     [MaxLength(2)]
     public required string Country { get; init; }
-
 
     [Column("veilingmeester_id")]
     [Required]
@@ -79,8 +82,12 @@ public class VeilingKlok
 
     public void UpdateStatus(VeilingKlokStatus newStatus)
     {
-        if (newStatus > Status)
-            Status = newStatus;
+        if (Status == VeilingKlokStatus.Ended)
+            throw KlokValidationException.KlokAlreadyEnded();
+
+        // if Status is higher than ingepland cannot go back to ingepland
+        if (newStatus == VeilingKlokStatus.Scheduled && Status != VeilingKlokStatus.Scheduled)
+            throw KlokValidationException.InvalidStatusTransition();
 
         if (newStatus == VeilingKlokStatus.Started)
             StartedAt = DateTimeOffset.UtcNow;
@@ -90,6 +97,8 @@ public class VeilingKlok
 
         if (newStatus == VeilingKlokStatus.Scheduled)
             ScheduledAt = DateTimeOffset.UtcNow;
+
+        Status = newStatus;
     }
 
     public void AssignVeilingmeester(Guid veilingmeesterId)
@@ -113,13 +122,15 @@ public class VeilingKlok
             ? _veilingKlokProducts.Max(vkp => vkp.Position) + 1
             : 0;
 
-        _veilingKlokProducts.Add(new VeilingKlokProduct
-        {
-            VeilingKlokId = Id,
-            ProductId = productId,
-            AuctionPrice = auctionPrice,
-            Position = position
-        });
+        _veilingKlokProducts.Add(
+            new VeilingKlokProduct
+            {
+                VeilingKlokId = Id,
+                ProductId = productId,
+                AuctionPrice = auctionPrice,
+                Position = position
+            }
+        );
         TotalProducts++;
     }
 

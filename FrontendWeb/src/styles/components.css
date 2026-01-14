@@ -1590,6 +1590,12 @@
     align-items: center;
     gap: 1rem;
     padding: 0.6rem 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.auction-product-card-running {
+    background-color: theme(colors.green.100);
+    border-color: theme(colors.green.300);
 }
 
 .auction-product-card-img-ctn {

@@ -74,6 +74,7 @@ public class VeilingKlokState
         CurrentProductIndex = productIndex;
         VeilingStartTime = DateTimeOffset.UtcNow;
         VeilingEndTime = VeilingStartTime.AddSeconds(VeilingDurationSeconds);
+        CurrentPrice = GetCurrentPriceByDate(VeilingStartTime);
     }
 
     // Get the current product being auctioned

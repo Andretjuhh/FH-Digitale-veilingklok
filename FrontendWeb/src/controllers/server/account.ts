@@ -12,12 +12,23 @@ export async function getRegions(): Promise<HttpSuccess<string[]>> {
 
 // Login (POST /api/account/login)
 export async function loginAccount(loginRequest: RequestLoginDTO): Promise<HttpSuccess<AuthOutputDto>> {
-	const response = await fetchResponse<HttpSuccess<AuthOutputDto>>('/api/account/login', {
+	const response = await fetchResponse<any>('/api/account/login?useCookies=true&useSessionCookies=true', {
 		method: 'POST',
 		body: JSON.stringify(loginRequest),
 	});
-	saveAuthenticationResponse(response.data ?? null);
-	return response;
+
+	const info = await getAccountInfo();
+	const authData: HttpSuccess<AuthOutputDto> = {
+		success: response.success,
+		message: response.message,
+		data: {
+			accountType: info.data.accountType,
+			accessToken: response.accessToken,
+			accessTokenExpiresAt: response.accessTokenExpiresAt,
+		},
+	};
+	saveAuthenticationResponse(authData.data ?? null);
+	return authData;
 }
 
 // Get account info (GET /api/account/info)

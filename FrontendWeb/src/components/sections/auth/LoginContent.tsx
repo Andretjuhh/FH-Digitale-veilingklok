@@ -40,6 +40,7 @@ function LoginContent() {
 			authenticateAccount(authResponse.data);
 			await delay(1000); // Simulate loading delay
 
+			console.log(authResponse.data)
 			// Determine dashboard by account type
 			switch (authResponse.data.accountType) {
 				case AccountType.Koper:

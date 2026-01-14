@@ -2,29 +2,15 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Domain.Enums;
 using Domain.Interfaces;
-using Domain.ValueObjects;
+using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Entities;
 
 //Account Model, represents the Account table in the database
 // Its abstract because we never create an Account directly it is always a Koper or Kweker
 [Table("Account")]
-public abstract class Account
+public class Account : IdentityUser<Guid>
 {
-    [Key]
-    [Column("id")]
-    public Guid Id { get; init; } = Guid.Empty;
-
-    [Column("email")]
-    [Required]
-    [MaxLength(255)]
-    public string Email { get; private set; }
-
-    [Column("password")]
-    [Required]
-    [MaxLength(255)]
-    public Password Password { get; private set; }
-
     [Column("created_at")]
     public DateTimeOffset CreatedAt { get; init; }
 
@@ -35,32 +21,28 @@ public abstract class Account
     [Timestamp]
     public ulong RowVersion { get; private set; }
 
-    [NotMapped]
-    public abstract AccountType AccountType { get; }
+    [Column("account_type")]
+    public AccountType AccountType { get; init; } = AccountType.Koper;
 
     // RefreshTokens Relationshiop  User have many RefreshTokens
     private readonly List<RefreshToken> IRTokens = new();
     public IReadOnlyCollection<RefreshToken> RefreshTokens => IRTokens;
 
 #nullable disable
-    protected Account() { }
+    public Account() { }
+
+    protected Account(AccountType accountType)
+    {
+        AccountType = accountType;
+    }
 
 #nullable restore
 
-    protected Account(string email, Password password)
+    protected Account(string email, AccountType accountType)
     {
         Email = email;
-        Password = password;
-    }
-
-    public void ChangeEmail(string newEmail)
-    {
-        Email = newEmail;
-    }
-
-    public void ChangePassword(string raw, IPasswordHasher hasher)
-    {
-        Password = Password.Create(raw, hasher);
+        UserName = email;
+        AccountType = accountType;
     }
 
     public void AddRefreshToken(RefreshToken token)

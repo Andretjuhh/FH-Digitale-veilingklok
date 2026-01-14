@@ -12,7 +12,7 @@ const NavBar = (props: Props) => {
 	const {navigate,} = useRootContext();
 	const location = useLocation();
 	const routeName = location.pathname;
-	console.log('Current Route:', routeName);
+	// console.log('Current Route:', routeName);
 
 	return (
 		<div className="navbar-tabs" style={{'--tabs-count': pages.length} as React.CSSProperties}>

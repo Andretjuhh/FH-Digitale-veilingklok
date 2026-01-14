@@ -5,8 +5,6 @@ using Application.Repositories;
 using Application.Services;
 using Domain.Interfaces;
 using Infrastructure.Extensions;
-using Infrastructure.MicroServices.Security;
-using Infrastructure.MicroServices.Security.Configurations;
 using Infrastructure.Persistence.Data;
 using Infrastructure.Persistence.Repositories;
 using Infrastructure.Persistence.Seeders;
@@ -28,7 +26,6 @@ public static class DependencyInjection
         services.AddAuthenticationSecurity(configuration);
 
         // Get app.json configurations
-        services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Test Data Seeder for Development

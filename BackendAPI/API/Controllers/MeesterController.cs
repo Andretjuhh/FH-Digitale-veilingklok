@@ -31,7 +31,7 @@ public class MeesterController : ControllerBase
     {
         var command = new CreateMeesterCommand(account);
         var result = await _mediator.Send(command);
-        return HttpSuccess<AuthOutputDto>.Ok(result, "Meester account created successfully");
+        return HttpSuccess<Guid>.Ok(result, "Meester account created successfully");
     }
 
     [HttpPut("update")]
@@ -110,12 +110,7 @@ public class MeesterController : ControllerBase
         [FromQuery] DateTime? afterDate
     )
     {
-        var query = new GetVeilingKlokOrdersQuery(
-            klokId,
-            status,
-            beforeDate,
-            afterDate
-        );
+        var query = new GetVeilingKlokOrdersQuery(klokId, status, beforeDate, afterDate);
         var result = await _mediator.Send(query);
         return HttpSuccess<List<OrderOutputDto>>.Ok(result);
     }
@@ -129,10 +124,7 @@ public class MeesterController : ControllerBase
     }
 
     [HttpPut("product/{productId}/price")]
-    public async Task<IActionResult> UpdateProductPrice(
-        Guid productId,
-        [FromQuery] decimal price
-    )
+    public async Task<IActionResult> UpdateProductPrice(Guid productId, [FromQuery] decimal price)
     {
         var command = new UpdateProductAuctionPriceCommand(productId, price);
         var result = await _mediator.Send(command);
@@ -153,7 +145,15 @@ public class MeesterController : ControllerBase
         [FromQuery] int pageSize = 10
     )
     {
-        var query = new GetProductsQuery(nameFilter, regionFilter, maxPrice, kwekerId, klokId, pageNumber, pageSize);
+        var query = new GetProductsQuery(
+            nameFilter,
+            regionFilter,
+            maxPrice,
+            kwekerId,
+            klokId,
+            pageNumber,
+            pageSize
+        );
         var result = await _mediator.Send(query);
         return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }
@@ -211,10 +211,7 @@ public class MeesterController : ControllerBase
     }
 
     [HttpDelete("veilingklok/{klokId}/product/{productId}")]
-    public async Task<IActionResult> RemoveProductFromVeilingKlok(
-        Guid klokId,
-        Guid productId
-    )
+    public async Task<IActionResult> RemoveProductFromVeilingKlok(Guid klokId, Guid productId)
     {
         var command = new RemoveProductFromVeilingKlokCommand(klokId, productId);
         await _mediator.Send(command);

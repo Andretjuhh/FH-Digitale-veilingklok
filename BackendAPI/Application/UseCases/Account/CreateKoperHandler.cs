@@ -1,88 +1,69 @@
 ﻿using Application.Common.Exceptions;
 using Application.DTOs.Input;
-using Application.DTOs.Output;
-using Application.Repositories;
-using Application.Services;
 using Domain.Entities;
-using Domain.Interfaces;
-using Domain.ValueObjects;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Account;
 
-public sealed record CreateKoperCommand(CreateKoperDTO Payload) : IRequest<AuthOutputDto>;
+public sealed record CreateKoperCommand(CreateKoperDTO Payload) : IRequest<Guid>;
 
-public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, AuthOutputDto>
+public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Guid>
 {
-    private readonly IKoperRepository _koperRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly ITokenService _tokenService;
+    private readonly UserManager<Domain.Entities.Account> _userManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
 
     public CreateKoperHandler(
-        IKoperRepository koperRepository,
-        IUnitOfWork unitOfWork,
-        IPasswordHasher passwordHasher,
-        ITokenService tokenService
+        UserManager<Domain.Entities.Account> userManager,
+        RoleManager<IdentityRole<Guid>> roleManager
     )
     {
-        _koperRepository = koperRepository;
-        _tokenService = tokenService;
-        _unitOfWork = unitOfWork;
-        _passwordHasher = passwordHasher;
+        _userManager = userManager;
+        _roleManager = roleManager;
     }
 
-    public async Task<AuthOutputDto> Handle(
-        CreateKoperCommand request,
-        CancellationToken cancellationToken
-    )
+    public async Task<Guid> Handle(CreateKoperCommand request, CancellationToken cancellationToken)
     {
-        try
+        var dto = request.Payload;
+
+        var existing = await _userManager.FindByEmailAsync(dto.Email);
+        if (existing != null)
+            throw RepositoryException.ExistingAccount();
+
+        var koper = new Koper(dto.Email)
         {
-            var dto = request.Payload;
-            if (await _koperRepository.ExistingAccountAsync(dto.Email))
-                throw RepositoryException.ExistingAccount();
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            Telephone = dto.Telephone,
+        };
 
-            await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        var address = new Address(
+            dto.Address.Street,
+            dto.Address.City,
+            dto.Address.RegionOrState,
+            dto.Address.PostalCode,
+            dto.Address.Country
+        );
 
-            // Create Koper first without address
-            var koper = new Koper(dto.Email, Password.Create(dto.Password, _passwordHasher))
-            {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Telephone = dto.Telephone,
-            };
-            await _koperRepository.AddAsync(koper);
-            await _unitOfWork.SaveChangesAsync(cancellationToken); // Save to get Koper ID
+        koper.AddNewAdress(address, true);
 
-            // Now create address with the Koper's ID
-            var address = new Address(
-                dto.Address.Street,
-                dto.Address.City,
-                dto.Address.RegionOrState,
-                dto.Address.PostalCode,
-                dto.Address.Country,
-                koper.Id // Use the saved Koper's ID
+        var result = await _userManager.CreateAsync(koper, dto.Password);
+
+        if (!result.Succeeded)
+        {
+            throw new Exception(
+                "Account creation failed: "
+                    + string.Join(", ", result.Errors.Select(e => e.Description))
             );
-
-            // Add address WITHOUT setting as primary yet (address needs ID first)
-            koper.AddNewAdress(address, makePrimary: false);
-            await _unitOfWork.SaveChangesAsync(cancellationToken); // Save to get Address ID
-
-            // Now set as primary address (after address has ID)
-            koper.SetPrimaryAdress(address);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            // Generate Tokens
-            var (token, _) = _tokenService.GenerateAuthenticationTokens(koper);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            await _unitOfWork.CommitAsync(cancellationToken);
-            return token;
         }
-        catch (Exception)
+
+        var roleName = nameof(Domain.Enums.AccountType.Koper);
+        if (!await _roleManager.RoleExistsAsync(roleName))
         {
-            await _unitOfWork.RollbackAsync(cancellationToken);
-            throw;
+            await _roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
         }
+        await _userManager.AddToRoleAsync(koper, roleName);
+
+        return koper.Id;
     }
 }

@@ -54,7 +54,7 @@ public sealed class StartVeilingProductHandler : IRequestHandler<StartVeilingPro
                 ?? throw RepositoryException.NotFoundProduct();
 
             // Verify the klok is active
-            if (!_veilingKlokEngine.IsVeillingRunning(request.KlokId))
+            if (_veilingKlokEngine.IsVeillingRunning(request.KlokId))
                 throw CustomException.CannotChangeRunningVeilingKlok();
 
             // Update the current product index in the klok

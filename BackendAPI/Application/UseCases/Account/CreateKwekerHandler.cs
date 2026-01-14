@@ -1,91 +1,78 @@
 ﻿using Application.Common.Exceptions;
 using Application.DTOs.Input;
-using Application.DTOs.Output;
 using Application.Repositories;
-using Application.Services;
 using Domain.Entities;
-using Domain.Interfaces;
-using Domain.ValueObjects;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Account;
 
-public sealed record CreateKwekerCommand(CreateKwekerDTO Payload) : IRequest<AuthOutputDto>;
+public sealed record CreateKwekerCommand(CreateKwekerDTO Payload) : IRequest<Guid>;
 
-public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, AuthOutputDto>
+public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, Guid>
 {
+    private readonly UserManager<Domain.Entities.Account> _userManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly IKwekerRepository _kwekerRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly ITokenService _tokenService;
 
     public CreateKwekerHandler(
-        IKwekerRepository kwekerRepository,
-        IUnitOfWork unitOfWork,
-        IPasswordHasher passwordHasher,
-        ITokenService tokenService
+        UserManager<Domain.Entities.Account> userManager,
+        RoleManager<IdentityRole<Guid>> roleManager,
+        IKwekerRepository kwekerRepository
     )
     {
+        _userManager = userManager;
+        _roleManager = roleManager;
         _kwekerRepository = kwekerRepository;
-        _unitOfWork = unitOfWork;
-        _passwordHasher = passwordHasher;
-        _tokenService = tokenService;
     }
 
-    public async Task<AuthOutputDto> Handle(
-        CreateKwekerCommand request,
-        CancellationToken cancellationToken
-    )
+    public async Task<Guid> Handle(CreateKwekerCommand request, CancellationToken cancellationToken)
     {
-        try
+        var dto = request.Payload;
+
+        if (await _kwekerRepository.ExistingKvkNumberAsync(dto.KvkNumber))
+            throw RepositoryException.ExistingKvkNumber();
+
+        var existing = await _userManager.FindByEmailAsync(dto.Email);
+        if (existing != null)
+            throw RepositoryException.ExistingAccount();
+
+        var kweker = new Kweker(dto.Email)
         {
-            var dto = request.Payload;
+            CompanyName = dto.CompanyName,
+            KvkNumber = dto.KvkNumber,
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            Telephone = dto.Telephone,
+        };
 
-            if (await _kwekerRepository.ExistingKvkNumberAsync(dto.KvkNumber))
-                throw RepositoryException.ExistingKvkNumber();
+        var address = new Address(
+            dto.Address.Street,
+            dto.Address.City,
+            dto.Address.RegionOrState,
+            dto.Address.PostalCode,
+            dto.Address.Country
+        );
 
-            if (await _kwekerRepository.ExistingAccountAsync(dto.Email))
-                throw RepositoryException.ExistingAccount();
+        kweker.UpdateAdress(address);
 
-            await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        var result = await _userManager.CreateAsync(kweker, dto.Password);
 
-            // Create Kweker first without address
-            var kweker = new Kweker(dto.Email, Password.Create(dto.Password, _passwordHasher))
-            {
-                CompanyName = dto.CompanyName,
-                KvkNumber = dto.KvkNumber,
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Telephone = dto.Telephone
-            };
-
-            await _kwekerRepository.AddAsync(kweker);
-            await _unitOfWork.SaveChangesAsync(cancellationToken); // Save to get Kweker ID
-
-            // Now create address with the Kweker's ID
-            var address = new Address(
-                dto.Address.Street,
-                dto.Address.City,
-                dto.Address.RegionOrState,
-                dto.Address.PostalCode,
-                dto.Address.Country,
-                kweker.Id // Use the saved Kweker's ID
+        if (!result.Succeeded)
+        {
+            throw new Exception(
+                "Account creation failed: "
+                    + string.Join(", ", result.Errors.Select(e => e.Description))
             );
-
-            // Update Kweker with the address
-            kweker.UpdateAdress(address);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            // Generate Tokens
-            var (auth, _) = _tokenService.GenerateAuthenticationTokens(kweker);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            await _unitOfWork.CommitAsync(cancellationToken);
-            return auth;
         }
-        catch (Exception)
+
+        var roleName = nameof(Domain.Enums.AccountType.Kweker);
+        if (!await _roleManager.RoleExistsAsync(roleName))
         {
-            await _unitOfWork.RollbackAsync(cancellationToken);
-            throw;
+            await _roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
         }
+        await _userManager.AddToRoleAsync(kweker, roleName);
+
+        return kweker.Id;
     }
 }

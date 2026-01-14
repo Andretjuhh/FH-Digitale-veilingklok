@@ -31,7 +31,7 @@ public class KoperController : ControllerBase
     {
         var command = new CreateKoperCommand(account);
         var result = await _mediator.Send(command);
-        return HttpSuccess<AuthOutputDto>.Created(result, "Koper account created successfully");
+        return HttpSuccess<Guid>.Created(result, "Koper account created successfully");
     }
 
     [HttpPut("update")]
@@ -132,7 +132,15 @@ public class KoperController : ControllerBase
         [FromQuery] int pageSize = 10
     )
     {
-        var query = new GetProductsQuery(nameFilter, regionFilter, maxPrice, kwekerId, null, pageNumber, pageSize);
+        var query = new GetProductsQuery(
+            nameFilter,
+            regionFilter,
+            maxPrice,
+            kwekerId,
+            null,
+            pageNumber,
+            pageSize
+        );
         var result = await _mediator.Send(query);
         return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }

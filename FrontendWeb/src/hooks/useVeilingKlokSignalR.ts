@@ -81,17 +81,17 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 			onVeilingEnded?.();
 		});
 
-		connection.on('BidPlaced', (bid: VeilingBodNotification) => {
+		connection.on('VeilingBodPlaced', (bid: VeilingBodNotification) => {
 			console.log('Bid placed:', bid);
 			onBidPlaced?.(bid);
 		});
 
-		connection.on('ProductChanged', (product: VeilingProductChangedNotification) => {
+		connection.on('VeilingProductChanged', (product: VeilingProductChangedNotification) => {
 			console.log('Product changed:', product);
 			onProductChanged?.(product);
 		});
 
-		connection.on('AuctionEnded', () => {
+		connection.on('VeilingEnded', () => {
 			console.log('Auction ended');
 			clockRef.current?.reset();
 			onAuctionEnded?.();
@@ -102,15 +102,15 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 			onViewerCountChanged?.(count);
 		});
 
-		connection.on('PriceTick', (state: VeilingPriceTickNotification) => {
+		connection.on('VeilingPriceTick', (state: VeilingPriceTickNotification) => {
 			console.log('Price tick:', state.currentPrice);
 			// Update the clock with new price
-			clockRef.current?.tick(state as any);
+			clockRef.current?.tick(state);
 			// Call optional callback
 			onPriceTick?.(state);
 		});
 
-		connection.on('ProductWaitingForNext', (klokId: string, completedProductId: string) => {
+		connection.on('VeilingProductWaiting', (klokId: string, completedProductId: string) => {
 			const notification: VeilingProductWaitingNotification = {clockId: klokId, completedProductId};
 			console.log('Product waiting for next:', notification);
 			clockRef.current?.pause();
@@ -127,7 +127,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 			console.log('SignalR reconnected:', connectionId);
 			setKlokConnectionStatus(signalR.HubConnectionState.Connected);
 			// Rejoin the group after reconnection
-			connection.invoke('JoinRegionGroup', region).catch((err) => {
+			connection.invoke('JoinRegion', country, region).catch((err) => {
 				console.error('Failed to rejoin group:', err);
 			});
 		});
@@ -158,7 +158,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 	const disconnect = useCallback(async () => {
 		if (connectionRef.current) {
 			try {
-				await leaveRegion(country, region);
+				await connectionRef.current.invoke('LeaveRegion', country, region);
 				await connectionRef.current.stop();
 				console.log('SignalR disconnected');
 			} catch (error) {
