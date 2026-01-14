@@ -16,11 +16,6 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "types": [
-      "react",
-      "react-dom",
-      "react-scripts"
-    ],
     // "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx"
