@@ -28,21 +28,7 @@ function VeilingmeesterKlokManage() {
 	const [state, updateState] = useComponentStateReducer();
 	const [actionState, updateActionState] = useComponentStateReducer();
 	const [currentVeilingKlok, setCurrentVeilingKlok] = useState<VeilingKlokOutputDto>();
-	const [currentProduct, setCurrentProduct] = useState<ProductOutputDto>({
-		id: '1415b9d3-9204-4ded-8eba-7e2213515247',
-		name: "Tulipa 'Red Emperor'",
-		description: 'Premium selection of vibrant red tulips, ideal for large-scale landscaping and spring auctions.',
-		imageUrl: 'https://images.example.com/flowers/tulips-red-emperor.jpg',
-		auctionedPrice: 1250.5,
-		minimumPrice: 900.0,
-		auctionedAt: '2026-01-14T12:00:00Z',
-		region: 'Bollenstreek',
-		dimension: 'Height: 45cm, Bulb size: 12/+',
-		stock: 5000,
-		companyName: 'Bloemenexport BV',
-		auctionPlanned: true,
-	});
-	const onClose = () => navigate('/veilingmeester/veilingen-beheren');
+	const [currentProduct, setCurrentProduct] = useState<ProductOutputDto>();
 
 	useEffect(() => {
 		initializeVeilingKlok().then(null);
@@ -54,6 +40,7 @@ function VeilingmeesterKlokManage() {
 			await delay(1500);
 			const response = await getVeilingKlok(id as string);
 			setCurrentVeilingKlok(response.data);
+			setCurrentProduct(response.data.products[0]);
 			updateState({type: 'succeed', message: t('veilingklok_loaded')});
 		} catch (e) {
 			if (isHttpError(e) && e.message) updateState({type: 'error', message: e.message});
@@ -124,6 +111,7 @@ function VeilingmeesterKlokManage() {
 		},
 		[id]
 	);
+	const onClose = () => navigate('/veilingmeester/veilingen-beheren');
 
 	// Veiling klok SignalR hook
 	const klokSignalR = useVeilingKlokSignalR({region: account?.region!, clockRef: klokRef});
