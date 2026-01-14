@@ -110,7 +110,7 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
     {
         if (_activeVeilingClocks.TryGetValue(klokId, out var currentState))
             return currentState.Status == VeilingKlokStatus.Started
-                && !currentState.CurrentProductVeilingEnded();
+                   && !currentState.CurrentProductVeilingEnded();
         else
             return false;
     }
@@ -141,9 +141,6 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
             GetRegionConnectionGroupName(state.Country, state.RegionOrState),
             state
         );
-
-        // Start the price tick timer (tick every second)
-        StartPriceTicker(klokId, state);
 
         _logger.LogInformation($"Started veiling klok {klokId}");
         return Task.CompletedTask;
@@ -235,6 +232,10 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
 
         state.StartProductVeiling(newProductId);
         var currentProduct = state.GetCurrentProduct();
+
+        // Restart the price ticker for the new product
+        StartPriceTicker(klokId, state);
+
         _notifier.NotifyProductChanged(GetConnectionGroupName(klokId), currentProduct);
 
         _logger.LogInformation(

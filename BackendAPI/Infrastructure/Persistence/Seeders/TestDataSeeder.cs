@@ -471,30 +471,37 @@ public class TestDataSeeder : ITestDataSeeder
                 {
                     var product = allProducts[productIndex];
                     product.AddToVeilingKlok(veilingKlok.Id);
-                    veilingKlok.AddProductId(product.Id);
-                    addedProducts++;
 
-                    // Set auction price for products in started/ended auctions
+                    // Determine price
+                    decimal currentPrice = product.MinimumPrice;
                     if (
                         veilingKlok.Status == VeilingKlokStatus.Started
                         || veilingKlok.Status == VeilingKlokStatus.Ended
                     )
                     {
-                        var auctionPrice =
+                        currentPrice =
                             product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
-                        product.UpdateAuctionPrice(auctionPrice);
+                    }
+                    else
+                    {
+                        // Scheduled: use minimum price as starting point in join table
+                        currentPrice = product.MinimumPrice;
                     }
 
-                    if (product.MinimumPrice < lowestPrice)
-                        lowestPrice = product.MinimumPrice;
-                    if (product.MinimumPrice > highestPrice)
-                        highestPrice = product.MinimumPrice;
-                }
+                    // Add to clock with determined price
+                    veilingKlok.AddProduct(product.Id, currentPrice);
+                    addedProducts++;
 
-                if (lowestPrice != decimal.MaxValue)
-                {
-                    veilingKlok.LowestPrice = lowestPrice;
-                    veilingKlok.HighestPrice = highestPrice;
+                    if (veilingKlok.Status != VeilingKlokStatus.Scheduled)
+                    {
+                        product.UpdateAuctionPrice(currentPrice);
+                    }
+
+                    // If the veiling has ended, the product should not be actively linked anymore
+                    if (veilingKlok.Status == VeilingKlokStatus.Ended)
+                    {
+                        product.RemoveVeilingKlok();
+                    }
                 }
             }
 

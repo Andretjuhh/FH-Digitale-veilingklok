@@ -83,8 +83,6 @@ namespace Infrastructure.Migrations
                     created_at = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     veiling_rounds = table.Column<int>(type: "int", nullable: false),
                     bidding_product_index = table.Column<int>(type: "int", nullable: false),
-                    highest_price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    lowest_price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     total_products = table.Column<int>(type: "int", nullable: false),
                     state_or_province = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     country = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
@@ -296,6 +294,7 @@ namespace Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     veilingklok_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     product_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    auction_price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     position = table.Column<int>(type: "int", nullable: false),
                     added_at = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
                 },

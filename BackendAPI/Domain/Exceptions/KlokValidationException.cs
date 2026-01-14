@@ -12,6 +12,13 @@ public sealed class KlokValidationException : DomainException
     {
     }
 
+    public static KlokValidationException ProductNotInVeilingKlok()
+    {
+        return new KlokValidationException(
+            "KLOK.PRODUCT_NOT_IN_KLOK",
+            "The specified product is not part of the VeilingKlok."
+        );
+    }
 
     public static KlokValidationException InvalidDuration()
     {

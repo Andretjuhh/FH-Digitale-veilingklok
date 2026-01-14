@@ -3,16 +3,20 @@ import {ProductOutputDto} from "../../declarations/dtos/output/ProductOutputDto"
 import {formatEur} from "../../utils/standards";
 import clsx from "clsx";
 import Button from "../buttons/Button";
+import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
 
 type Props = {
 	clockRunning?: boolean;
 	product: ProductOutputDto;
 	onStartAuctionClick?: () => void;
-
+	status: VeilingKlokStatus;
 }
 
 function ClockProductCard(props: Props) {
-	const {product, clockRunning, onStartAuctionClick} = props;
+	const {status, product, clockRunning, onStartAuctionClick} = props;
+
+	const isDisabled =
+		status == VeilingKlokStatus.Paused || status == VeilingKlokStatus.Ended || status == VeilingKlokStatus.Scheduled;
 
 	return (
 		<div className={clsx('auction-product-card', clockRunning && 'auction-product-card-running')}>
@@ -38,7 +42,7 @@ function ClockProductCard(props: Props) {
 			</div>
 
 			<Button
-				disabled={clockRunning || product.stock == 0}
+				disabled={isDisabled || clockRunning || product.stock == 0}
 				className={'auction-product-card-start-auction-btn'}
 				onClick={onStartAuctionClick}
 				icon={'bi-skip-end-fill'}

@@ -173,9 +173,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
 
-        // Decimal precision for VeilingKlok prices
-        modelBuilder.Entity<VeilingKlok>().Property(vk => vk.HighestPrice).HasPrecision(18, 2);
-        modelBuilder.Entity<VeilingKlok>().Property(vk => vk.LowestPrice).HasPrecision(18, 2);
+        // Decimal precision for VeilingKlokProduct prices
+        modelBuilder
+            .Entity<VeilingKlokProduct>()
+            .Property(vk => vk.AuctionPrice)
+            .HasPrecision(18, 2);
 
         // VeilingKlok -> VeilingKlokProducts (Cascade Delete)
         modelBuilder

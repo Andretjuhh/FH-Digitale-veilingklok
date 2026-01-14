@@ -73,7 +73,7 @@ function VeilingmeesterKlokManage() {
 		}
 	};
 	const startVeilingKlok = useCallback(async () => {
-		await updateKlokStatus(VeilingKlokStatus.Paused);
+		await updateKlokStatus(VeilingKlokStatus.Started);
 	}, [id]);
 	const stopVeilingKlok = useCallback(async () => {
 		await updateKlokStatus(VeilingKlokStatus.Stopped);
@@ -189,9 +189,13 @@ function VeilingmeesterKlokManage() {
 									<div className={'vm-veiling-info-klok-ctn'}>
 										<AuctionClock
 											ref={klokRef}
-											highestPrice={currentVeilingKlok.highestBidAmount ?? 0}
-											lowestPrice={currentVeilingKlok.lowestBidAmount ?? 0}
-											currentPrice={currentProduct?.auctionedPrice ?? 0}
+											highestRange={currentVeilingKlok.highestProductPrice}
+
+											// Product prices
+											startPrice={currentProduct?.auctionedPrice ?? 0}
+											lowestPrice={currentProduct?.minimumPrice ?? 0}
+											currentPrice={(currentProduct?.auctionedPrice ?? 0)}
+
 											amountStock={currentProduct?.stock ?? 0}
 											round={currentVeilingKlok.veilingRounds ?? 0}
 										/>
@@ -281,6 +285,7 @@ function VeilingmeesterKlokManage() {
 											<ClockProductCard
 												key={index}
 												product={product}
+												status={getNormalizedVeilingKlokStatus(currentVeilingKlok.status) ?? VeilingKlokStatus.Ended}
 												clockRunning={getNormalizedVeilingKlokStatus(currentVeilingKlok.status) === VeilingKlokStatus.Started}
 												onStartAuctionClick={() => startProductVeiling(product.id)}
 											/>

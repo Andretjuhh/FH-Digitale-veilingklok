@@ -32,8 +32,8 @@ public class VeilingKlokRepository : IVeilingKlokRepository
 
     public async Task<VeilingKlokStatus?> GetStatusAsync(Guid klokId, CancellationToken ct)
     {
-        var klok = await _dbContext.Veilingklokken
-            .AsNoTracking()
+        var klok = await _dbContext
+            .Veilingklokken.AsNoTracking()
             .FirstOrDefaultAsync(vk => vk.Id == klokId, ct);
 
         if (klok == null)
@@ -44,15 +44,18 @@ public class VeilingKlokRepository : IVeilingKlokRepository
 
     public async Task<VeilingKlok?> GetByIdAsync(Guid id)
     {
-        return await _dbContext.Veilingklokken
-            .Include(vk => vk.VeilingKlokProducts)
+        return await _dbContext
+            .Veilingklokken.Include(vk => vk.VeilingKlokProducts)
             .FirstOrDefaultAsync(vk => vk.Id == id);
     }
 
-    public async Task<IEnumerable<VeilingKlok>> GetAllByStatusAsync(VeilingKlokStatus status, CancellationToken ct)
+    public async Task<IEnumerable<VeilingKlok>> GetAllByStatusAsync(
+        VeilingKlokStatus status,
+        CancellationToken ct
+    )
     {
-        return await _dbContext.Veilingklokken
-            .Include(vk => vk.VeilingKlokProducts)
+        return await _dbContext
+            .Veilingklokken.Include(vk => vk.VeilingKlokProducts)
             .Where(vk => vk.Status == status)
             .ToListAsync(ct);
     }
@@ -60,8 +63,7 @@ public class VeilingKlokRepository : IVeilingKlokRepository
     public async Task<IEnumerable<VeilingKlok>> GetAllByMeesterIdAsync(Guid meesterId)
     {
         return await _dbContext
-            .Veilingklokken
-            .Include(vk => vk.VeilingKlokProducts)
+            .Veilingklokken.Include(vk => vk.VeilingKlokProducts)
             .Where(vk => vk.VeilingmeesterId == meesterId)
             .ToListAsync();
     }
@@ -102,20 +104,22 @@ public class VeilingKlokRepository : IVeilingKlokRepository
         return (items, totalCount);
     }
 
-    public async Task<(IEnumerable<(VeilingKlok VeilingKlok, int BidCount)> Items, int TotalCount)>
-        GetAllWithFilterAndBidsAsync(
-            VeilingKlokStatus? statusFilter,
-            string? region,
-            DateTime? scheduledAfter,
-            DateTime? scheduledBefore,
-            DateTime? startedAfter,
-            DateTime? startedBefore,
-            DateTime? endedAfter,
-            DateTime? endedBefore,
-            Guid? meesterId,
-            int pageNumber,
-            int pageSize
-        )
+    public async Task<(
+        IEnumerable<(VeilingKlok VeilingKlok, int BidCount)> Items,
+        int TotalCount
+    )> GetAllWithFilterAndBidsAsync(
+        VeilingKlokStatus? statusFilter,
+        string? region,
+        DateTime? scheduledAfter,
+        DateTime? scheduledBefore,
+        DateTime? startedAfter,
+        DateTime? startedBefore,
+        DateTime? endedAfter,
+        DateTime? endedBefore,
+        Guid? meesterId,
+        int pageNumber,
+        int pageSize
+    )
     {
         // Start with base query on VeilingKlok
         var query = _dbContext.Veilingklokken.AsQueryable();
@@ -160,7 +164,7 @@ public class VeilingKlokRepository : IVeilingKlokRepository
             .Select(vk => new
             {
                 VeilingKlok = vk,
-                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id)
+                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id),
             })
             .ToListAsync();
 
@@ -170,17 +174,17 @@ public class VeilingKlokRepository : IVeilingKlokRepository
         return (result, totalCount);
     }
 
-    public async Task<IEnumerable<(VeilingKlok VeilingKlok, int BidCount)>>
-        GetAllByMeesterIdWithBidsCountAsync(Guid meesterId)
+    public async Task<
+        IEnumerable<(VeilingKlok VeilingKlok, int BidCount)>
+    > GetAllByMeesterIdWithBidsCountAsync(Guid meesterId)
     {
         return await _dbContext
-            .Veilingklokken
-            .Include(vk => vk.VeilingKlokProducts)
+            .Veilingklokken.Include(vk => vk.VeilingKlokProducts)
             .Where(vk => vk.VeilingmeesterId == meesterId)
             .Select(vk => new
             {
                 VeilingKlok = vk,
-                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id)
+                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id),
             })
             .Select(x => ValueTuple.Create(x.VeilingKlok, x.BidsCount))
             .ToListAsync();
@@ -188,19 +192,15 @@ public class VeilingKlokRepository : IVeilingKlokRepository
 
     public async Task<(VeilingKlok VeilingKlok, int BidCount)?> GetByIdWithBidsCount(Guid id)
     {
-        var result = await _dbContext.Veilingklokken
-            .Include(vk => vk.VeilingKlokProducts)
-            .Where(vk => vk.Id == id)
-            .Select(vk => new
-            {
-                VeilingKlok = vk,
-                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id)
-            })
-            .FirstOrDefaultAsync();
+        var veilingKlok = await _dbContext
+            .Veilingklokken.Include(vk => vk.VeilingKlokProducts)
+            .FirstOrDefaultAsync(vk => vk.Id == id);
 
-        if (result == null)
+        if (veilingKlok == null)
             return null;
 
-        return (result.VeilingKlok, result.BidsCount);
+        var bidCount = await _dbContext.OrderItems.CountAsync(oi => oi.VeilingKlokId == id);
+
+        return (veilingKlok, bidCount);
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260114155524_InitialCreate")]
+    [Migration("20260114171004_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -383,16 +383,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("ended_at");
 
-                    b.Property<decimal>("HighestPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("highest_price");
-
-                    b.Property<decimal>("LowestPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("lowest_price");
-
                     b.Property<int>("PeakedLiveViews")
                         .HasColumnType("int")
                         .HasColumnName("peaked_live_views");
@@ -457,6 +447,11 @@ namespace Infrastructure.Migrations
                     b.Property<DateTimeOffset>("AddedAt")
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("added_at");
+
+                    b.Property<decimal>("AuctionPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("auction_price");
 
                     b.Property<int>("Position")
                         .HasColumnType("int")

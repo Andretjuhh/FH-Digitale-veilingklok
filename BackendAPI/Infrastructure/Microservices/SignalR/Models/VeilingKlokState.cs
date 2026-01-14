@@ -59,7 +59,6 @@ public class VeilingKlokState
     {
         Status = VeilingKlokStatus.Started;
         VeilingStartTime = DateTimeOffset.UtcNow;
-        VeilingEndTime = VeilingStartTime.AddSeconds(VeilingDurationSeconds);
     }
 
     //  Check if the current veiling round has ended

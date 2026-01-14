@@ -23,8 +23,6 @@ public class VeilingKlok
 
     [Column("veiling_rounds")] public int VeilingRounds { get; set; } = 0;
     [Column("bidding_product_index")] public int BiddingProductIndex { get; private set; } = 0;
-    [Column("highest_price")] public decimal HighestPrice { get; set; } = 0;
-    [Column("lowest_price")] public decimal LowestPrice { get; set; } = 0;
 
     [Column("total_products")] public int TotalProducts { get; private set; } = 0;
 
@@ -48,6 +46,14 @@ public class VeilingKlok
     // Navigation property for the many-to-many relationship with Product through VeilingKlokProduct
     private readonly List<VeilingKlokProduct> _veilingKlokProducts = new();
     public IReadOnlyCollection<VeilingKlokProduct> VeilingKlokProducts => _veilingKlokProducts;
+
+    [NotMapped]
+    public decimal LowestProductPrice =>
+        _veilingKlokProducts.Count != 0 ? _veilingKlokProducts.Min(vkp => vkp.AuctionPrice) : 0;
+
+    [NotMapped]
+    public decimal HighestProductPrice =>
+        _veilingKlokProducts.Count != 0 ? _veilingKlokProducts.Max(vkp => vkp.AuctionPrice) : 0;
 
     /// <summary>
     /// Gets the product IDs in the correct order (by position).
@@ -93,7 +99,7 @@ public class VeilingKlok
         VeilingmeesterId = veilingmeesterId;
     }
 
-    public void AddProductId(Guid productId)
+    public void AddProduct(Guid productId, decimal auctionPrice)
     {
         // Check if product already exists in the collection
         var existingEntry = _veilingKlokProducts.FirstOrDefault(vkp => vkp.ProductId == productId);
@@ -111,6 +117,7 @@ public class VeilingKlok
         {
             VeilingKlokId = Id,
             ProductId = productId,
+            AuctionPrice = auctionPrice,
             Position = position
         });
         TotalProducts++;
@@ -143,11 +150,12 @@ public class VeilingKlok
         BiddingProductIndex = newIndex;
     }
 
-    public void UpdatePriceRange(decimal addedProductPrice)
+    public void UpdateProductPrice(Guid productId, decimal newPrice)
     {
-        if (addedProductPrice > HighestPrice)
-            HighestPrice = addedProductPrice;
-        else if (LowestPrice == 0 || addedProductPrice < LowestPrice)
-            LowestPrice = addedProductPrice;
+        var entry = _veilingKlokProducts.FirstOrDefault(vkp => vkp.ProductId == productId);
+        if (entry == null)
+            throw KlokValidationException.ProductNotInVeilingKlok();
+
+        entry.AuctionPrice = newPrice;
     }
 }

@@ -14,14 +14,14 @@ public sealed record RemoveProductFromVeilingKlokCommand(
     Guid ProductId
 ) : IRequest;
 
-public sealed class RemoveVeilingKlokProductHandler
+public sealed class RemoveKlokProductHandler
     : IRequestHandler<RemoveProductFromVeilingKlokCommand>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IVeilingKlokRepository _veilingKlokRepository;
     private readonly IProductRepository _productRepository;
 
-    public RemoveVeilingKlokProductHandler(
+    public RemoveKlokProductHandler(
         IUnitOfWork unitOfWork,
         IVeilingKlokRepository veilingKlokRepository,
         IProductRepository productRepository
@@ -60,25 +60,6 @@ public sealed class RemoveVeilingKlokProductHandler
             // Remove product from VeilingKlok
             product.RemoveVeilingKlok();
             veilingKlok.RemoveProductId(request.ProductId);
-
-            // Recalculate price range from remaining products
-            var remainingProductIds = veilingKlok.GetOrderedProductIds();
-
-            if (remainingProductIds.Count > 0)
-            {
-                var remainingProducts = await _productRepository.GetAllByIds(remainingProductIds);
-                var productList = remainingProducts.ToList();
-                if (productList.Any())
-                {
-                    veilingKlok.HighestPrice = productList.Max(p => p.AuctionPrice ?? 0);
-                    veilingKlok.LowestPrice = productList.Min(p => p.AuctionPrice ?? 0);
-                }
-            }
-            else
-            {
-                veilingKlok.HighestPrice = 0;
-                veilingKlok.LowestPrice = 0;
-            }
 
             // Update repositories
             _productRepository.Update(product);

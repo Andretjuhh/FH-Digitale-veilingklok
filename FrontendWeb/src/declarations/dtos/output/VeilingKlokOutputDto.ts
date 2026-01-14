@@ -18,7 +18,7 @@ export interface VeilingKlokOutputDto {
 
 	veilingRounds: number | null;
 	currentProductIndex: number | null;
-	highestBidAmount: number | null;
-	lowestBidAmount: number | null;
+	lowestProductPrice: number;
+	highestProductPrice: number;
 	products: ProductOutputDto[];
 }

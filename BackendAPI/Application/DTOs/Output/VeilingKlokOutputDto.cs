@@ -19,7 +19,7 @@ public class VeilingKlokOutputDto
 
     public int? VeilingRounds { get; set; }
     public int? CurrentProductIndex { get; set; }
-    public decimal? HighestBidAmount { get; set; }
-    public decimal? LowestBidAmount { get; set; }
+    public decimal? LowestProductPrice { get; set; }
+    public decimal? HighestProductPrice { get; set; }
     public required List<ProductOutputDto> Products { get; set; }
 }

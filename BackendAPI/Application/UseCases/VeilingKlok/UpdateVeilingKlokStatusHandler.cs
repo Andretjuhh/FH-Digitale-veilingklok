@@ -62,6 +62,18 @@ public sealed class UpdateVeilingKlokStatusHandler : IRequestHandler<UpdateVeili
             else if (request.Status == VeilingKlokStatus.Ended)
             {
                 await _veilingKlokEngine.StopVeilingAsync(veilingKlok.Id);
+
+                // When ending the veiling, we unlink the products from the active VeilingKlokId
+                // The history is preserved in VeilingKlokProduct table
+                var products = await _productRepository.GetAllByVeilingKlokIdAsync(veilingKlok.Id);
+                foreach (var product in products)
+                {
+                    if (product.VeilingKlokId == veilingKlok.Id)
+                    {
+                        product.RemoveVeilingKlok();
+                        _productRepository.Update(product);
+                    }
+                }
             }
 
             _veilingKlokRepository.Update(veilingKlok);
