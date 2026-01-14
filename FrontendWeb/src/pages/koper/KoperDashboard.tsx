@@ -293,10 +293,10 @@ function UserDashboard() {
 
 						<div className="user-actions">
 							<div className="buy-controls">
-								<Button
-									className="user-action-btn !bg-primary-main buy-full"
-									label={`${t('koper_buy')} (${qty})`}
-									onClick={async () => {
+									<Button
+										className="user-action-btn !bg-primary-main buy-full"
+										label={`${t('koper_buy')} (${qty})`}
+										onClick={async () => {
 										if (qty <= 0 || !current) return;
 										setPaused(true);
 										try {
@@ -322,14 +322,6 @@ function UserDashboard() {
 										}
 									}}
 								/>
-								<Button
-									className="user-action-btn btn-outline"
-									label="Prijshistorie"
-									onClick={() => {
-										setShowHistoryModal(true);
-										loadHistory();
-									}}
-								/>
 								<div className="buy-inline">
 									<input
 										type="number"
@@ -348,6 +340,14 @@ function UserDashboard() {
 										aria-label={t('koper_qty_input_aria')}
 									/>
 									<Button className="qty-max-btn btn-outline" label={t('koper_max_stock')} aria-label={t('koper_max_stock')} onClick={() => setQty(currentStock)} disabled={currentStock === 0} />
+									<Button
+										className="qty-max-btn btn-outline"
+										label="Prijshistorie"
+										onClick={() => {
+											setShowHistoryModal(true);
+											loadHistory();
+										}}
+									/>
 								</div>
 							</div>
 						</div>
