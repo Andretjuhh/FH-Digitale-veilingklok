@@ -9,6 +9,7 @@ public class ProductDetailsOutputDto
     public required decimal? AuctionPrice { get; set; }
     public required decimal MinimumPrice { get; set; }
     public required int Stock { get; set; }
+    public required string? Region { get; set; }
     public required string ImageBase64 { get; set; }
     public required string Dimension { get; set; }
     public required bool Auctioned { get; set; }

@@ -151,8 +151,10 @@ public class ProductRepository : IProductRepository
         int TotalCount
         )> GetAllWithFilterAsync(
         string? nameFilter,
+        string? regionFilter,
         decimal? maxPrice,
         Guid? kwekerId,
+        Guid? klokId,
         int pageNumber,
         int pageSize
     )
@@ -168,15 +170,25 @@ public class ProductRepository : IProductRepository
         if (!string.IsNullOrWhiteSpace(nameFilter))
             query = query.Where(x => x.product.Name.Contains(nameFilter));
 
+        if (!string.IsNullOrWhiteSpace(regionFilter))
+            query = query.Where(x => x.product.Region == regionFilter);
+
         if (maxPrice.HasValue)
             query = query.Where(x => x.product.AuctionPrice <= maxPrice.Value);
 
         if (kwekerId.HasValue)
             query = query.Where(x => x.product.KwekerId == kwekerId.Value);
 
-        var totalCount = await query.CountAsync();
+        if (klokId.HasValue)
+            query = query.Where(x => x.product.VeilingKlokId == klokId.Value);
 
-        var results = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        var totalCount = await query.CountAsync();
+        var results = await query
+            .OrderByDescending(x => x.product.CreatedAt)
+            .ThenBy(x => x.product.Name)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
         var items = results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
 
         return (items, totalCount);

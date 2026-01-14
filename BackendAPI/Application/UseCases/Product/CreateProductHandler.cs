@@ -35,13 +35,13 @@ public sealed class CreateProductHandler
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             var dto = request.Payload;
             // Kweker only set the minimum price, stock and kwekerId
-            var newProduct = new Domain.Entities.Product(dto.MinimumPrice, dto.Stock)
+            var newProduct = new Domain.Entities.Product(dto.MinimumPrice, dto.Stock, dto.Region)
             {
                 Name = dto.Name,
                 Description = dto.Description,
                 ImageUrl = dto.ImageBase64,
                 Dimension = dto.Dimension,
-                KwekerId = request.KwekerId,
+                KwekerId = request.KwekerId
             };
             await _productRepository.AddAsync(newProduct);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

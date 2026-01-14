@@ -84,6 +84,7 @@ namespace Infrastructure.Migrations
                     created_at = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     highest_price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     lowest_price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    total_products = table.Column<int>(type: "int", nullable: false),
                     state_or_province = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     country = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
                     veilingmeester_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -216,13 +217,14 @@ namespace Infrastructure.Migrations
                 {
                     id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     created_at = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
-                    image_base64 = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    image_url = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     dimension = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     auction_price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     minimum_price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     stock = table.Column<int>(type: "int", nullable: false),
+                    region = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     auctioned_at = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     auctioned_count = table.Column<int>(type: "int", nullable: false),
                     kweker_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -254,6 +256,8 @@ namespace Infrastructure.Migrations
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     quantity = table.Column<int>(type: "int", nullable: false),
+                    price_at_purchase = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    product_minimum_price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     veilingklok_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     product_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     order_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -281,6 +285,34 @@ namespace Infrastructure.Migrations
                         principalTable: "Veilingklok",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VeilingKlokProduct",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    veilingklok_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    product_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    position = table.Column<int>(type: "int", nullable: false),
+                    added_at = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VeilingKlokProduct", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_VeilingKlokProduct_Product_product_id",
+                        column: x => x.product_id,
+                        principalTable: "Product",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_VeilingKlokProduct_Veilingklok_veilingklok_id",
+                        column: x => x.veilingklok_id,
+                        principalTable: "Veilingklok",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -366,6 +398,16 @@ namespace Infrastructure.Migrations
                 table: "Veilingklok",
                 column: "veilingmeester_id");
 
+            migrationBuilder.CreateIndex(
+                name: "IX_VeilingKlokProduct_product_id",
+                table: "VeilingKlokProduct",
+                column: "product_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VeilingKlokProduct_veilingklok_id",
+                table: "VeilingKlokProduct",
+                column: "veilingklok_id");
+
             migrationBuilder.AddForeignKey(
                 name: "FK_Adresses_Koper_KoperId",
                 table: "Adresses",
@@ -394,6 +436,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "RefreshToken");
+
+            migrationBuilder.DropTable(
+                name: "VeilingKlokProduct");
 
             migrationBuilder.DropTable(
                 name: "Order");

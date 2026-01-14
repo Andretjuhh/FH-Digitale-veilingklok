@@ -12,6 +12,7 @@ export interface ProductDetailsOutputDto {
 	auctioned: boolean;
 	auctionedCount: number;
 	auctionedAt: string | null;
+	region?: string;
 	kwekerId: string;
 	companyName: string;
 }

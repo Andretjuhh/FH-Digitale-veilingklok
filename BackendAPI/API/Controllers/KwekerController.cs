@@ -58,9 +58,38 @@ public class KwekerController : ControllerBase
     [HttpGet("order/{orderId}")]
     public async Task<IActionResult> GetOrder(Guid orderId)
     {
-        var query = new GetOrderCommand(orderId, Guid.Empty);
+        var (kwekerId, _) = GetUserClaim.GetInfo(User);
+        var query = new GetKwekerOrderCommand(orderId, kwekerId);
         var result = await _mediator.Send(query);
-        return HttpSuccess<OrderDetailsOutputDto>.Ok(result);
+        return HttpSuccess<OrderKwekerOutput>.Ok(result);
+    }
+
+    [HttpGet("orders")]
+    public async Task<IActionResult> GetOrders(
+        [FromQuery] string? productNameFilter,
+        [FromQuery] string? koperNameFilter,
+        [FromQuery] OrderStatus? statusFilter,
+        [FromQuery] DateTime? beforeDate,
+        [FromQuery] DateTime? afterDate,
+        [FromQuery] Guid? productId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        var (kwekerId, _) = GetUserClaim.GetInfo(User);
+        var command = new GetKwekerOrdersCommand(
+            kwekerId,
+            productNameFilter,
+            koperNameFilter,
+            statusFilter,
+            beforeDate,
+            afterDate,
+            productId,
+            pageNumber,
+            pageSize
+        );
+        var result = await _mediator.Send(command);
+        return HttpSuccess<PaginatedOutputDto<OrderKwekerOutput>>.Ok(result);
     }
 
     [HttpPut("order/{orderId}/status")]
@@ -127,13 +156,14 @@ public class KwekerController : ControllerBase
     [HttpGet("products")]
     public async Task<IActionResult> GetProducts(
         [FromQuery] string? nameFilter,
+        [FromQuery] string? regionFilter,
         [FromQuery] decimal? maxPrice,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10
     )
     {
         var (kwekerId, _) = GetUserClaim.GetInfo(User);
-        var query = new GetProductsQuery(nameFilter, maxPrice, kwekerId, pageNumber, pageSize);
+        var query = new GetProductsQuery(nameFilter, regionFilter, maxPrice, kwekerId, null, pageNumber, pageSize);
         var result = await _mediator.Send(query);
         return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }

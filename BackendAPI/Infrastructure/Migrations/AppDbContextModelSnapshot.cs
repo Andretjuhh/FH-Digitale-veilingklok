@@ -189,9 +189,19 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("order_id");
 
+                    b.Property<decimal>("PriceAtPurchase")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("price_at_purchase");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("product_id");
+
+                    b.Property<decimal>("ProductMinimumPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("product_minimum_price");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int")
@@ -258,7 +268,7 @@ namespace Infrastructure.Migrations
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnName("image_base64");
+                        .HasColumnName("image_url");
 
                     b.Property<Guid>("KwekerId")
                         .HasColumnType("uniqueidentifier")
@@ -273,6 +283,10 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("name");
+
+                    b.Property<string>("Region")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("region");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -405,7 +419,11 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("status");
 
-                    b.Property<int>("VeilingDurationMinutes")
+                    b.Property<int>("TotalProducts")
+                        .HasColumnType("int")
+                        .HasColumnName("total_products");
+
+                    b.Property<int>("VeilingDurationSeconds")
                         .HasColumnType("int")
                         .HasColumnName("veiling_duration");
 
@@ -418,6 +436,40 @@ namespace Infrastructure.Migrations
                     b.HasIndex("VeilingmeesterId");
 
                     b.ToTable("Veilingklok");
+                });
+
+            modelBuilder.Entity("Domain.Entities.VeilingKlokProduct", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("AddedAt")
+                        .HasColumnType("datetimeoffset")
+                        .HasColumnName("added_at");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int")
+                        .HasColumnName("position");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("product_id");
+
+                    b.Property<Guid>("VeilingKlokId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("veilingklok_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("VeilingKlokId");
+
+                    b.ToTable("VeilingKlokProduct");
                 });
 
             modelBuilder.Entity("Domain.Entities.Koper", b =>
@@ -604,6 +656,21 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Entities.VeilingKlokProduct", b =>
+                {
+                    b.HasOne("Domain.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.VeilingKlok", null)
+                        .WithMany("VeilingKlokProducts")
+                        .HasForeignKey("VeilingKlokId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Domain.Entities.Koper", b =>
                 {
                     b.HasOne("Domain.Entities.Account", null)
@@ -651,6 +718,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Order", b =>
                 {
                     b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("Domain.Entities.VeilingKlok", b =>
+                {
+                    b.Navigation("VeilingKlokProducts");
                 });
 
             modelBuilder.Entity("Domain.Entities.Koper", b =>

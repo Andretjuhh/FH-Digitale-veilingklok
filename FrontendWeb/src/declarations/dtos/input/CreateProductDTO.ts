@@ -6,4 +6,5 @@ export interface CreateProductDTO {
 	stock: number;
 	imageBase64: string;
 	dimension?: string;
+	region?: string;
 }

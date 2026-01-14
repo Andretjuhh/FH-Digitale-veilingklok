@@ -47,7 +47,7 @@ public sealed class UpdateOrderStatusHandler
 
             // If Klok is still under auction is not possible to change status active
             if (klok.Status < VeilingKlokStatus.Ended)
-                throw CustomException.InvalidOperation();
+                throw CustomException.InvalidOperationKlokStillRunning();
 
             // Business rules for status transition can be added here
             order.UpdateOrderStatus(request.Status);

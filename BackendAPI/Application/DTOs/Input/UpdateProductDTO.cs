@@ -18,4 +18,6 @@ public class UpdateProductDTO
 
     public string? ImageBase64 { get; set; }
     public string? Dimension { get; set; }
+    public string? Region { get; set; }
+
 }

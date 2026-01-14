@@ -12,6 +12,7 @@ public class VeilingKlokOutputDto
     public required string Country { get; set; }
     public required int CurrentBids { get; set; }
     public required int TotalProducts { get; set; }
+    public required int VeilingDurationSeconds { get; set; }
     public DateTimeOffset? ScheduledAt { get; set; }
     public DateTimeOffset? StartedAt { get; set; }
     public DateTimeOffset? EndedAt { get; set; }

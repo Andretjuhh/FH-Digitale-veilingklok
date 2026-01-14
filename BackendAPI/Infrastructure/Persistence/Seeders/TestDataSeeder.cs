@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces;
 using Domain.ValueObjects;
 using Infrastructure.Persistence.Data;
@@ -210,6 +211,8 @@ public class TestDataSeeder : ITestDataSeeder
         // Delete in reverse order of dependencies
         await _context.Database.ExecuteSqlRawAsync("DELETE FROM [OrderItem]");
         await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Order]");
+        await _context.Database.ExecuteSqlRawAsync(
+            "DELETE FROM [VeilingKlokProduct]"); // Delete join table before Product and Veilingklok
         await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Product]");
         await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Veilingklok]");
         await _context.Database.ExecuteSqlRawAsync("DELETE FROM [RefreshToken]");
@@ -370,16 +373,17 @@ public class TestDataSeeder : ITestDataSeeder
         var random = new Random(45);
 
         foreach (var kweker in kwekers)
-            // Create 20 products per kweker
-            for (var i = 0; i < 20; i++)
+            // Create 200 products per kweker to support more veilingklokken and orders
+            for (var i = 0; i < 200; i++)
             {
                 var flowerName = DutchFlowerNames[random.Next(DutchFlowerNames.Length)];
                 var color = DutchColors[random.Next(DutchColors.Length)];
                 var description = FlowerDescriptions[random.Next(FlowerDescriptions.Length)];
                 var minimumPrice = Math.Round((decimal)(random.NextDouble() * 15 + 5), 2); // €5-€20
                 var stock = random.Next(50, 500);
+                var region = DutchLocations[random.Next(DutchLocations.Length)].Region;
 
-                var product = new Product(minimumPrice, stock)
+                var product = new Product(minimumPrice, stock, region)
                 {
                     Name = $"{color} {flowerName}",
                     Description = description,
@@ -388,13 +392,14 @@ public class TestDataSeeder : ITestDataSeeder
                     KwekerId = kweker.Id
                 };
 
-                await _context.Products.AddAsync(product);
                 products.Add(product);
             }
 
+        // Batch add all products at once for performance
+        await _context.Products.AddRangeAsync(products);
         await _context.SaveChangesAsync();
         _logger.LogInformation(
-            $"Seeded {products.Count} products ({kwekers.Count} kwekers × 20 products)"
+            $"Seeded {products.Count} products ({kwekers.Count} kwekers × 200 products)"
         );
         return products;
     }
@@ -406,25 +411,16 @@ public class TestDataSeeder : ITestDataSeeder
     {
         var veilingklokken = new List<VeilingKlok>();
         var random = new Random(46);
-        var availableProducts = new List<Product>(allProducts);
-        var regions = new[]
-        {
-            "Noord-Holland",
-            "Zuid-Holland",
-            "Utrecht",
-            "Noord-Brabant",
-            "Gelderland"
-        };
 
-        // Create 10 veilingklokken
-        for (var i = 0; i < 10; i++)
+        // Create 100 veilingklokken to allow for more variety and order spread
+        for (var i = 0; i < 100; i++)
         {
             var veilingmeester = veilingmeesters[i % veilingmeesters.Count];
             var location = DutchLocations[random.Next(DutchLocations.Length)];
 
             var veilingKlok = new VeilingKlok
             {
-                VeilingDurationMinutes = random.Next(60, 180),
+                VeilingDurationSeconds = random.Next(60, 180),
                 ScheduledAt = DateTimeOffset.UtcNow.AddDays(random.Next(-5, 30)),
                 RegionOrState = location.Region,
                 Country = "NL"
@@ -435,26 +431,51 @@ public class TestDataSeeder : ITestDataSeeder
                 .GetProperty("VeilingmeesterId")
                 ?.SetValue(veilingKlok, veilingmeester.Id);
 
-            await _context.Veilingklokken.AddAsync(veilingKlok);
-            await _context.SaveChangesAsync(); // Save to get ID
+            veilingklokken.Add(veilingKlok);
 
-            // Assign unique products to each klok so historical auctions keep their products.
-            var productCount = Math.Min(random.Next(5, 16), availableProducts.Count);
-            if (productCount > 0)
+            var statusRoll = random.NextDouble();
+            if (statusRoll < 0.2)
             {
-                // Add 5-15 random products from the remaining pool
-                var selectedProducts = availableProducts
-                    .OrderBy(x => random.Next())
-                    .Take(productCount)
-                    .ToList();
+                // Leave as Scheduled
+            }
+            else if (statusRoll < 0.6)
+            {
+                veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
+            }
+            else
+            {
+                veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
+                veilingKlok.UpdateStatus(VeilingKlokStatus.Ended);
+            }
+        }
 
+        // Batch add all veilingklokken at once
+        await _context.Veilingklokken.AddRangeAsync(veilingklokken);
+        await _context.SaveChangesAsync(); // Save to get IDs
+
+        // Now assign products to veilingklokken
+        var productIndex = 0;
+        foreach (var veilingKlok in veilingklokken)
+            // 90% chance to add products
+            if (random.NextDouble() > 0.1)
+            {
+                var productCount = random.Next(10, 25);
                 var lowestPrice = decimal.MaxValue;
                 var highestPrice = decimal.MinValue;
 
-                foreach (var product in selectedProducts)
+                for (var j = 0; j < productCount && productIndex < allProducts.Count; j++, productIndex++)
                 {
+                    var product = allProducts[productIndex];
                     product.AddToVeilingKlok(veilingKlok.Id);
-                    availableProducts.Remove(product);
+                    veilingKlok.AddProductId(product.Id);
+
+                    // Set auction price for products in started/ended auctions
+                    if (veilingKlok.Status == VeilingKlokStatus.Started ||
+                        veilingKlok.Status == VeilingKlokStatus.Ended)
+                    {
+                        var auctionPrice = product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
+                        product.UpdateAuctionPrice(auctionPrice);
+                    }
 
                     if (product.MinimumPrice < lowestPrice)
                         lowestPrice = product.MinimumPrice;
@@ -462,12 +483,12 @@ public class TestDataSeeder : ITestDataSeeder
                         highestPrice = product.MinimumPrice;
                 }
 
-                veilingKlok.LowestPrice = lowestPrice;
-                veilingKlok.HighestPrice = highestPrice;
+                if (lowestPrice != decimal.MaxValue)
+                {
+                    veilingKlok.LowestPrice = lowestPrice;
+                    veilingKlok.HighestPrice = highestPrice;
+                }
             }
-
-            veilingklokken.Add(veilingKlok);
-        }
 
         await _context.SaveChangesAsync();
         _logger.LogInformation($"Seeded {veilingklokken.Count} veilingklokken");
@@ -482,55 +503,135 @@ public class TestDataSeeder : ITestDataSeeder
     {
         var random = new Random(47);
         var ordersCreated = 0;
+        var soldProductIds = new HashSet<Guid>();
 
-        // Create some orders for random kopers
-        foreach (var koper in kopers.Take(5)) // First 5 kopers get orders
+        // Group products by VeilingKlok for faster lookup
+        var productsByVeilingKlok = products
+            .Where(p => p.VeilingKlokId.HasValue)
+            .GroupBy(p => p.VeilingKlokId.Value)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        var attempts = 0;
+        var ordersToSave =
+            new List<(Order order, List<(Product product, int quantity, decimal unitPrice)> items, OrderStatus
+                desiredStatus)>();
+
+        while (ordersCreated < 500 && attempts < 1500)
         {
+            attempts++;
+            var koper = kopers[random.Next(kopers.Count)];
             var veilingKlok = veilingklokken[random.Next(veilingklokken.Count)];
+
+            // Get available products for this veilingklok
+            if (!productsByVeilingKlok.TryGetValue(veilingKlok.Id, out var veilingKlokProducts))
+                continue;
+
+            var availableProducts = veilingKlokProducts
+                .Where(p => !soldProductIds.Contains(p.Id))
+                .ToList();
+
+            if (!availableProducts.Any())
+                continue;
 
             var order = new Order(koper.Id) { VeilingKlokId = veilingKlok.Id };
 
-            await _context.Orders.AddAsync(order);
-            await _context.SaveChangesAsync(); // Save to get order ID
-
-            // Add 2-5 order items
-            var itemCount = random.Next(2, 6);
-            var selectedProducts = products
-                .Where(p => p.VeilingKlokId == veilingKlok.Id)
+            // Add 1-4 order items (reduced from 1-5 for faster processing)
+            var itemCount = random.Next(1, 5);
+            var selectedProducts = availableProducts
                 .OrderBy(x => random.Next())
                 .Take(itemCount)
                 .ToList();
 
+            var orderItemsData = new List<(Product product, int quantity, decimal unitPrice)>();
+
             foreach (var product in selectedProducts)
             {
                 var quantity = random.Next(1, 10);
-                // Ensure price is at least the minimum price, or slightly higher if auctioned
-                var unitPrice = product.AuctionPrice ?? product.MinimumPrice;
-                // If auction price is set, use it; otherwise add 10-50% markup to minimum price
-                if (!product.AuctionPrice.HasValue)
-                    unitPrice =
-                        product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
 
-                // Fetch the full product object for the constructor
-                var fullProduct = await _context.Products.FindAsync(product.Id);
-                if (fullProduct == null)
-                    continue;
-
-                var orderItem = new OrderItem(unitPrice, quantity, fullProduct, order.Id)
+                // Determine the unit price
+                decimal unitPrice;
+                if (product.AuctionPrice.HasValue)
                 {
-                    VeilingKlokId = veilingKlok.Id
-                };
+                    unitPrice = product.AuctionPrice.Value;
+                }
+                else
+                {
+                    unitPrice = product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
+                    product.UpdateAuctionPrice(unitPrice);
+                }
 
-                order.AddItem(orderItem);
-                await _context.OrderItems.AddAsync(orderItem);
+                orderItemsData.Add((product, quantity, unitPrice));
+                soldProductIds.Add(product.Id);
             }
 
+            // Determine desired Order Status (but don't apply yet - need to add items first)
+            var desiredStatus = OrderStatus.Open;
+            var statusRoll = random.NextDouble();
+            if (veilingKlok.Status == VeilingKlokStatus.Ended)
+            {
+                if (statusRoll < 0.1)
+                    desiredStatus = OrderStatus.Processing;
+                else if (statusRoll < 0.4)
+                    desiredStatus = OrderStatus.Processed;
+                else
+                    desiredStatus = OrderStatus.Delivered;
+            }
+            else
+            {
+                if (statusRoll < 0.4)
+                    desiredStatus = OrderStatus.Processing;
+            }
+
+            ordersToSave.Add((order, orderItemsData, desiredStatus));
             ordersCreated++;
+
+            // Batch save every 100 orders for better performance
+            if (ordersCreated % 100 == 0)
+            {
+                await SaveOrderBatchAsync(ordersToSave);
+                ordersToSave.Clear();
+                _logger.LogInformation($"Seeded {ordersCreated} orders so far...");
+            }
         }
 
-        await _context.SaveChangesAsync();
+        // Save remaining orders
+        if (ordersToSave.Any()) await SaveOrderBatchAsync(ordersToSave);
+
         _logger.LogInformation($"Seeded {ordersCreated} orders with items");
     }
+
+    private async Task SaveOrderBatchAsync(
+        List<(Order order, List<(Product product, int quantity, decimal unitPrice)> items, OrderStatus desiredStatus)>
+            ordersToSave)
+    {
+        // First, save all orders to get their IDs (and let database generate GUIDs)
+        var orders = ordersToSave.Select(x => x.order).ToList();
+        await _context.Orders.AddRangeAsync(orders);
+        await _context.SaveChangesAsync();
+
+        // Now create and save order items with the correct order IDs
+        // IMPORTANT: Items must be added while order status is still Open
+        var allOrderItems = new List<OrderItem>();
+        foreach (var (order, items, desiredStatus) in ordersToSave)
+        foreach (var (product, quantity, unitPrice) in items)
+        {
+            var orderItem = new OrderItem(unitPrice, quantity, product, order.Id);
+            order.AddItem(orderItem); // This validates that order is Open
+            allOrderItems.Add(orderItem);
+        }
+
+        await _context.OrderItems.AddRangeAsync(allOrderItems);
+        await _context.SaveChangesAsync();
+
+        // Now that items are added, we can change the order status
+        foreach (var (order, items, desiredStatus) in ordersToSave)
+            if (desiredStatus != OrderStatus.Open)
+                order.UpdateOrderStatus(desiredStatus);
+
+        // Save status updates
+        await _context.SaveChangesAsync();
+    }
+
 
     private string GenerateBase64PlaceholderImage()
     {

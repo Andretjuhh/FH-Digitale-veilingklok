@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../../buttons/Button';
-import WhatIsCard from '../../elements/WhatIsCard';
+import WhatIsCard from '../../cards/WhatIsCard';
 import {useRootContext} from '../../contexts/RootContext';
 
 function AppWhatIsFlori() {

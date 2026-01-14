@@ -35,14 +35,13 @@ public sealed class GetVeilingDetailsKlokHandler
         var veilingKlok = result.VeilingKlok;
         var bidCount = result.BidCount;
 
-        // Fetch associated products
-        var products = (await _productRepository.GetAllByVeilingKlokIdWithKwekerInfoAsync(veilingKlok.Id))
+        // Fetch associated products (ordered by position)
+        var productIds = veilingKlok.GetOrderedProductIds();
+
+        var products = productIds.Count == 0
+            ? new List<ProductDetailsOutputDto>()
+            : (await _productRepository.GetAllByIdsWithKwekerInfoAsync(productIds))
             .Select(r => ProductMapper.ToOutputDto(r.Product, r.Kweker)).ToList();
-        if (products.Count == 0)
-        {
-            products = (await _productRepository.GetAllByOrderItemsVeilingKlokIdWithKwekerInfoAsync(veilingKlok.Id))
-                .Select(r => ProductMapper.ToOutputDto(r.Product, r.Kweker)).ToList();
-        }
 
 
         // Create extra info and map to output DTO
