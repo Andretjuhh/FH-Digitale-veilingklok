@@ -18,7 +18,6 @@ import {isHttpError} from "../../declarations/types/HttpError";
 import {delay} from "../../utils/standards";
 import ComponentState from "../../components/elements/ComponentState";
 import {OrderOutputDto} from "../../declarations/dtos/output/OrderOutputDto";
-import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
 
 function VeilingmeesterVeilingBeheren() {
 	const {t, account, languageCode, navigate} = useRootContext();
@@ -174,7 +173,7 @@ function VeilingmeesterVeilingBeheren() {
 
 								<>
 									{
-										currentVeilingKlok.status == VeilingKlokStatus.Scheduled ?
+										currentVeilingKlok.status == "Scheduled" as any ?
 											<GridTable
 												isLazy
 												itemsPerPage={12}

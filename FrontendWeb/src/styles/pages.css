@@ -218,6 +218,12 @@
 /*#endregion*/
 
 /*#region Default Page Styles*/
+.home-page {
+    height: unset !important;
+    max-height: unset !important;
+    min-height: 100% !important;
+}
+
 .vm-page,
 .vm-products-page,
 .vm-veiling-info-page,
@@ -225,6 +231,7 @@
     --page-bg-color: var(--bg);
     max-height: unset;
     height: unset;
+    min-height: 100%;
 }
 
 .vm-page .app-header,
@@ -251,18 +258,19 @@
     position: relative;
 }
 
-.products-page-title-section {
-    margin: var(--span1-size) 0;
+.page-title-section {
+    margin: var(--top-pd) 0;
+    margin-top: 0;
 }
 
-.products-page-title-section h1 {
+.page-title-section h1 {
     font-weight: 700;
     font-size: 1.6rem;
     /*color: theme(colors.primary.600);*/
     color: black;
 }
 
-.products-page-title-section h2 {
+.page-title-section h2 {
     font-size: 1rem;
     color: theme(colors.gray.500);
 }

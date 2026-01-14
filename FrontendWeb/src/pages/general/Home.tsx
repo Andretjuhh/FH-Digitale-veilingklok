@@ -9,7 +9,7 @@ import AppWhatIsFlori from '../../components/sections/home/AppWhatIsFlori';
 
 function Home() {
 	return (
-		<Page enableHeader enableFooter>
+		<Page enableHeader enableFooter className={'home-page'}>
 			<AppHome/>
 			<AppBloemSoort/>
 			<AppWhatIsFlori/>

@@ -24,7 +24,7 @@ function Page(props: PageProps) {
 		return () => {
 			document.documentElement.style.backgroundColor = '';
 		};
-	}, []);
+	});
 
 	return (
 		<article ref={pageRef} className={clsx('app-page', className)} {...restProps}>

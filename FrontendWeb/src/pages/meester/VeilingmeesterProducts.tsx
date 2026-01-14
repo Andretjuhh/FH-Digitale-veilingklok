@@ -43,7 +43,7 @@ function VeilingmeesterProducts() {
 	return (
 		<Page enableHeader className="vm-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
 			<main className="vm-products-page-ctn">
-				<section className="products-page-title-section">
+				<section className="page-title-section">
 					<h1>
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
