@@ -97,6 +97,16 @@ function VeilingmeesterKlokManage() {
 
 										<div className={'vm-veiling-info-klok-actions'}>
 											<div className={'vm-veiling-info-detail-item action'}>
+												<span className={'vm-veiling-info-detail-label'}>{t('live_views')}:</span>
+												<div className={'vm-veiling-info-status'}>
+													<span className={`app-table-status-badge bg-blue-100 text-blue-800 text-[1.2rem]`}>
+														<i className="app-table-status-icon bi-eye-fill text-blue-800"/>
+														{currentVeilingKlok.peakedLiveViews}
+													</span>
+												</div>
+											</div>
+
+											<div className={'vm-veiling-info-detail-item action'}>
 												<span className={'vm-veiling-info-detail-label'}>{t('status')}:</span>
 												<div className={'vm-veiling-info-status'}>
 													<KlokStatusBadge status={currentVeilingKlok.status}/>

@@ -188,6 +188,7 @@ export const resources = {
 			stop_veiling_klok: 'Stop Veilingklok',
 			pause_veiling_klok: 'Pause Veilingklok',
 			resume_veiling_klok: 'Hervat Veilingklok',
+			live_views: 'Live weergaven',
 
 			// Clock Text
 			munt: 'Munt',

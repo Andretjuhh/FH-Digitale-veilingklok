@@ -1144,6 +1144,12 @@ img {
     margin-right: 0.375rem;
 }
 
+.app-table-status-icon {
+    font-size: 1.2em;
+    margin-right: 0.5rem;
+    color: currentColor;
+}
+
 .app-table-status-processing,
 .app-table-status-open,
 .app-table-status-paused {
