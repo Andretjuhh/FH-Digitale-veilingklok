@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import Page from '../../components/nav/Page';
-import AuctionClock from '../../components/elements/AuctionClock';
+import AuctionClock from '../../components/elements/AuctionClock2';
 import Button from '../../components/buttons/Button';
 import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 import {formatEur} from '../../utils/standards';

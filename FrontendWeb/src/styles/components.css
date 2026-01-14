@@ -1681,6 +1681,134 @@
 
 /*#endregion */
 
+/*#region Auction Clock */
+
+/* Auction clock styling */
+.auction-clock {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    overflow: visible;
+}
+
+.clock-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+}
+
+.clock-dot {
+    fill: #e5e7eb;
+}
+
+.clock-dot--active {
+    fill: #3b82f6;
+}
+
+.clock-dot--highest {
+    fill: #22c55e;
+}
+
+.clock-dot--lowest {
+    fill: #ef4444;
+}
+
+.clock-num {
+    font-size: 0.475rem;
+    fill: theme(colors.gray.600);
+    font-weight: 700;
+}
+
+.clock-center-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    width: 200px;
+    height: 200px;
+    justify-content: center;
+}
+
+.clock-row {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.clock-row--wide {
+    gap: 12px;
+}
+
+.clock-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.clock-field--price {
+    flex: 1;
+}
+
+.clock-label {
+    font-size: 10px;
+    color: #64748b;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.clock-label i {
+    font-size: 9px;
+}
+
+.clock-box {
+    background: theme(colors.zinc.100);
+    border: 1px solid theme(colors.gray.300);
+    border-radius: 0.6rem;
+
+    padding: 0.2rem 1rem;
+    min-width: max(2rem, 100%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clock-box--large {
+    padding: 0.4rem 1.2rem;
+    min-width: 4rem;
+}
+
+.clock-value {
+    font-size: 12px;
+    color: #111827;
+    font-weight: 800;
+}
+
+.clock-value--large {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.clock-status {
+    margin-top: 8px;
+    padding: 6px 12px;
+    background: #22c55e;
+    color: white;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.clock-status--paused {
+    background: #f59e0b;
+}
+
+/*#endregion */
+
 /*#region Teun Site Footer */
 .rfh-footer {
     margin-top: 40px;

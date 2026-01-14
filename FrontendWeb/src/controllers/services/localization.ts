@@ -184,6 +184,15 @@ export const resources = {
 			manage_product_price_txt: 'Hier kunt u de prijzen van producten beheren die beschikbaar zijn in uw regio.',
 			manage_auction_txt: 'Hier kunt u de veilingen beheren die u heeft gepland voor uw regio.',
 			manage_veiling_klok_txt: 'Hier kunt u de veilingklokken beheren die u heeft gepland voor uw regio.',
+			manage_veiling_klok: 'Veilingklok beheren',
+
+			// Clock Text
+			munt: 'Munt',
+			aant_stock: 'Aant/stock',
+			rounds: 'Rounde',
+			price: 'Prijs',
+			min_aant: 'Min. aantal',
+
 
 			// Kweker Page texts
 			kweker_dashboard: 'Mijn Dashboard',
@@ -215,7 +224,7 @@ export const resources = {
 			order_datum: 'Order datum',
 			total_value: 'Total waarde',
 			no_products: 'Geen product gevonden',
-			
+
 			loading_regions: "Regio's laden...",
 			failed_load_regions: "Fout bij het laden van regio's",
 			regions_loaded: "Regio's succesvol geladen",

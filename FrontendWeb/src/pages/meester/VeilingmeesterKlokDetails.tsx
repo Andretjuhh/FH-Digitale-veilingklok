@@ -78,7 +78,7 @@ function VeilingmeesterKlokDetails() {
 			console.error('Failed to fetch orders', err);
 		}
 	}, [id, state]);
-	const onClose = () => navigate('/veilingmeester/veilingen-beheren');
+	const onClose = () => navigate('/veilingmeester/veilingen');
 
 	const orderColumn: Column<OrderOutputDto>[] = useMemo(() => [
 		{
@@ -248,7 +248,6 @@ function VeilingmeesterKlokDetails() {
 				{
 					(state.type !== 'idle' || currentVeilingKlok) && <ComponentState state={state}/>
 				}
-
 			</main>
 		</Page>
 	);

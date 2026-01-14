@@ -285,7 +285,7 @@
 
 /*#endregion*/
 
-/*#region Veilingmeester Veiling Manage Page */
+/*#region Veilingmeester Klok Page */
 
 .vm-veiling-info-page-ctn {
     display: grid;
@@ -326,7 +326,28 @@
     margin: 0;
 }
 
+.vm-veiling-info-klok-details {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.vm-veiling-info-klok-details .vm-veiling-info-details {
+    padding-right: 0;
+}
+
+.vm-veiling-info-klok-ctn {
+    flex: 2;
+    width: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 6rem;
+}
+
 .vm-veiling-info-details {
+    width: auto;
+    flex: 1;
     padding: 1.2rem 4rem;
     display: flex;
     flex-direction: column;
@@ -352,6 +373,7 @@
     line-height: 1rem;
     font-weight: 600;
     color: theme(colors.gray.700);
+    white-space: nowrap;
 }
 
 .vm-veiling-info-status {
@@ -1403,125 +1425,6 @@
 .stock-text {
     font-size: 12px;
     color: #64748b;
-}
-
-/* Auction clock styling */
-.auction-clock {
-    width: 100%;
-    max-width: 420px;
-    padding: 0 22px;
-}
-
-.clock-svg {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-.clock-dot {
-    fill: #e5e7eb;
-}
-
-.clock-dot--active {
-    fill: theme(colors.primary.main);
-}
-
-.clock-num {
-    font-size: 10px;
-    fill: #475569;
-    font-weight: 700;
-}
-
-.clock-label {
-    font-size: 10px;
-    fill: #475569;
-}
-
-.clock-value {
-    font-size: 12px;
-    fill: #111827;
-    font-weight: 800;
-}
-
-.clock-box {
-    fill: #f8fafc;
-    stroke: #cbd5e1;
-    stroke-width: 1;
-}
-
-.clock-bottom {
-    font-size: 10px;
-    fill: #475569;
-}
-
-.dark .clock-dot {
-    fill: #374151;
-}
-
-.dark .clock-dot--active {
-    fill: theme(colors.primary.200);
-}
-
-.dark .clock-num,
-.dark .clock-label,
-.dark .clock-bottom {
-    fill: #d1d5db;
-}
-
-.dark .clock-value {
-    fill: #f8fafc;
-}
-
-.dark .clock-box {
-    fill: #111827;
-    stroke: #374151;
-}
-
-.user-name {
-    height: 14px;
-    width: 60%;
-    background: #d1d5db;
-    border-radius: 999px;
-}
-
-.user-meta {
-    height: 12px;
-    width: 40%;
-    background: #e5e7eb;
-    border-radius: 999px;
-}
-
-.user-actions {
-    display: grid;
-    gap: 10px;
-    width: 100%;
-    margin-top: 8px;
-}
-
-.user-action-btn {
-    justify-content: center;
-}
-
-.user-card-aside {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: #e5e7eb;
-    place-self: start end;
-}
-
-.buy-controls {
-    display: grid;
-    gap: 12px;
-    align-items: center;
-    justify-items: center;
-    width: 100%;
-}
-
-.qty-val {
-    min-width: 48px;
-    text-align: center;
-    font-weight: 800;
 }
 
 /* Upcoming queue */
