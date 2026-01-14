@@ -106,11 +106,15 @@ public class AccountController : ControllerBase
     [HttpDelete("admin/{accountId}")]
     public async Task<IActionResult> DeleteAccount(Guid accountId, [FromQuery] bool hardDelete = false)
     {
-        var (_, accountType) = GetUserClaim.GetInfo(User);
+        var (currentAccountId, accountType) = GetUserClaim.GetInfo(User);
 
         // Only allow admin users to access this endpoint
         if (accountType != AccountType.Admin)
             return HttpError.Forbidden("Only admin users can access this endpoint");
+
+        // Prevent admin from deleting themselves
+        if (currentAccountId == accountId)
+            return HttpError.BadRequest("You cannot delete your own account");
 
         var deleteRequest = new DeleteAccountRequestDTO
         {

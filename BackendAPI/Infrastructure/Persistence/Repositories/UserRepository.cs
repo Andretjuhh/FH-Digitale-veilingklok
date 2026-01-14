@@ -143,6 +143,10 @@ public class UserRepository : IUserRepository
         if (account == null)
             return;
 
+        // Only reactivate if account is actually soft deleted
+        if (!account.DeletedAt.HasValue)
+            return;
+
         // Reset DeletedAt to null to reactivate
         typeof(Account).GetProperty(nameof(Account.DeletedAt))?.SetValue(account, null);
         _dbContext.Accounts.Update(account);
