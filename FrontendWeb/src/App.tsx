@@ -27,6 +27,7 @@ import KwekerDashboard from './pages/kweker/KwekerDashboard';
 import KwekerOrders from './pages/kweker/KwekerOrders';
 import KwekerProducts from './pages/kweker/KwekerProducts';
 import ProductDetails from './pages/kweker/ProductDetails';
+import VeilingmeesterManageHome from "./pages/meester/VeilingmeesterHome";
 
 function App() {
 	const location = useLocation();
@@ -45,7 +46,7 @@ function App() {
 
 					{/*Veilingmeester Routes*/}
 					<Route path="/veilingmeester/dashboard2" element={<VeilingmeesterDashboard2/>}/>
-					<Route path="/veilingmeester/veilingen-beheren" element={<VeilingmeesterKlokManage/>}/>
+					<Route path="/veilingmeester/veilingen-beheren" element={<VeilingmeesterManageHome/>}/>
 					<Route path="/veilingmeester/veilingen-beheren/:klokId" element={<VeilingmeesterKlokManage/>}/>
 					<Route path="/veilingmeester/veilingen" element={<VeilingmeesterVeilingen/>}/>
 					<Route path="/veilingmeester/veilingen/:klokId" element={<VeilingmeesterKlokDetails/>}/>

@@ -1,18 +1,17 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import Page from "../../components/nav/Page";
 import {useRootContext} from "../../components/contexts/RootContext";
-import {Column, DataTable, OnFetchHandlerParams} from "../../components/layout/Table";
-import {KlokStatusBadge} from "../../components/elements/StatusBadge";
-import {VeilingKlokOutputDto} from "../../declarations/dtos/output/VeilingKlokOutputDto";
 import {useComponentStateReducer} from "../../hooks/useComponentStateReducer";
 import {PaginatedOutputDto} from "../../declarations/dtos/output/PaginatedOutputDto";
+import {VeilingKlokOutputDto} from "../../declarations/dtos/output/VeilingKlokOutputDto";
+import {Column, DataTable, OnFetchHandlerParams} from "../../components/layout/Table";
 import {getVeilingKlokken} from "../../controllers/server/veilingmeester";
+import {KlokStatusBadge} from "../../components/elements/StatusBadge";
 import Button from "../../components/buttons/Button";
+import Page from "../../components/nav/Page";
 import CreateVeilingKlok from "../../components/sections/veiling-dashboard/CreateVeilingKlok";
-import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
-import {getNormalizedVeilingKlokStatus} from "../../utils/standards";
+import {KwekerProductStats} from "../../components/sections/kweker/KwekerStats";
 
-function VeilingmeesterVeilingBeheren() {
+function VeilingmeesterManageHome() {
 	const {t, account, languageCode, navigate} = useRootContext();
 
 	const [paginatedVeilingenState, setPaginatedVeilingenState] = useComponentStateReducer();
@@ -93,24 +92,6 @@ function VeilingmeesterVeilingBeheren() {
 					}
 				</span>
 			},
-			{
-				key: 'action',
-				label: ' ',
-				render: (item) => (
-					<div className={'app-table-actions-row-btns'}>
-						{
-							getNormalizedVeilingKlokStatus(item.status) === VeilingKlokStatus.Scheduled &&
-							<Button
-								className={'app-table-actions-row-dlt-btn'}
-								icon={'bi-trash-fill'}
-								onClick={(e) => {
-									e.stopPropagation();
-									console.log(`Delete veilingklok ${item.id}`);
-								}}
-							/>}
-					</div>
-				),
-			},
 		],
 		[t, languageCode]
 	);
@@ -127,6 +108,10 @@ function VeilingmeesterVeilingBeheren() {
 					</h2>
 				</section>
 
+				<section className={'products-page-stats'}>
+					<KwekerProductStats/>
+				</section>
+
 				<DataTable<VeilingKlokOutputDto>
 					isLazy
 					enableSearch={false}
@@ -136,7 +121,7 @@ function VeilingmeesterVeilingBeheren() {
 					totalItems={paginatedVeilingen?.totalCount || 0}
 					getItemKey={item => item.id}
 					onFetchData={handleFetchVeilingen}
-					onCellClick={(item) => navigate(`/veilingmeester/veilingen/${item.id}`)}
+					onCellClick={(item) => navigate(`/veilingmeester/veilingen-beheren/${item.id}`)}
 
 					title={t('recent_auctionclocks')}
 					icon={<i className="bi bi-clock-fill"></i>}
@@ -169,5 +154,4 @@ function VeilingmeesterVeilingBeheren() {
 	);
 }
 
-export default VeilingmeesterVeilingBeheren;
-
+export default VeilingmeesterManageHome;
