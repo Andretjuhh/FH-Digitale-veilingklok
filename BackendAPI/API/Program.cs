@@ -8,110 +8,49 @@ using System.Threading;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    var port = Environment.GetEnvironmentVariable("PORT");
+    if (!string.IsNullOrEmpty(port))
+        options.ListenAnyIP(int.Parse(port));
+});
+
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddControllers();
-builder.Services.AddRouting();
 builder.Services.AddProblemsExtension();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(
-        "AllowFrontend",
-        policy =>
-        {
-            policy
-                .WithOrigins("http://localhost:3000", "https://yourdomain.com")
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials(); // REQUIRED for SignalR
-        }
-    );
-});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseStaticFiles();
 app.UseSwaggerDocumentation();
 
-// Only redirect to HTTPS in production environments
 if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 app.UseExceptionHandler();
 app.UseRouting();
-app.UseAuthentication(); // Must come before UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
 
-// This creates the WebSocket endpoint at: ws://localhost:5000/hubs/veiling-klok
-// Clients connect to this URL to establish real-time connection
+app.MapControllers();
 app.MapHub<VeilingHub>("/hubs/veiling-klok");
 
-using (var scope = app.Services.CreateScope())
+// ✅ ONLY IN DEV
+if (app.Environment.IsDevelopment())
 {
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    const int maxRetries = 5;
-    for (var attempt = 1; attempt <= maxRetries; attempt++)
-    {
-        try
-        {
-            db.Database.Migrate();
-            break;
-        }
-        catch (Exception ex) when (attempt < maxRetries)
-        {
-            logger.LogWarning(ex, "Database unavailable, retrying ({Attempt}/{Max})...", attempt, maxRetries);
-            Thread.Sleep(TimeSpan.FromSeconds(5));
-        }
-    }
+    db.Database.Migrate();
 }
 
-#region Home Page Routing
-
-// Restored the simple root endpoint.
-app.MapGet(
-        "/",
-        async context =>
-        {
-            // Define the relative path to the HTML file in the new 'Html' folder
-            const string filePath = "wwwroot/landingPage.html";
-
-            // Determine the full path relative to the application's Content Root Path
-            var fullPath = Path.Combine(app.Environment.ContentRootPath, filePath);
-
-            if (File.Exists(fullPath))
-            {
-                // Read the HTML content from the file
-                var htmlContent = await File.ReadAllTextAsync(fullPath);
-
-                context.Response.ContentType = "text/html";
-                await context.Response.WriteAsync(htmlContent);
-            }
-            else
-            {
-                // Fallback error message if the file is not found
-                context.Response.StatusCode = 404;
-                await context.Response.WriteAsync(
-                    $"Error 404: Landing page file not found at {fullPath}"
-                );
-            }
-        }
-    )
-    .ExcludeFromDescription(); // Exclude this endpoint from the Swagger documentation
-
-app.MapGet("/db-test", async (AppDbContext db) =>
-{
-    await db.Database.ExecuteSqlRawAsync("SELECT 1");
-    return "DB CONNECTED";
-});
-
-#endregion
-
 app.Run();
+
 
 
 // // Note: For running dotnet ( !!!! Run In the same order always !!!! )
