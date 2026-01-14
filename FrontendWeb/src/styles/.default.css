@@ -21,6 +21,7 @@
 
     /* Updated on runtime*/
     --scroll-scale: 0;
+    --page-bg-color: var(--bg);
 }
 
 /* Mobile Potrait */
@@ -38,28 +39,27 @@
 /*#endregion */
 
 /*#region Global Element Styles */
-html {
-    width: 100vw;
-    height: 100dvh;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
-    overflow-y: auto;
-    scroll-behavior: smooth;
-    background-color: white;
-}
-
-body {
-    position: relative;
-    width: 100vw;
-    min-height: 100vh;
-}
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     /*font-family: 'Montserrat';*/
+}
+
+html {
+    height: 100dvh; /* or 100vh for older browsers */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+}
+
+body {
+    position: relative;
+    height: 100vh;
+    scrollbar-gutter: stable; /* Reserve space for scrollbar */
+    /* NO width declaration needed */
 }
 
 li {
@@ -86,22 +86,15 @@ img {
 }
 
 .app-page {
-    height: auto;
-    min-height: 100%;
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    overflow: visible;
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-}
-
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
+    position: relative;
+    background-color: var(--page-bg-color);
 }
 
 /* Custom Button */
@@ -360,7 +353,7 @@ img {
 
 .upload-input-img {
     width: 100%;
-    height: 100%;
+    height: auto;
     object-fit: contain;
 }
 
@@ -418,6 +411,71 @@ img {
 }
 
 /*#endregion */
+
+/*#region Scroll Custom */
+
+/* Apply this class to any scrollable container */
+.custom-scroll {
+    --scrollbar-thumb: theme(colors.primary.600);
+    overflow: auto;
+    /* Firefox Fallback (Doesn't support arrows) */
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+/* 1. Container width */
+.custom-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+/* 2. Transparent background */
+.custom-scroll::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 0;
+}
+
+/* 3. The Thumb */
+.custom-scroll::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 99999px;
+    /* Creates a "gap" effect using a transparent border */
+    border: 3px solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
+}
+
+/* Target every possible button state to ensure they are gone */
+.custom-scroll::-webkit-scrollbar-button,
+.custom-scroll::-webkit-scrollbar-button:single-button,
+.custom-scroll::-webkit-scrollbar-button:vertical:decrement,
+.custom-scroll::-webkit-scrollbar-button:vertical:increment,
+.custom-scroll::-webkit-scrollbar-button:horizontal:decrement,
+.custom-scroll::-webkit-scrollbar-button:horizontal:increment {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/*!* 4. The Arrows *!*/
+/*.custom-scroll::-webkit-scrollbar-button:single-button {*/
+/*    display: none;*/
+/*    height: 2rem;*/
+/*    width: 2rem;*/
+/*    background-repeat: no-repeat;*/
+/*    background-position: center;*/
+/*    background-color: transparent;*/
+/*}*/
+
+/*!* Up Arrow - Using a built-in character or encoded SVG *!*/
+/*.custom-scroll::-webkit-scrollbar-button:vertical:decrement {*/
+/*    !*background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='18 15 12 9 6 15'%3E%3C/polyline%3E%3C/svg%3E");*!*/
+/*}*/
+
+/*!* Down Arrow *!*/
+/*.custom-scroll::-webkit-scrollbar-button:vertical:increment {*/
+/*    !*background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");*!*/
+/*}*/
+
+/*endregion */
 
 /*#region Language Dropdown */
 .language-picker-dropdown {
@@ -744,6 +802,14 @@ img {
     gap: 1rem;
 }
 
+.app-table-actions-row-dlt-btn {
+    --hovered-color: theme(colors.red.500);
+    font-size: 0.8rem;
+    padding: 1rem;
+    aspect-ratio: 1;
+    color: theme(colors.gray.600);
+    background-color: theme(colors.gray.100);
+}
 
 .app-table-title-row {
     display: flex;
@@ -1054,6 +1120,198 @@ img {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(12vw, 1fr));
     gap: 1.5rem;
+}
+
+/*#endregion */
+
+/*#region Status Badge */
+.app-table-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 1.6rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    line-height: 0.8rem;
+    font-weight: 500;
+    border: 1px solid theme(colors.gray.100);
+}
+
+.app-table-status-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: currentColor;
+    margin-right: 0.375rem;
+}
+
+.app-table-status-processing,
+.app-table-status-open,
+.app-table-status-paused {
+    color: #ca8a04;
+    background-color: #fefce8;
+}
+
+.app-table-status-processed,
+.app-table-status-scheduled {
+    color: #2563eb;
+    background-color: #eff6ff;
+}
+
+.app-table-status-delivered,
+.app-table-status-started {
+    color: #16a34a;
+    background-color: #f0fdf4;
+}
+
+.app-table-status-cancelled,
+.app-table-status-returned,
+.app-table-status-stopped {
+    color: #dc2626;
+    background-color: #fef2f2;
+}
+
+.app-table-status-ended {
+    color: #4b5563;
+    background-color: #f3f4f6;
+}
+
+
+/*#endregion*/
+
+/*#region Labeled Info Card */
+.labeled-info-detail-item {
+    align-self: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.labeled-info-detail-bg {
+    background: theme(colors.primary.main);
+    border: 4px solid theme(colors.gray.200);
+    --tw-shadow-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0px 8px 0px var(--tw-shadow-color);
+
+    border-radius: 1rem;
+    padding: 1.7rem;
+    overflow: hidden;
+    aspect-ratio: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.4rem;
+    color: white;
+}
+
+.labeled-info-detail-texts {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.labeled-info-detail-label {
+    color: theme(colors.gray.500);
+    font-size: 0.8rem;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.labeled-info-detail-value {
+    color: black;
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/*#endregion */
+
+/*#region Modal Card Style */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-overlay-ctn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-card {
+    position: relative;
+    padding: 2rem;
+    border-radius: 1.3rem;
+    background-color: theme(colors.white);
+    box-shadow: 0px 106px 42px rgba(0, 0, 0, 0.01), 0px 59px 36px rgba(0, 0, 0, 0.05), 0px 26px 26px rgba(0, 0, 0, 0.09), 0px 7px 15px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 420px;
+
+    min-width: 420px;
+    min-height: 420px;
+    max-width: 90%;
+}
+
+.modal-card.auto-width {
+    width: unset !important;
+}
+
+.modal-card.auto-height {
+    height: unset !important;
+    min-height: unset !important;
+}
+
+.modal-card-close-btn {
+    --hovered-color: theme(colors.gray.300);
+    --hovered-text-color: black;
+    margin-top: 2rem;
+    padding: 0.8rem 2rem;
+    background-color: theme(colors.gray.200);
+    border-radius: 9999px;
+    color: black;
+    font-size: 0.875rem;
+    font-weight: 400;
+    align-self: center;
+}
+
+.auth-state {
+    grid-column: 1 / -1;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.auth-state i {
+    font-size: var(--h1-size);
+}
+
+.auth-state-text {
+    font-size: var(--span3-size);
+    color: theme(colors.zinc.600);
+    text-align: center;
+
+    /* Force wrapping */
+    overflow-wrap: break-word; /* Wraps long words to the next line */
+    word-break: break-word; /* Compatibility for older browsers */
+    white-space: normal; /* Ensures text is allowed to wrap */
 }
 
 /*#endregion */

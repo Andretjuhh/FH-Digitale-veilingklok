@@ -11,4 +11,5 @@ export interface ProductOutputDto {
 	dimension: string;
 	stock: number;
 	companyName: string;
+	auctionPlanned: boolean;
 }

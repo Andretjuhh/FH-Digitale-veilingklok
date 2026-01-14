@@ -132,7 +132,7 @@ public class KoperController : ControllerBase
         [FromQuery] int pageSize = 10
     )
     {
-        var query = new GetProductsQuery(nameFilter, regionFilter, maxPrice, kwekerId, pageNumber, pageSize);
+        var query = new GetProductsQuery(nameFilter, regionFilter, maxPrice, kwekerId, null, pageNumber, pageSize);
         var result = await _mediator.Send(query);
         return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }

@@ -23,7 +23,8 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 	const defaultOptions: RequestInit = isAppFetch
 		? {
 			method: 'GET',
-			...(options.method !== 'PUT' ? {credentials: 'include'} : {}),
+			...(request.toString().includes('/reauthenticate') ? {credentials: 'include'} : {}),
+			// ...(!['PUT1', 'DELETE1'].includes(options.method || '') ? {credentials: 'include'} : {}),
 			// credentials: 'include', // Include cookies in the request
 			headers: {
 				'Content-Type': 'application/json',

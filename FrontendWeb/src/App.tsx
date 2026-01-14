@@ -10,12 +10,21 @@ import Home from './pages/general/Home';
 import Login from './pages/general/Login';
 import Register from './pages/general/Register';
 import Settings from './pages/general/Settings';
-import KwekerDashboard from './pages/kweker/KwekerDashboard';
-import ProductDetails from './pages/kweker/ProductDetails';
-import VeilingMeesterDashboard from './pages/meester/VeilingMeesterDashboard';
+
+// Veilingmeester Pages
+import VeilingmeesterDashboard from './pages/meester/VeilingmeesterDashboard';
+import VeilingmeesterVeilingBeheren from './pages/meester/VeilingmeesterVeilingBeheren';
+import VeilingmeesterVeilingen from './pages/meester/VeilingmeesterVeilingen';
+import VeilingmeesterProducts from './pages/meester/VeilingmeesterProducts';
+
+// Koper Pages
 import KoperDashboard from './pages/koper/KoperDashboard';
+
+// Kweker Pages
+import KwekerDashboard from './pages/kweker/KwekerDashboard';
 import KwekerOrders from './pages/kweker/KwekerOrders';
 import KwekerProducts from './pages/kweker/KwekerProducts';
+import ProductDetails from './pages/kweker/ProductDetails';
 
 function App() {
 	const location = useLocation();
@@ -33,7 +42,10 @@ function App() {
 					<Route path="/settings" element={<Settings/>}/>
 
 					{/*Veilingmeester Routes*/}
-					<Route path="/veilingmeester/dashboard" element={<VeilingMeesterDashboard/>}/>
+					<Route path="/veilingmeester/dashboard" element={<VeilingmeesterDashboard/>}/>
+					<Route path="/veilingmeester/veilingen-beheren" element={<VeilingmeesterVeilingen/>}/>
+					<Route path="/veilingmeester/veilingen-beheren/:klokId" element={<VeilingmeesterVeilingBeheren/>}/>
+					<Route path="/veilingmeester/region-flowers" element={<VeilingmeesterProducts/>}/>
 
 					{/*Koper Routes*/}
 					<Route path="/koper/dashboard" element={<KoperDashboard/>}/>

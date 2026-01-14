@@ -170,9 +170,9 @@ function KwekerOrders() {
 	}, []);
 
 	return (
-		<Page enableHeader className="kweker-page" enableHeaderAnimation={false}>
-			<main className="kweker-container">
-				<section className="kweker-hallo">
+		<Page enableHeader className="kweker-products-page" enableHeaderAnimation={false}>
+			<main className="kweker-products-page-ctn">
+				<section className="products-page-title-section">
 					<h1>
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
@@ -182,6 +182,7 @@ function KwekerOrders() {
 				</section>
 
 				<KwekerOrderStats/>
+				
 				<DataTable<OrderKwekerOutput>
 					isLazy
 					loading={paginatedOrdersState.type == 'loading'}
@@ -193,6 +194,18 @@ function KwekerOrders() {
 
 					title={t('recent_orders')}
 					icon={<i className="bi bi-cart4"></i>}
+					filterGroups={<>
+						<Button
+							icon="bi-chevron-down"
+							className="app-table-filter-btn"
+							label={'All Status'}
+						/>
+						<Button
+							icon="bi-chevron-down"
+							className="app-table-filter-btn"
+							label={'More Filters'}
+						/>
+					</>}
 					columns={orderColumns}
 					emptyText={t('no_orders')}
 				/>

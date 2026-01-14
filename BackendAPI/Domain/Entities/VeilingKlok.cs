@@ -16,7 +16,7 @@ public class VeilingKlok
 
     [Column("bidding_product_index")] public int BiddingProductIndex { get; private set; } = 0;
 
-    [Column("veiling_duration")] public required int VeilingDurationMinutes { get; init; } = 0;
+    [Column("veiling_duration")] public required int VeilingDurationSeconds { get; init; } = 0;
 
     [Column("scheduled_at")] public required DateTimeOffset ScheduledAt { get; set; }
 
@@ -28,6 +28,8 @@ public class VeilingKlok
 
     [Column("highest_price")] public decimal HighestPrice { get; set; } = 0;
     [Column("lowest_price")] public decimal LowestPrice { get; set; } = 0;
+
+    [Column("total_products")] public int TotalProducts { get; private set; } = 0;
 
     [Column("state_or_province")]
     [Required]
@@ -45,10 +47,20 @@ public class VeilingKlok
 
     [Column("row_version")] [Timestamp] public ulong RowVersion { get; private set; }
 
-    // Style 1: ✅ The Rich Model (Stronger Protection)
-    // Navigation property for the one-to-many relationship with Product
-    private readonly List<Guid> IProductsIds = new();
-    public IReadOnlyCollection<Guid> ProductsIds => IProductsIds;
+    // Navigation property for the many-to-many relationship with Product through VeilingKlokProduct
+    private readonly List<VeilingKlokProduct> _veilingKlokProducts = new();
+    public IReadOnlyCollection<VeilingKlokProduct> VeilingKlokProducts => _veilingKlokProducts;
+
+    /// <summary>
+    /// Gets the product IDs in the correct order (by position).
+    /// </summary>
+    public List<Guid> GetOrderedProductIds()
+    {
+        return _veilingKlokProducts
+            .OrderBy(vkp => vkp.Position)
+            .Select(vkp => vkp.ProductId)
+            .ToList();
+    }
 
     // Style 1: ✅ The Rich Model (Stronger Protection)
     private readonly List<Guid> IOrdersIds = new();
@@ -85,8 +97,39 @@ public class VeilingKlok
 
     public void AddProductId(Guid productId)
     {
-        if (!IProductsIds.Contains(productId))
-            IProductsIds.Add(productId);
+        // Check if product already exists in the collection
+        var existingEntry = _veilingKlokProducts.FirstOrDefault(vkp => vkp.ProductId == productId);
+
+        if (existingEntry != null)
+            // Product is already in the klok, do nothing
+            return;
+
+        // Add new entry
+        var position = _veilingKlokProducts.Any()
+            ? _veilingKlokProducts.Max(vkp => vkp.Position) + 1
+            : 0;
+
+        _veilingKlokProducts.Add(new VeilingKlokProduct
+        {
+            VeilingKlokId = Id,
+            ProductId = productId,
+            Position = position
+        });
+        TotalProducts++;
+    }
+
+    public void RemoveProductId(Guid productId)
+    {
+        if (Status >= VeilingKlokStatus.Started)
+            throw KlokValidationException.KlokNotAvailableForUpdate();
+
+        var entry = _veilingKlokProducts.FirstOrDefault(vkp => vkp.ProductId == productId);
+
+        if (entry != null)
+        {
+            _veilingKlokProducts.Remove(entry);
+            TotalProducts--;
+        }
     }
 
     public void SetScheduledAt(DateTimeOffset scheduledAt)
@@ -96,7 +139,8 @@ public class VeilingKlok
 
     public void SetBiddingProductIndex(int newIndex)
     {
-        if (IProductsIds.Count > 0 && (newIndex < 0 || newIndex >= IProductsIds.Count))
+        var activeProductsCount = _veilingKlokProducts.Count;
+        if (activeProductsCount > 0 && (newIndex < 0 || newIndex >= activeProductsCount))
             throw KlokValidationException.InvalidProductIndex();
         BiddingProductIndex = newIndex;
     }

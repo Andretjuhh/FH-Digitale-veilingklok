@@ -70,7 +70,7 @@ function LoginContent() {
 
 	return (
 		<LayoutGroup>
-			<motion.div layout className="auth-card" transition={Spring}>
+			<motion.div layout className="modal-card auth-card" transition={Spring}>
 				{state.type === 'idle' && (
 					<>
 						<div className="auth-header">

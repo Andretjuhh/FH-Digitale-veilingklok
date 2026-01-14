@@ -176,7 +176,10 @@ public class OrderRepository : IOrderRepository
         int pageSize
     )
     {
-        var query = _dbContext.Orders.Where(o => o.KoperId == koperId);
+        var query = _dbContext.Orders.AsQueryable();
+
+        if (koperId.HasValue)
+            query = query.Where(o => o.KoperId == koperId.Value);
 
         if (statusFilter.HasValue)
             query = query.Where(o => o.Status == statusFilter.Value);

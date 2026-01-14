@@ -33,8 +33,9 @@ public sealed class GetVeilingKlokHandler
         var veilingKlok = result.VeilingKlok;
         var bidCount = result.BidCount;
 
-        // Get products associated with the VeilingKlok
-        var productIds = veilingKlok.ProductsIds.ToList();
+        // Get products associated with the VeilingKlok (ordered by position)
+        var productIds = veilingKlok.GetOrderedProductIds();
+
         var products = productIds.Count == 0
             ? new List<ProductOutputDto>()
             : (await _productRepository.GetAllByIdsWithKwekerInfoAsync(productIds))

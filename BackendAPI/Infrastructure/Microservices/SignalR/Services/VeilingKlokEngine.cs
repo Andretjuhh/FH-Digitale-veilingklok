@@ -94,8 +94,10 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         // Initialize each active clock (materialized list avoids multiple enumeration)
         foreach (var veilingKlok in activeKloks)
         {
-            // Load products for the klok
-            var products = await productRepository.GetAllByIds(veilingKlok.ProductsIds.ToList());
+            // Load products for the klok (ordered by position)
+            var productIds = veilingKlok.GetOrderedProductIds();
+
+            var products = await productRepository.GetAllByIds(productIds);
             await AddActiveVeilingKlokAsync(veilingKlok, products.ToList());
         }
 

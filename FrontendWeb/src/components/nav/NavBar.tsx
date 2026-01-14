@@ -4,7 +4,7 @@ import {useLocation} from "react-router-dom";
 
 
 type Props = {
-	pages: { key: string, name: string, location: string, icon: string }[];
+	pages: { key: string, name: string, location: string, icon: string, strict?: boolean }[];
 }
 
 const NavBar = (props: Props) => {
@@ -12,6 +12,7 @@ const NavBar = (props: Props) => {
 	const {navigate,} = useRootContext();
 	const location = useLocation();
 	const routeName = location.pathname;
+	console.log('Current Route:', routeName);
 
 	return (
 		<div className="navbar-tabs" style={{'--tabs-count': pages.length} as React.CSSProperties}>
@@ -22,7 +23,7 @@ const NavBar = (props: Props) => {
 						type="radio"
 						name="navbar-tabs"
 						className="navbar-tab-input"
-						defaultChecked={routeName === page.location}
+						defaultChecked={page.strict ?? true ? routeName === page.location : routeName.startsWith(page.location)}
 						onChange={() => navigate(page.location)}
 					/>
 

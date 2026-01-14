@@ -20,7 +20,7 @@ import {isHttpError} from "../../../declarations/types/HttpError";
 import {getRegions} from "../../../controllers/server/account";
 
 type Props = {
-	editProduct?: ProductOutputDto;
+	product?: ProductOutputDto;
 	onClose?: () => void;
 	onCreate?: (product: CreateProductDTO) => void;
 	onUpdate?: (product: UpdateProductDTO) => void;
@@ -42,7 +42,7 @@ type ProductFormState = {
 };
 
 function CreateEditProduct(props: Props) {
-	const {editProduct, onClose, onCreate, onUpdate} = props;
+	const {product, onClose, onCreate, onUpdate} = props;
 	const {t} = useRootContext();
 	const [state, updateState] = useComponentStateReducer();
 
@@ -54,19 +54,19 @@ function CreateEditProduct(props: Props) {
 		formState: {errors},
 	} = useForm<ProductFormState>({
 		defaultValues: {
-			product_name: editProduct?.name || '',
-			product_description: editProduct?.description || '',
-			region: editProduct?.region || '', // Default, map if needed
-			minimum_price: editProduct?.minimumPrice || 0,
-			stock_quantity: editProduct?.stock || 0,
-			product_dimension: editProduct?.dimension || '',
+			product_name: product?.name || '',
+			product_description: product?.description || '',
+			region: product?.region || '', // Default, map if needed
+			minimum_price: product?.minimumPrice || 0,
+			stock_quantity: product?.stock || 0,
+			product_dimension: product?.dimension || '',
 			imageBase64: '',
 		},
 	});
 	const imageBase64 = watch('imageBase64');
 
 	// State for image preview
-	const [imagePreview, setImagePreview] = useState<string | null>(editProduct?.imageUrl || null);
+	const [imagePreview, setImagePreview] = useState<string | null>(product?.imageUrl || null);
 	const [regions, setRegions] = useState<Region[]>([]);
 	const [loadingRegions, setLoadingRegions] = useState(false);
 
@@ -77,22 +77,22 @@ function CreateEditProduct(props: Props) {
 		initializeRegions();
 	}, []);
 
-	// Populate form when editProduct changes (if needed, though defaultValues handles initial render)
+	// Populate form when product changes (if needed, though defaultValues handles initial render)
 	useEffect(() => {
-		if (editProduct) {
-			setValue('product_name', editProduct.name);
-			setValue('product_description', editProduct.description);
-			setValue('stock_quantity', editProduct.stock);
-			setValue('product_dimension', editProduct.dimension);
-			setValue('region', editProduct.region || '');
-			setValue('minimum_price', editProduct.minimumPrice || 0);
+		if (product) {
+			setValue('product_name', product.name);
+			setValue('product_description', product.description);
+			setValue('stock_quantity', product.stock);
+			setValue('product_dimension', product.dimension);
+			setValue('region', product.region || '');
+			setValue('minimum_price', product.minimumPrice || 0);
 
-			if (editProduct.imageUrl) {
-				setImagePreview(editProduct.imageUrl);
+			if (product.imageUrl) {
+				setImagePreview(product.imageUrl);
 			}
 			// Map other fields if they exist in DTO
 		}
-	}, [editProduct, setValue, regions]);
+	}, [product, setValue, regions]);
 
 	const initializeRegions = async () => {
 		try {
@@ -141,11 +141,11 @@ function CreateEditProduct(props: Props) {
 			region: data.region == '' ? undefined : data.region,
 		};
 		console.log('Submitting product data:', productData);
-		if (editProduct)
+		if (product)
 			await onUpdateProduct(productData as UpdateProductDTO);
 		else
 			await onCreateProduct(productData as CreateProductDTO);
-	}, [editProduct, onCreate, onUpdate]);
+	}, [product, onCreate, onUpdate]);
 	const onCreateProduct = async (createProductDTO: CreateProductDTO) => {
 		try {
 			updateState({type: 'loading', message: t('product_creating')});
@@ -165,15 +165,15 @@ function CreateEditProduct(props: Props) {
 				updateState({type: 'error', message: t('product_created_error')});
 
 		} finally {
-			await delay(1500);
+			await delay(2000);
 			updateState({type: 'idle'});
 		}
 	}
 	const onUpdateProduct = async (updateProductDTO: UpdateProductDTO) => {
 		try {
-			if (!editProduct) return;
+			if (!product) return;
 			updateState({type: 'loading', message: t('product_updating')});
-			await updateProduct(editProduct.id, updateProductDTO);
+			await updateProduct(product.id, updateProductDTO);
 			await delay(1500);
 			updateState({type: 'succeed', message: t('product_updated_success')});
 			onUpdate?.(updateProductDTO);
@@ -189,7 +189,7 @@ function CreateEditProduct(props: Props) {
 				updateState({type: 'error', message: t('product_updated_error')});
 
 		} finally {
-			await delay(1500);
+			await delay(2000);
 			updateState({type: 'idle'});
 		}
 	}
@@ -202,6 +202,7 @@ function CreateEditProduct(props: Props) {
 
 			const commonProps = {
 				id: name,
+				disabled: field.disabled,
 				label: isRequired ? `${t(field.label)} *` : t(field.label),
 				placeholder: field.placeholderLocalizedKey ? t(field.placeholderLocalizedKey) : field.placeholder,
 				isError: !!errorMsg,
@@ -225,8 +226,8 @@ function CreateEditProduct(props: Props) {
 					key={key}
 					icon={field.icon}
 					options={regionOptions}
-					disabled={loadingRegions}
 					{...commonProps}
+					disabled={loadingRegions}
 					{...register(name, {
 						required: isRequired ? `${t(field.label)}  ${t('is')} ${t('required')}` : false,
 					})}
@@ -253,16 +254,16 @@ function CreateEditProduct(props: Props) {
 
 	return (
 		<LayoutGroup>
-			<motion.div layout className={'create-product-card'} onClick={(e) => e.stopPropagation()}>
+			<motion.div layout className={'modal-card create-product-card'} onClick={(e) => e.stopPropagation()}>
 				{state.type === 'idle' && (
 					<>
 						<div className={'create-product-card-header'}>
-							<Button className="create-product-card-back-button" icon="bi-x" onClick={() => onClose?.()} type="button" aria-label={t('aria_back_button')}/>
+							<Button className="modal-card-back-btn" icon="bi-x" onClick={() => onClose?.()} type="button" aria-label={t('aria_back_button')}/>
 
 							<div className={'create-product-card-header-text-ctn'}>
 								<h1 className={'create-product-card-h1'}>
 									<i className="bi bi-bag-plus-fill create-product-card-header-icon"></i>
-									{editProduct ? t('edit_product') : t('create_product')}
+									{product ? t('edit_product') : t('create_product')}
 								</h1>
 							</div>
 						</div>
@@ -312,7 +313,7 @@ function CreateEditProduct(props: Props) {
 								<div className="create-product-card-submit-section">
 									<Button
 										className="submit-btn"
-										label={editProduct ? t('update_product_button') : t('create_product_button')}
+										label={product ? t('update_product_button') : t('create_product_button')}
 										onClick={handleSubmit(onFormSubmit)}
 									/>
 								</div>

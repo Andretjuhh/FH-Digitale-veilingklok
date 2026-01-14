@@ -10,6 +10,7 @@ public sealed record GetProductsQuery(
     string? RegionFilter,
     decimal? MaxPrice,
     Guid? KwekerId,
+    Guid? KlokId,
     int PageNumber = 1,
     int PageSize = 10
 ) : IRequest<PaginatedOutputDto<ProductOutputDto>>;
@@ -34,6 +35,7 @@ public sealed class GetProductsHandler
             request.RegionFilter,
             request.MaxPrice,
             request.KwekerId,
+            request.KlokId,
             request.PageNumber,
             request.PageSize
         );

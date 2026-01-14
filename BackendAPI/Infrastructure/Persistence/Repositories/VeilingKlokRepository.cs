@@ -1,5 +1,3 @@
-using Application.Common.Exceptions;
-using Application.Common.Models;
 using Application.Repositories;
 using Domain.Entities;
 using Domain.Enums;
@@ -22,6 +20,11 @@ public class VeilingKlokRepository : IVeilingKlokRepository
         _dbContext.Veilingklokken.Update(veilingKlok);
     }
 
+    public void Delete(VeilingKlok veilingKlok)
+    {
+        _dbContext.Veilingklokken.Remove(veilingKlok);
+    }
+
     public async Task AddAsync(VeilingKlok veilingKlok)
     {
         await _dbContext.Veilingklokken.AddAsync(veilingKlok);
@@ -41,18 +44,25 @@ public class VeilingKlokRepository : IVeilingKlokRepository
 
     public async Task<VeilingKlok?> GetByIdAsync(Guid id)
     {
-        return await _dbContext.Veilingklokken.FirstOrDefaultAsync(vk => vk.Id == id);
+        return await _dbContext.Veilingklokken
+            .Include(vk => vk.VeilingKlokProducts)
+            .FirstOrDefaultAsync(vk => vk.Id == id);
     }
 
     public async Task<IEnumerable<VeilingKlok>> GetAllByStatusAsync(VeilingKlokStatus status, CancellationToken ct)
     {
-        return await _dbContext.Veilingklokken.Where(vk => vk.Status == status).ToListAsync(ct);
+        return await _dbContext.Veilingklokken
+            .Include(vk => vk.VeilingKlokProducts)
+            .Where(vk => vk.Status == status)
+            .ToListAsync(ct);
     }
 
     public async Task<IEnumerable<VeilingKlok>> GetAllByMeesterIdAsync(Guid meesterId)
     {
         return await _dbContext
-            .Veilingklokken.Where(vk => vk.VeilingmeesterId == meesterId)
+            .Veilingklokken
+            .Include(vk => vk.VeilingKlokProducts)
+            .Where(vk => vk.VeilingmeesterId == meesterId)
             .ToListAsync();
     }
 
@@ -84,33 +94,113 @@ public class VeilingKlokRepository : IVeilingKlokRepository
                 select vk;
 
         var totalCount = await query.CountAsync();
-        var items = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        var items = await query
+            .Include(vk => vk.VeilingKlokProducts)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
         return (items, totalCount);
     }
 
-    #region Advance Queries
-
-    // Queries that return VeilingKlok along with BidsInfo
-    private IQueryable<(VeilingKlok VeilingKlok, int BidCount)> QueryProductWithInfo()
+    public async Task<(IEnumerable<(VeilingKlok VeilingKlok, int BidCount)> Items, int TotalCount)>
+        GetAllWithFilterAndBidsAsync(
+            VeilingKlokStatus? statusFilter,
+            string? region,
+            DateTime? scheduledAfter,
+            DateTime? scheduledBefore,
+            DateTime? startedAfter,
+            DateTime? startedBefore,
+            DateTime? endedAfter,
+            DateTime? endedBefore,
+            Guid? meesterId,
+            int pageNumber,
+            int pageSize
+        )
     {
-        return _dbContext
-            .Veilingklokken.Select(vk => new
+        // Start with base query on VeilingKlok
+        var query = _dbContext.Veilingklokken.AsQueryable();
+
+        // Apply filters
+        if (statusFilter.HasValue)
+            query = query.Where(vk => vk.Status == statusFilter.Value);
+
+        if (meesterId.HasValue)
+            query = query.Where(vk => vk.VeilingmeesterId == meesterId.Value);
+
+        if (!string.IsNullOrEmpty(region))
+            query = query.Where(vk => vk.RegionOrState.Contains(region));
+
+        if (scheduledAfter.HasValue)
+            query = query.Where(vk => vk.ScheduledAt >= scheduledAfter.Value);
+
+        if (scheduledBefore.HasValue)
+            query = query.Where(vk => vk.ScheduledAt <= scheduledBefore.Value);
+
+        if (startedAfter.HasValue)
+            query = query.Where(vk => vk.StartedAt >= startedAfter.Value);
+
+        if (startedBefore.HasValue)
+            query = query.Where(vk => vk.StartedAt <= startedBefore.Value);
+
+        if (endedAfter.HasValue)
+            query = query.Where(vk => vk.EndedAt >= endedAfter.Value);
+
+        if (endedBefore.HasValue)
+            query = query.Where(vk => vk.EndedAt <= endedBefore.Value);
+
+        // Get total count
+        var totalCount = await query.CountAsync();
+
+        // Get paginated items with VeilingKlokProducts and bid counts
+        var items = await query
+            .Include(vk => vk.VeilingKlokProducts)
+            .OrderByDescending(o => o.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(vk => new
             {
                 VeilingKlok = vk,
                 BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id)
             })
-            .Select(x => ValueTuple.Create(x.VeilingKlok, x.BidsCount));
+            .ToListAsync();
+
+        // Convert to tuple
+        var result = items.Select(x => (x.VeilingKlok, x.BidsCount)).ToList();
+
+        return (result, totalCount);
+    }
+
+    public async Task<IEnumerable<(VeilingKlok VeilingKlok, int BidCount)>>
+        GetAllByMeesterIdWithBidsCountAsync(Guid meesterId)
+    {
+        return await _dbContext
+            .Veilingklokken
+            .Include(vk => vk.VeilingKlokProducts)
+            .Where(vk => vk.VeilingmeesterId == meesterId)
+            .Select(vk => new
+            {
+                VeilingKlok = vk,
+                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id)
+            })
+            .Select(x => ValueTuple.Create(x.VeilingKlok, x.BidsCount))
+            .ToListAsync();
     }
 
     public async Task<(VeilingKlok VeilingKlok, int BidCount)?> GetByIdWithBidsCount(Guid id)
     {
-        var result = await QueryProductWithInfo().FirstOrDefaultAsync(x => x.VeilingKlok.Id == id);
+        var result = await _dbContext.Veilingklokken
+            .Include(vk => vk.VeilingKlokProducts)
+            .Where(vk => vk.Id == id)
+            .Select(vk => new
+            {
+                VeilingKlok = vk,
+                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id)
+            })
+            .FirstOrDefaultAsync();
 
-        if (result.VeilingKlok == null)
+        if (result == null)
             return null;
 
-        return result;
+        return (result.VeilingKlok, result.BidsCount);
     }
-
-    #endregion
 }

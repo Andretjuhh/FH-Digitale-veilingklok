@@ -1,6 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import Spinner from '../ui/Spinner';
-import Button from "../buttons/Button";
+import Spinner from '../elements/Spinner';
 
 export interface Column<T> {
 	key: keyof T | string;
@@ -19,6 +18,7 @@ export interface TableRowProps<T> {
 	item: T;
 	columns: Column<T>[];
 	onAction?: (item: T) => void;
+	onCellClick?: (item: T) => void;
 }
 
 export interface PaginationProps {
@@ -45,7 +45,9 @@ export interface DataTableProps<T> {
 	data: T[];
 
 	title: string;
+	enableSearch?: boolean;
 	icon?: React.JSX.Element;
+	filterGroups?: React.JSX.Element;
 	emptyText: string;
 	columns: Column<T>[];
 	itemsPerPage?: number;
@@ -56,6 +58,7 @@ export interface DataTableProps<T> {
 
 	loading?: boolean;
 	onAction?: (item: T) => void;
+	onCellClick?: (item: T) => void;
 	getItemKey: (item: T, index: number) => string | number;
 	onFetchData?: (params: OnFetchHandlerParams) => void | Promise<void>;
 }
@@ -80,9 +83,9 @@ function TableHeader<T>({columns, onSort, sortConfig}: TableHeaderProps<T>): Rea
 }
 
 // Table Row Component
-function TableRow<T extends Record<string, any>>({item, columns, onAction}: TableRowProps<T>): React.JSX.Element {
+function TableRow<T extends Record<string, any>>({item, columns, onAction, onCellClick}: TableRowProps<T>): React.JSX.Element {
 	return (
-		<tr className="app-table-tbody-row">
+		<tr className="app-table-tbody-row" onClick={() => onCellClick?.(item)}>
 			{columns.map((column) => (
 				<td key={String(column.key)} className="app-table-td">
 					{column.render ? column.render(item, onAction) : item[column.key as keyof T]}
@@ -127,8 +130,11 @@ export function DataTable<T extends Record<string, any>>(props: DataTableProps<T
 		title,
 		columns,
 		itemsPerPage = 10,
+		enableSearch = true,
+		filterGroups,
 		totalItems: externalTotalItems,
 		onAction,
+		onCellClick,
 		isLazy = false,
 		loading = false,
 		emptyText,
@@ -223,21 +229,18 @@ export function DataTable<T extends Record<string, any>>(props: DataTableProps<T
 						{icon}
 						<h2 className="app-table-title">{title}</h2>
 					</div>
-					<div className="app-table-search-wrapper">
-						<i className="bi bi-search app-table-search-icon"></i>
-						<input type="text" placeholder="Search..." value={searchTerm} onChange={handleSearch} className="app-table-search-input"/>
-					</div>
+
+					{enableSearch &&
+						<div className="app-table-search-wrapper">
+							<i className="bi bi-search app-table-search-icon"></i>
+							<input type="text" placeholder="Search..." value={searchTerm} onChange={handleSearch} className="app-table-search-input"/>
+						</div>
+					}
+
 					<div className="app-table-filter-group">
-						<Button
-							icon="bi-chevron-down"
-							className="app-table-filter-btn"
-							label={'All Status'}
-						/>
-						<Button
-							icon="bi-chevron-down"
-							className="app-table-filter-btn"
-							label={'More Filters'}
-						/>
+						{
+							filterGroups
+						}
 					</div>
 				</div>
 			</div>
@@ -247,7 +250,7 @@ export function DataTable<T extends Record<string, any>>(props: DataTableProps<T
 					<TableHeader columns={columns} onSort={handleSort} sortConfig={sortConfig}/>
 					<tbody className="app-table-tbody">
 					{paginatedData.map((item, index) => (
-						<TableRow key={getItemKey(item, index)} item={item} columns={columns} onAction={onAction}/>
+						<TableRow key={getItemKey(item, index)} item={item} columns={columns} onAction={onAction} onCellClick={onCellClick}/>
 					))}
 					{paginatedData.length === 0 && !loading && (
 						<tr>

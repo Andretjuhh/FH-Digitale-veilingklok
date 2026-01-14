@@ -51,6 +51,7 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		dimension: '60 cm',
 		stock: 150,
 		companyName: 'Kwekerij Bloemenhof',
+		auctionPlanned: true,
 	},
 	{
 		id: '00000000-0000-0000-0000-000000000002',
@@ -63,6 +64,7 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		dimension: '70 cm',
 		stock: 80,
 		companyName: 'Lelie Centrum BV',
+		auctionPlanned: true,
 	},
 	{
 		id: '00000000-0000-0000-0000-000000000003',
@@ -75,6 +77,7 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		dimension: '90 cm',
 		stock: 120,
 		companyName: 'Zon & Co',
+		auctionPlanned: true,
 	},
 	{
 		id: '00000000-0000-0000-0000-000000000004',
@@ -87,6 +90,7 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		dimension: '40 cm',
 		stock: 200,
 		companyName: 'Tulipa Holland',
+		auctionPlanned: true,
 	},
 	{
 		id: '00000000-0000-0000-0000-000000000005',
@@ -99,6 +103,7 @@ const DUMMY_QUEUE: ProductOutputDto[] = [
 		dimension: '55 cm',
 		stock: 60,
 		companyName: 'Orchid World',
+		auctionPlanned: true,
 	},
 ];
 
@@ -190,7 +195,7 @@ export default function VeilingmeesterDashboard() {
 
 			const payload = {
 				scheduledAt: new Date(Date.now() + 5 * 60_000).toISOString(),
-				veilingDurationMinutes: Math.max(1, Math.ceil(durationSeconds / 60)),
+				veilingDurationSeconds: Math.max(1, Math.ceil(durationSeconds / 60)),
 				products: productsMap,
 			};
 
@@ -200,7 +205,7 @@ export default function VeilingmeesterDashboard() {
 				try {
 					const response = await createDevVeilingKlok({
 						scheduledAt: payload.scheduledAt,
-						veilingDurationMinutes: payload.veilingDurationMinutes,
+						veilingDurationSeconds: payload.veilingDurationSeconds,
 						products: queue.map((p) => ({
 							id: p.id,
 							name: p.name,
@@ -361,8 +366,8 @@ export default function VeilingmeesterDashboard() {
 	const remainingProducts = displayProduct ? queue.filter((p) => p.id !== displayProduct.id) : queue;
 
 	return (
-		<Page enableHeader enableFooter>
-			<main className="vm-container">
+		<Page enableHeader className={'vm-page'} enableHeaderAnimation={false}>
+			<main className="vm-page-ctn">
 				<h1 className="vm-title">Veilingmeester</h1>
 
 				<div className="vm-tabs">

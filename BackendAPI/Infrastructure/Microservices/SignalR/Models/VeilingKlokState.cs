@@ -10,7 +10,7 @@ public class VeilingKlokState
     public string Country { get; init; }
     public string RegionOrState { get; init; }
     public List<VeilingProductState> Products { get; init; } = new();
-    public int VeilingDurationMinutes { get; init; }
+    public int VeilingDurationSeconds { get; init; }
 
     // Price range for the klok based on all products
     public int HighestPriceRange { get; init; }
@@ -27,7 +27,7 @@ public class VeilingKlokState
         ClockId = veilingKlok.Id;
         Status = veilingKlok.Status;
         CurrentProductIndex = veilingKlok.BiddingProductIndex;
-        VeilingDurationMinutes = veilingKlok.VeilingDurationMinutes;
+        VeilingDurationSeconds = veilingKlok.VeilingDurationSeconds;
         Country = veilingKlok.Country;
         RegionOrState = veilingKlok.RegionOrState;
 
@@ -59,7 +59,7 @@ public class VeilingKlokState
     {
         Status = VeilingKlokStatus.Started;
         VeilingStartTime = DateTimeOffset.UtcNow;
-        VeilingEndTime = VeilingStartTime.AddMinutes(VeilingDurationMinutes);
+        VeilingEndTime = VeilingStartTime.AddSeconds(VeilingDurationSeconds);
     }
 
     //  Check if the current veiling round has ended
@@ -74,7 +74,7 @@ public class VeilingKlokState
         var productIndex = Products.FindIndex(p => p.ProductId == productId);
         CurrentProductIndex = productIndex;
         VeilingStartTime = DateTimeOffset.UtcNow;
-        VeilingEndTime = VeilingStartTime.AddMinutes(VeilingDurationMinutes);
+        VeilingEndTime = VeilingStartTime.AddSeconds(VeilingDurationSeconds);
     }
 
     // Get the current product being auctioned

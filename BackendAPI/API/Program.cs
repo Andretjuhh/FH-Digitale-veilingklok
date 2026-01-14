@@ -22,7 +22,9 @@ builder.Services.AddCors(options =>
                 .WithOrigins("http://localhost:3000", "https://yourdomain.com")
                 .AllowAnyHeader()
                 .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .AllowCredentials(); // REQUIRED for SignalR
+                .AllowCredentials() // REQUIRED for SignalR and credentials: 'include'
+                .WithExposedHeaders("Content-Disposition", "Content-Length")
+                .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
         }
     );
 });

@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {OnFetchHandlerParams, Pagination} from "./Table";
-import Spinner from "../ui/Spinner";
+import Spinner from "../elements/Spinner";
 import clsx from "clsx";
 import {joinClsx} from "../../utils/classPrefixer";
 

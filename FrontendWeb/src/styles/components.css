@@ -12,9 +12,14 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    overflow: hidden;
+    /*overflow: hidden;*/
     z-index: 100;
     transition: box-shadow 0.3s ease-in-out;
+}
+
+.header-normal-sticky {
+    overflow: visible;
+    margin-bottom: 0;
 }
 
 .app-header-filled {
@@ -27,7 +32,7 @@
     top: 0;
     right: 0;
     left: 0;
-    height: calc(100vh * var(--scroll-scale));
+    height: calc(var(--header-size) * var(--scroll-scale));
     background-color: white;
     transition: all 0.5s ease-out;
     z-index: -1;
@@ -702,7 +707,7 @@
 
 /*#endregion */
 
-/*#region Kweker stats & add Card*/
+/*#region Kweker stats*/
 .kweker-stats {
     display: flex;
     flex-direction: row;
@@ -728,7 +733,7 @@
     max-width: 40%;
 }
 
-.kweker-add-product-card {
+.products-page-action-card {
     flex: 1;
     width: auto;
     display: flex;
@@ -743,13 +748,13 @@
     border: solid 1px theme(colors.gray.200);
 }
 
-.kweker-add-product-card-title,
+.products-page-action-card-title,
 .kweker-stat-title {
     display: flex;
     align-items: center;
 }
 
-.kweker-add-product-card-title span,
+.products-page-action-card-title span,
 .kweker-stat-title span {
     position: relative;
     padding: 1rem;
@@ -759,11 +764,11 @@
     border-radius: 9999px;
 }
 
-.kweker-add-product-card-title span {
+.products-page-action-card-title span {
     background-color: theme(colors.secondary.500);
 }
 
-.kweker-add-product-card-title span i,
+.products-page-action-card-title span i,
 .kweker-stat-title span i {
     position: absolute;
     top: 50%;
@@ -773,7 +778,7 @@
     font-size: 0.8rem;
 }
 
-.kweker-add-product-card-title span svg,
+.products-page-action-card-title span svg,
 .kweker-stat-title span svg {
     position: absolute;
     top: 50%;
@@ -783,14 +788,14 @@
     height: 1rem;
 }
 
-.kweker-stat-txt {
+.products-page-action-card-txt {
     margin-left: 0.5rem;
     color: #374151;
     font-size: 1.2rem;
     white-space: nowrap;
 }
 
-.kweker-add-product-btn {
+.products-page-action-card-btn {
     --hovered-color: theme(colors.secondary.800);
     width: 100%;
     margin-top: auto;
@@ -848,23 +853,6 @@
 /*#endregion*/
 
 /*#region Order Details*/
-.order-card {
-    position: relative;
-    padding: 2rem;
-    border-radius: 1.3rem;
-    background-color: theme(colors.white);
-    box-shadow: 0px 106px 42px rgba(0, 0, 0, 0.01), 0px 59px 36px rgba(0, 0, 0, 0.05), 0px 26px 26px rgba(0, 0, 0, 0.09), 0px 7px 15px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1);
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    width: unset !important;
-
-    min-width: 420px;
-    min-height: 420px;
-    max-width: 90%;
-}
-
 .order-header-back-button {
     height: auto;
     aspect-ratio: 1/1;
@@ -1130,35 +1118,31 @@
 
 /*#endregion*/
 
-/*#region Create/Edit Product*/
+/*#region Form Cards */
+.klok-schedule-card,
 .create-product-card {
-    position: relative;
-    padding: 2rem;
-    border-radius: 1.3rem;
-    background-color: theme(colors.white);
-    box-shadow: 0px 106px 42px rgba(0, 0, 0, 0.01), 0px 59px 36px rgba(0, 0, 0, 0.05), 0px 26px 26px rgba(0, 0, 0, 0.09), 0px 7px 15px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1);
-
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    width: unset !important;
-
     min-width: 420px;
     max-width: 40vw;
     min-height: 420px;
     max-height: 100%;
 }
 
+.klok-schedule-card {
+    min-height: auto;
+}
+
+.klok-schedule-card-header,
 .create-product-card-header {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1.6rem;
+    margin-bottom: 2.6rem;
+    gap: 1.6rem;
 }
 
-.create-product-card-back-button {
+.modal-card-back-btn {
     height: auto;
     aspect-ratio: 1/1;
     padding: 0.6rem;
@@ -1194,6 +1178,22 @@
     font-size: 2rem;
     line-height: 2rem;
     color: inherit;
+}
+
+.klok-schedule-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.klok-schedule-card-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    justify-items: center;
 }
 
 .create-product-card-form {
@@ -1253,51 +1253,6 @@
 
 .submit-button:active {
     transform: scale(0.98);
-}
-
-
-/*#endregion*/
-
-/*#region Status Badge */
-.app-table-status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.4rem 1.6rem;
-    border-radius: 9999px;
-    font-size: 0.8rem;
-    line-height: 0.8rem;
-    font-weight: 500;
-    border: 1px solid theme(colors.gray.100);
-}
-
-.app-table-status-dot {
-    width: 0.375rem;
-    height: 0.375rem;
-    border-radius: 9999px;
-    background-color: currentColor;
-    margin-right: 0.375rem;
-}
-
-.app-table-status-processing,
-.app-table-status-open {
-    color: #ca8a04;
-    background-color: #fefce8;
-}
-
-.app-table-status-processed {
-    color: #2563eb;
-    background-color: #eff6ff;
-}
-
-.app-table-status-delivered {
-    color: #16a34a;
-    background-color: #f0fdf4;
-}
-
-.app-table-status-cancelled,
-.app-table-status-returned {
-    color: #dc2626;
-    background-color: #fef2f2;
 }
 
 
@@ -1451,8 +1406,34 @@
     margin-top: auto;
 }
 
+.product-card__footer-prices {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+}
+
 .product-card__price {
     color: var(--card-text);
+    font-weight: 700;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.product-card__footer-prices i {
+    font-size: 1rem;
+}
+
+.product-card__price-secondary {
+    text-decoration: line-through;
+    color: theme(colors.gray.400);
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.product-card__price-primary {
+    color: theme(colors.primary.main);
     font-weight: 700;
     font-size: 1.2rem;
     transition: all 0.3s ease;
@@ -1495,6 +1476,10 @@
     cursor: pointer;
     transition: all 0.3s ease;
     padding: 0;
+}
+
+.product-card__button.red {
+    background: theme(colors.red.500);
 }
 
 .product-card__button::after {
@@ -1546,7 +1531,11 @@
 
 .product-card:hover .product-card__button {
     transform: scale(1);
-    box-shadow: 0 0 0 4px theme(colors.secondary.400);
+    box-shadow: 0 0 0 4px theme(colors.secondary.300);
+}
+
+.product-card:hover .product-card__button.red {
+    box-shadow: 0 0 0 4px theme(colors.red.300);
 }
 
 .product-card:hover .product-card__button svg {
@@ -1581,6 +1570,115 @@
 }
 
 /*#endregion*/
+
+/*#region Product Auction Card */
+.auction-product-card {
+    width: 100%;
+    height: auto;
+    position: relative;
+
+    font-size: 1rem;
+    border-radius: 1.2rem;
+    background: transparent;
+    border: 1px solid theme(colors.gray.200);
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 1.2rem;
+}
+
+.auction-product-card-img-ctn {
+    flex: 1;
+    width: auto;
+    max-width: 4rem;
+    aspect-ratio: 1/1;
+    background: theme(colors.gray.200);
+    border-radius: 99999rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.auction-product-card-img {
+    height: auto;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.auction-product-card-texts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    flex: 3;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.auction-product-card-title {
+    color: theme(colors.gray.600);
+    font-size: 1em;
+    line-height: 1em;
+    font-weight: 700;
+}
+
+.auction-product-card-description {
+    color: theme(colors.gray.500);
+    font-size: 0.875em;
+    line-height: 0.875em;
+    font-weight: 400;
+    width: 100%;
+    overflow: hidden;
+
+    /* Multi-line ellipsis logic */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Number of lines to show */
+    -webkit-box-orient: vertical;
+
+    /* Fallback for very old browsers */
+    text-overflow: ellipsis;
+}
+
+.auction-product-card-digits {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.6rem;
+    align-items: flex-end;
+}
+
+.auction-product-card-price {
+    color: theme(colors.gray.800);
+    font-weight: 700;
+    font-size: 1.3em;
+}
+
+.auction-product-card-percentage {
+    background-color: theme(colors.green.300);
+    font-weight: 600;
+    font-size: 0.875em;
+    padding: 0.2rem 0.8rem;
+    border-radius: 9999px;
+    color: black;
+}
+
+.auction-product-card-percentage.equal {
+    background-color: theme(colors.gray.300);
+}
+
+.auction-product-card-percentage.negative {
+    background-color: theme(colors.red.300);
+}
+
+.auction-product-card-percentage i {
+    line-height: 0.875em;
+}
+
+/*#endregion */
 
 /*#region Teun Site Footer */
 .rfh-footer {

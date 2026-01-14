@@ -21,6 +21,12 @@ export const resources = {
 			products: 'Producten',
 			back: 'Terug',
 			manage_account: 'Account beheren',
+			my_orders: 'Mijn bestellingen',
+			browse_flowers: 'Bloemen bekijken',
+			auctions: 'Veilingen',
+			manage_auction: 'Veilingbeheren',
+			region_flowers: 'Regio bloemen',
+
 
 			// Dictionary terms
 			welcome_back: 'Welkom terug',
@@ -32,13 +38,22 @@ export const resources = {
 			is: 'is',
 			step: 'Stap',
 			of: 'van',
+			close: 'Sluiten',
 			go_back_home: 'Ga terug naar home',
 			previous: 'Vorige',
 			next: 'Volgende',
+			added: 'Toegevoegd',
 			for: 'voor',
 			date: 'Datum',
+			seconds: 'seconden',
 			total: 'Totaal',
 			open: 'Open',
+			scheduled: 'Ingepland',
+			started: 'Gestart',
+			paused: 'Gepauzeerd',
+			stopped: 'Gestopt',
+			ended: 'Beëindigd',
+			Processing: 'In behandeling',
 			processing: 'In behandeling',
 			processed: 'Verwerkt',
 			delivered: 'Geleverd',
@@ -134,6 +149,42 @@ export const resources = {
 			refresh: 'Vernieuwen',
 			no_products_available: 'Geen producten beschikbaar',
 
+			// Veilingmeester Texts
+			veilingklok_created: 'Veilingklok succesvol aangemaakt',
+			veilingklok_removing_product: 'Product verwijderen van veilingklok...',
+			veilingklok_product_removed: 'Product succesvol verwijderd van veilingklok',
+			veilingklok_product_remove_error: 'Fout bij het verwijderen van product van veilingklok',
+			veilingklok_adding_product: 'Product toevoegen aan veilingklok...',
+			veilingklok_product_added: 'Product succesvol toegevoegd aan veilingklok',
+			veilingklok_product_add_error: 'Fout bij het toevoegen van product aan veilingklok',
+			veilingklok_loading: 'Veilingklokken laden...',
+			veilingklok_loaded: 'Veilingklokken succesvol geladen',
+			veilingklok_load_error: 'Fout bij het laden van veilingklokken',
+
+			update_auction_clock: 'Veilingklok bijwerken',
+			create_auction_clock: 'Veilingklok aanmaken',
+			auction_clock_details: 'Veilingklok details',
+			total_estimated_value: 'Totaal geschatte waarde',
+			no_veilingen_planned: 'Geen veilingen gepland',
+			veilingklok_status: 'Veilingklok status',
+			scheduledDate: 'Geplande datum',
+			totalProducts: 'Totaal producten',
+			totalBids: 'Totaal biedingen',
+			endedDate: 'Einddatum',
+			amount_viewed: 'Aantal bekeken',
+			duration_per_bids: 'Duur per bod (seconden)',
+			recent_auctionclocks: 'Recente veilingklokken',
+			scheduled_for_auction: 'Gepland voor veiling',
+			no_veiling_planned: 'Geen veiling gepland',
+			set_auction_product_price: 'Stel veilingproductprijs in',
+			product_veiling_start_price: 'Veiling startprijs',
+			schedule_veilingklok: 'Veilingklok plannen',
+			auction_products: 'Veilingklok producten',
+			manage_auction_clock: 'Veilingklok beheren',
+			manage_product_price_txt: 'Hier kunt u de prijzen van producten beheren die beschikbaar zijn in uw regio.',
+			manage_auction_txt: 'Hier kunt u de veilingen beheren die u heeft gepland voor uw regio.',
+			manage_veiling_klok_txt: 'Hier kunt u de veilingklokken beheren die u heeft gepland voor uw regio.',
+
 			// Kweker Page texts
 			kweker_dashboard: 'Mijn Dashboard',
 			kweker_dashboard_sub: 'Overzicht van je profiel en acties',
@@ -212,6 +263,15 @@ export const resources = {
 			aria_login_button: 'Knop om in te loggen',
 			aria_forgot_password: 'Wachtwoord vergeten link',
 			aria_create_account: 'Account aanmaken link',
+
+			// Common actions
+			cancel: 'Annuleren',
+			create: 'Aanmaken',
+			created: 'Aangemaakt',
+			update: 'Bijwerken',
+			updated: 'Bijgewerkt',
+			delete: 'Verwijderen',
+			deleted: 'Verwijderd',
 		},
 	},
 	en: {
@@ -239,3 +299,4 @@ type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources[
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
 export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};
+

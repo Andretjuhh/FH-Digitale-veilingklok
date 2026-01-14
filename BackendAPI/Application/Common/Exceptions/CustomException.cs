@@ -73,6 +73,15 @@ public class CustomException : ProcessException
         );
     }
 
+    public static CustomException CannotDeleteStartedVeilingKlok()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.CANNOT_DELETE_STARTED_VEILING_KLOK",
+            "Cannot delete a VeilingKlok that has already started. Only scheduled VeilingKlokken can be deleted."
+        );
+    }
+
     public static CustomException InvalidOperationKlokStillRunning()
     {
         return new CustomException(
@@ -118,5 +127,29 @@ public class CustomException : ProcessException
     public static CustomException InsufficientStock()
     {
         return new CustomException(StatusCodes.Status400BadRequest, "PRODUCT.INSUFFICIENT_STOCK");
+    }
+
+    public static CustomException ProductAlreadyLinkedToVeilingKlok()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.PRODUCT_ALREADY_LINKED_TO_VEILING_KLOK"
+        );
+    }
+
+    public static CustomException ProductNotLinkedToVeilingKlok()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.PRODUCT_NOT_LINKED_TO_VEILING_KLOK"
+        );
+    }
+
+    public static CustomException ProductAlreadyInVeilingKlok()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.PRODUCT_ALREADY_IN_VEILING_KLOK"
+        );
     }
 }

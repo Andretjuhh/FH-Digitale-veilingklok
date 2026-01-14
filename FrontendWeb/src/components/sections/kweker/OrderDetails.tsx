@@ -63,7 +63,7 @@ function OrderDetails(props: Props) {
 		<LayoutGroup>
 			<motion.div
 				layout
-				className={'order-card'}
+				className={'modal-card order-card auto-width'}
 				onClick={(e) => e.stopPropagation()}
 			>
 				{

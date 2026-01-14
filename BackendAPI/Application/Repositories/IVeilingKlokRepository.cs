@@ -1,5 +1,4 @@
-﻿using Application.Common.Models;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Domain.Enums;
 
 namespace Application.Repositories;
@@ -12,6 +11,7 @@ public interface IVeilingKlokRepository
 
     Task AddAsync(VeilingKlok veilingKlok);
     void Update(VeilingKlok veilingKlok);
+    void Delete(VeilingKlok veilingKlok);
 
     Task<IEnumerable<VeilingKlok>> GetAllByMeesterIdAsync(Guid meesterId);
     Task<IEnumerable<VeilingKlok>> GetAllByStatusAsync(VeilingKlokStatus status, CancellationToken ct);
@@ -24,4 +24,20 @@ public interface IVeilingKlokRepository
         int pageNumber,
         int pageSize
     );
+
+    Task<(IEnumerable<(VeilingKlok VeilingKlok, int BidCount)> Items, int TotalCount)> GetAllWithFilterAndBidsAsync(
+        VeilingKlokStatus? statusFilter,
+        string? region,
+        DateTime? scheduledAfter,
+        DateTime? scheduledBefore,
+        DateTime? startedAfter,
+        DateTime? startedBefore,
+        DateTime? endedAfter,
+        DateTime? endedBefore,
+        Guid? meesterId,
+        int pageNumber,
+        int pageSize
+    );
+
+    Task<IEnumerable<(VeilingKlok VeilingKlok, int BidCount)>> GetAllByMeesterIdWithBidsCountAsync(Guid meesterId);
 }

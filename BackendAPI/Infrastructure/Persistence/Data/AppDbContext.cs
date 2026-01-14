@@ -14,6 +14,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<Veilingmeester> Veilingmeesters { get; set; }
     public DbSet<VeilingKlok> Veilingklokken { get; set; }
+    public DbSet<VeilingKlokProduct> VeilingKlokProducts { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
 
@@ -176,6 +177,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<VeilingKlok>().Property(vk => vk.HighestPrice).HasPrecision(18, 2);
         modelBuilder.Entity<VeilingKlok>().Property(vk => vk.LowestPrice).HasPrecision(18, 2);
 
+        // VeilingKlok -> VeilingKlokProducts (Cascade Delete)
+        modelBuilder
+            .Entity<VeilingKlok>()
+            .HasMany(vk => vk.VeilingKlokProducts)
+            .WithOne()
+            .HasForeignKey(vkp => vkp.VeilingKlokId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+
         #endregion
 
         #region PRODUCT & INVENTORY
@@ -206,6 +216,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(p => p.VeilingKlokId)
             .OnDelete(DeleteBehavior.SetNull)
             .IsRequired(false); // A  Product may or may not be associated with a VeilingKlok.
+
+        // VeilingKlokProduct -> Product (Restrict Delete)
+        modelBuilder
+            .Entity<VeilingKlokProduct>()
+            .HasOne<Product>()
+            .WithMany()
+            .HasForeignKey(vkp => vkp.ProductId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
 
         // OrderItem -> Product (Restrict Delete)
         modelBuilder
@@ -248,4 +267,3 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         #endregion
     }
 }
-

@@ -121,6 +121,7 @@ public class ProductRepository : IProductRepository
         string? regionFilter,
         decimal? maxPrice,
         Guid? kwekerId,
+        Guid? klokId,
         int pageNumber,
         int pageSize
     )
@@ -144,6 +145,9 @@ public class ProductRepository : IProductRepository
 
         if (kwekerId.HasValue)
             query = query.Where(x => x.product.KwekerId == kwekerId.Value);
+
+        if (klokId.HasValue)
+            query = query.Where(x => x.product.VeilingKlokId == klokId.Value);
 
         var totalCount = await query.CountAsync();
         var results = await query

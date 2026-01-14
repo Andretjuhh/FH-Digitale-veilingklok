@@ -67,7 +67,8 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                     ImageUrl = entity.ImageUrl,
                     Dimension = entity.Dimension ?? "",
                     Region = entity.Region,
-                    CompanyName = kweker.CompanyName
+                    CompanyName = kweker.CompanyName,
+                    AuctionPlanned = entity.VeilingKlokId.HasValue
                 };
 
         public static ProductOutputDto ToOutputDto(Product entity, KwekerInfo kweker)
@@ -84,7 +85,8 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                 ImageUrl = entity.ImageUrl,
                 Dimension = entity.Dimension ?? "",
                 Region = entity.Region,
-                CompanyName = kweker.CompanyName
+                CompanyName = kweker.CompanyName,
+                AuctionPlanned = entity.VeilingKlokId.HasValue
             };
         }
     }
@@ -101,6 +103,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                 MinimumPrice = entity.ProductMinimumPrice,
                 ImageUrl = entity.ProductImageUrl,
                 CompanyName = entity.CompanyName,
+                AuctionPlanned = true,
                 Region = null, // Not available in OrderProductInfo
                 AuctionedAt = null, // Not available in OrderProductInfo
                 Stock = 0, // Not available in OrderProductInfo
@@ -118,6 +121,7 @@ public class ProductMapper : IBaseMapper<Product, KwekerInfo, ProductDetailsOutp
                 MinimumPrice = entity.ProductMinimumPrice,
                 ImageUrl = entity.ProductImageUrl,
                 CompanyName = entity.CompanyName,
+                AuctionPlanned = true,
                 Region = null, // Not available in OrderProductInfo
                 AuctionedAt = null, // Not available in OrderProductInfo
                 Stock = 0, // Not available in OrderProductInfo

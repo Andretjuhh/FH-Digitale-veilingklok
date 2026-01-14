@@ -42,7 +42,6 @@ function AppHeader(props: { className?: string, slideAnimation?: boolean }) {
 				<a className={'header-logo'} href={'/'}>
 					<img className={'header-logo-img'} src={'/svg/logo-floriclock.svg'} alt={'FloriClock'}/>
 				</a>
-
 				<div className={'navbar-ctn'}>
 					{['', '/'].includes(location.pathname) ? (
 						<nav className={'nav-menu'}>
@@ -68,6 +67,28 @@ function AppHeader(props: { className?: string, slideAnimation?: boolean }) {
 										{key: 'dashboard', name: t('dashboard'), location: '/kweker/dashboard', icon: 'bi-grid-fill'},
 										{key: 'products', name: t('products'), location: '/kweker/products', icon: 'bi-bag-fill'},
 										{key: 'orders', name: t('orders'), location: '/kweker/orders', icon: 'bi-cart-fill'},
+									]}
+								/>
+							}
+
+							{
+								account?.accountType == AccountType.Koper &&
+								<NavBar
+									pages={[
+										{key: 'dashboard', name: t('dashboard'), location: '/koper/dashboard', icon: 'bi-grid-fill'},
+										{key: 'browse', name: t('browse_flowers'), location: '/koper/browse', icon: 'bi-search'},
+										{key: 'orders', name: t('my_orders'), location: '/koper/orders', icon: 'bi-cart-fill'},
+									]}
+								/>
+							}
+
+							{
+								account?.accountType == AccountType.Veilingmeester &&
+								<NavBar
+									pages={[
+										{key: 'dashboard', name: t('dashboard'), location: '/veilingmeester/dashboard', icon: 'bi-grid-fill'},
+										{key: 'manage_auction', name: t('manage_auction'), location: '/veilingmeester/veilingen-beheren', icon: 'bi-clock-history', strict: false},
+										{key: 'region_flowers', name: t('region_flowers'), location: '/veilingmeester/region-flowers', icon: 'bi-tags-fill'},
 									]}
 								/>
 							}

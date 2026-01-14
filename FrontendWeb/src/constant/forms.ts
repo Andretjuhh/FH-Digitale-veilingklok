@@ -61,6 +61,15 @@ export const ProductFormFields: InputField[] = [
 	{label: 'product_dimension', type: 'text', placeholder: 'e.g., 10 x 20 x 5 cm', required: false, icon: 'rulers'},
 ];
 
+export const EditProductPriceFormFields: InputField[] = [
+	{disabled: true, label: 'product_name', type: 'text', placeholder: undefined, placeholderLocalizedKey: 'enter_product_name', required: true, icon: 'box-seam-fill'},
+	{disabled: true, label: 'product_description', type: 'textarea', placeholder: undefined, placeholderLocalizedKey: 'enter_product_description', required: true, rows: 4},
+	{disabled: true, label: 'region', type: 'text', placeholder: undefined, required: false, icon: 'geo-alt-fill'},
+	{disabled: true, label: 'minimum_price', type: 'number', placeholder: '0.00', required: true, icon: 'currency-euro', group: 'pricing', step: '0.01', min: 1},
+	{disabled: false, label: 'product_veiling_start_price', type: 'number', placeholder: '0.00', required: true, icon: 'bi-stopwatch', group: 'pricing', step: '0.01', min: 1},
+	{disabled: true, label: 'product_dimension', type: 'text', placeholder: 'e.g., 10 x 20 x 5 cm', required: false, icon: 'rulers'},
+];
+
 export const buildFieldLayout = (fields: ReadonlyArray<InputField>): FieldOrGroup[] => {
 	const orderedItems: FieldOrGroup[] = [];
 	let currentGroup: { name: string; fields: InputField[] } | null = null;

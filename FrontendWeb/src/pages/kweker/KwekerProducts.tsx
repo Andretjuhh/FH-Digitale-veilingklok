@@ -3,7 +3,7 @@ import Page from "../../components/nav/Page";
 import {useRootContext} from "../../components/contexts/RootContext";
 import {KwekerProductStats} from "../../components/sections/kweker/KwekerStats";
 import GridTable from "../../components/layout/GridTable";
-import ProductCard from "../../components/elements/ProductCard";
+import ProductCard from "../../components/cards/ProductCard";
 import {ProductOutputDto} from "../../declarations/dtos/output/ProductOutputDto";
 import CreateEditProduct from "../../components/sections/kweker/CreateEditProduct";
 import {PaginatedOutputDto} from "../../declarations/dtos/output/PaginatedOutputDto";
@@ -11,6 +11,7 @@ import {useComponentStateReducer} from "../../hooks/useComponentStateReducer";
 import {OnFetchHandlerParams} from "../../components/layout/Table";
 import {getProducts} from "../../controllers/server/kweker";
 import Button from "../../components/buttons/Button";
+import Modal from "../../components/elements/Modal";
 
 function KwekerProducts() {
 	const {t, account} = useRootContext();
@@ -18,7 +19,7 @@ function KwekerProducts() {
 	// State for Create/Edit Product Modal
 	const [paginatedProductsState, setPaginatedProductsState] = useComponentStateReducer();
 	const [paginatedProducts, setPaginatedProducts] = useState<PaginatedOutputDto<ProductOutputDto>>();
-	const [openCreateEditModal, setOpenCreateEditModal] = useState<{ visible: boolean; edit?: ProductOutputDto }>({visible: false});
+	const [openCreateEditModal, setOpenCreateEditModal] = useState<{ visible: boolean; product?: ProductOutputDto }>({visible: false});
 
 	const handleFetchProducts = useCallback(async (params: OnFetchHandlerParams) => {
 		try {
@@ -39,9 +40,9 @@ function KwekerProducts() {
 	}, []);
 
 	return (
-		<Page enableHeader className="kweker-page" enableHeaderAnimation={false}>
-			<main className="kweker-container">
-				<section className="kweker-hallo">
+		<Page enableHeader className="kweker-products-page" enableHeaderAnimation={false}>
+			<main className="kweker-products-page-ctn">
+				<section className="products-page-title-section">
 					<h1>
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
@@ -50,20 +51,20 @@ function KwekerProducts() {
 					</h2>
 				</section>
 
-				<section className={'kweker-stats-wrapper'}>
+				<section className={'products-page-stats'}>
 					<KwekerProductStats/>
-					<div className="kweker-add-product-card">
-						<div className="kweker-add-product-card-title">
+					<div className="products-page-action-card">
+						<div className="products-page-action-card-title">
 					        <span>
 						         <i className={'bi bi-bag-plus-fill'}/>
 			                </span>
-							<p className="kweker-stat-txt">
+							<p className="products-page-action-card-txt">
 								{t('products')}
 							</p>
 						</div>
 
 						<Button
-							className={'kweker-add-product-btn'}
+							className={'products-page-action-card-btn'}
 							icon={'bi bi-plus-circle-fill'}
 							onClick={() => setOpenCreateEditModal({visible: true})}
 							label={t('create_product')}
@@ -86,19 +87,27 @@ function KwekerProducts() {
 							isKoper={false}
 							product={item}
 							index={index}
-							onEdit={(product) => setOpenCreateEditModal({visible: true, edit: product})}
-							onDelete={(product) => console.log('Delete product', product)}
+							onAction={
+								(action, product) => {
+									if (action == 'edit') {
+										setOpenCreateEditModal({visible: true, product: product});
+									} else if (action == 'set_pricing') {
+										console.log('Set pricing for product', product);
+									} else if (action == 'delete') {
+										console.log('Delete product', product);
+									}
+								}
+							}
 						/>)
 					}
 					emptyText={t('no_orders')}
-					className={'kweker-products-grid-table'}
 				/>
 
-				{openCreateEditModal.visible && (
-					<div className="modal-overlay" onClick={() => setOpenCreateEditModal({visible: false})}>
-						<CreateEditProduct editProduct={openCreateEditModal.edit} onClose={() => setOpenCreateEditModal({visible: false})}/>
-					</div>
-				)}
+				 
+				<Modal enabled={openCreateEditModal.visible} onClose={() => setOpenCreateEditModal({visible: false})}>
+					<CreateEditProduct product={openCreateEditModal.product} onClose={() => setOpenCreateEditModal({visible: false})}/>
+				</Modal>
+
 			</main>
 		</Page>
 	);

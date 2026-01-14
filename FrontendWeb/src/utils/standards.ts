@@ -1,4 +1,5 @@
 import {OrderStatus} from "../declarations/enums/OrderStatus";
+import {VeilingKlokStatus} from "../declarations/enums/VeilingKlokStatus";
 
 export async function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -51,7 +52,44 @@ export function getNormalizedOrderStatus(status: number | string): OrderStatus |
 		return (OrderStatus as any)[status] ?? null;
 	} else {
 		// If status is passed as number or string number e.g. 0 or "0"
-		const numericStatus = typeof status === 'string' ? parseInt(status) : status;
-		return OrderStatus[numericStatus] !== undefined ? numericStatus : null;
+		return typeof status === 'string' ? parseInt(status) : status;
 	}
+}
+
+export function getVeilingKlokStatusString(status: number | string): string {
+	let normalizedStatus: VeilingKlokStatus;
+	let statusKey: string;
+
+	if (typeof status === 'string' && isNaN(Number(status))) {
+		statusKey = status;
+		normalizedStatus = (VeilingKlokStatus as any)[status];
+	} else {
+		normalizedStatus = typeof status === 'string' ? parseInt(status) : status;
+		statusKey = VeilingKlokStatus[normalizedStatus];
+	}
+	return statusKey?.toString() || '';
+}
+
+export function getNormalizedVeilingKlokStatus(status: number | string): VeilingKlokStatus | null {
+	if (typeof status === 'string' && isNaN(Number(status))) {
+		return (VeilingKlokStatus as any)[status] ?? null;
+	} else {
+		return typeof status === 'string' ? parseInt(status) : status;
+	}
+}
+
+export function toIsoStringWithOffset(date: Date) {
+	const tzo = -date.getTimezoneOffset(),
+		dif = tzo >= 0 ? '+' : '-',
+		pad = (num: number) => {
+			const norm = Math.floor(Math.abs(num));
+			return (norm < 10 ? '0' : '') + norm;
+		};
+	return date.getFullYear() +
+		'-' + pad(date.getMonth() + 1) +
+		'-' + pad(date.getDate()) +
+		'T' + pad(date.getHours()) +
+		':' + pad(date.getMinutes()) +
+		':' + pad(date.getSeconds()) +
+		dif + pad(tzo / 60) + ':' + pad(tzo % 60);
 }

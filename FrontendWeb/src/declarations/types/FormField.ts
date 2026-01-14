@@ -12,7 +12,7 @@ export interface InputField<T extends string = string> {
 	step?: string;
 	min?: number;
 	rows?: number;
-
+	disabled?: boolean;
 }
 
 export type FieldOrGroup = { type: 'field'; field: InputField } | { type: 'group'; groupName: string; fields: InputField[] };

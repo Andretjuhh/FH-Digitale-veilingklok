@@ -25,7 +25,7 @@ function StatsCard(props: StatsCardProps) {
 		        <span>
 			        {icon}
  				</span>
-				<p className="kweker-stat-txt">
+				<p className="products-page-action-card-txt">
 					{title}
 				</p>
 			</div>

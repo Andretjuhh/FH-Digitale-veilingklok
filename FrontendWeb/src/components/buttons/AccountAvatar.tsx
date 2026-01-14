@@ -15,12 +15,18 @@ type Props = {
 function AccountAvatar({className}: Props) {
 	const {t, account, removeAuthentication, navigate} = useRootContext();
 	const defaultColor = useRef<string>(getRandomColor(`${account?.firstName} ${account?.lastName}`));
+
 	const menuOptions = useRef<DropdownItem[]>([
 		{id: 'logout', label: t("logout"), icon: 'bi-door-open-fill', type: 'button', as: 'button'},
 		{id: 'manage-account', label: t("manage_account"), icon: 'bi-person-lines-fill', type: 'button', as: 'button'},
 		{id: 'settings', label: t("settings"), icon: 'bi-gear-fill', type: 'button', as: 'button'},
 	]);
-	const avatarName = useRef(account?.accountType == AccountType.Kweker ? account.companyName : `${account?.firstName} ${account?.lastName}`);
+
+	const getAvatarName = () => {
+		if (account?.accountType == AccountType.Kweker) return account.companyName;
+		else if (account?.accountType == AccountType.Koper) return `${account?.firstName} ${account?.lastName}`;
+		else return account?.accountType;
+	}
 	const handleItemSelect = useCallback((item: DropdownItem) => {
 		if (item.id === 'logout') {
 			removeAuthentication();
@@ -43,12 +49,12 @@ function AccountAvatar({className}: Props) {
 			buttonChildren={
 				<>
 					<div className={'account-avatar-round'} style={{backgroundColor: defaultColor.current} as React.CSSProperties}>
-						<h1 className={'account-initial-txt'}>{avatarName.current?.charAt(0)}</h1>
+						<h1 className={'account-initial-txt'}>{getAvatarName()?.charAt(0)}</h1>
 					</div>
 					<div className={'account-avatar-info'}>
 						<span
-							className={'account-avatar-title'}>{avatarName.current}  </span>
-						<span className={'account-avatar-txt'}>{account?.accountType}</span>
+							className={'account-avatar-title'}>{getAvatarName()}</span>
+						<span className={'account-avatar-txt'}>{account?.accountType == 'Veilingmeester' ? account?.region : account?.accountType}</span>
 					</div>
 				</>
 			}

@@ -163,7 +163,7 @@ function RegisterContent() {
 
 	return (
 		<LayoutGroup>
-			<motion.div layout className="auth-card auto-width" transition={Spring}>
+			<motion.div layout className="modal-card auth-card auto-width" transition={Spring}>
 				{state.type === 'idle' && (
 					<>
 						<div className="auth-header">

@@ -26,6 +26,7 @@ public interface IProductRepository
         string? regionFilter,
         decimal? maxPrice,
         Guid? kwekerId,
+        Guid? klokId,
         int pageNumber,
         int pageSize
     );

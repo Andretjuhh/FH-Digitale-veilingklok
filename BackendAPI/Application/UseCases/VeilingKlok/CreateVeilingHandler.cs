@@ -51,7 +51,7 @@ public sealed class CreateVeilingHandler
                 Country = meester.CountryCode,
                 RegionOrState = meester.Region,
                 ScheduledAt = dto.ScheduledAt,
-                VeilingDurationMinutes = dto.VeilingDurationMinutes
+                VeilingDurationSeconds = dto.VeilingDurationSeconds
             };
             newKlok.AssignVeilingmeester(request.MeesterId);
 
@@ -86,6 +86,7 @@ public sealed class CreateVeilingHandler
                 // Persist change on product repository (unit of work will commit)
                 _productRepository.Update(result.Product);
             }
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
 

@@ -13,9 +13,9 @@ function KwekerDashboard() {
 	const {t, account} = useRootContext();
 
 	return (
-		<Page enableHeader className="kweker-page" enableHeaderAnimation={false}>
-			<main className="kweker-container">
-				<section className="kweker-hallo">
+		<Page enableHeader className="kweker-products-page" enableHeaderAnimation={false}>
+			<main className="kweker-products-page-ctn">
+				<section className="products-page-title-section">
 					<h1>
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
