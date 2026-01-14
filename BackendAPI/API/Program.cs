@@ -34,7 +34,7 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://veilingklok-frontendklas1groep2.azurewebsites.net"
+                "https://veilingklok-frontendklas1groep2-hvcmg3eua4fhgqft.germanywestcentral-01.azurewebsites.net"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
