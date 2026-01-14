@@ -5,7 +5,7 @@ import {useParams} from 'react-router-dom';
 import {useComponentStateReducer} from '../../hooks/useComponentStateReducer';
 import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
 import {delay, formatDate, formatEur, getNormalizedVeilingKlokStatus} from '../../utils/standards';
-import {getVeilingKlok, updateVeilingKlokStatus} from '../../controllers/server/veilingmeester';
+import {getVeilingKlok, startVeilingProduct, updateVeilingKlokStatus} from '../../controllers/server/veilingmeester';
 import {isHttpError} from '../../declarations/types/HttpError';
 import ComponentState, {ComponentStateCard} from '../../components/elements/ComponentState';
 import Button from '../../components/buttons/Button';
@@ -86,7 +86,7 @@ function VeilingmeesterKlokManage() {
 		}
 	};
 	const startVeilingKlok = useCallback(async () => {
-		await updateKlokStatus(VeilingKlokStatus.Started);
+		await updateKlokStatus(VeilingKlokStatus.Paused);
 	}, [id]);
 	const stopVeilingKlok = useCallback(async () => {
 		await updateKlokStatus(VeilingKlokStatus.Stopped);
@@ -97,9 +97,33 @@ function VeilingmeesterKlokManage() {
 	const resumeVeilingKlok = useCallback(async () => {
 		await updateKlokStatus(VeilingKlokStatus.Started);
 	}, [id]);
-	const startProductVeiling = useCallback(async (productId: string) => {
+	const startProductVeiling = useCallback(
+		async (productId: string) => {
+			if (!currentVeilingKlok) return;
+			const startedProduct = currentVeilingKlok.products.find((p) => p.id === productId);
+			if (!startedProduct) return;
+			try {
+				updateActionState({type: 'loading', message: t('starting_product_veiling')});
+				await startVeilingProduct(currentVeilingKlok.id, productId);
+				await delay(1500);
+				updateActionState({type: 'succeed', message: t('product_veiling_started')});
 
-	}, [id]);
+				// Update current product state to reflect that the auction has started get it from the klok products
+				if (startedProduct) {
+					setCurrentProduct({
+						...startedProduct,
+					});
+				}
+			} catch (e: any) {
+				if (isHttpError(e) && e.message) updateActionState({type: 'error', message: e.message});
+				else updateActionState({type: 'error', message: t('product_veiling_start_error')});
+			} finally {
+				await delay(2000);
+				updateActionState({type: 'idle'});
+			}
+		},
+		[id]
+	);
 
 	// Veiling klok SignalR hook
 	const klokSignalR = useVeilingKlokSignalR({region: account?.region!, clockRef: klokRef});
@@ -259,7 +283,12 @@ function VeilingmeesterKlokManage() {
 								<div className={'vm-veiling-info-products-scroll custom-scroll'}>
 									<div className={'vm-veiling-info-products-list'}>
 										{currentVeilingKlok?.products.map((product, index) => (
-											<ClockProductCard key={index} product={product}/>
+											<ClockProductCard
+												key={index}
+												product={product}
+												clockRunning={getNormalizedVeilingKlokStatus(currentVeilingKlok.status) === VeilingKlokStatus.Started}
+												onStartAuctionClick={() => startProductVeiling(product.id)}
+											/>
 										))}
 									</div>
 								</div>

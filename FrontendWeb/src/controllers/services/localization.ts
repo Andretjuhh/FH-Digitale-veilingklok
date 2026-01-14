@@ -192,6 +192,9 @@ export const resources = {
 			updating_veilingklok: 'Veilingklok bijwerken...',
 			veilingklok_updated: 'Veilingklok succesvol bijgewerkt',
 			veilingklok_update_error: 'Fout bij het bijwerken van veilingklok',
+			starting_product_veiling: 'Veiling van product starten...',
+			product_veiling_started: 'Veiling van product succesvol gestart',
+			product_veiling_start_error: 'Fout bij het starten van de veiling van het product',
 
 			// Clock Text
 			munt: 'Munt',
