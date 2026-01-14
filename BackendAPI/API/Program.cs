@@ -4,6 +4,8 @@ using Infrastructure;
 using Infrastructure.Microservices.SignalR.Hubs;
 using Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Diagnostics;
+using Application.Common.Exceptions;
 using System.Threading;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +41,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+app.UseExceptionHandler();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
