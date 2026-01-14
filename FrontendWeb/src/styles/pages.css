@@ -294,96 +294,24 @@
     gap: 2rem;
 }
 
-.vm-veiling-info-header {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    margin-bottom: 1rem;
-    gap: 1.6rem;
-}
-
-.vm-veiling-info-btn {
-    font-size: 1.4rem;
-    padding: 1rem;
-}
-
-.vm-veiling-info-h1 {
-    display: flex;
-    gap: 1rem;
-    font-size: 1.5rem;
-    line-height: 1.5rem;
-    font-weight: 700;
-    color: theme(colors.yellow.500);
-}
-
-.vm-veiling-info-h2 {
-    display: flex;
-    gap: 1rem;
-    font-size: 1.25rem;
-    line-height: 1.25rem;
-    font-weight: 600;
-    color: theme(colors.primary.700);
-    margin: 0;
-}
-
-.vm-veiling-info-klok-details {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-}
-
-.vm-veiling-info-klok-details .vm-veiling-info-details {
-    padding-right: 0;
-}
-
-.vm-veiling-info-klok-ctn {
-    flex: 2;
-    width: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem 6rem;
-}
-
-.vm-veiling-info-details {
-    width: auto;
-    flex: 1;
-    padding: 1.2rem 4rem;
+.vm-veiling-info-products,
+.vm-veiling-info-data {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem
-}
-
-.vm-veiling-info-detail-item {
-    display: flex;
-    flex-direction: row;
     flex-wrap: nowrap;
-    align-items: center;
-    gap: 0.2rem;
+    width: 100%;
+
+    flex: 2;
+    background-color: white;
+    border-radius: 1rem;
+    position: relative;
+    padding: 1.6rem;
+    border: 1px solid theme(colors.gray.200);
 }
 
-.vm-veiling-info-detail-label {
-    font-size: 0.875rem;
-    line-height: 0.875rem;
-    color: theme(colors.gray.500);
+.vm-veiling-info-data {
+    flex: 4;
 }
-
-.vm-veiling-info-detail-value {
-    font-size: 1rem;
-    line-height: 1rem;
-    font-weight: 600;
-    color: theme(colors.gray.700);
-    white-space: nowrap;
-}
-
-.vm-veiling-info-status {
-    /*margin-left: auto;*/
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    margin-bottom: 0.4rem;
-}
-
 
 .vm-veiling-info-row {
     width: 100%;
@@ -426,24 +354,239 @@
     padding: 1.2rem 4rem;
 }
 
-.vm-veiling-info-products,
-.vm-veiling-info-data {
+.vm-veiling-info-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1.6rem;
+}
+
+.vm-veiling-info-btn {
+    font-size: 1.4rem;
+    padding: 1rem;
+}
+
+.vm-veiling-info-h1 {
+    display: flex;
+    gap: 1rem;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+    font-weight: 700;
+    color: theme(colors.yellow.500);
+}
+
+.vm-veiling-info-h2 {
+    display: flex;
+    gap: 1rem;
+    font-size: 1.25rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: theme(colors.primary.700);
+    margin: 0;
+}
+
+
+.vm-veiling-info-klok-details {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.vm-veiling-info-klok-actions {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    flex-wrap: nowrap;
-    width: 100%;
+    gap: 1rem;
+    align-items: flex-start;
+    justify-content: center;
+}
 
-    flex: 2;
+.vm-veiling-info-klok-actions .start {
+}
+
+.vm-veiling-info-klok-actions .pause {
+    background-color: theme(colors.orange.400);
+}
+
+.vm-veiling-info-klok-actions .resume {
+    background-color: theme(colors.green.400);
+}
+
+.vm-veiling-info-klok-actions .end {
+    background-color: theme(colors.red.500);
+}
+
+
+.vm-veiling-info-klok-action-primary-btn,
+.vm-veiling-info-klok-action-secondary-btn {
+    padding: 0.6rem 1.8rem;
+    font-size: 1.2rem;
+}
+
+.vm-veiling-info-klok-action-primary-btn-icon,
+.vm-veiling-info-klok-action-secondary-btn-icon {
+    font-size: 1.6rem;
+}
+
+.vm-veiling-info-klok-details .vm-veiling-info-details {
+    padding-right: 0;
+}
+
+.vm-veiling-info-details {
+    width: auto;
+    flex: 1;
+    padding: 1.2rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem
+}
+
+.vm-veiling-info-detail-item {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.vm-veiling-info-detail-item:has(.vm-veiling-info-status) {
+    margin: 0.4rem 0;
+    gap: 0.4rem;
+}
+
+.vm-veiling-info-detail-label {
+    font-size: 0.875rem;
+    line-height: 0.875rem;
+    color: theme(colors.gray.500);
+}
+
+.action .vm-veiling-info-detail-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: theme(colors.gray.700);
+}
+
+.vm-veiling-info-detail-value {
+    font-size: 1rem;
+    line-height: 1rem;
+    font-weight: 600;
+    color: theme(colors.gray.700);
+    white-space: nowrap;
+}
+
+.vm-veiling-info-status {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.vm-veiling-info-klok-ctn {
+    flex: 1;
+    width: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 4rem;
+}
+
+
+.vm-veiling-klok-product {
+    max-height: 30vh;
+
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+
     background-color: white;
     border-radius: 1rem;
     position: relative;
-    padding: 1.6rem;
+    padding: 2rem;
     border: 1px solid theme(colors.gray.200);
 }
 
-.vm-veiling-info-data {
-    flex: 4;
+.vm-veiling-klok-product-img-parent {
+    aspect-ratio: 1;
+    width: 46%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 99999rem;
+    background-color: theme(colors.gray.200);
+    border: 3px solid theme(colors.primary.200);
 }
+
+.vm-veiling-klok-product-img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.vm-veiling-klok-product-info {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+}
+
+.vm-veiling-klok-product-info-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+.vm-veiling-klok-product-field {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+.vm-veiling-klok-product-field-label {
+    font-size: 1rem;
+    color: theme(colors.secondary.600);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.vm-veiling-klok-product-field-box {
+    min-width: 2rem;
+
+    background: theme(colors.gray.100);
+    border: 1px solid theme(colors.gray.200);
+    border-radius: 0.6rem;
+    padding: 0.6rem 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vm-veiling-klok-product-field-value {
+    font-size: 1.2rem;
+    line-height: 1.2rem;
+    color: #111827;
+    font-weight: 600;
+}
+
+.small-box .vm-veiling-klok-product-field-box {
+    padding: 0.4rem 1.3rem;
+}
+
+.small-box .vm-veiling-klok-product-field-value {
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1rem;
+}
+
 
 .vm-veiling-info-products-scroll {
     height: 100%;

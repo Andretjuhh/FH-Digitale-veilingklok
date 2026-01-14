@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import {initReactI18next, useTranslation} from 'react-i18next';
+import { initReactI18next, useTranslation } from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -26,7 +26,6 @@ export const resources = {
 			auctions: 'Veilingen',
 			manage_auction: 'Veilingbeheren',
 			region_flowers: 'Regio bloemen',
-
 
 			// Dictionary terms
 			welcome_back: 'Welkom terug',
@@ -185,6 +184,10 @@ export const resources = {
 			manage_auction_txt: 'Hier kunt u de veilingen beheren die u heeft gepland voor uw regio.',
 			manage_veiling_klok_txt: 'Hier kunt u de veilingklokken beheren die u heeft gepland voor uw regio.',
 			manage_veiling_klok: 'Veilingklok beheren',
+			start_veiling_klok: 'Start Veilingklok',
+			stop_veiling_klok: 'Stop Veilingklok',
+			pause_veiling_klok: 'Pause Veilingklok',
+			resume_veiling_klok: 'Hervat Veilingklok',
 
 			// Clock Text
 			munt: 'Munt',
@@ -192,7 +195,10 @@ export const resources = {
 			rounds: 'Rounde',
 			price: 'Prijs',
 			min_aant: 'Min. aantal',
-
+			product_naam: 'Product naam',
+			aanvoerder: 'Aanvoerder',
+			product_id: 'Product ID',
+			dimension: 'Dimensie',
 
 			// Kweker Page texts
 			kweker_dashboard: 'Mijn Dashboard',
@@ -236,7 +242,8 @@ export const resources = {
 			product_dimension: 'Afmeting (bijv. lengte/stamhoogte)',
 			enter_product_name: 'Voer productnaam in....',
 			enter_product_description: 'Voer productbeschrijving in....',
-			minimum_price: 'Minimale prijs per stuk (€)',
+			minimum_price: 'Prijs per stuk (€)',
+			start_price: 'Start Veilingprijs',
 			stock_quantity: 'Voorraadhoeveelheid',
 			product_image: 'Productafbeelding',
 			upload_image: 'Upload afbeelding',
@@ -305,12 +312,11 @@ i18n
 		lng: 'nl', // if you're using a language detector, do not define the lng option
 		fallbackLng: 'nl',
 		debug: false,
-		interpolation: {escapeValue: false},
+		interpolation: { escapeValue: false },
 	})
 	.then(null);
 
 type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
-export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};
-
+export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };

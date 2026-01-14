@@ -20,7 +20,7 @@ type LogLevel = 'info' | 'warn' | 'error' | 'debug';
  */
 class Logger {
 	/**
-	 * Flag indicating if the application is running in production mode
+	 * Flag indicating if the application is clockRunning in production mode
 	 * Used to control which log levels are output to console
 	 */
 	private readonly isProduction: boolean;
@@ -30,7 +30,7 @@ class Logger {
 	 * Sets up the isProduction flag based on ENV
 	 */
 	constructor() {
-		// Check if running in production environment
+		// Check if clockRunning in production environment
 		this.isProduction = false;
 	}
 

@@ -18,8 +18,6 @@ interface VeilingKlokState {
 	veilingEndTime: string;
 }
 
-type Anchor = "inherit" | "middle" | "start" | "end" | undefined;
-
 interface AuctionClockProps {
 	// Clock configuration
 	totalDots?: number;
@@ -34,7 +32,7 @@ interface AuctionClockProps {
 	// Center display values
 	round?: number;
 	coin?: number;
-	amountPerLot?: number;
+	amountStock?: number;
 	minAmount?: number;
 
 	// Control
@@ -63,7 +61,7 @@ const AuctionClock = forwardRef<AuctionClockRef, AuctionClockProps>((props, ref)
 		currentPrice: initialPrice,
 		round = 1,
 		coin = 1,
-		amountPerLot = 150,
+		amountStock = 150,
 		minAmount = 1,
 		autoStart = false,
 		paused = false,
@@ -186,7 +184,7 @@ const AuctionClock = forwardRef<AuctionClockRef, AuctionClockProps>((props, ref)
 					const y = cy + Math.sin(angle) * labelRadius;
 
 					// Calculate text anchor based on position to avoid overlap with dots
-					let anchor: Anchor = "middle";
+					let anchor = "middle";
 					let baseline = "middle";
 					const normalizedAngle = ((angle + Math.PI / 2) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
 
@@ -213,7 +211,7 @@ const AuctionClock = forwardRef<AuctionClockRef, AuctionClockProps>((props, ref)
 							x={x}
 							y={y}
 							className="clock-num"
-							textAnchor={anchor}
+							textAnchor={anchor as any}
 							dominantBaseline={baseline as any}
 						>
 							{formatPrice(label)}
@@ -256,7 +254,7 @@ const AuctionClock = forwardRef<AuctionClockRef, AuctionClockProps>((props, ref)
 						                  {t('aant_stock')}
 					                  </span>
 									<div className="clock-box">
-										<span className="clock-value">{amountPerLot}</span>
+										<span className="clock-value">{amountStock}</span>
 									</div>
 								</div>
 							</div>
@@ -265,10 +263,11 @@ const AuctionClock = forwardRef<AuctionClockRef, AuctionClockProps>((props, ref)
 							<div className="clock-row clock-row--wide">
 								<div className="clock-field clock-field--price">
 					                  <span className="clock-label">
+                                          <i className="bi bi-currency-euro me-1"></i>
 						                  {t('price')}
 					                  </span>
 									<div className="clock-box clock-box--large">
-										<span className="clock-value clock-value--large text-primary-600">{formatEur(currentPrice)}</span>
+										<span className="clock-value clock-value--large">{formatEur(currentPrice)}</span>
 									</div>
 								</div>
 
