@@ -24,26 +24,40 @@ builder.Services.AddSwaggerDocumentation();
 builder.Services.AddControllers();
 builder.Services.AddProblemsExtension();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:3000",
+                "http://localhost:5173"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
 app.UseSwaggerDocumentation();
 
 if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 
-app.UseCors("AllowFrontend");
-app.UseExceptionHandler();
 app.UseRouting();
+
+app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<VeilingHub>("/hubs/veiling-klok");
 
-// ✅ ONLY IN DEV
+// ONLY IN DEV
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -52,7 +66,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
-
 
 
 // // Note: For running dotnet ( !!!! Run In the same order always !!!! )

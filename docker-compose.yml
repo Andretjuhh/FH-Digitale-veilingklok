@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__DefaultConnection: "Server=YOUR_DB_HOST,1433;Database=VeilingKlokDb;User Id=YOUR_DB_USER;Password=YOUR_DB_PASSWORD;TrustServerCertificate=true;"
+      ConnectionStrings__DefaultConnection: "Server=tcp:serverklas1groep2.database.windows.net,1433;Initial Catalog=dbKlas1Groep2_2026-01-14T15-46Z;Persist Security Info=False;User ID=VeilingKlokKlas1Groep2;Password=Groep2Klas1!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
     ports:
       - "5219:5219"
 
