@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import Page from '../../components/nav/Page';
 import {useRootContext} from '../../components/contexts/RootContext';
 import {useParams} from 'react-router-dom';
@@ -10,16 +10,24 @@ import {isHttpError} from '../../declarations/types/HttpError';
 import ComponentState from '../../components/elements/ComponentState';
 import Button from '../../components/buttons/Button';
 import {KlokStatusBadge} from '../../components/elements/StatusBadge';
-import AuctionClock from '../../components/elements/AuctionClock';
+import AuctionClock, {AuctionClockRef} from '../../components/elements/AuctionClock';
 import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
 import ClockProductCard from "../../components/cards/ClockProductCard";
+import {HubConnectionState} from "@microsoft/signalr";
+import clsx from "clsx";
+import {useVeilingKlokSignalR} from "../../hooks/useVeilingKlokSignalR";
 
 function VeilingmeesterKlokManage() {
-	const {t, account, languageCode, navigate} = useRootContext();
 	const {klokId: id} = useParams<{ klokId: string }>();
+	const {t, account, languageCode, navigate} = useRootContext();
 
+	const klokRef = useRef<AuctionClockRef | null>(null);
+
+	// Component state
+	const klokSignalR = useVeilingKlokSignalR({regionGroupName: account?.region!, clockRef: klokRef});
 	const [state, updateState] = useComponentStateReducer();
+	const [actionState, updateActionState] = useComponentStateReducer();
 	const [currentVeilingKlok, setCurrentVeilingKlok] = useState<VeilingKlokOutputDto>();
 	const [currentProduct, setCurrentProduct] = useState<ProductOutputDto>({
 		id: '1415b9d3-9204-4ded-8eba-7e2213515247',
@@ -82,6 +90,18 @@ function VeilingmeesterKlokManage() {
 										<i className="bi bi-stopwatch-fill"></i>
 										{t('manage_veiling_klok')}
 									</h2>
+
+									<div className={'vm-veiling-info-status !ml-auto'}>
+											<span
+												className={clsx(
+													`app-table-status-badge text-[0.875rem]`,
+													"app-table-status-" + HubConnectionState.Connected.toLowerCase()
+												)}
+											>
+												<i className="app-table-status-icon bi-wifi"/>
+												{t('Connected')}
+											</span>
+									</div>
 								</div>
 
 								<div className={'vm-veiling-info-klok-details'}>
@@ -94,7 +114,6 @@ function VeilingmeesterKlokManage() {
 											<span className={'vm-veiling-info-detail-label'}>{t('created')}:</span>
 											<span className={'vm-veiling-info-detail-value'}>{formatDate(currentVeilingKlok.createdAt, languageCode, 3)}</span>
 										</div>
-
 										<div className={'vm-veiling-info-klok-actions'}>
 											<div className={'vm-veiling-info-detail-item action'}>
 												<span className={'vm-veiling-info-detail-label'}>{t('live_views')}:</span>
@@ -105,7 +124,6 @@ function VeilingmeesterKlokManage() {
 													</span>
 												</div>
 											</div>
-
 											<div className={'vm-veiling-info-detail-item action'}>
 												<span className={'vm-veiling-info-detail-label'}>{t('status')}:</span>
 												<div className={'vm-veiling-info-status'}>
@@ -155,7 +173,7 @@ function VeilingmeesterKlokManage() {
 									</div>
 
 									<div className={'vm-veiling-info-klok-ctn'}>
-										<AuctionClock/>
+										<AuctionClock ref={klokRef}/>
 									</div>
 								</div>
 							</div>

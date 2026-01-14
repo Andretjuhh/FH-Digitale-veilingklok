@@ -201,6 +201,13 @@ export const resources = {
 			product_id: 'Product ID',
 			dimension: 'Dimensie',
 
+			// HubConnectionState
+			Disconnected: 'Disconnected',
+			Connecting: 'Connecting',
+			Connected: 'Connected',
+			Reconnecting: 'Reconnecting',
+			Disconnecting: 'Disconnecting',
+
 			// Kweker Page texts
 			kweker_dashboard: 'Mijn Dashboard',
 			kweker_dashboard_sub: 'Overzicht van je profiel en acties',
