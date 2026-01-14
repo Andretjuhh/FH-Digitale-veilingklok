@@ -158,7 +158,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 	const disconnect = useCallback(async () => {
 		if (connectionRef.current) {
 			try {
-				await connectionRef.current.invoke('LeaveRegionGroup', region);
+				await leaveRegion(country, region);
 				await connectionRef.current.stop();
 				console.log('SignalR disconnected');
 			} catch (error) {
