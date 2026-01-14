@@ -4,10 +4,7 @@ import {FieldOrGroup, InputField} from '../declarations/types/FormField';
 export const Regions = ['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Overijssel', 'Limburg', 'Friesland', 'Drenthe', 'Flevoland', 'Groningen', 'Zeeland'] as const;
 export const Country = ['Nederland'] as const;
 
-// Account types that can be registered (excludes Admin)
-export type RegisterableAccountType = Exclude<AccountType, AccountType.Admin>;
-
-export const RegisterSteps: Readonly<Record<RegisterableAccountType, readonly (readonly InputField[])[]>> = {
+export const RegisterSteps = {
 	[AccountType.Koper]: [
 		[
 			{label: 'first_name', type: 'text', placeholder: 'Steve', required: true, group: 'name'},
@@ -53,7 +50,7 @@ export const RegisterSteps: Readonly<Record<RegisterableAccountType, readonly (r
 			{label: 'authorisation_code', type: 'text', placeholder: '123456', required: true},
 		],
 	],
-} as const;
+} as const satisfies Readonly<Record<AccountType, readonly (readonly InputField[])[]>>;
 
 export const ProductFormFields: InputField[] = [
 	{label: 'product_name', type: 'text', placeholder: undefined, placeholderLocalizedKey: 'enter_product_name', required: true, icon: 'box-seam-fill'},

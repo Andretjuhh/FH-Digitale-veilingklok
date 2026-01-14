@@ -8,7 +8,6 @@ public static class RepositoryExtension
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IAdminRepository, AdminRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IKoperRepository, KoperRepository>();
         services.AddScoped<IKwekerRepository, KwekerRepository>();

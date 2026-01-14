@@ -6,20 +6,13 @@ using Domain.Entities;
 
 namespace Application.Common.Mappers;
 
-public class VeilingKlokMapper
-    : IBaseMapper<
-        VeilingKlok,
-        VeilingKlokExtraInfo<ProductDetailsOutputDto>,
-        VeilingKlokDetailsOutputDto
-    >
+public class
+    VeilingKlokMapper : IBaseMapper<VeilingKlok, VeilingKlokExtraInfo<ProductDetailsOutputDto>,
+    VeilingKlokDetailsOutputDto>
 {
     public static Expression<
-        Func<
-            VeilingKlok,
-            VeilingKlokExtraInfo<ProductDetailsOutputDto>,
-            VeilingKlokDetailsOutputDto
-        >
-    > EntityDto =>
+            Func<VeilingKlok, VeilingKlokExtraInfo<ProductDetailsOutputDto>, VeilingKlokDetailsOutputDto>>
+        EntityDto =>
         (veiling, info) =>
             new VeilingKlokDetailsOutputDto
             {
@@ -39,13 +32,11 @@ public class VeilingKlokMapper
                 LowestProductPrice = veiling.LowestProductPrice,
                 HighestProductPrice = veiling.HighestProductPrice,
                 VeilingRounds = veiling.VeilingRounds,
-                CurrentProductIndex = veiling.BiddingProductIndex,
+                CurrentProductIndex = veiling.BiddingProductIndex
             };
 
-    public static VeilingKlokDetailsOutputDto ToOutputDto(
-        VeilingKlok entity,
-        VeilingKlokExtraInfo<ProductDetailsOutputDto> info
-    )
+    public static VeilingKlokDetailsOutputDto ToOutputDto(VeilingKlok entity,
+        VeilingKlokExtraInfo<ProductDetailsOutputDto> info)
     {
         return new VeilingKlokDetailsOutputDto
         {
@@ -65,16 +56,15 @@ public class VeilingKlokMapper
             LowestProductPrice = entity.LowestProductPrice,
             HighestProductPrice = entity.HighestProductPrice,
             VeilingRounds = entity.VeilingRounds,
-            CurrentProductIndex = entity.BiddingProductIndex,
+            CurrentProductIndex = entity.BiddingProductIndex
         };
     }
 
-    public class Minimal
-        : IBaseMapper<VeilingKlok, VeilingKlokExtraInfo<ProductOutputDto>, VeilingKlokOutputDto>
+
+    public class Minimal : IBaseMapper<VeilingKlok, VeilingKlokExtraInfo<ProductOutputDto>, VeilingKlokOutputDto>
     {
-        public static Expression<
-            Func<VeilingKlok, VeilingKlokExtraInfo<ProductOutputDto>, VeilingKlokOutputDto>
-        > EntityDto =>
+        public static Expression<Func<VeilingKlok, VeilingKlokExtraInfo<ProductOutputDto>, VeilingKlokOutputDto>>
+            EntityDto =>
             (entity, info) =>
                 new VeilingKlokOutputDto
                 {
@@ -94,13 +84,11 @@ public class VeilingKlokMapper
                     LowestProductPrice = info.LowestPrice,
                     HighestProductPrice = info.HighestPrice,
                     VeilingRounds = entity.VeilingRounds,
-                    CurrentProductIndex = entity.BiddingProductIndex,
+                    CurrentProductIndex = entity.BiddingProductIndex
                 };
 
-        public static VeilingKlokOutputDto ToOutputDto(
-            VeilingKlok entity,
-            VeilingKlokExtraInfo<ProductOutputDto> info
-        )
+        public static VeilingKlokOutputDto ToOutputDto(VeilingKlok entity,
+            VeilingKlokExtraInfo<ProductOutputDto> info)
         {
             return new VeilingKlokOutputDto
             {
@@ -120,7 +108,7 @@ public class VeilingKlokMapper
                 LowestProductPrice = info.LowestPrice,
                 HighestProductPrice = info.HighestPrice,
                 VeilingRounds = entity.VeilingRounds,
-                CurrentProductIndex = entity.BiddingProductIndex,
+                CurrentProductIndex = entity.BiddingProductIndex
             };
         }
     }

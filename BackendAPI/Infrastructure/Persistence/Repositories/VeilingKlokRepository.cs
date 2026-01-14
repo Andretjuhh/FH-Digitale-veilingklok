@@ -68,16 +68,6 @@ public class VeilingKlokRepository : IVeilingKlokRepository
             .ToListAsync();
     }
 
-    public async Task<
-        IEnumerable<(VeilingKlok VeilingKlok, int BidCount)>
-    > GetAllByMeesterIdWithBidsCountAsync(Guid meesterId)
-    {
-        return await _dbContext
-            .Veilingklokken.Include(vk => vk.VeilingKlokProducts)
-            .Where(vk => vk.VeilingmeesterId == meesterId)
-            .ToListAsync();
-    }
-
     public async Task<(IEnumerable<VeilingKlok> Items, int TotalCount)> GetAllWithFilterAsync(
         VeilingKlokStatus? statusFilter,
         DateTime? scheduledAfter,

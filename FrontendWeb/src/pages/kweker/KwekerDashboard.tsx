@@ -2,14 +2,15 @@
 import React from 'react';
 
 // Internal import
-import { useRootContext } from '../../components/contexts/RootContext';
+import {useRootContext} from '../../components/contexts/RootContext';
 
 // Components
-import { KwekerDashboardStats } from '../../components/sections/kweker/KwekerStats';
+import {KwekerDashboardStats} from '../../components/sections/kweker/KwekerStats';
 import Page from '../../components/nav/Page';
 
+
 function KwekerDashboard() {
-	const { t, account } = useRootContext();
+	const {t, account} = useRootContext();
 
 	return (
 		<Page enableHeader className="kweker-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
@@ -20,7 +21,7 @@ function KwekerDashboard() {
 					</h1>
 				</section>
 
-				<KwekerDashboardStats />
+				<KwekerDashboardStats/>
 			</main>
 		</Page>
 	);

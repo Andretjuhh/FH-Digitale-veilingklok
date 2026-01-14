@@ -11,7 +11,7 @@ import SettingsSidebar from '../../components/sections/settingspage/SettingsSide
 import { AccountType } from '../../declarations/enums/AccountTypes';
 
 function Settings() {
-	const { account, navigate, t } = useRootContext();
+	const { account, navigate } = useRootContext();
 	const [searchParams] = useSearchParams();
 	const sectionParam = searchParams.get('section') || 'account';
 	const [section, setSection] = useState(sectionParam);
@@ -40,8 +40,7 @@ function Settings() {
 				<div className="settings-main">
 					<div className="settings-main-header">
 						<Button
-							label={t('settings_back_to_dashboard')}
-							aria-label={t('settings_back_to_dashboard_aria')}
+							label="Terug naar dashboard"
 							className="settings-back-btn"
 							onClick={() => navigate(dashboardPath)}
 						/>
