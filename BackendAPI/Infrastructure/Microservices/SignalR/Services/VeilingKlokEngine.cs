@@ -221,6 +221,14 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         return Task.CompletedTask;
     }
 
+    public decimal GetCurrentPrice(Guid klokId, DateTimeOffset atTime)
+    {
+        if (!_activeVeilingClocks.TryGetValue(klokId, out var state))
+            throw CustomException.InvalidOperation();
+
+        return state.GetCurrentPriceByDate(atTime);
+    }
+
     #endregion
 
     #region Price Ticking Mechanism

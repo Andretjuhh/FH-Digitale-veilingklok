@@ -45,6 +45,7 @@ function UserDashboard() {
 	const [historyLoading, setHistoryLoading] = useState<boolean>(false);
 	const [overallAverage, setOverallAverage] = useState<OverallAveragePriceOutputDto | null>(null);
 	const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
+	const [selectedUpcoming, setSelectedUpcoming] = useState<ProductOutputDto | null>(null);
 	const connectionRef = useRef<HubConnection | null>(null);
 
 	const initializeProducts = useCallback(async () => {
@@ -357,7 +358,19 @@ function UserDashboard() {
 						<h4 className="upcoming-side-title">{t('koper_upcoming')}</h4>
 						<ul className="upcoming-side-list">
 							{upcoming.map((p, i) => (
-								<li className="upcoming-side-item" key={p.id}>
+								<li
+									className="upcoming-side-item"
+									key={p.id}
+									onClick={() => setSelectedUpcoming(p)}
+									role="button"
+									tabIndex={0}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											setSelectedUpcoming(p);
+										}
+									}}
+								>
 									<img
 										className="upcoming-side-thumb"
 										src={p.imageUrl || '/pictures/kweker.png'}
@@ -518,6 +531,30 @@ function UserDashboard() {
 							<p className="text-gray-500">
 								Gemiddelde prijs (alle orders): {overallAverage ? formatEur(overallAverage.averagePrice) : '-'}
 							</p>
+						</div>
+					</div>
+				</div>
+			)}
+			{selectedUpcoming && (
+				<div className="modal-overlay" onClick={() => setSelectedUpcoming(null)}>
+					<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+						<div className="modal-header">
+							<h3>{selectedUpcoming.name}</h3>
+							<button className="modal-close" onClick={() => setSelectedUpcoming(null)} aria-label="Sluiten">
+								?
+							</button>
+						</div>
+						<div className="modal-body">
+							<img
+								className="user-card-media"
+								src={selectedUpcoming.imageUrl || '/pictures/kweker.png'}
+								alt={selectedUpcoming.name}
+							/>
+							<p>{selectedUpcoming.description}</p>
+							<p><strong>Leverancier:</strong> {selectedUpcoming.companyName}</p>
+							<p><strong>Afmeting:</strong> {selectedUpcoming.dimension}</p>
+							<p><strong>Voorraad:</strong> {selectedUpcoming.stock}</p>
+							<p><strong>Prijs:</strong> {formatEur(selectedUpcoming.auctionedPrice ?? 0)}</p>
 						</div>
 					</div>
 				</div>
