@@ -222,10 +222,9 @@ export const resources = {
 			kweker_stats_change: '+0.00%',
 			kweker_stats_this_month: 'Deze maand',
 			products_offered: 'Producten aangeboden',
-			products_sold: 'Producten verkocht',
-			total_earnings: 'Totale verdiensten',
-			plants_sold: 'Bloemstelen verkocht',
 			active_auctions: 'Actieve veilingen',
+			total_revenue: 'Totale inkomsten',
+			orders_received: 'Orders ontvangen',
 			total_products: 'Totaal producten',
 			inventory_stock: 'Totaal voorraad',
 

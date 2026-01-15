@@ -853,6 +853,366 @@
 
 /*#endregion*/
 
+/*#region Revenue Chart*/
+.revenue-chart-section {
+    grid-column: 1 / -1;
+    margin-top: 1rem;
+    background-color: #ffffff !important;
+}
+
+.revenue-chart-section .chart-container {
+    background-color: #ffffff !important;
+}
+
+.revenue-chart-section .empty-state {
+    background: #ffffff !important;
+    border: 1px dashed rgba(0, 0, 0, 0.12) !important;
+}
+
+.chart-container {
+    width: 100%;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    background-color: #ffffff !important;
+}
+
+.revenue-chart {
+    width: 100%;
+    height: auto;
+    min-width: 600px;
+    background-color: #ffffff !important;
+}
+
+.chart-label {
+    font-size: 12px;
+    fill: theme(colors.gray.600);
+}
+
+.chart-point {
+    cursor: pointer;
+    transition: r 0.2s;
+}
+
+.chart-point:hover {
+    r: 7;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: theme(colors.gray.700);
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+.chart-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 1.5rem;
+    background-color: theme(colors.gray.50);
+    border-radius: 12px;
+    margin-top: 1rem;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.summary-label {
+    font-size: 0.85rem;
+    color: theme(colors.gray.600);
+}
+
+.summary-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: theme(colors.primary.600);
+}
+
+.chart-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    color: theme(colors.gray.500);
+}
+
+/*#endregion*/
+
+/*#region Dashboard Sections*/
+.dashboard-content-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .dashboard-content-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.kweker-dashboard-section {
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: solid 1px theme(colors.gray.200);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1F2937;
+}
+
+.section-link {
+    color: theme(colors.primary.500);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.2s;
+}
+
+.section-link:hover {
+    color: theme(colors.primary.700);
+}
+
+.page-subtitle {
+    color: theme(colors.gray.600);
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: theme(colors.gray.500);
+    text-align: center;
+}
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.order-card {
+    border: 1px solid theme(colors.gray.200);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: box-shadow 0.2s;
+}
+
+.order-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.order-info {
+    flex: 1;
+}
+
+.order-product-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 0.25rem;
+}
+
+.order-buyer {
+    font-size: 0.9rem;
+    color: theme(colors.gray.600);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.order-status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge-info {
+    background-color: theme(colors.blue.100);
+    color: theme(colors.blue.700);
+}
+
+.badge-warning {
+    background-color: theme(colors.yellow.100);
+    color: theme(colors.yellow.700);
+}
+
+.badge-success {
+    background-color: theme(colors.green.100);
+    color: theme(colors.green.700);
+}
+
+.badge-danger {
+    background-color: theme(colors.red.100);
+    color: theme(colors.red.700);
+}
+
+.badge-secondary {
+    background-color: theme(colors.gray.100);
+    color: theme(colors.gray.700);
+}
+
+.order-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid theme(colors.gray.100);
+}
+
+.order-detail-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.detail-label {
+    color: theme(colors.gray.600);
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.order-total {
+    color: theme(colors.primary.600);
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.product-card {
+    border: 1px solid theme(colors.gray.200);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.product-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
+    background-color: theme(colors.gray.100);
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.auction-badge {
+    background-color: theme(colors.primary.500);
+    color: white;
+}
+
+.product-info {
+    padding: 1rem;
+}
+
+.product-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 0.75rem;
+}
+
+.product-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.product-detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.product-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: theme(colors.primary.500);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.product-link:hover {
+    color: theme(colors.primary.700);
+}
+
+/*#endregion*/
+
 /*#region Order Details*/
 .order-header-back-button {
     height: auto;

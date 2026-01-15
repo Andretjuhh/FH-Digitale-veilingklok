@@ -204,4 +204,31 @@ public class KwekerController : ControllerBase
         var result = await _mediator.Send(command);
         return HttpSuccess<VeilingKlokOutputDto>.Ok(result);
     }
+
+    [HttpGet("stats")]
+    public async Task<IActionResult> GetKwekerStats()
+    {
+        var (kwekerId, _) = GetUserClaim.GetInfo(User);
+        var command = new GetKwekerStatsCommand(kwekerId);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<KwekerStatsOutputDto>.Ok(result);
+    }
+
+    [HttpGet("product-stats")]
+    public async Task<IActionResult> GetKwekerProductStats()
+    {
+        var (kwekerId, _) = GetUserClaim.GetInfo(User);
+        var command = new GetKwekerProductStatsCommand(kwekerId);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<KwekerProductStatsOutputDto>.Ok(result);
+    }
+
+    [HttpGet("order-stats")]
+    public async Task<IActionResult> GetKwekerOrderStats()
+    {
+        var (kwekerId, _) = GetUserClaim.GetInfo(User);
+        var command = new GetKwekerOrderStatsCommand(kwekerId);
+        var result = await _mediator.Send(command);
+        return HttpSuccess<KwekerOrderStatsOutputDto>.Ok(result);
+    }
 }
