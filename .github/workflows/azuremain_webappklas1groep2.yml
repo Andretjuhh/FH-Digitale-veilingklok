@@ -6,14 +6,14 @@ name: Build and deploy ASP.Net Core app to Azure Web App - WebAppKlas1Groep2
 on:
   push:
     branches:
-      - azuremain
+      - azure
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -23,43 +23,46 @@ jobs:
         with:
           dotnet-version: '9.x'
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      - name: Restore
+        run: dotnet restore BackendAPI/API/API.csproj
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      - name: Build
+        run: dotnet build BackendAPI/API/API.csproj --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish BackendAPI/API/API.csproj -c Release -o publish
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: publish
 
   deploy:
     runs-on: windows-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_82BE4A8242EA4FEF9A65BC9E18E8208D }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_2C1EBDEA4E804D038B83583D47F7FDF1 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_9D0A08D86C8048B9AB7F23C76E86E6C8 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_89FB2EB385AD436EA16860995367D43A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C6182FABB5FB4B57BB5E15E96BB96846 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2227C245E87B45DDB812A7C7AEE7E9B9 }}
 
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'WebAppKlas1Groep2'
-          slot-name: 'Production'
+          app-name: WebAppKlas1Groep2
+          slot-name: Production
           package: .
+
           
