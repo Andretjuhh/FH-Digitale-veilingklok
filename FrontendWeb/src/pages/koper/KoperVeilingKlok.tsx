@@ -6,7 +6,7 @@ import {useComponentStateReducer} from '../../hooks/useComponentStateReducer';
 import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
 import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
-import {VeilingBodNotification, VeilingProductChangedNotification} from '../../declarations/models/VeilingNotifications';
+import {VeilingBodNotification, VeilingKlokStateNotification, VeilingProductChangedNotification} from '../../declarations/models/VeilingNotifications';
 import {useVeilingKlokSignalR} from '../../hooks/useVeilingKlokSignalR';
 import {delay, formatDate, formatEur, getNormalizedVeilingKlokStatus} from '../../utils/standards';
 import {getVeilingKlok} from '../../controllers/server/koper';
@@ -96,6 +96,12 @@ function KoperVeilingKlok() {
 			return {...prev, peakedLiveViews: liveViews};
 		});
 	}, []);
+	const handleClockUpdate = useCallback((state: VeilingKlokStateNotification) => {
+		setCurrentVeilingKlok((prev) => {
+			if (!prev) return prev;
+			return {...prev, status: state.status};
+		});
+	}, []);
 
 	// Veiling klok SignalR hook
 	const klokSignalR = useVeilingKlokSignalR({
@@ -108,6 +114,7 @@ function KoperVeilingKlok() {
 		onProductWaitingForNext: handleWaitingForProduct,
 		onPriceTick: handleTick,
 		onViewerCountChanged: handleLiveViewsUpdate,
+		onKlokUpdated: handleClockUpdate
 	});
 
 	useEffect(() => {

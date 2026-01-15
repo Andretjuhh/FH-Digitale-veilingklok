@@ -17,7 +17,7 @@ import ClockProductCard from '../../components/cards/ClockProductCard';
 import clsx from 'clsx';
 import {useVeilingKlokSignalR} from '../../hooks/useVeilingKlokSignalR';
 import Modal from '../../components/elements/Modal';
-import {VeilingBodNotification, VeilingProductChangedNotification} from '../../declarations/models/VeilingNotifications';
+import {VeilingBodNotification, VeilingKlokStateNotification, VeilingProductChangedNotification} from '../../declarations/models/VeilingNotifications';
 
 function VeilingmeesterKlokManage() {
 	const {klokId: id} = useParams<{ klokId: string }>();
@@ -95,7 +95,12 @@ function VeilingmeesterKlokManage() {
 			return {...prev, peakedLiveViews: liveViews};
 		});
 	}, []);
-
+	const handleClockUpdate = useCallback((state: VeilingKlokStateNotification) => {
+		setCurrentVeilingKlok((prev) => {
+			if (!prev) return prev;
+			return {...prev, status: state.status};
+		});
+	}, []);
 	// Veiling klok SignalR hook
 	const klokSignalR = useVeilingKlokSignalR({
 		region: account?.region!,
@@ -107,6 +112,7 @@ function VeilingmeesterKlokManage() {
 		onProductWaitingForNext: handleWaitingForProduct,
 		onPriceTick: handleTick,
 		onViewerCountChanged: handleLiveViewsUpdate,
+		onKlokUpdated: handleClockUpdate
 	});
 
 	useEffect(() => {
