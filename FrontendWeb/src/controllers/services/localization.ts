@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import { initReactI18next, useTranslation } from 'react-i18next';
+import {initReactI18next, useTranslation} from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -366,6 +366,9 @@ export const resources = {
 			product_veiling_started: 'Veiling van product succesvol gestart',
 			product_veiling_start_error: 'Fout bij het starten van de veiling van het product',
 			no_active_veilingklok: 'Geen actieve veilingklok gevonden',
+			placing_auction: 'Veiling plaatsen...',
+			auction_placed: 'Veiling succesvol geplaatst',
+			auction_place_error: 'Fout bij het plaatsen van de veiling',
 
 			// ===== CLOCK DISPLAY =====
 			munt: 'Munt',
@@ -566,11 +569,11 @@ i18n
 		lng: 'nl', // if you're using a language detector, do not define the lng option
 		fallbackLng: 'nl',
 		debug: false,
-		interpolation: { escapeValue: false },
+		interpolation: {escapeValue: false},
 	})
 	.then(null);
 
 type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
-export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };
+export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};
