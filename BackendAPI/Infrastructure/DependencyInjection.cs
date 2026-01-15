@@ -11,6 +11,10 @@ using Infrastructure.Persistence.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 
 namespace Infrastructure;
 
@@ -42,6 +46,22 @@ public static class DependencyInjection
                 b => b.MigrationsAssembly("Infrastructure")
             )
         ); // This is crucial!
+        services
+        .AddIdentity<Account, IdentityRole<Guid>>(options =>
+        {
+            options.Password.RequiredLength = 6;
+            options.Password.RequireDigit = false;
+            options.Password.RequireLowercase = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireNonAlphanumeric = false;
+
+            options.User.RequireUniqueEmail = true;
+            options.SignIn.RequireConfirmedAccount = false;
+        })
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddApiEndpoints();
+
+        
         return services;
     }
 }
