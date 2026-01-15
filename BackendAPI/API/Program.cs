@@ -20,7 +20,11 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins("http://localhost:3000", "https://yourdomain.com")
+                .WithOrigins(
+                    "http://localhost:3000",
+                    "http://localhost:5219",
+                    "https://yourdomain.com"
+                )
                 .AllowAnyHeader()
                 .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .AllowCredentials() // REQUIRED for SignalR and credentials: 'include'
@@ -49,6 +53,7 @@ app.MapControllers();
 // Identity API Endpoints
 app.MapGroup("/api/account")
     .MapIdentityApi<Domain.Entities.Account>()
+    .RequireCors("AllowFrontend")
     .AddEndpointFilter(
         async (context, next) =>
         {
@@ -71,26 +76,18 @@ app.MapGroup("/api/account")
 
                 // Check for ProblemDetails response (LockedOut, NotAllowed, InvalidCredentials, etc.)
                 if (actualResult is Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult problem)
-                {
                     if (problem.StatusCode == 401)
                     {
                         if (problem.ProblemDetails.Detail == "LockedOut")
-                        {
                             throw CustomException.AccountLocked();
-                        }
                         else
-                        {
                             // Other 401 problem details (NotAllowed, Failed, etc.)
                             throw CustomException.InvalidCredentials();
-                        }
                     }
-                }
 
                 // Fallback: Check for standard 401 status code
                 if (actualResult is IStatusCodeHttpResult { StatusCode: 401 })
-                {
                     throw CustomException.InvalidCredentials();
-                }
             }
 
             return result;

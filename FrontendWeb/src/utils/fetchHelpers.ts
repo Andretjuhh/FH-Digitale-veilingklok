@@ -1,7 +1,7 @@
 // Internal exports
 import config from '../constant/application';
-import {HttpError} from '../declarations/types/HttpError';
-import {ProcessError} from '../declarations/types/ProcessError';
+import { HttpError } from '../declarations/types/HttpError';
+import { ProcessError } from '../declarations/types/ProcessError';
 
 /** Make an application fetch request */
 export async function appFetch(request: RequestInfo | URL, options: RequestInit = {}) {
@@ -21,16 +21,16 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 	// Set default options for proper cookie handling
 	const defaultOptions: RequestInit = isAppFetch
 		? {
-			method: 'GET',
-			//...(request.toString().includes('/reauthenticate') ? {credentials: 'include'} : {}),
-			// ...(!['PUT', 'DELETE'].includes(options.method || '') ? { credentials: 'include' } : {}),
-			credentials: 'include', // Include cookies in the request
-			headers: {
-				'Content-Type': 'application/json',
-				Accept: 'application/json',
-				// ...(auth ? {Authorization: `Bearer ${auth?.accessToken}`} : {}),
-			},
-		}
+				method: 'GET',
+				//...(request.toString().includes('/reauthenticate') ? {credentials: 'include'} : {}),
+				// ...(!['PUT', 'DELETE', 'PUT', 'UPDATE'].includes(options.method || '') ? { credentials: 'include' } : {}),
+				credentials: 'include', // Include cookies in the request
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+					// ...(auth ? {Authorization: `Bearer ${auth?.accessToken}`} : {}),
+				},
+		  }
 		: {};
 
 	// Merge with user options

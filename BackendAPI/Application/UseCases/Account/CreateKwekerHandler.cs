@@ -58,7 +58,8 @@ public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, K
             dto.Address.Country
         );
 
-        kweker.UpdateAdress(address);
+        // Set the navigation property - EF Core will handle the foreign keys
+        kweker.Adress = address;
 
         var result = await _userManager.CreateAsync(kweker, dto.Password);
 

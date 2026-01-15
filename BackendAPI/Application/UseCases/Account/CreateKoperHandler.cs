@@ -46,9 +46,16 @@ public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Kop
             dto.Address.Country
         );
 
-        koper.AddNewAdress(address, true);
+        // Add address without setting as primary yet (Address doesn't have an ID until saved)
+        koper.AddNewAdress(address, false);
 
         var result = await _userManager.CreateAsync(koper, dto.Password);
+
+        result.ThrowIfFailed();
+
+        // Now that the address has an ID, set it as primary
+        koper.SetPrimaryAdress(address);
+        await _userManager.UpdateAsync(koper);
 
         result.ThrowIfFailed();
 

@@ -55,7 +55,7 @@ public class KwekerController : ControllerBase
         );
     }
 
-    [HttpPut("update")]
+    [HttpPost("update")]
     public async Task<IActionResult> UpdateAccount([FromBody] UpdateKwekerDTO account)
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);
@@ -64,7 +64,7 @@ public class KwekerController : ControllerBase
         return HttpSuccess<AccountOutputDto>.Ok(result, "Kweker account updated successfully");
     }
 
-    [HttpPut("order/{orderId}/product/{productItemId}")]
+    [HttpPost("order/{orderId}/product/{productItemId}")]
     public async Task<IActionResult> UpdateOrderProduct(
         Guid orderId,
         Guid productItemId,
@@ -113,7 +113,7 @@ public class KwekerController : ControllerBase
         return HttpSuccess<PaginatedOutputDto<OrderKwekerOutput>>.Ok(result);
     }
 
-    [HttpPut("order/{orderId}/status")]
+    [HttpPost("order/{orderId}/status")]
     public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromQuery] OrderStatus status)
     {
         var command = new UpdateOrderStatusCommand(orderId, status);
@@ -162,7 +162,7 @@ public class KwekerController : ControllerBase
         return HttpSuccess<PaginatedOutputDto<OrderOutputDto>>.Ok(result);
     }
 
-    [HttpPut("product/{productId}")]
+    [HttpPost("product/{productId}")]
     public async Task<IActionResult> UpdateProduct(
         Guid productId,
         [FromBody] UpdateProductDTO product

@@ -12,7 +12,7 @@ namespace API.Controllers;
 
 [Authorize(Roles = "Admin")]
 [ApiController]
-[Route("api/admin")]
+[Route("api/account/admin")]
 public class AdminController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -62,7 +62,7 @@ public class AdminController : ControllerBase
         return HttpSuccess<List<AccountListItemDto>>.Ok(result, "Accounts retrieved successfully");
     }
 
-    [HttpDelete("{accountId}")]
+    [HttpGet("{accountId}")]
     public async Task<IActionResult> DeleteAccount(
         Guid accountId,
         [FromQuery] bool hardDelete = false
@@ -77,7 +77,7 @@ public class AdminController : ControllerBase
         var deleteRequest = new DeleteAccountRequestDTO
         {
             AccountId = accountId,
-            HardDelete = hardDelete,
+            HardDelete = hardDelete
         };
         var command = new DeleteAccountCommand(deleteRequest);
         await _mediator.Send(command);
@@ -86,7 +86,7 @@ public class AdminController : ControllerBase
         );
     }
 
-    [HttpPatch("{accountId}/reactivate")]
+    [HttpPost("{accountId}/reactivate")]
     public async Task<IActionResult> ReactivateAccount(Guid accountId)
     {
         var command = new ReactivateAccountCommand(accountId);

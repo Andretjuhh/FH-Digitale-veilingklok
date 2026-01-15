@@ -1,18 +1,18 @@
-import {fetchResponse} from '../../utils/fetchHelpers';
-import {HttpSuccess} from '../../declarations/types/HttpSuccess';
-import {CreateKoperDTO} from '../../declarations/dtos/input/CreateKoperDTO';
-import {UpdateKoperDTO} from '../../declarations/dtos/input/UpdateKoperDTO';
-import {AddressInputDTO} from '../../declarations/dtos/input/AddressInputDTO';
-import {CreateOrderDTO} from '../../declarations/dtos/input/CreateOrderDTO';
-import {AddressOutputDto} from '../../declarations/dtos/output/AddressOutputDto';
-import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
-import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
-import {OrderOutputDto} from '../../declarations/dtos/output/OrderOutputDto';
-import {OrderDetailsOutputDto} from '../../declarations/dtos/output/OrderDetailsOutputDto';
-import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
-import {OrderItemOutputDto} from '../../declarations/dtos/output/OrderItemOutputDto';
-import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
-import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import { fetchResponse } from '../../utils/fetchHelpers';
+import { HttpSuccess } from '../../declarations/types/HttpSuccess';
+import { CreateKoperDTO } from '../../declarations/dtos/input/CreateKoperDTO';
+import { UpdateKoperDTO } from '../../declarations/dtos/input/UpdateKoperDTO';
+import { AddressInputDTO } from '../../declarations/dtos/input/AddressInputDTO';
+import { CreateOrderDTO } from '../../declarations/dtos/input/CreateOrderDTO';
+import { AddressOutputDto } from '../../declarations/dtos/output/AddressOutputDto';
+import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
+import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
+import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
+import { OrderDetailsOutputDto } from '../../declarations/dtos/output/OrderDetailsOutputDto';
+import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
+import { OrderItemOutputDto } from '../../declarations/dtos/output/OrderItemOutputDto';
+import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
 
 // Create koper account (POST /api/account/koper/create)
 export async function createKoperAccount(account: CreateKoperDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -25,7 +25,7 @@ export async function createKoperAccount(account: CreateKoperDTO): Promise<HttpS
 // Update koper account (PUT /api/account/koper/update)
 export async function updateKoperAccount(account: UpdateKoperDTO): Promise<HttpSuccess<AccountOutputDto>> {
 	return fetchResponse<HttpSuccess<AccountOutputDto>>('/api/account/koper/update', {
-		method: 'PUT',
+		method: 'POST',
 		body: JSON.stringify(account),
 	});
 }
@@ -41,7 +41,7 @@ export async function createKoperAddress(address: AddressInputDTO): Promise<Http
 // Update primary address (PUT /api/account/koper/address/primary/{addressId})
 export async function updatePrimaryAddress(addressId: number): Promise<HttpSuccess<AddressOutputDto>> {
 	return fetchResponse<HttpSuccess<AddressOutputDto>>(`/api/account/koper/address/primary/${addressId}`, {
-		method: 'PUT',
+		method: 'POST',
 	});
 }
 

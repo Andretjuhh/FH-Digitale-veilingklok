@@ -52,7 +52,7 @@ public class KoperController : ControllerBase
         );
     }
 
-    [HttpPut("update")]
+    [HttpPost("update")]
     public async Task<IActionResult> UpdateAccount([FromBody] UpdateKoperDTO account)
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);
@@ -70,7 +70,7 @@ public class KoperController : ControllerBase
         return HttpSuccess<AddressOutputDto>.Created(result, "Address created successfully");
     }
 
-    [HttpPut("address/primary/{addressId}")]
+    [HttpPost("address/primary/{addressId}")]
     public async Task<IActionResult> UpdatePrimaryAddress(int addressId)
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);

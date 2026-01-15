@@ -1,10 +1,10 @@
-import {fetchResponse} from '../../utils/fetchHelpers';
-import {HttpSuccess} from '../../declarations/types/HttpSuccess';
-import {RequestLoginDTO} from '../../declarations/dtos/input/RequestLoginDTO';
-import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
-import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
-import {AccountListItemDTO} from '../../declarations/dtos/output/AccountListItemDTO';
-import {LocalStorageService} from '../services/localStorage';
+import { fetchResponse } from '../../utils/fetchHelpers';
+import { HttpSuccess } from '../../declarations/types/HttpSuccess';
+import { RequestLoginDTO } from '../../declarations/dtos/input/RequestLoginDTO';
+import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
+import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
+import { AccountListItemDTO } from '../../declarations/dtos/output/AccountListItemDTO';
+import { LocalStorageService } from '../services/localStorage';
 
 // Get regions (GET /api/account/country/region)
 export async function getRegions(): Promise<HttpSuccess<string[]>> {
@@ -80,12 +80,12 @@ export async function getAllAccounts(): Promise<HttpSuccess<AccountListItemDTO[]
 export async function deleteAccount(accountId: string, hardDelete: boolean): Promise<HttpSuccess<string>> {
 	const queryParam = hardDelete ? '?hardDelete=true' : '';
 	return fetchResponse<HttpSuccess<string>>(`/api/account/admin/${accountId}${queryParam}`, {
-		method: 'DELETE',
+		method: 'GET',
 	});
 }
 
 export async function reactivateAccount(accountId: string): Promise<HttpSuccess<string>> {
 	return fetchResponse<HttpSuccess<string>>(`/api/account/admin/${accountId}/reactivate`, {
-		method: 'PATCH',
+		method: 'POST',
 	});
 }

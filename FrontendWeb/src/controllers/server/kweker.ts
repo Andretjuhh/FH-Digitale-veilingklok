@@ -1,20 +1,20 @@
-import {fetchResponse} from '../../utils/fetchHelpers';
-import {HttpSuccess} from '../../declarations/types/HttpSuccess';
-import {CreateKwekerDTO} from '../../declarations/dtos/input/CreateKwekerDTO';
-import {UpdateKwekerDTO} from '../../declarations/dtos/input/UpdateKwekerDTO';
-import {CreateProductDTO} from '../../declarations/dtos/input/CreateProductDTO';
-import {UpdateProductDTO} from '../../declarations/dtos/input/UpdateProductDTO';
-import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
-import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
-import {OrderOutputDto} from '../../declarations/dtos/output/OrderOutputDto';
-import {OrderKwekerOutput} from '../../declarations/dtos/output/OrderKwekerOutput';
-import {ProductDetailsOutputDto} from '../../declarations/dtos/output/ProductDetailsOutputDto';
-import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
-import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
-import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
-import {KwekerStatsOutputDto} from '../../declarations/dtos/output/KwekerStatsOutputDto';
-import {OrderStatus} from "../../declarations/enums/OrderStatus";
-import {getOrderStatusString} from "../../utils/standards";
+import { fetchResponse } from '../../utils/fetchHelpers';
+import { HttpSuccess } from '../../declarations/types/HttpSuccess';
+import { CreateKwekerDTO } from '../../declarations/dtos/input/CreateKwekerDTO';
+import { UpdateKwekerDTO } from '../../declarations/dtos/input/UpdateKwekerDTO';
+import { CreateProductDTO } from '../../declarations/dtos/input/CreateProductDTO';
+import { UpdateProductDTO } from '../../declarations/dtos/input/UpdateProductDTO';
+import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
+import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
+import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
+import { OrderKwekerOutput } from '../../declarations/dtos/output/OrderKwekerOutput';
+import { ProductDetailsOutputDto } from '../../declarations/dtos/output/ProductDetailsOutputDto';
+import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
+import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import { KwekerStatsOutputDto } from '../../declarations/dtos/output/KwekerStatsOutputDto';
+import { OrderStatus } from '../../declarations/enums/OrderStatus';
+import { getOrderStatusString } from '../../utils/standards';
 
 // Create kweker account (POST /api/account/kweker/create)
 export async function createKwekerAccount(account: CreateKwekerDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -27,7 +27,7 @@ export async function createKwekerAccount(account: CreateKwekerDTO): Promise<Htt
 // Update kweker account (PUT /api/account/kweker/update)
 export async function updateKwekerAccount(account: UpdateKwekerDTO): Promise<HttpSuccess<AccountOutputDto>> {
 	return fetchResponse<HttpSuccess<AccountOutputDto>>('/api/account/kweker/update', {
-		method: 'PUT',
+		method: 'POST',
 		body: JSON.stringify(account),
 	});
 }
@@ -35,7 +35,7 @@ export async function updateKwekerAccount(account: UpdateKwekerDTO): Promise<Htt
 // Update order product (PUT /api/account/kweker/order/{orderId}/product/{productItemId}?quantity=)
 export async function updateOrderProduct(orderId: string, productItemId: string, quantity: number): Promise<HttpSuccess<OrderOutputDto>> {
 	return fetchResponse<HttpSuccess<OrderOutputDto>>(`/api/account/kweker/order/${orderId}/product/${productItemId}?quantity=${quantity}`, {
-		method: 'PUT',
+		method: 'POST',
 	});
 }
 
@@ -62,7 +62,7 @@ export async function getOrders(productNameFilter?: string, koperNameFilter?: st
 // Update order status (PUT /api/account/kweker/order/{orderId}/status?status=)
 export async function updateOrderStatus(orderId: string, status: OrderStatus): Promise<HttpSuccess<string>> {
 	return fetchResponse<HttpSuccess<string>>(`/api/account/kweker/order/${orderId}/status?status=${getOrderStatusString(status)}`, {
-		method: 'PUT',
+		method: 'POST',
 	});
 }
 
@@ -94,7 +94,7 @@ export async function getProductOrders(productId: string, statusFilter?: string,
 // Update product (PUT /api/account/kweker/product/{productId})
 export async function updateProduct(productId: string, product: UpdateProductDTO): Promise<HttpSuccess<ProductDetailsOutputDto>> {
 	return fetchResponse<HttpSuccess<ProductDetailsOutputDto>>(`/api/account/kweker/product/${productId}`, {
-		method: 'PUT',
+		method: 'POST',
 		body: JSON.stringify(product),
 	});
 }

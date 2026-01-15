@@ -55,7 +55,7 @@ public class MeesterController : ControllerBase
         );
     }
 
-    [HttpPut("update")]
+    [HttpPost("update")]
     public async Task<IActionResult> UpdateMeesterAccount(
         [FromBody] UpdateVeilingMeesterDTO account
     )
@@ -66,7 +66,7 @@ public class MeesterController : ControllerBase
         return HttpSuccess<AccountOutputDto>.Ok(result, "Meester account updated successfully");
     }
 
-    [HttpPut("order/{orderId}/product/{productItemId}")]
+    [HttpPost("order/{orderId}/product/{productItemId}")]
     public async Task<IActionResult> UpdateOrderProduct(
         Guid orderId,
         Guid productItemId,
@@ -87,7 +87,7 @@ public class MeesterController : ControllerBase
         return HttpSuccess<OrderDetailsOutputDto>.Ok(result);
     }
 
-    [HttpPut("order/{orderId}/status")]
+    [HttpPost("order/{orderId}/status")]
     public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromQuery] OrderStatus status)
     {
         var command = new UpdateOrderStatusCommand(orderId, status);
@@ -144,7 +144,7 @@ public class MeesterController : ControllerBase
         return HttpSuccess<ProductDetailsOutputDto>.Ok(result);
     }
 
-    [HttpPut("product/{productId}/price")]
+    [HttpPost("product/{productId}/price")]
     public async Task<IActionResult> UpdateProductPrice(Guid productId, [FromQuery] decimal price)
     {
         var command = new UpdateProductAuctionPriceCommand(productId, price);
@@ -231,7 +231,7 @@ public class MeesterController : ControllerBase
         return HttpSuccess<string>.Ok("Product added to VeilingKlok successfully");
     }
 
-    [HttpDelete("veilingklok/{klokId}/product/{productId}")]
+    [HttpGet("veilingklok/{klokId}/product/{productId}")]
     public async Task<IActionResult> RemoveProductFromVeilingKlok(Guid klokId, Guid productId)
     {
         var command = new RemoveProductFromVeilingKlokCommand(klokId, productId);
@@ -239,7 +239,7 @@ public class MeesterController : ControllerBase
         return HttpSuccess<string>.Ok("Product removed from VeilingKlok successfully");
     }
 
-    [HttpPut("veilingklok/{klokId}/status")]
+    [HttpPost("veilingklok/{klokId}/status")]
     public async Task<IActionResult> UpdateVeilingKlokStatus(
         Guid klokId,
         [FromQuery] VeilingKlokStatus status
@@ -250,7 +250,7 @@ public class MeesterController : ControllerBase
         return HttpSuccess<string>.NoContent("VeilingKlok status updated successfully");
     }
 
-    [HttpDelete("veilingklok/{klokId}")]
+    [HttpGet("veilingklok/{klokId}")]
     public async Task<IActionResult> DeleteVeilingKlok(Guid klokId)
     {
         var command = new DeleteVeilingKlokCommand(klokId);
