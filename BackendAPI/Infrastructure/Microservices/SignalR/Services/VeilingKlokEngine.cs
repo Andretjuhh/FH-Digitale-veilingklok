@@ -73,7 +73,8 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         // Create a scope to get scoped services (repositories)
         using var scope = _serviceProvider.CreateScope();
         // Add necessary repositories here
-        var veilingKlokRepository = scope.ServiceProvider.GetRequiredService<IVeilingKlokRepository>();
+        var veilingKlokRepository =
+            scope.ServiceProvider.GetRequiredService<IVeilingKlokRepository>();
         var productRepository = scope.ServiceProvider.GetRequiredService<IProductRepository>();
 
         // Load active veiling clocks from the repository
@@ -107,8 +108,12 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
 
     public bool IsVeillingRunning(Guid klokId)
     {
-        // Check if there's an active ticker (timer) for this clock
-        return _clockTimers.ContainsKey(klokId);
+        // Check if the klok exists in active clocks and has a Started status
+        if (!_activeVeilingClocks.TryGetValue(klokId, out var state))
+            return false;
+
+        // Check if status is Started and timer is active
+        return state.Status == VeilingKlokStatus.Started && _clockTimers.ContainsKey(klokId);
     }
 
     // Add a new active veiling klok
@@ -226,6 +231,19 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         await _notifier.NotifyBidPlaced(GetConnectionGroupName(klokId), productState);
     }
 
+    // Get the current veiling price for a product
+    public Task<decimal> GetCurrentVeilingPriceAsync(
+        Guid klokId,
+        Guid productId,
+        DateTimeOffset placedAt
+    )
+    {
+        var state = _activeVeilingClocks[klokId];
+        var bidPrice = state.GetCurrentPriceByDate(placedAt);
+        return Task.FromResult(bidPrice);
+    }
+
+    // Change the current product being auctioned
     public async Task ChangeVeilingProductAsync(Guid klokId, Guid newProductId)
     {
         _logger.LogInformation(

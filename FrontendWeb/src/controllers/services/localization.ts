@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import { initReactI18next, useTranslation } from 'react-i18next';
+import {initReactI18next, useTranslation} from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -173,6 +173,7 @@ export const resources = {
 			kweker_welcome: 'Welkom, {{firstName}} {{lastName}}!',
 			kweker_desc: 'Welkom op de dashboard pagina! Bekijk hier uw producten!',
 			kweker_products_description: 'Beheer uw producten en voorraden efficiënt',
+			koper_products_description: 'Bekijk hier alle aangeboden bloemen!',
 			kweker_orders_description: 'Overzicht en beheer van uw bestellingen',
 			kweker_section_products: 'Producten',
 
@@ -224,15 +225,14 @@ export const resources = {
 			kweker_stats_change: '+0.00%',
 			kweker_stats_this_month: 'Deze maand',
 			products_offered: 'Producten aangeboden',
-			products_sold: 'Producten verkocht',
-			total_earnings: 'Totale verdiensten',
-			plants_sold: 'Bloemstelen verkocht',
 			active_auctions: 'Actieve veilingen',
-			total_products: 'Totaal producten',
-			inventory_stock: 'Totaal voorraad',
+			total_revenue: 'Totale inkomsten',
+			orders_received: 'Orders ontvangen',
+			total_products: 'Aantal producten',
+			inventory_stock: 'Totale voorraad',
 
 			// ===== KWEKER ORDERS =====
-			total_orders: 'Totaal bestellingen',
+			total_orders: 'Totaal aantal bestellingen',
 			pending_orders: 'Openstaande bestellingen',
 			completed_orders: 'Voltooide bestellingen',
 			canceled_orders: 'Geannuleerde bestellingen',
@@ -251,6 +251,12 @@ export const resources = {
 			no_products: 'Geen product gevonden',
 
 			// ===== VEILINGMEESTER DASHBOARD =====
+			total_veilingklokken: 'Totaal aantal veilingklokken',
+			active_veilingklokken: 'Actieve veilingklokken',
+			scheduled_auctions: 'Geplande veilingen',
+			available_products: 'Beschikbare producten',
+			available_flowers: 'Beschikbare bloemen',
+			your_purchases: 'Jouw aankopen',
 			vm_title: 'Veilingmeester',
 			vm_tab_auction: 'Veiling',
 			vm_tab_history: 'History',
@@ -369,6 +375,9 @@ export const resources = {
 			product_veiling_started: 'Veiling van product succesvol gestart',
 			product_veiling_start_error: 'Fout bij het starten van de veiling van het product',
 			no_active_veilingklok: 'Geen actieve veilingklok gevonden',
+			placing_auction: 'Veiling plaatsen...',
+			auction_placed: 'Veiling succesvol geplaatst',
+			auction_place_error: 'Fout bij het plaatsen van de veiling',
 
 			// ===== CLOCK DISPLAY =====
 			munt: 'Munt',
@@ -569,11 +578,11 @@ i18n
 		lng: 'nl', // if you're using a language detector, do not define the lng option
 		fallbackLng: 'nl',
 		debug: false,
-		interpolation: { escapeValue: false },
+		interpolation: {escapeValue: false},
 	})
 	.then(null);
 
 type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
-export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };
+export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};

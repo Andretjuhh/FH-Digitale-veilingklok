@@ -12,6 +12,7 @@ import {ProductDetailsOutputDto} from '../../declarations/dtos/output/ProductDet
 import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
 import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
+import {MeesterStatsOutputDto} from '../../declarations/dtos/output/MeesterStatsOutputDto';
 
 // Create veilingmeester account (POST /api/account/meester/create)
 export async function createVeilingmeesterAccount(account: CreateMeesterDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -26,6 +27,13 @@ export async function updateVeilingmeesterAccount(account: UpdateVeilingMeesterD
 	return fetchResponse<HttpSuccess<AccountOutputDto>>('/api/account/meester/update', {
 		method: 'POST',
 		body: JSON.stringify(account),
+	});
+}
+
+// Get meester stats (GET /api/account/meester/stats)
+export async function getMeesterStats(): Promise<HttpSuccess<MeesterStatsOutputDto>> {
+	return fetchResponse<HttpSuccess<MeesterStatsOutputDto>>('/api/account/meester/stats', {
+		method: 'GET',
 	});
 }
 
