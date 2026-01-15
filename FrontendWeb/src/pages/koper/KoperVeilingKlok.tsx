@@ -53,6 +53,7 @@ function KoperVeilingKlok() {
 			}
 			return prev;
 		});
+		setQuantity(state.quantity);
 	}, []);
 	const handleBidPlaced = useCallback((state: VeilingBodNotification) => {
 		// Update product reamaining stock and current price
@@ -79,6 +80,9 @@ function KoperVeilingKlok() {
 
 			return {...prev, products: updatedProducts};
 		});
+
+		// Upadte quantity if needed
+		setQuantity((prev) => (prev > state.remainingQuantity ? state.remainingQuantity : prev));
 	}, []);
 	const handleWaitingForProduct = useCallback(() => {
 		setClockWaitingProduct(true);
