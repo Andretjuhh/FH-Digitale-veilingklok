@@ -12,7 +12,7 @@ namespace API.Controllers;
 
 [Authorize(Roles = "Admin")]
 [ApiController]
-[Route("api/admin")]
+[Route("api/account/admin")]
 public class AdminController : ControllerBase
 {
     private readonly IMediator _mediator;
