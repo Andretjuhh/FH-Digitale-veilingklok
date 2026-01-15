@@ -1,4 +1,4 @@
-﻿﻿using Application.Common.Exceptions;
+﻿using Application.Common.Exceptions;
 using Application.Common.Mappers;
 using Application.Common.Models;
 using Application.DTOs.Output;
@@ -75,7 +75,7 @@ public sealed class OrderProductHandler
             if (product.Stock < request.Quantity)
                 throw CustomException.InsufficientStock();
 
-            var currentPrice = _veilingKlokEngine.GetCurrentPrice(
+            var currentPrice = _veilingKlokEngine.GetKlokCurrentTickedPrice(
                 order.VeilingKlokId,
                 orderPlacedAt
             );

@@ -23,7 +23,7 @@ internal sealed class FakeProductRepository : IProductRepository
                     Description = "Rode rozen",
                     ImageUrl = "image1",
                     Dimension = "M",
-                    KwekerId = kweker.Id,
+                    KwekerId = kweker.Id
                 },
                 kweker
             )
@@ -37,56 +37,86 @@ internal sealed class FakeProductRepository : IProductRepository
                     Description = "Gele tulpen",
                     ImageUrl = "image2",
                     Dimension = "S",
-                    KwekerId = kweker.Id,
+                    KwekerId = kweker.Id
                 },
                 kweker
             )
         );
     }
 
-    public Task AddAsync(Product product) => Task.CompletedTask;
 
-    public void Update(Product product) { }
+    public Task AddAsync(Product product)
+    {
+        return Task.CompletedTask;
+    }
 
-    public Task DeleteAsync(Guid productId) => Task.CompletedTask;
+    public void Update(Product product)
+    {
+    }
 
-    public Task<Product?> GetByIdAsync(Guid productId) => Task.FromResult<Product?>(null);
+    public Task DeleteAsync(Guid productId)
+    {
+        return Task.CompletedTask;
+    }
 
-    public Task<Product?> GetByIdAsync(Guid productId, Guid kwekerId) =>
-        Task.FromResult<Product?>(null);
+    public Task<Product?> GetByIdAsync(Guid productId)
+    {
+        return Task.FromResult<Product?>(null);
+    }
 
-    public Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(Guid productId) =>
-        Task.FromResult<(Product, KwekerInfo)?>(null);
+    public Task<Product?> GetByIdAsync(Guid productId, Guid kwekerId)
+    {
+        return Task.FromResult<Product?>(null);
+    }
+
+    public Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(Guid productId)
+    {
+        return Task.FromResult<(Product, KwekerInfo)?>(null);
+    }
 
     public Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(
         Guid productId,
         Guid kwekerId
-    ) => Task.FromResult<(Product, KwekerInfo)?>(null);
+    )
+    {
+        return Task.FromResult<(Product, KwekerInfo)?>(null);
+    }
 
-    public Task<IEnumerable<Product>> GetAllByIds(List<Guid> productIds) =>
-        Task.FromResult<IEnumerable<Product>>(Array.Empty<Product>());
+    public Task<IEnumerable<Product>> GetAllByIds(List<Guid> productIds)
+    {
+        return Task.FromResult<IEnumerable<Product>>(Array.Empty<Product>());
+    }
 
-    public Task<IEnumerable<Product>> GetAllByVeilingKlokIdAsync(Guid veilingKlokId) =>
-        Task.FromResult<IEnumerable<Product>>(Array.Empty<Product>());
+    public Task<IEnumerable<Product>> GetAllByVeilingKlokIdAsync(Guid veilingKlokId)
+    {
+        return Task.FromResult<IEnumerable<Product>>(Array.Empty<Product>());
+    }
 
     public Task<IEnumerable<(Product Product, KwekerInfo Kweker)>> GetAllByIdsWithKwekerInfoAsync(
         List<Guid> ids
-    ) => Task.FromResult<IEnumerable<(Product, KwekerInfo)>>(_items);
+    )
+    {
+        return Task.FromResult<IEnumerable<(Product, KwekerInfo)>>(_items);
+    }
 
     public Task<
         IEnumerable<(Product Product, KwekerInfo Kweker)>
-    > GetAllByVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId) =>
-        Task.FromResult<IEnumerable<(Product, KwekerInfo)>>(_items);
+    > GetAllByVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId)
+    {
+        return Task.FromResult<IEnumerable<(Product, KwekerInfo)>>(_items);
+    }
 
     public Task<
         IEnumerable<(Product Product, KwekerInfo Kweker)>
-    > GetAllByOrderItemsVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId) =>
-        Task.FromResult<IEnumerable<(Product, KwekerInfo)>>(_items);
+    > GetAllByOrderItemsVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId)
+    {
+        return Task.FromResult<IEnumerable<(Product, KwekerInfo)>>(_items);
+    }
 
     public Task<(
         IEnumerable<(Product Product, KwekerInfo Kweker)> Items,
         int TotalCount
-    )> GetAllWithFilterAsync(
+        )> GetAllWithFilterAsync(
         string? nameFilter,
         string? regionFilter,
         decimal? maxPrice,
@@ -99,16 +129,34 @@ internal sealed class FakeProductRepository : IProductRepository
         IEnumerable<(Product Product, KwekerInfo Kweker)> query = _items;
 
         if (!string.IsNullOrWhiteSpace(nameFilter))
-        {
             query = query.Where(x =>
                 x.Product.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase)
             );
-        }
 
         var list = query.ToList();
         return Task.FromResult<(IEnumerable<(Product Product, KwekerInfo Kweker)>, int)>(
             (list, list.Count)
         );
+    }
+
+    public Task<(decimal AveragePrice, int SampleCount)> GetAveragePriceAllAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<KwekerPriceAverage?> GetAveragePriceByKwekerAsync(Guid kwekerId, int? limit)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<PriceHistoryItem>> GetLatestPricesAsync(int limit)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<PriceHistoryItem>> GetLatestPricesByKwekerAsync(Guid kwekerId, int limit)
+    {
+        throw new NotImplementedException();
     }
 }
 
@@ -122,7 +170,7 @@ public class GetProductsHandlerTests
         var query = new GetProductsQuery(null, null, null, null, null, 1, 10);
 
         // Act
-        PaginatedOutputDto<ProductOutputDto> result = await handler.Handle(
+        var result = await handler.Handle(
             query,
             CancellationToken.None
         );
@@ -140,7 +188,7 @@ public class GetProductsHandlerTests
         var handler = new GetProductsHandler(repo);
         var query = new GetProductsQuery("Rozen", null, null, null, null, 1, 10);
 
-        PaginatedOutputDto<ProductOutputDto> result = await handler.Handle(
+        var result = await handler.Handle(
             query,
             CancellationToken.None
         );
@@ -157,7 +205,7 @@ public class GetProductsHandlerTests
         var handler = new GetProductsHandler(repo);
         var query = new GetProductsQuery("Onbekend", null, null, null, null, 1, 10);
 
-        PaginatedOutputDto<ProductOutputDto> result = await handler.Handle(
+        var result = await handler.Handle(
             query,
             CancellationToken.None
         );
@@ -173,7 +221,7 @@ public class GetProductsHandlerTests
         var handler = new GetProductsHandler(repo);
         var query = new GetProductsQuery(null, null, null, null, null, 2, 5);
 
-        PaginatedOutputDto<ProductOutputDto> result = await handler.Handle(
+        var result = await handler.Handle(
             query,
             CancellationToken.None
         );
