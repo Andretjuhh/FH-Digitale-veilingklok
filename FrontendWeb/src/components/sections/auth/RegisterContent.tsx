@@ -87,7 +87,7 @@ function RegisterContent() {
 				let dashboardDestination = '/';
 				switch (selectedAccountType) {
 					case AccountType.Koper: {
-						dashboardDestination = '/koper/dashboard';
+						dashboardDestination = '/koper/veilingen';
 						const account: CreateKoperDTO = {
 							firstName: data['first_name'],
 							lastName: data['last_name'],

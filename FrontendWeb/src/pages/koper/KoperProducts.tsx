@@ -1,9 +1,9 @@
 import React from 'react';
 
-function KoperOrders() {
+function KoperProducts() {
 	return (
 		<div></div>
 	);
 }
 
-export default KoperOrders;
+export default KoperProducts;
