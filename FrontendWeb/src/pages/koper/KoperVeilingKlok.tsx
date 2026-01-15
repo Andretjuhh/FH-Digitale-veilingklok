@@ -1,30 +1,30 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {useParams} from 'react-router-dom';
-import {useRootContext} from '../../components/contexts/RootContext';
-import AuctionClock, {AuctionClockRef} from '../../components/elements/AuctionClock';
-import {useComponentStateReducer} from '../../hooks/useComponentStateReducer';
-import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
-import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
-import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
-import {VeilingBodNotification, VeilingKlokStateNotification, VeilingProductChangedNotification} from '../../declarations/models/VeilingNotifications';
-import {useVeilingKlokSignalR} from '../../hooks/useVeilingKlokSignalR';
-import {delay, formatDate, formatEur, getNormalizedVeilingKlokStatus} from '../../utils/standards';
-import {createOrder, getKwekerAveragePrice, getKwekerPriceHistory, getLatestPrices, getOverallAveragePrice, getVeilingKlok} from '../../controllers/server/koper';
-import {isHttpError} from '../../declarations/types/HttpError';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useRootContext } from '../../components/contexts/RootContext';
+import AuctionClock, { AuctionClockRef } from '../../components/elements/AuctionClock';
+import { useComponentStateReducer } from '../../hooks/useComponentStateReducer';
+import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import { VeilingKlokStatus } from '../../declarations/enums/VeilingKlokStatus';
+import { VeilingBodNotification, VeilingKlokStateNotification, VeilingPriceTickNotification, VeilingPriceTickNotification, VeilingProductChangedNotification } from '../../declarations/models/VeilingNotifications';
+import { useVeilingKlokSignalR } from '../../hooks/useVeilingKlokSignalR';
+import { delay, formatDate, formatEur, getNormalizedVeilingKlokStatus } from '../../utils/standards';
+import { createOrder, getKwekerAveragePrice, getKwekerPriceHistory, getLatestPrices, getOverallAveragePrice, getVeilingKlok } from '../../controllers/server/koper';
+import { isHttpError } from '../../declarations/types/HttpError';
 import Page from '../../components/nav/Page';
 import Button from '../../components/buttons/Button';
 import clsx from 'clsx';
-import {KlokStatusBadge} from '../../components/elements/StatusBadge';
+import { KlokStatusBadge } from '../../components/elements/StatusBadge';
 import ClockProductCard from '../../components/cards/ClockProductCard';
-import ComponentState, {ComponentStateCard} from '../../components/elements/ComponentState';
+import ComponentState, { ComponentStateCard } from '../../components/elements/ComponentState';
 import Modal from '../../components/elements/Modal';
-import {PriceHistoryItemOutputDto} from '../../declarations/dtos/output/PriceHistoryItemOutputDto';
-import {KwekerAveragePriceOutputDto} from '../../declarations/dtos/output/KwekerAveragePriceOutputDto';
-import {OverallAveragePriceOutputDto} from '../../declarations/dtos/output/OverallAveragePriceOutputDto';
+import { PriceHistoryItemOutputDto } from '../../declarations/dtos/output/PriceHistoryItemOutputDto';
+import { KwekerAveragePriceOutputDto } from '../../declarations/dtos/output/KwekerAveragePriceOutputDto';
+import { OverallAveragePriceOutputDto } from '../../declarations/dtos/output/OverallAveragePriceOutputDto';
 
 function KoperVeilingKlok() {
-	const {klokId: id} = useParams<{ klokId: string }>();
-	const {t, account, languageCode, navigate} = useRootContext();
+	const { klokId: id } = useParams<{ klokId: string }>();
+	const { t, account, languageCode, navigate } = useRootContext();
 
 	const klokRef = useRef<AuctionClockRef | null>(null);
 
@@ -35,6 +35,8 @@ function KoperVeilingKlok() {
 	const [currentVeilingKlok, setCurrentVeilingKlok] = useState<VeilingKlokOutputDto>();
 	const [currentProduct, setCurrentProduct] = useState<ProductOutputDto>();
 	const [quantity, setQuantity] = useState(0); // always set to max when product changed
+	const [currentPrice, setCurrentPrice] = useState(0);
+
 	const [showHistoryModal, setShowHistoryModal] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(false);
 	const [kwekerHistory, setKwekerHistory] = useState<PriceHistoryItemOutputDto[]>([]);
@@ -44,10 +46,10 @@ function KoperVeilingKlok() {
 
 	// SignalR event handlers wrapped in useCallback to prevent reconnection loops
 	const handleVeilingEnded = useCallback(() => {
-		setCurrentVeilingKlok((prev) => (prev ? {...prev, status: VeilingKlokStatus.Ended} : prev));
+		setCurrentVeilingKlok((prev) => (prev ? { ...prev, status: VeilingKlokStatus.Ended } : prev));
 	}, []);
 	const handleVeilingStarted = useCallback(() => {
-		setCurrentVeilingKlok((prev) => (prev ? {...prev, status: VeilingKlokStatus.Started} : prev));
+		setCurrentVeilingKlok((prev) => (prev ? { ...prev, status: VeilingKlokStatus.Started } : prev));
 	}, []);
 	const handleProductChanged = useCallback((state: VeilingProductChangedNotification) => {
 		klokRef.current?.reset();
@@ -58,7 +60,7 @@ function KoperVeilingKlok() {
 			if (productIndex !== -1) {
 				const newProduct = prev.products[productIndex];
 				setCurrentProduct(newProduct);
-				return {...prev, currentProductIndex: productIndex};
+				return { ...prev, currentProductIndex: productIndex };
 			}
 			return prev;
 		});
@@ -87,7 +89,7 @@ function KoperVeilingKlok() {
 				return p;
 			});
 
-			return {...prev, products: updatedProducts};
+			return { ...prev, products: updatedProducts };
 		});
 
 		// Upadte quantity if needed
@@ -96,19 +98,20 @@ function KoperVeilingKlok() {
 	const handleWaitingForProduct = useCallback(() => {
 		setClockWaitingProduct(true);
 	}, []);
-	const handleTick = useCallback(() => {
+	const handleTick = useCallback((state: VeilingPriceTickNotification) => {
 		setClockWaitingProduct(false);
+		setCurrentPrice(state.currentPrice);
 	}, []);
 	const handleLiveViewsUpdate = useCallback((liveViews: number) => {
 		setCurrentVeilingKlok((prev) => {
 			if (!prev) return prev;
-			return {...prev, peakedLiveViews: liveViews};
+			return { ...prev, peakedLiveViews: liveViews };
 		});
 	}, []);
 	const handleClockUpdate = useCallback((state: VeilingKlokStateNotification) => {
 		setCurrentVeilingKlok((prev) => {
 			if (!prev) return prev;
-			return {...prev, status: state.status};
+			return { ...prev, status: state.status };
 		});
 	}, []);
 
@@ -117,12 +120,7 @@ function KoperVeilingKlok() {
 		if (!kwekerId) return;
 		setHistoryLoading(true);
 		try {
-			const [kwekerHistoryResp, kwekerAvgResp, allHistoryResp, overallAvgResp] = await Promise.all([
-				getKwekerPriceHistory(kwekerId, 10),
-				getKwekerAveragePrice(kwekerId),
-				getLatestPrices(10),
-				getOverallAveragePrice(),
-			]);
+			const [kwekerHistoryResp, kwekerAvgResp, allHistoryResp, overallAvgResp] = await Promise.all([getKwekerPriceHistory(kwekerId, 10), getKwekerAveragePrice(kwekerId), getLatestPrices(10), getOverallAveragePrice()]);
 			setKwekerHistory(kwekerHistoryResp.data ?? []);
 			setKwekerAverage(kwekerAvgResp.data ?? null);
 			setAllHistory(allHistoryResp.data ?? []);
@@ -145,7 +143,7 @@ function KoperVeilingKlok() {
 		onProductWaitingForNext: handleWaitingForProduct,
 		onPriceTick: handleTick,
 		onViewerCountChanged: handleLiveViewsUpdate,
-		onKlokUpdated: handleClockUpdate
+		onKlokUpdated: handleClockUpdate,
 	});
 
 	useEffect(() => {
@@ -159,7 +157,7 @@ function KoperVeilingKlok() {
 
 	const initializeVeilingKlok = useCallback(async () => {
 		try {
-			updateState({type: 'loading', message: t('veilingklok_loading')});
+			updateState({ type: 'loading', message: t('veilingklok_loading') });
 			await delay(1500);
 			const response = await getVeilingKlok(id as string);
 			setCurrentVeilingKlok(response.data);
@@ -167,34 +165,33 @@ function KoperVeilingKlok() {
 			// Update quantity to max available
 			setQuantity(response.data.products[(response.data.currentProductIndex || 0) % (response.data.products.length ?? 1)]?.stock || 0);
 
-			updateState({type: 'succeed', message: t('veilingklok_loaded')});
+			updateState({ type: 'succeed', message: t('veilingklok_loaded') });
 			// Join klok SignalR group
 			if (id) await klokSignalR.joinClock(id);
 		} catch (e) {
-			if (isHttpError(e) && e.message) updateState({type: 'error', message: e.message});
-			else updateState({type: 'error', message: t('veilingklok_load_error')});
+			if (isHttpError(e) && e.message) updateState({ type: 'error', message: e.message });
+			else updateState({ type: 'error', message: t('veilingklok_load_error') });
 		} finally {
 			await delay(100);
-			updateState({type: 'idle'});
+			updateState({ type: 'idle' });
 		}
 	}, [id]);
 	const placeBid = useCallback(async () => {
 		if (clockWaitingProduct || !currentProduct) return;
 		try {
-			updateActionState({type: 'loading', message: t('placing_auction')});
+			updateActionState({ type: 'loading', message: t('placing_auction') });
 			await createOrder({
 				veilingKlokId: currentVeilingKlok?.id as string,
 				productItemId: currentProduct.id,
 				quantity: quantity,
 			});
-			updateActionState({type: 'succeed', message: t('auction_placed')});
-
+			updateActionState({ type: 'succeed', message: t('auction_placed') });
 		} catch (e: any) {
-			if (isHttpError(e) && e.message) updateActionState({type: 'error', message: e.message});
-			else updateActionState({type: 'error', message: t('auction_place_error')});
+			if (isHttpError(e) && e.message) updateActionState({ type: 'error', message: e.message });
+			else updateActionState({ type: 'error', message: t('auction_place_error') });
 		} finally {
 			await delay(1000);
-			updateActionState({type: 'idle'});
+			updateActionState({ type: 'idle' });
 		}
 	}, [clockWaitingProduct, currentProduct, quantity]);
 	const increaseQuantity = useCallback(() => {
@@ -217,7 +214,7 @@ function KoperVeilingKlok() {
 						<section className={'vm-veiling-info-left-panel'}>
 							<div className={'vm-veiling-info-data'}>
 								<div className={'vm-veiling-info-header'}>
-									<Button className="modal-card-back-btn vm-veiling-info-btn" icon="bi-x" type="button" aria-label={t('aria_back_button')} onClick={onClose}/>
+									<Button className="modal-card-back-btn vm-veiling-info-btn" icon="bi-x" type="button" aria-label={t('aria_back_button')} onClick={onClose} />
 									<h2 className={'vm-veiling-info-h1'}>
 										<i className="bi bi-stopwatch-fill"></i>
 										{t('manage_veiling_klok')}
@@ -226,15 +223,15 @@ function KoperVeilingKlok() {
 									<div className={'!ml-auto flex flex-row gap-4'}>
 										<div className={'vm-veiling-info-status'}>
 											<span className={clsx(`app-table-status-badge text-[0.875rem] bg-blue-300`)}>
-											<i className="app-table-status-icon bi-geo-alt-fill"/>
+												<i className="app-table-status-icon bi-geo-alt-fill" />
 												{currentVeilingKlok.regionOrState}
 											</span>
 										</div>
 										<div className={'vm-veiling-info-status'}>
 											<span className={clsx(`app-table-status-badge text-[0.875rem]`, 'app-table-status-' + klokSignalR.klokConnectionStatus.toLowerCase())}>
-											<i className="app-table-status-icon bi-wifi"/>
+												<i className="app-table-status-icon bi-wifi" />
 												{t(klokSignalR.klokConnectionStatus as any)}
-										</span>
+											</span>
 										</div>
 									</div>
 								</div>
@@ -255,7 +252,7 @@ function KoperVeilingKlok() {
 													<span className={'vm-veiling-info-detail-label'}>{t('live_views')}:</span>
 													<div className={'vm-veiling-info-status'}>
 														<span className={`app-table-status-badge bg-blue-100 text-blue-800`}>
-															<i className="app-table-status-icon bi-eye-fill text-blue-800"/>
+															<i className="app-table-status-icon bi-eye-fill text-blue-800" />
 															{currentVeilingKlok.peakedLiveViews}
 														</span>
 													</div>
@@ -263,7 +260,7 @@ function KoperVeilingKlok() {
 												<div className={'vm-veiling-info-detail-item action'}>
 													<span className={'vm-veiling-info-detail-label'}>{t('status')}:</span>
 													<div className={'vm-veiling-info-status'}>
-														<KlokStatusBadge status={currentVeilingKlok.status}/>
+														<KlokStatusBadge status={currentVeilingKlok.status} />
 													</div>
 												</div>
 											</div>
@@ -272,12 +269,12 @@ function KoperVeilingKlok() {
 												<div className={'vm-veiling-buy-actions-card'}>
 													<div className={'vm-veiling-buy-actions-header'}>
 														<h2 className={'vm-veiling-buy-actions-header-h1'}>
-															<i className="bi bi-info-circle-fill"/>
+															<i className="bi bi-info-circle-fill" />
 															{t('select_quantity')}
 														</h2>
 														<span className={'vm-veiling-buy-actions-header-h2'}>
 															{t('total_price')}
-															<p className={'vm-veiling-buy-price'}>{formatEur((currentProduct?.auctionedPrice || 0) * quantity)}</p>
+															<p className={'vm-veiling-buy-price'}>{formatEur(currentPrice * quantity)}</p>
 														</span>
 													</div>
 
@@ -286,16 +283,14 @@ function KoperVeilingKlok() {
 															{t('quantity')}
 														</label>
 														<div className={'vm-veiling-buy-actions-selector'}>
-															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-dash'} onClick={decreaseQuantity}/>
-															<input id="quantity" type="number" className="vm-veiling-buy-actions-selector-input input-clean-number"
-															       defaultValue={quantity} min={1} step={1} value={quantity}
-															       onChange={(e) => setQuantity(parseInt(e.target.value, 10))}/>
-															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-plus'} onClick={increaseQuantity}/>
+															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-dash'} onClick={decreaseQuantity} />
+															<input id="quantity" type="number" className="vm-veiling-buy-actions-selector-input input-clean-number" defaultValue={quantity} min={1} step={1} value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value, 10))} />
+															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-plus'} onClick={increaseQuantity} />
 														</div>
 													</div>
 												</div>
-												<Button className={'vm-veiling-buy-action-btn'} label={t('place_bid')} onClick={placeBid}/>
-												<Button className={'vm-veiling-buy-action-btn btn-outline'} label="Prijshistorie" onClick={openHistory}/>
+												<Button className={'vm-veiling-buy-action-btn'} label={t('place_bid')} onClick={placeBid} />
+												<Button className={'vm-veiling-buy-action-btn btn-outline'} label="Prijshistorie" onClick={openHistory} />
 											</div>
 										</div>
 									</div>
@@ -318,7 +313,7 @@ function KoperVeilingKlok() {
 							{currentProduct && (
 								<div className={'vm-veiling-klok-product'}>
 									<div className={'vm-veiling-klok-product-img-parent'}>
-										<img className={'vm-veiling-klok-product-img'} src="/pictures/flower-test.avif" alt={currentProduct.name}/>
+										<img className={'vm-veiling-klok-product-img'} src="/pictures/flower-test.avif" alt={currentProduct.name} />
 									</div>
 
 									<div className={'vm-veiling-klok-product-info'}>
@@ -389,13 +384,12 @@ function KoperVeilingKlok() {
 										{t('auction_products')}
 									</h2>
 								</div>
-								<i className={'vm-veiling-info-line'}/>
+								<i className={'vm-veiling-info-line'} />
 
 								<div className={'vm-veiling-info-products-scroll custom-scroll'}>
 									<div className={'vm-veiling-info-products-list'}>
 										{currentVeilingKlok?.products.map((product, index) => (
-											<ClockProductCard key={index} product={product} isSelected={currentVeilingKlok.currentProductIndex === index}
-											                  status={getNormalizedVeilingKlokStatus(currentVeilingKlok.status)!} clockRunning={!clockWaitingProduct}/>
+											<ClockProductCard key={index} product={product} isSelected={currentVeilingKlok.currentProductIndex === index} status={getNormalizedVeilingKlokStatus(currentVeilingKlok.status)!} clockRunning={!clockWaitingProduct} />
 										))}
 									</div>
 								</div>
@@ -404,10 +398,10 @@ function KoperVeilingKlok() {
 					</>
 				)}
 
-				{(state.type !== 'idle' || currentVeilingKlok) && <ComponentState state={state}/>}
+				{(state.type !== 'idle' || currentVeilingKlok) && <ComponentState state={state} />}
 
-				<Modal enabled={actionState.type !== 'idle'} onClose={() => actionState.type !== 'loading' && updateActionState({type: 'idle'})}>
-					<ComponentStateCard state={actionState}/>
+				<Modal enabled={actionState.type !== 'idle'} onClose={() => actionState.type !== 'loading' && updateActionState({ type: 'idle' })}>
+					<ComponentStateCard state={actionState} />
 				</Modal>
 				<Modal enabled={showHistoryModal} onClose={() => setShowHistoryModal(false)}>
 					<div className="modal">
@@ -432,9 +426,7 @@ function KoperVeilingKlok() {
 									))}
 								</ul>
 							)}
-							<p className="text-gray-500">
-								Gemiddelde prijs (kweker): {kwekerAverage ? formatEur(kwekerAverage.averagePrice) : '-'}
-							</p>
+							<p className="text-gray-500">Gemiddelde prijs (kweker): {kwekerAverage ? formatEur(kwekerAverage.averagePrice) : '-'}</p>
 
 							<h4 className="mt-4">Laatste 10 prijzen (alle kwekers)</h4>
 							{historyLoading ? (
@@ -450,9 +442,7 @@ function KoperVeilingKlok() {
 									))}
 								</ul>
 							)}
-							<p className="text-gray-500">
-								Gemiddelde prijs (alle orders): {overallAverage ? formatEur(overallAverage.averagePrice) : '-'}
-							</p>
+							<p className="text-gray-500">Gemiddelde prijs (alle orders): {overallAverage ? formatEur(overallAverage.averagePrice) : '-'}</p>
 						</div>
 					</div>
 				</Modal>

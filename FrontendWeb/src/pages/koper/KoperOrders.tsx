@@ -16,12 +16,14 @@ import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
 
 // Placeholder for OrderDetails until a Koper specific one is created
 const OrderDetailsStub = ({ order }: { order: OrderOutputDto }) => (
-	<div className="p-4">
-		<h3>Order Details</h3>
-		<p>Order ID: {order.id}</p>
-		<p>Status: {order.status}</p>
-		<p>Total Items: {order.totalItems}</p>
-		<p>Total Amount: {formatEur(order.totalAmount)}</p>
+	<div className="modal-card">
+		<div className="p-4">
+			<h3>Order Details</h3>
+			<p>Order ID: {order.id}</p>
+			<p>Status: {order.status}</p>
+			<p>Total Items: {order.totalItems}</p>
+			<p>Total Amount: {formatEur(order.totalAmount)}</p>
+		</div>
 	</div>
 );
 

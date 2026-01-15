@@ -5,14 +5,10 @@ namespace Application.Common.Exceptions;
 public class CustomException : ProcessException
 {
     private CustomException(int statusCode, string messageCode)
-        : base(statusCode, messageCode)
-    {
-    }
+        : base(statusCode, messageCode) { }
 
     private CustomException(int statusCode, string messageCode, string? message)
-        : base(statusCode, messageCode, message)
-    {
-    }
+        : base(statusCode, messageCode, message) { }
 
     public static CustomException ExistingTransaction()
     {
@@ -20,6 +16,15 @@ public class CustomException : ProcessException
             StatusCodes.Status409Conflict,
             "CUSTOM.EXISTING_TRANSACTION",
             "A database transaction is already in progress."
+        );
+    }
+
+    public static CustomException AlreadyActiveVeilingInRegion()
+    {
+        return new CustomException(
+            StatusCodes.Status409Conflict,
+            "CUSTOM.ALREADY_ACTIVE_VEILING_IN_REGION",
+            "There is already an active veiling klok in this region."
         );
     }
 

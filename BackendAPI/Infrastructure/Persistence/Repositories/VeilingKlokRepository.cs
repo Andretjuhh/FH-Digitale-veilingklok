@@ -68,7 +68,8 @@ public class VeilingKlokRepository : IVeilingKlokRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<(VeilingKlok VeilingKlok, int BidCount)>
+    public async Task<
+        IEnumerable<(VeilingKlok VeilingKlok, int BidCount)>
     > GetAllByMeesterIdWithBidsCountAsync(Guid meesterId)
     {
         return await _dbContext
@@ -77,7 +78,7 @@ public class VeilingKlokRepository : IVeilingKlokRepository
             .Select(vk => new
             {
                 VeilingKlok = vk,
-                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id)
+                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id),
             })
             .Select(x => ValueTuple.Create(x.VeilingKlok, x.BidsCount))
             .ToListAsync();
@@ -122,7 +123,7 @@ public class VeilingKlokRepository : IVeilingKlokRepository
     public async Task<(
         IEnumerable<(VeilingKlok VeilingKlok, int BidCount)> Items,
         int TotalCount
-        )> GetAllWithFilterAndBidsAsync(
+    )> GetAllWithFilterAndBidsAsync(
         VeilingKlokStatus? statusFilter,
         string? region,
         DateTime? scheduledAfter,
@@ -179,7 +180,7 @@ public class VeilingKlokRepository : IVeilingKlokRepository
             .Select(vk => new
             {
                 VeilingKlok = vk,
-                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id)
+                BidsCount = _dbContext.OrderItems.Count(oi => oi.VeilingKlokId == vk.Id),
             })
             .ToListAsync();
 
@@ -189,6 +190,26 @@ public class VeilingKlokRepository : IVeilingKlokRepository
         return (result, totalCount);
     }
 
+    public async Task<bool> HasActiveVeilingInRegionAsync(
+        string region,
+        string country,
+        Guid excludeVeilingId,
+        CancellationToken ct = default
+    )
+    {
+        return await _dbContext.Veilingklokken.AnyAsync(
+            vk =>
+                vk.RegionOrState == region
+                && vk.Country == country
+                && vk.Id != excludeVeilingId
+                && (
+                    vk.Status == VeilingKlokStatus.Started
+                    || vk.Status == VeilingKlokStatus.Paused
+                    || vk.Status == VeilingKlokStatus.Stopped
+                ),
+            ct
+        );
+    }
 
     public async Task<(VeilingKlok VeilingKlok, int BidCount)?> GetByIdWithBidsCount(Guid id)
     {
