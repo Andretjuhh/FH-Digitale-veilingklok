@@ -38,23 +38,42 @@ public sealed class UpdateVeilingKlokStatusHandler : IRequestHandler<UpdateVeili
         try
         {
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
-            var veilingKlok = await _veilingKlokRepository.GetByIdAsync(request.Id) ??
-                              throw RepositoryException.NotFoundVeilingKlok();
+            var veilingKlok =
+                await _veilingKlokRepository.GetByIdAsync(request.Id)
+                ?? throw RepositoryException.NotFoundVeilingKlok();
 
             var isRunning = _veilingKlokEngine.IsVeillingRunning(veilingKlok.Id);
             if (isRunning && request.Status == VeilingKlokStatus.Started)
                 throw CustomException.CannotChangeRunningVeilingKlok();
 
             veilingKlok.UpdateStatus(request.Status);
+
             if (request.Status == VeilingKlokStatus.Started)
             {
-                var products = await _productRepository.GetAllByVeilingKlokIdAsync(veilingKlok.Id);
+                var productIds = veilingKlok.GetOrderedProductIds();
+                var products = await _productRepository.GetAllByIds(productIds);
                 await _veilingKlokEngine.AddActiveVeilingKlokAsync(veilingKlok, products.ToList());
                 await _veilingKlokEngine.StartVeilingAsync(veilingKlok.Id);
             }
-            else if (request.Status == VeilingKlokStatus.Stopped || request.Status == VeilingKlokStatus.Ended)
+            else if (request.Status == VeilingKlokStatus.Paused)
+            {
+                await _veilingKlokEngine.PauseVeilingAsync(veilingKlok.Id);
+            }
+            else if (request.Status == VeilingKlokStatus.Ended)
             {
                 await _veilingKlokEngine.StopVeilingAsync(veilingKlok.Id);
+
+                // When ending the veiling, we unlink the products from the active VeilingKlokId
+                // The history is preserved in VeilingKlokProduct table
+                var products = await _productRepository.GetAllByVeilingKlokIdAsync(veilingKlok.Id);
+                foreach (var product in products)
+                {
+                    if (product.VeilingKlokId == veilingKlok.Id)
+                    {
+                        product.RemoveVeilingKlok();
+                        _productRepository.Update(product);
+                    }
+                }
             }
 
             _veilingKlokRepository.Update(veilingKlok);

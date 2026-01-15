@@ -13,8 +13,8 @@ export const RegisterSteps = {
 			{label: 'password', type: 'password', placeholder: '••••••••', required: true, icon: 'lock-fill'},
 		],
 		[
-			{label: 'phonenumber', type: 'text',  required: true, placeholder: '+31 6 12345678', group: 'contact' },
-			{label: 'country', type: 'select', options: Country, required: true, placeholder: 'Nederland', group: 'contact' },
+			{label: 'phonenumber', type: 'text', required: true, placeholder: '+31 6 12345678', group: 'contact'},
+			{label: 'country', type: 'select', options: Country, required: true, placeholder: 'Nederland', group: 'contact'},
 			{label: 'region', type: 'select', options: Regions, required: true, placeholder: 'Den Haag', group: 'location'},
 			{label: 'postcode', type: 'text', placeholder: '1234AB', required: true, group: 'location'},
 			{label: 'address', type: 'text', placeholder: 'Van der Valkstraat 123', required: true},
@@ -33,7 +33,7 @@ export const RegisterSteps = {
 			{label: 'phonenumber', type: 'text', placeholder: '+31 6 12345678', required: true},
 		],
 		[
-			{label: 'country', type: 'select', options: Country, required: true, placeholder: 'Nederland'  },
+			{label: 'country', type: 'select', options: Country, required: true, placeholder: 'Nederland'},
 			{label: 'region', type: 'select', options: [...Regions], required: true, placeholder: 'Den Haag', group: 'location'},
 			{label: 'postcode', type: 'text', placeholder: '1234AB', required: true, group: 'location'},
 			{label: 'address', type: 'text', placeholder: 'Van der Valkstraat 123', required: true},
@@ -46,11 +46,35 @@ export const RegisterSteps = {
 		],
 		[
 			{label: 'region', type: 'select', options: [...Regions], required: true, placeholder: 'Den Haag', group: 'location'},
-			{label: 'country', type: 'select', options: Country, required: true, placeholder: 'Nederland'  },
+			{label: 'country', type: 'select', options: Country, required: true, placeholder: 'Nederland'},
 			{label: 'authorisation_code', type: 'text', placeholder: '123456', required: true},
 		],
 	],
+	[AccountType.Admin]: [
+		[
+			{label: 'email', type: 'email', placeholder: '', required: true, icon: 'envelope-fill'},
+			{label: 'password', type: 'password', placeholder: '', required: true, icon: 'lock-fill'},
+		],
+	]
 } as const satisfies Readonly<Record<AccountType, readonly (readonly InputField[])[]>>;
+
+export const ProductFormFields: InputField[] = [
+	{label: 'product_name', type: 'text', placeholder: undefined, placeholderLocalizedKey: 'enter_product_name', required: true, icon: 'box-seam-fill'},
+	{label: 'product_description', type: 'textarea', placeholder: undefined, placeholderLocalizedKey: 'enter_product_description', required: true, rows: 4},
+	{label: 'region', type: 'select', placeholder: 'Select Region', required: false, icon: 'geo-alt-fill'},
+	{label: 'minimum_price', type: 'number', placeholder: '0.00', required: true, icon: 'currency-euro', group: 'pricing', step: '0.01', min: 1},
+	{label: 'stock_quantity', type: 'number', placeholder: '0', required: true, icon: 'inboxes-fill', group: 'pricing', min: 0},
+	{label: 'product_dimension', type: 'text', placeholder: 'e.g., 10 x 20 x 5 cm', required: false, icon: 'rulers'},
+];
+
+export const EditProductPriceFormFields: InputField[] = [
+	{disabled: true, label: 'product_name', type: 'text', placeholder: undefined, placeholderLocalizedKey: 'enter_product_name', required: true, icon: 'box-seam-fill'},
+	{disabled: true, label: 'product_description', type: 'textarea', placeholder: undefined, placeholderLocalizedKey: 'enter_product_description', required: true, rows: 4},
+	{disabled: true, label: 'region', type: 'text', placeholder: undefined, required: false, icon: 'geo-alt-fill'},
+	{disabled: true, label: 'minimum_price', type: 'number', placeholder: '0.00', required: true, icon: 'currency-euro', group: 'pricing', step: '0.01', min: 1},
+	{disabled: false, label: 'product_veiling_start_price', type: 'number', placeholder: '0.00', required: true, icon: 'bi-stopwatch', group: 'pricing', step: '0.01', min: 1},
+	{disabled: true, label: 'product_dimension', type: 'text', placeholder: 'e.g., 10 x 20 x 5 cm', required: false, icon: 'rulers'},
+];
 
 export const buildFieldLayout = (fields: ReadonlyArray<InputField>): FieldOrGroup[] => {
 	const orderedItems: FieldOrGroup[] = [];

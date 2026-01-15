@@ -6,6 +6,7 @@ public record OrderProductInfo(
     string ProductDescription,
     string ProductImageUrl,
     decimal PriceAtPurchase,
+    decimal ProductMinimumPrice,
     string CompanyName,
     int Quantity
 );

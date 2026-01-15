@@ -28,8 +28,7 @@ public class ProductRepository : IProductRepository
 
     public async Task DeleteAsync(Guid productId)
     {
-        var product =
-            await _dbContext.Products.FindAsync(productId);
+        var product = await _dbContext.Products.FindAsync(productId);
         if (product != null)
             _dbContext.Products.Remove(product);
     }
@@ -53,7 +52,16 @@ public class ProductRepository : IProductRepository
 
     public async Task<IEnumerable<Product>> GetAllByVeilingKlokIdAsync(Guid veilingKlokId)
     {
-        return await _dbContext.Products.Where(p => p.VeilingKlokId == veilingKlokId).ToListAsync();
+        return await _dbContext
+            .VeilingKlokProducts.Where(vkp => vkp.VeilingKlokId == veilingKlokId)
+            .OrderBy(vkp => vkp.Position)
+            .Join(
+                _dbContext.Products,
+                vkp => vkp.ProductId,
+                product => product.Id,
+                (vkp, product) => product
+            )
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<Product>> GetProductsByKwekerIdAsync(Guid kwekerId)
@@ -63,7 +71,9 @@ public class ProductRepository : IProductRepository
 
     #region Queries with Kweker Info
 
-    public async Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(Guid productId)
+    public async Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(
+        Guid productId
+    )
     {
         var result = await _dbContext
             .Products.Join(
@@ -81,7 +91,10 @@ public class ProductRepository : IProductRepository
         return (result.product, new KwekerInfo(result.kweker.Id, result.kweker.CompanyName));
     }
 
-    public async Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(Guid productId, Guid kwekerId)
+    public async Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(
+        Guid productId,
+        Guid kwekerId
+    )
     {
         var result = await _dbContext
             .Products.Join(
@@ -99,7 +112,9 @@ public class ProductRepository : IProductRepository
         return (result.product, new KwekerInfo(result.kweker.Id, result.kweker.CompanyName));
     }
 
-    public async Task<IEnumerable<(Product Product, KwekerInfo Kweker)>> GetAllByIdsWithKwekerInfoAsync(List<Guid> ids)
+    public async Task<
+        IEnumerable<(Product Product, KwekerInfo Kweker)>
+    > GetAllByIdsWithKwekerInfoAsync(List<Guid> ids)
     {
         var results = await _dbContext
             .Products.Join(
@@ -355,35 +370,57 @@ FROM OrderItem oi;";
     public async Task<(
         IEnumerable<(Product Product, KwekerInfo Kweker)> Items,
         int TotalCount
-        )> GetAllWithFilterAsync(
+    )> GetAllWithFilterAsync(
         string? nameFilter,
+        string? regionFilter,
         decimal? maxPrice,
         Guid? kwekerId,
+        Guid? klokId,
         int pageNumber,
         int pageSize
     )
     {
-        var query = _dbContext
-            .Products.Join(
-                _dbContext.Kwekers,
+        // 1. Filter on Products table first (Efficiency: avoid joining full table for count)
+        var query = _dbContext.Products.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(nameFilter))
+            query = query.Where(p => p.Name.Contains(nameFilter));
+
+        if (!string.IsNullOrWhiteSpace(regionFilter))
+            query = query.Where(p => p.Region == regionFilter);
+
+        if (maxPrice.HasValue)
+            query = query.Where(p => p.AuctionPrice <= maxPrice.Value);
+
+        if (kwekerId.HasValue)
+            query = query.Where(p => p.KwekerId == kwekerId.Value);
+
+        if (klokId.HasValue)
+            query = query.Where(p => p.VeilingKlokId == klokId.Value);
+
+        // 2. Count filtered items
+        var totalCount = await query.CountAsync();
+
+        // 3. Apply Sorting and Paging
+        var pagedProducts = query
+            .OrderByDescending(p => p.CreatedAt)
+            .ThenBy(p => p.Name)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize);
+
+        // 4. Join Kweker info ONLY for the paged results
+        var results = await pagedProducts
+            .Join(
+                _dbContext.Kwekers.AsNoTracking(),
                 product => product.KwekerId,
                 kweker => kweker.Id,
                 (product, kweker) => new { product, kweker }
-            );
+            )
+            .ToListAsync();
 
-        if (!string.IsNullOrWhiteSpace(nameFilter))
-            query = query.Where(x => x.product.Name.Contains(nameFilter));
-
-        if (maxPrice.HasValue)
-            query = query.Where(x => x.product.AuctionPrice <= maxPrice.Value);
-
-        if (kwekerId.HasValue)
-            query = query.Where(x => x.product.KwekerId == kwekerId.Value);
-
-        var totalCount = await query.CountAsync();
-
-        var results = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
-        var items = results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
+        var items = results.Select(r =>
+            (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName))
+        );
 
         return (items, totalCount);
     }

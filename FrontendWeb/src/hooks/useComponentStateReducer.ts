@@ -2,7 +2,7 @@
 import {useReducer} from 'react';
 
 // Type
-type State = {
+export type State = {
 	type: 'succeed' | 'error' | 'loading' | 'idle';
 	message: string | string[];
 };

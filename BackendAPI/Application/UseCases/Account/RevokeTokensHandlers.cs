@@ -1,7 +1,6 @@
 ﻿using Application.Common.Exceptions;
-using Application.Repositories;
-using Application.Services;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Account;
 
@@ -9,39 +8,19 @@ public sealed record RevokeTokensCommand(Guid AccountId) : IRequest;
 
 public sealed class RevokeTokensHandler : IRequestHandler<RevokeTokensCommand>
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserRepository _userRepository;
-    private readonly ITokenService _tokenService;
+    private readonly UserManager<Domain.Entities.Account> _userManager;
 
-    public RevokeTokensHandler(IUnitOfWork unitOfWork, IUserRepository userRepository, ITokenService tokenService)
+    public RevokeTokensHandler(UserManager<Domain.Entities.Account> userManager)
     {
-        _unitOfWork = unitOfWork;
-        _userRepository = userRepository;
-        _tokenService = tokenService;
+        _userManager = userManager;
     }
 
     public async Task Handle(RevokeTokensCommand request, CancellationToken cancellationToken)
     {
-        try
-        {
-            await _unitOfWork.BeginTransactionAsync(cancellationToken);
-            var account = await _userRepository.GetByIdAsync(request.AccountId);
-            if (account == null)
-                throw RepositoryException.NotFoundAccount();
+        var account = await _userManager.FindByIdAsync(request.AccountId.ToString());
+        if (account == null)
+            throw RepositoryException.NotFoundAccount();
 
-            // Logic to revoke all tokens for the account
-            account.RevokeAllRefreshTokens();
-
-            // Clear tokens from client side if necessary
-            _tokenService.ClearCookies();
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            await _unitOfWork.CommitAsync(cancellationToken);
-        }
-        catch (Exception)
-        {
-            await _unitOfWork.RollbackAsync(cancellationToken);
-            throw;
-        }
+        await _userManager.UpdateSecurityStampAsync(account);
     }
 }

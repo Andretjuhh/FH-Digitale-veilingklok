@@ -6,4 +6,5 @@ export interface UpdateProductDTO {
 	stock?: number;
 	imageBase64?: string;
 	dimension?: string;
+	region?: string;
 }

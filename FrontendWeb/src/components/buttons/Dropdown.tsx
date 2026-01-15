@@ -1,4 +1,4 @@
-import React, {ReactNode} from 'react';
+import React, {ReactNode, useState} from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import clsx from 'clsx';
 import {joinClsx} from "../../utils/classPrefixer";
@@ -28,6 +28,7 @@ export interface CustomDropdownProps<T extends string = string> {
 	items: DropdownItem<T>[];
 	menuClassName?: string;
 	menuAlignEnd?: boolean;
+	showOverlay?: boolean;
 
 	// Item customization
 	customItemRenderer?: (item: DropdownItem<T>) => ReactNode;
@@ -39,7 +40,19 @@ export interface CustomDropdownProps<T extends string = string> {
 	disabled?: boolean;
 }
 
+const overlayStyle: React.CSSProperties = {
+	position: 'fixed',
+	top: 0,
+	left: 0,
+	width: '100vw',
+	height: '100vh',
+	backgroundColor: 'rgba(0, 0, 0, 0.3)',
+	zIndex: 1050,
+	inset: 0
+};
+
 function CustomDropdown<T extends string = string>({
+	                                                   showOverlay = false,
 	                                                   buttonLabel = 'Dropdown',
 	                                                   buttonVariant = 'light',
 	                                                   buttonClassName = '',
@@ -54,6 +67,9 @@ function CustomDropdown<T extends string = string>({
 	                                                   disabled = false,
 	                                                   itemButtonClassName
                                                    }: CustomDropdownProps<T>) {
+	const [open, setOpen] = useState(false);
+
+
 	const handleItemClick = (item: DropdownItem<T>) => {
 		if (item.action) {
 			item.action();
@@ -64,60 +80,80 @@ function CustomDropdown<T extends string = string>({
 	};
 
 	return (
-		<Dropdown className={className}>
-			<Dropdown.Toggle variant={buttonVariant} id={id} className={buttonClassName} disabled={disabled}>
-				{buttonChildren || buttonLabel}
-			</Dropdown.Toggle>
+		<>
+			{
+				(open && showOverlay) && (
+					<div
+						className="dropdown-overlay"
+						onClick={() => setOpen(false)}
+						style={overlayStyle}
+					/>
+				)
+			}
 
-			<Dropdown.Menu align={menuAlignEnd ? 'end' : 'start'} className={clsx(menuClassName, 'w-full')}>
-				{items.map((item) => {
-					// Divider
-					if (item.divider) {
-						return <Dropdown.Divider key={String(item.id)}/>;
-					}
+			<Dropdown
+				className={className}
+				show={open}
+				onToggle={(isOpen) => setOpen(isOpen)}
+			>
+				<Dropdown.Toggle variant={buttonVariant} id={id} className={buttonClassName} disabled={disabled}>
+					{buttonChildren || buttonLabel}
+				</Dropdown.Toggle>
 
-					// Header
-					if (item.header) {
-						return <Dropdown.Header key={String(item.id)}>{item.label}</Dropdown.Header>;
-					}
+				<Dropdown.Menu
+					align={menuAlignEnd ? 'end' : 'start'}
+					className={clsx(menuClassName, 'w-full')}
+					style={{zIndex: 1060}}
+				>
+					{items.map((item) => {
+						// Divider
+						if (item.divider) {
+							return <Dropdown.Divider key={String(item.id)}/>;
+						}
 
-					// Custom renderer
-					if (customItemRenderer) {
+						// Header
+						if (item.header) {
+							return <Dropdown.Header key={String(item.id)}>{item.label}</Dropdown.Header>;
+						}
+
+						// Custom renderer
+						if (customItemRenderer) {
+							return (
+								<div
+									key={String(item.id)}
+									onClick={() => !item.disabled && handleItemClick(item)}
+									style={{cursor: item.disabled ? 'not-allowed' : 'pointer'}}
+								>
+									{customItemRenderer(item)}
+								</div>
+							);
+						}
+
+						// Default item
 						return (
-							<div
+							<Dropdown.Item
 								key={String(item.id)}
-								onClick={() => !item.disabled && handleItemClick(item)}
-								style={{cursor: item.disabled ? 'not-allowed' : 'pointer'}}
+								href={item.href}
+								onClick={() => handleItemClick(item)}
+								disabled={item.disabled}
+								as={item.as}
+								type={item.type}
+								className={itemButtonClassName}
 							>
-								{customItemRenderer(item)}
-							</div>
+								{
+									item.icon &&
+									<i className={
+										clsx(joinClsx(itemButtonClassName, 'icon'),
+											"bi", item.icon)}
+									/>
+								}
+								{item.label}
+							</Dropdown.Item>
 						);
-					}
-
-					// Default item
-					return (
-						<Dropdown.Item
-							key={String(item.id)}
-							href={item.href}
-							onClick={() => handleItemClick(item)}
-							disabled={item.disabled}
-							as={item.as}
-							type={item.type}
-							className={itemButtonClassName}
-						>
-							{
-								item.icon &&
-								<i className={
-									clsx(joinClsx(itemButtonClassName, 'icon'),
-										"bi", item.icon)}
-								/>
-							}
-							{item.label}
-						</Dropdown.Item>
-					);
-				})}
-			</Dropdown.Menu>
-		</Dropdown>
+					})}
+				</Dropdown.Menu>
+			</Dropdown>
+		</>
 	);
 }
 

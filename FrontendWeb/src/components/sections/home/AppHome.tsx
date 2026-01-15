@@ -2,25 +2,25 @@
 import React from 'react';
 import Button from '../../buttons/Button';
 import ButterflyParticles from '../../../particles/ButterflyParticles';
-import {useRootContext} from '../../contexts/RootContext';
-import {AccountType} from '../../../declarations/enums/AccountTypes';
+import { useRootContext } from '../../contexts/RootContext';
+import { AccountType } from '../../../declarations/enums/AccountTypes';
 
 function AppHome() {
-	const {loggedIn, account, t, navigate} = useRootContext();
+	const { loggedIn, account, t, navigate } = useRootContext();
 
 	const handleNavigateToDashboard = () => {
 		if (account?.accountType === AccountType.Kweker) {
 			navigate('/kweker/dashboard');
 		} else if (account?.accountType === AccountType.Koper) {
-			navigate('/koper/dashboard');
+			navigate('/koper/veilingen');
 		} else if (account?.accountType === AccountType.Veilingmeester) {
-			navigate('/veilingmeester/dashboard');
+			navigate('/veilingmeester/veilingen-beheren');
 		}
 	};
 
 	return (
 		<section id={'home'} className={'app-home'}>
-			<ButterflyParticles/>
+			<ButterflyParticles />
 			<div className={'app-home-ctn'}>
 				<div className={'app-home-row z-10'}>
 					<div className={'app-home-ex'}>
@@ -31,21 +31,21 @@ function AppHome() {
 							<div className={'app-home-cta-btns'}>
 								{!loggedIn ? (
 									<>
-										<Button className={'app-home-p-btn'} label={t('get_Started')} icon={'bi-person-plus-fill'} onClick={() => navigate('/register')}/>
-										<Button className="app-home-s-btn" label={t('login')} onClick={() => navigate('/login')}/>
+										<Button className={'app-home-p-btn'} label={t('get_Started')} icon={'bi-person-plus-fill'} onClick={() => navigate('/register')} />
+										<Button className="app-home-s-btn" label={t('login')} onClick={() => navigate('/login')} />
 									</>
 								) : (
-									<Button className="app-home-s-btn" label={t('dashboard')} onClick={handleNavigateToDashboard}/>
+									<Button className="app-home-s-btn" label={t('dashboard')} onClick={handleNavigateToDashboard} />
 								)}
 							</div>
 						</div>
 					</div>
 				</div>
 				<div className={'app-home-row'}>
-					<img className={'app-home-img'} src={'/pictures/kweker.png'} alt={'kweker'}/>
+					<img className={'app-home-img'} src={'/pictures/kweker.png'} alt={'kweker'} />
 				</div>
 			</div>
-			<div className={'app-home-round-bt'}/>
+			<div className={'app-home-round-bt'} />
 		</section>
 	);
 }

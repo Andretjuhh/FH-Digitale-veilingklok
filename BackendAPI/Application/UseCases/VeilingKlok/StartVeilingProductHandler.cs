@@ -42,7 +42,9 @@ public sealed class StartVeilingProductHandler : IRequestHandler<StartVeilingPro
                 await _veilingKlokRepository.GetByIdAsync(request.KlokId)
                 ?? throw RepositoryException.NotFoundVeilingKlok();
 
-            var products = (await _productRepository.GetAllByVeilingKlokIdAsync(request.KlokId)).ToList();
+            var products = (
+                await _productRepository.GetAllByVeilingKlokIdAsync(request.KlokId)
+            ).ToList();
             if (!products.Any(p => p.Id == request.ProductId))
                 throw CustomException.InvalidVeilingKlokProductId();
 
@@ -51,13 +53,14 @@ public sealed class StartVeilingProductHandler : IRequestHandler<StartVeilingPro
                 await _productRepository.GetByIdAsync(request.ProductId)
                 ?? throw RepositoryException.NotFoundProduct();
 
-            // Only allow product changes while the veiling is started.
-            if (veilingKlok.Status != VeilingKlokStatus.Started)
+            // Verify the klok is active
+            if (_veilingKlokEngine.IsVeillingRunning(request.KlokId))
                 throw CustomException.CannotChangeRunningVeilingKlok();
 
             // Update the current product index in the klok
             var productIndex = products.FindIndex(p => p.Id == request.ProductId);
             veilingKlok.SetBiddingProductIndex(productIndex);
+            veilingKlok.VeilingRounds++;
 
             // Update the engine to switch to the new product
             await _veilingKlokEngine.ChangeVeilingProductAsync(request.KlokId, request.ProductId);

@@ -1,9 +1,7 @@
 // Internal exports
 import config from '../constant/application';
-import {getAuthentication} from '../controllers/server/account';
-import {HttpError} from '../declarations/types/HttpError';
-import {ProcessError} from '../declarations/types/ProcessError';
-
+import { HttpError } from '../declarations/types/HttpError';
+import { ProcessError } from '../declarations/types/ProcessError';
 
 /** Make an application fetch request */
 export async function appFetch(request: RequestInfo | URL, options: RequestInit = {}) {
@@ -15,21 +13,22 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 	if (typeof request === 'string' && request.startsWith('/')) {
 		isAppFetch = true;
 		request = new URL(request, config.API);
-		if (!request.pathname.includes('/reauthenticate')) // to avoid infinite loop
-			auth = await getAuthentication();
+		// if (!request.pathname.includes('/reauthenticate'))
+		// 	// to avoid infinite loop
+		// 	auth = await getAuthentication();
 	}
 
 	// Set default options for proper cookie handling
 	const defaultOptions: RequestInit = isAppFetch
 		? {
-			method: 'GET',
-			credentials: 'include', // Include cookies in the request
-			headers: {
-				'Content-Type': 'application/json',
-				Accept: 'application/json',
-				...(auth ? {Authorization: `Bearer ${auth?.accessToken}`} : {}),
-			},
-		}
+				method: 'GET',
+				credentials: 'include', // Include cookies in the request
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+					// ...(auth ? {Authorization: `Bearer ${auth?.accessToken}`} : {}),
+				},
+		  }
 		: {};
 
 	// Merge with user options
@@ -76,8 +75,7 @@ export async function handleResponse<GeneticResponse = any, GeneticError = any>(
 		if (contentType?.includes('application/json')) {
 			try {
 				// Return the parsed JSON requestResponse
-				if (requestResponse.status === 204)
-					return {} as Promise<GeneticResponse>;
+				if (requestResponse.status === 204) return {} as Promise<GeneticResponse>;
 
 				return (await requestResponse.json()) as Promise<GeneticResponse>;
 			} catch (error: any) {

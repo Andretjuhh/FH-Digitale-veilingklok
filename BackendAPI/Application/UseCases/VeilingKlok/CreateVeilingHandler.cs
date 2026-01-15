@@ -48,20 +48,16 @@ public sealed class CreateVeilingHandler
             //  Create new VeilingKlok
             var newKlok = new Domain.Entities.VeilingKlok
             {
-                Id = Guid.NewGuid(),
                 Country = meester.CountryCode,
                 RegionOrState = meester.Region,
                 ScheduledAt = dto.ScheduledAt,
-                VeilingDurationMinutes = dto.VeilingDurationMinutes
+                VeilingDurationSeconds = dto.VeilingDurationSeconds
             };
             newKlok.AssignVeilingmeester(request.MeesterId);
 
             // Persist the clock first so product FK updates won't violate constraints.
             await _veilingKlokRepository.AddAsync(newKlok);
             await _unitOfWork.CommitAsync(cancellationToken);
-
-            // Start a new transaction for product updates.
-            await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
             // Assign products to the VeilingKlok
             var productIds = dto.Products.Keys.ToList();
@@ -77,22 +73,18 @@ public sealed class CreateVeilingHandler
                 if (!dto.Products.TryGetValue(result.Product.Id, out var price))
                     throw RepositoryException.NotFoundProduct();
 
-                if (price <= 0)
-                    price = result.Product.MinimumPrice;
-
                 // Use domain method to update the auction price (validates against minimum price)
                 result.Product.UpdateAuctionPrice(price);
 
                 // Mark as being auctioned on the veiling klok
                 result.Product.AddToVeilingKlok(newKlok.Id);
-                newKlok.AddProductId(result.Product.Id);
-
-                // Recalculate klok price range
-                newKlok.UpdatePriceRange(price);
+                newKlok.AddProduct(result.Product.Id, result.Product.AuctionPrice ?? result.Product.MinimumPrice);
 
                 // Persist change on product repository (unit of work will commit)
                 _productRepository.Update(result.Product);
             }
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
 
             // Map to output DTO (use Minimal mapper for list view)

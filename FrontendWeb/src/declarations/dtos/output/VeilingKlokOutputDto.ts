@@ -1,5 +1,5 @@
-import { VeilingKlokStatus } from '../../enums/VeilingKlokStatus';
-import { ProductOutputDto } from './ProductOutputDto';
+import {VeilingKlokStatus} from '../../enums/VeilingKlokStatus';
+import {ProductOutputDto} from './ProductOutputDto';
 
 // VeilingKlokOutputDto.ts
 export interface VeilingKlokOutputDto {
@@ -11,10 +11,14 @@ export interface VeilingKlokOutputDto {
 	country: string;
 	currentBids: number;
 	totalProducts: number;
-	scheduledAt: string | null;
+	scheduledAt: string;
 	startedAt: string | null;
 	endedAt: string | null;
-	highestBidAmount: number | null;
-	lowestBidAmount: number | null;
+	veilingDurationSeconds: number;
+
+	veilingRounds: number | null;
+	currentProductIndex: number | null;
+	lowestProductPrice: number;
+	highestProductPrice: number;
 	products: ProductOutputDto[];
 }

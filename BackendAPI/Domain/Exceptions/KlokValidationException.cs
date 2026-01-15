@@ -3,15 +3,18 @@
 public sealed class KlokValidationException : DomainException
 {
     private KlokValidationException(string code, string message)
-        : base(code, message)
-    {
-    }
+        : base(code, message) { }
 
     private KlokValidationException(string code)
-        : base(code)
-    {
-    }
+        : base(code) { }
 
+    public static KlokValidationException ProductNotInVeilingKlok()
+    {
+        return new KlokValidationException(
+            "KLOK.PRODUCT_NOT_IN_KLOK",
+            "The specified product is not part of the VeilingKlok."
+        );
+    }
 
     public static KlokValidationException InvalidDuration()
     {
@@ -35,6 +38,14 @@ public sealed class KlokValidationException : DomainException
         return new KlokValidationException(
             "KLOK.NOT_AVAILABLE_FOR_UPDATE",
             "The VeilingKlok is not available for the requested update."
+        );
+    }
+
+    public static KlokValidationException KlokAlreadyEnded()
+    {
+        return new KlokValidationException(
+            "KLOK.ALREADY_ENDED",
+            "The VeilingKlok has already ended."
         );
     }
 

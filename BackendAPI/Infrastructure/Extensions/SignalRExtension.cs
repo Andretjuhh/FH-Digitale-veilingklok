@@ -21,7 +21,9 @@ public static class SignalRExtension
         // StateManager holds in-memory state for ALL active clocks
         // If it was Scoped, each HTTP request would get a NEW instance and lose track of active clocks!
         // One StateManager for entire app → all clocks stored in one place
-        services.AddSingleton<IVeilingKlokEngine, VeilingKlokEngine>();
+        services.AddSingleton<VeilingKlokEngine>();
+        services.AddSingleton<IVeilingKlokEngine>(sp => sp.GetRequiredService<VeilingKlokEngine>());
+        services.AddHostedService(sp => sp.GetRequiredService<VeilingKlokEngine>());
 
         // Same for Notifier - needs to broadcast to persistent connections
         // One Notifier for entire app → broadcasts to all SignalR connections

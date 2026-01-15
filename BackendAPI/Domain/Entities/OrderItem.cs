@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
 using Domain.Exceptions;
 
 namespace Domain.Entities;
@@ -12,41 +11,36 @@ namespace Domain.Entities;
 [Table("OrderItem")]
 public class OrderItem
 {
-    [Key]
-    [Column("id")]
-    public int Id { get; init; }
+    [Key] [Column("id")] public int Id { get; init; }
 
     // --- Quantity for this specific product in this order ---
-    [Column("quantity")]
-    [Required]
-    public int Quantity { get; private set; }
+    [Column("quantity")] [Required] public int Quantity { get; private set; }
 
-    // Optional: Store the price at the time of purchase (good for audit trail)
+    // Store the price at the time of purchase (good for audit trail)
     [Column("price_at_purchase")]
+    [Required]
     [Range(0.00, double.MaxValue)]
-    public decimal PriceAtPurchase { get; }
+    public decimal PriceAtPurchase { get; private set; }
+
+    [Column("product_minimum_price")]
+    [Required]
+    [Range(0.00, double.MaxValue)]
+    public decimal ProductMinimumPrice { get; init; }
 
     // --- Product Relationship ---
-    [Column("veilingklok_id")]
-    [Required]
-    public required Guid VeilingKlokId { get; init; }
+    [Column("veilingklok_id")] [Required] public Guid VeilingKlokId { get; init; }
 
-    [Column("product_id")]
-    [Required]
-    public Guid ProductId { get; }
+    [Column("product_id")] [Required] public Guid ProductId { get; }
 
-    [Column("order_id")]
-    [Required]
-    public Guid OrderId { get; }
+    [Column("order_id")] [Required] public Guid OrderId { get; }
 
-    [Column("created_at")]
-    public DateTimeOffset CreatedAt { get; init; }
+    [Column("created_at")] public DateTimeOffset CreatedAt { get; init; }
 
-    [Column("row_version")]
-    [Timestamp]
-    public ulong RowVersion { get; private set; }
+    [Column("row_version")] [Timestamp] public ulong RowVersion { get; private set; }
 
-    private OrderItem() { }
+    private OrderItem()
+    {
+    }
 
     public OrderItem(decimal purchasedPrice, int quantity, Product product, Guid orderId)
     {
@@ -59,6 +53,8 @@ public class OrderItem
         Quantity = quantity;
         OrderId = orderId;
         ProductId = product.Id;
+        ProductMinimumPrice = product.MinimumPrice;
+        VeilingKlokId = product.VeilingKlokId ?? throw new InvalidOperationException("Product must have a VeilingKlokId");
     }
 
     public void UpdateQuantity(int newQuantity)

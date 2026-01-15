@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Threading; // Added for completeness if tokens are ever added back
 using Application.Services;
 using Infrastructure.Microservices.SignalR.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -48,14 +49,13 @@ public class VeilingHub : Hub<IVeilingHubClient>
         await base.OnDisconnectedAsync(exception);
     }
 
-    public async Task JoinRegion(string country, string region, CancellationToken ctx)
+    public async Task JoinRegion(string country, string region)
     {
         var connectionId = Context.ConnectionId;
 
         await Groups.AddToGroupAsync(
             connectionId,
-            _veilingKlokEngine.GetRegionConnectionGroupName(country, region),
-            ctx
+            _veilingKlokEngine.GetRegionConnectionGroupName(country, region)
         );
     }
 
@@ -68,14 +68,14 @@ public class VeilingHub : Hub<IVeilingHubClient>
         );
     }
 
-    public async Task JoinClock(Guid klokId, CancellationToken ctx)
+    public async Task JoinClock(Guid klokId)
     {
         var userId = GetUserIdFromClaims();
         var connectionId = Context.ConnectionId;
 
         var groupName = _veilingKlokEngine.GetConnectionGroupName(klokId);
         await _veilingKlokEngine.AddSocketConnection(connectionId, klokId, userId);
-        await Groups.AddToGroupAsync(connectionId, groupName, ctx);
+        await Groups.AddToGroupAsync(connectionId, groupName);
     }
 
     public async Task LeaveClock(Guid klokId)

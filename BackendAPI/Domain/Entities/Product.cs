@@ -13,7 +13,7 @@ public class Product
 
     [Column("created_at")] public DateTimeOffset CreatedAt { get; private set; }
 
-    [Column("image_base64")] [Required] public required string ImageUrl { get; set; }
+    [Column("image_url")] [Required] public required string ImageUrl { get; set; }
 
     [Column("dimension")] public string? Dimension { get; set; }
 
@@ -32,6 +32,8 @@ public class Product
     [Required]
     [Range(0, int.MaxValue)]
     public int Stock { get; private set; }
+
+    [Column("region")] public string? Region { get; private set; }
 
     [Column("auctioned_at")] public DateTimeOffset? AuctionedAt { get; private set; }
 
@@ -58,13 +60,14 @@ public class Product
     {
     }
 
-    public Product(decimal minimumPrice, int stock)
+    public Product(decimal minimumPrice, int stock, string? region)
     {
         if (minimumPrice < 0)
             throw ProductValidationException.InvalidMinimumPrice();
         if (stock < 0)
             throw ProductValidationException.NegativeStockValue();
 
+        Region = region;
         AuctionPrice = minimumPrice;
         MinimumPrice = minimumPrice;
         Stock = stock;
@@ -111,6 +114,7 @@ public class Product
         string? description,
         string? imageBase64,
         string? dimension,
+        string? region,
         decimal? minimumPrice,
         int? stock
     )
@@ -134,5 +138,7 @@ public class Product
             Dimension = dimension;
         if (minimumPrice.HasValue)
             MinimumPrice = minimumPrice.Value;
+        if (!string.IsNullOrEmpty(region))
+            Region = region;
     }
 }

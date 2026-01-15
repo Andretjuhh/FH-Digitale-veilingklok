@@ -25,11 +25,14 @@ public class
                 CreatedAt = veiling.CreatedAt,
                 RegionOrState = veiling.RegionOrState,
                 Country = veiling.Country,
-                TotalProducts = info.Products.Count,
+                TotalProducts = veiling.TotalProducts,
                 CurrentBids = info.TotalBids,
                 Products = info.Products,
-                HighestBidAmount = veiling.HighestPrice,
-                LowestBidAmount = veiling.LowestPrice
+                VeilingDurationSeconds = veiling.VeilingDurationSeconds,
+                LowestProductPrice = veiling.LowestProductPrice,
+                HighestProductPrice = veiling.HighestProductPrice,
+                VeilingRounds = veiling.VeilingRounds,
+                CurrentProductIndex = veiling.BiddingProductIndex
             };
 
     public static VeilingKlokDetailsOutputDto ToOutputDto(VeilingKlok entity,
@@ -46,11 +49,14 @@ public class
             CreatedAt = entity.CreatedAt,
             RegionOrState = entity.RegionOrState,
             Country = entity.Country,
-            TotalProducts = info.Products.Count,
+            TotalProducts = entity.TotalProducts,
             CurrentBids = info.TotalBids,
+            VeilingDurationSeconds = entity.VeilingDurationSeconds,
             Products = info.Products,
-            HighestBidAmount = entity.HighestPrice,
-            LowestBidAmount = entity.LowestPrice
+            LowestProductPrice = entity.LowestProductPrice,
+            HighestProductPrice = entity.HighestProductPrice,
+            VeilingRounds = entity.VeilingRounds,
+            CurrentProductIndex = entity.BiddingProductIndex
         };
     }
 
@@ -71,11 +77,14 @@ public class
                     CreatedAt = entity.CreatedAt,
                     RegionOrState = entity.RegionOrState,
                     Country = entity.Country,
-                    TotalProducts = info.Products.Count,
+                    TotalProducts = entity.TotalProducts,
+                    VeilingDurationSeconds = entity.VeilingDurationSeconds,
                     CurrentBids = info.TotalBids,
                     Products = info.Products,
-                    HighestBidAmount = info.HighestPrice,
-                    LowestBidAmount = info.LowestPrice
+                    LowestProductPrice = info.LowestPrice,
+                    HighestProductPrice = info.HighestPrice,
+                    VeilingRounds = entity.VeilingRounds,
+                    CurrentProductIndex = entity.BiddingProductIndex
                 };
 
         public static VeilingKlokOutputDto ToOutputDto(VeilingKlok entity,
@@ -92,11 +101,14 @@ public class
                 CreatedAt = entity.CreatedAt,
                 RegionOrState = entity.RegionOrState,
                 Country = entity.Country,
-                TotalProducts = info.Products.Count,
+                TotalProducts = entity.TotalProducts,
+                VeilingDurationSeconds = entity.VeilingDurationSeconds,
                 CurrentBids = info.TotalBids,
                 Products = info.Products,
-                HighestBidAmount = info.HighestPrice,
-                LowestBidAmount = info.LowestPrice
+                LowestProductPrice = info.LowestPrice,
+                HighestProductPrice = info.HighestPrice,
+                VeilingRounds = entity.VeilingRounds,
+                CurrentProductIndex = entity.BiddingProductIndex
             };
         }
     }

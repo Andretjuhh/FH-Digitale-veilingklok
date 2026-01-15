@@ -19,6 +19,24 @@ public sealed class GetCountryRegionsHandler : IRequestHandler<GetRegionsCommand
         CancellationToken cancellationToken
     )
     {
-        return await _userRepository.GetCountryRegionsAsync(request.Country);
+        // Only Netherlands is supported for now, so we return a hardcoded list
+        // return await _userRepository.GetCountryRegionsAsync(request.Country);
+        var regions = new List<string>
+        {
+            "Noord-Holland",
+            "Zuid-Holland",
+            "Utrecht",
+            "Noord-Brabant",
+            "Gelderland",
+            "Limburg",
+            "Zeeland",
+            "Flevoland",
+            "Friesland",
+            "Groningen",
+            "Drenthe",
+            "Overijssel"
+        };
+
+        return await Task.FromResult(regions);
     }
 }

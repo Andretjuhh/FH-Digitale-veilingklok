@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import Button from '../../buttons/Button';
-import FormInputField from '../../elements/FormInputField';
+import FormInputField from '../../form-elements/FormInputField';
 import FormLink from '../../buttons/FormLink';
 import { useRootContext } from '../../contexts/RootContext';
 import { AccountType } from '../../../declarations/enums/AccountTypes';
@@ -16,9 +16,9 @@ import { createVeilingmeesterAccount } from '../../../controllers/server/veiling
 import { LayoutGroup, motion } from 'framer-motion';
 import { Spring } from '../../../constant/animation';
 import { useComponentStateReducer } from '../../../hooks/useComponentStateReducer';
-import Spinner from '../../elements/Spinner';
 import { delay } from '../../../utils/standards';
 import { isHttpError } from '../../../declarations/types/HttpError';
+import ComponentState from '../../elements/ComponentState';
 
 function RegisterContent() {
 	const { t, navigate, authenticateAccount } = useRootContext();
@@ -58,7 +58,7 @@ function RegisterContent() {
 					error={errorMsg}
 					isError={!!errorMsg}
 					{...register(name, {
-						required: isRequired ? `${t(field.label)} is ${t('required')}` : false,
+						required: isRequired ? `${t(field.label)} ${t('is')} ${t('required')}` : false,
 						...(name === 'email' && {
 							pattern: {
 								value: /^\S+@\S+\.\S+$/,
@@ -87,7 +87,7 @@ function RegisterContent() {
 				let dashboardDestination = '/';
 				switch (selectedAccountType) {
 					case AccountType.Koper: {
-						dashboardDestination = '/koper/dashboard';
+						dashboardDestination = '/koper/veilingen';
 						const account: CreateKoperDTO = {
 							firstName: data['first_name'],
 							lastName: data['last_name'],
@@ -131,7 +131,7 @@ function RegisterContent() {
 					}
 
 					case AccountType.Veilingmeester: {
-						dashboardDestination = '/veilingmeester/dashboard';
+						dashboardDestination = '/veilingmeester/veilingen-beheren';
 						const account: CreateMeesterDTO = {
 							email: data['email'],
 							password: data['password'],
@@ -163,12 +163,12 @@ function RegisterContent() {
 
 	return (
 		<LayoutGroup>
-			<motion.div layout className="auth-card auto-width" transition={Spring}>
+			<motion.div layout className="modal-card auth-card auto-width" transition={Spring}>
 				{state.type === 'idle' && (
 					<>
 						<div className="auth-header">
-							<Button className="auth-header-back-button" icon="bi-x" onClick={handleGoBack} type="button" aria-label={t('back_button_aria')} />
-							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('back_button_aria')} onClick={handleGoBack} />
+							<Button className="auth-header-back-button" icon="bi-x" onClick={handleGoBack} type="button" aria-label={t('aria_back_button')} />
+							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('aria_back_button')} onClick={handleGoBack} />
 							<div className="auth-text-ctn">
 								<h2 className="auth-header-h1" aria-label={t('create_account')}>
 									{t('create_account')}
@@ -196,22 +196,24 @@ function RegisterContent() {
 
 							{/* Tabs */}
 							<div className="auth-tabs" role="tablist" aria-label="Select user type">
-								{Object.values(AccountType).map((type) => (
-									<div
-										key={type}
-										className={`auth-tab ${selectedAccountType === type ? 'active' : ''}`}
-										onClick={() => {
-											setAccountType(type);
-											setStep(1);
-										}}
-										role="tab"
-										aria-selected={selectedAccountType === type}
-										tabIndex={0}
-										aria-label={`Register as ${type}`}
-									>
-										{type.charAt(0).toUpperCase() + type.slice(1)}
-									</div>
-								))}
+								{Object.values(AccountType)
+									.filter((type) => type !== AccountType.Admin)
+									.map((type) => (
+										<div
+											key={type}
+											className={`auth-tab ${selectedAccountType === type ? 'active' : ''}`}
+											onClick={() => {
+												setAccountType(type);
+												setStep(1);
+											}}
+											role="tab"
+											aria-selected={selectedAccountType === type}
+											tabIndex={0}
+											aria-label={`Register as ${type}`}
+										>
+											{type.charAt(0).toUpperCase() + type.slice(1)}
+										</div>
+									))}
 							</div>
 						</div>
 
@@ -251,19 +253,12 @@ function RegisterContent() {
 							</div>
 
 							{step == totalSteps && <Button className="auth-submit-btn" label={t('create_account')} type="button" onClick={handleSubmit(handleFormSubmittion)} />}
-							{step <= 1 && <FormLink className="back-to-login-link" label={t('login_message')} onClick={() => navigate('/login')} type="button" />}
+							{step <= 1 && <FormLink className="back-to-login-link" label={t('login') + '?'} onClick={() => navigate('/login')} type="button" />}
 						</form>
 					</>
 				)}
 
-				{state.type !== 'idle' && (
-					<div className="auth-state">
-						{state.type === 'loading' && <Spinner />}
-						{state.type === 'succeed' && <i className="bi bi-check-circle-fill text-green-500"></i>}
-						{state.type === 'error' && <i className="bi bi-x-circle-fill text-red-500"></i>}
-						<p className="auth-state-text">{state.message}</p>
-					</div>
-				)}
+				{state.type !== 'idle' && <ComponentState state={state} />}
 			</motion.div>
 		</LayoutGroup>
 	);

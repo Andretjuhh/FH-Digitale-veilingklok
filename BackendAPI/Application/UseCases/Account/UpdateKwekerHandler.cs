@@ -4,8 +4,8 @@ using Application.DTOs.Input;
 using Application.DTOs.Output;
 using Application.Repositories;
 using Application.Services;
-using Domain.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Account;
 
@@ -16,17 +16,20 @@ public sealed class UpdateKwekerHandler : IRequestHandler<UpdateKwekerCommand, A
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IKwekerRepository _kwekerRepository;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IPasswordHasher<Domain.Entities.Account> _passwordHasher;
+    private readonly ILookupNormalizer _lookupNormalizer;
 
     public UpdateKwekerHandler(
         IUnitOfWork unitOfWork,
         IKwekerRepository kwekerRepository,
-        IPasswordHasher passwordHasher
+        IPasswordHasher<Domain.Entities.Account> passwordHasher,
+        ILookupNormalizer lookupNormalizer
     )
     {
         _unitOfWork = unitOfWork;
         _kwekerRepository = kwekerRepository;
         _passwordHasher = passwordHasher;
+        _lookupNormalizer = lookupNormalizer;
     }
 
     public async Task<AccountOutputDto> Handle(
@@ -50,11 +53,17 @@ public sealed class UpdateKwekerHandler : IRequestHandler<UpdateKwekerCommand, A
                 if (await _kwekerRepository.ExistingAccountAsync(dto.Email))
                     throw RepositoryException.ExistingAccount();
 
-                kweker.ChangeEmail(dto.Email);
+                kweker.Email = dto.Email;
+                kweker.UserName = dto.Email;
+                kweker.NormalizedEmail = _lookupNormalizer.NormalizeEmail(dto.Email);
+                kweker.NormalizedUserName = _lookupNormalizer.NormalizeName(dto.Email);
             }
 
             // Update password if provided
-            if (!string.IsNullOrWhiteSpace(dto.Password)) kweker.ChangePassword(dto.Password, _passwordHasher);
+            if (!string.IsNullOrWhiteSpace(dto.Password))
+            {
+                kweker.PasswordHash = _passwordHasher.HashPassword(kweker, dto.Password);
+            }
 
             // Update Kweker-specific fields
             if (dto.CompanyName != null)
@@ -92,7 +101,7 @@ public sealed class UpdateKwekerHandler : IRequestHandler<UpdateKwekerCommand, A
                 CompanyName = kweker.CompanyName,
                 KvkNumber = kweker.KvkNumber,
                 Address = AddressMapper.ToOutputDto(kweker.Adress),
-                AccountType = kweker.AccountType
+                AccountType = kweker.AccountType,
             };
         }
         catch (Exception)

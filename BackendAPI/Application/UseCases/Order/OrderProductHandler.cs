@@ -1,4 +1,4 @@
-﻿using Application.Common.Exceptions;
+﻿﻿using Application.Common.Exceptions;
 using Application.Common.Mappers;
 using Application.Common.Models;
 using Application.DTOs.Output;
@@ -85,10 +85,7 @@ public sealed class OrderProductHandler
                 request.Quantity,
                 product,
                 order.Id
-            )
-            {
-                VeilingKlokId = order.VeilingKlokId
-            };
+            );
             order.AddItem(orderItem);
             product.DecreaseStock(request.Quantity);
 
