@@ -145,6 +145,9 @@ export const resources = {
 			no_products_available: 'Geen producten beschikbaar',
 			region_products_txt: 'Hier kunt u de bloemen en planten bekijken die beschikbaar zijn in uw regio.',
 
+			product_naam: 'Productnaam',
+			company_naam: 'Bedrijfsnaam',
+
 			// ===== KOPER FOOTER =====
 			koper_footer_about_title: 'Over FloriClock',
 			koper_footer_about_line1: 'Digitale veiling voor bloemen en planten.',
@@ -367,7 +370,6 @@ export const resources = {
 			rounds: 'Rounde',
 			price: 'Prijs',
 			min_aant: 'Min. aantal',
-			product_naam: 'Product naam',
 			aanvoerder: 'Aanvoerder',
 			product_id: 'Product ID',
 			dimension: 'Dimensie',
