@@ -45,11 +45,18 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         _logger = logger;
     }
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken)
+{
+    try
     {
-        // Initialize the veiling klok engine on startup
-        return InitializeVeilingKlokAsync(cancellationToken);
+        await InitializeVeilingKlokAsync(cancellationToken);
     }
+    catch (Exception ex)
+    {
+        _logger.LogCritical(ex, "VeilingKlokEngine failed to initialize on startup");
+    }
+}
+
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
