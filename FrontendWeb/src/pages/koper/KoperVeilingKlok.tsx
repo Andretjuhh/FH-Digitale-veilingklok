@@ -9,7 +9,7 @@ import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
 import {VeilingBodNotification, VeilingKlokStateNotification, VeilingProductChangedNotification} from '../../declarations/models/VeilingNotifications';
 import {useVeilingKlokSignalR} from '../../hooks/useVeilingKlokSignalR';
 import {delay, formatDate, formatEur, getNormalizedVeilingKlokStatus} from '../../utils/standards';
-import {getVeilingKlok} from '../../controllers/server/koper';
+import {getKwekerAveragePrice, getKwekerPriceHistory, getLatestPrices, getOverallAveragePrice, getVeilingKlok} from '../../controllers/server/koper';
 import {isHttpError} from '../../declarations/types/HttpError';
 import Page from '../../components/nav/Page';
 import Button from '../../components/buttons/Button';
@@ -18,6 +18,9 @@ import {KlokStatusBadge} from '../../components/elements/StatusBadge';
 import ClockProductCard from '../../components/cards/ClockProductCard';
 import ComponentState, {ComponentStateCard} from '../../components/elements/ComponentState';
 import Modal from '../../components/elements/Modal';
+import {PriceHistoryItemOutputDto} from '../../declarations/dtos/output/PriceHistoryItemOutputDto';
+import {KwekerAveragePriceOutputDto} from '../../declarations/dtos/output/KwekerAveragePriceOutputDto';
+import {OverallAveragePriceOutputDto} from '../../declarations/dtos/output/OverallAveragePriceOutputDto';
 
 function KoperVeilingKlok() {
 	const {klokId: id} = useParams<{ klokId: string }>();
@@ -32,6 +35,12 @@ function KoperVeilingKlok() {
 	const [currentVeilingKlok, setCurrentVeilingKlok] = useState<VeilingKlokOutputDto>();
 	const [currentProduct, setCurrentProduct] = useState<ProductOutputDto>();
 	const [quantity, setQuantity] = useState(0); // always set to max when product changed
+	const [showHistoryModal, setShowHistoryModal] = useState(false);
+	const [historyLoading, setHistoryLoading] = useState(false);
+	const [kwekerHistory, setKwekerHistory] = useState<PriceHistoryItemOutputDto[]>([]);
+	const [kwekerAverage, setKwekerAverage] = useState<KwekerAveragePriceOutputDto | null>(null);
+	const [allHistory, setAllHistory] = useState<PriceHistoryItemOutputDto[]>([]);
+	const [overallAverage, setOverallAverage] = useState<OverallAveragePriceOutputDto | null>(null);
 
 	// SignalR event handlers wrapped in useCallback to prevent reconnection loops
 	const handleVeilingEnded = useCallback(() => {
@@ -103,6 +112,28 @@ function KoperVeilingKlok() {
 		});
 	}, []);
 
+	const loadHistory = useCallback(async () => {
+		const kwekerId = currentProduct?.kwekerId;
+		if (!kwekerId) return;
+		setHistoryLoading(true);
+		try {
+			const [kwekerHistoryResp, kwekerAvgResp, allHistoryResp, overallAvgResp] = await Promise.all([
+				getKwekerPriceHistory(kwekerId, 10),
+				getKwekerAveragePrice(kwekerId),
+				getLatestPrices(10),
+				getOverallAveragePrice(),
+			]);
+			setKwekerHistory(kwekerHistoryResp.data ?? []);
+			setKwekerAverage(kwekerAvgResp.data ?? null);
+			setAllHistory(allHistoryResp.data ?? []);
+			setOverallAverage(overallAvgResp.data ?? null);
+		} catch (err) {
+			console.error('Failed to fetch price history:', err);
+		} finally {
+			setHistoryLoading(false);
+		}
+	}, [currentProduct?.kwekerId]);
+
 	// Veiling klok SignalR hook
 	const klokSignalR = useVeilingKlokSignalR({
 		region: account?.region!,
@@ -162,6 +193,10 @@ function KoperVeilingKlok() {
 	const decreaseQuantity = useCallback(() => {
 		setQuantity((prev) => (prev > 0 ? prev - 1 : 0));
 	}, []);
+	const openHistory = useCallback(() => {
+		setShowHistoryModal(true);
+		loadHistory().then(null).catch(null);
+	}, [loadHistory]);
 	const onClose = () => navigate('/koper/veilingen');
 
 	return (
@@ -250,6 +285,7 @@ function KoperVeilingKlok() {
 													</div>
 												</div>
 												<Button className={'vm-veiling-buy-action-btn'} label={t('place_bid')} onClick={placeBid}/>
+												<Button className={'vm-veiling-buy-action-btn btn-outline'} label="Prijshistorie" onClick={openHistory}/>
 											</div>
 										</div>
 									</div>
@@ -362,6 +398,53 @@ function KoperVeilingKlok() {
 
 				<Modal enabled={actionState.type !== 'idle'} onClose={() => actionState.type !== 'loading' && updateActionState({type: 'idle'})}>
 					<ComponentStateCard state={actionState}/>
+				</Modal>
+				<Modal enabled={showHistoryModal} onClose={() => setShowHistoryModal(false)}>
+					<div className="modal">
+						<div className="modal-header">
+							<h3>Prijshistorie</h3>
+							<button className="modal-close" onClick={() => setShowHistoryModal(false)} aria-label="Sluiten">
+								?
+							</button>
+						</div>
+						<div className="modal-body">
+							<h4>Laatste 10 prijzen (kweker)</h4>
+							{historyLoading ? (
+								<div className="text-gray-500">Laden...</div>
+							) : kwekerHistory.length === 0 ? (
+								<div className="text-gray-500">Geen data</div>
+							) : (
+								<ul className="user-footer-list">
+									{kwekerHistory.map((item) => (
+										<li key={`${item.productId}-${item.purchasedAt}`}>
+											{new Date(item.purchasedAt).toLocaleDateString()} - {item.productName} - {formatEur(item.price)}
+										</li>
+									))}
+								</ul>
+							)}
+							<p className="text-gray-500">
+								Gemiddelde prijs (kweker): {kwekerAverage ? formatEur(kwekerAverage.averagePrice) : '-'}
+							</p>
+
+							<h4 className="mt-4">Laatste 10 prijzen (alle kwekers)</h4>
+							{historyLoading ? (
+								<div className="text-gray-500">Laden...</div>
+							) : allHistory.length === 0 ? (
+								<div className="text-gray-500">Geen data</div>
+							) : (
+								<ul className="user-footer-list">
+									{allHistory.map((item) => (
+										<li key={`${item.productId}-${item.purchasedAt}-all`}>
+											{item.kwekerName} - {new Date(item.purchasedAt).toLocaleDateString()} - {formatEur(item.price)}
+										</li>
+									))}
+								</ul>
+							)}
+							<p className="text-gray-500">
+								Gemiddelde prijs (alle orders): {overallAverage ? formatEur(overallAverage.averagePrice) : '-'}
+							</p>
+						</div>
+					</div>
 				</Modal>
 			</main>
 		</Page>

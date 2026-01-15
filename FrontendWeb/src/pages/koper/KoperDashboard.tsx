@@ -28,10 +28,10 @@ import { formatEur } from '../../utils/standards';
 
 function UserDashboard() {
 	const { t, account } = useRootContext();
-	const CLOCK_SECONDS = 4;
 	const DEFAULT_COUNTRY = 'NL';
 	const DEFAULT_REGION = 'Noord-Holland';
 	const [price, setPrice] = useState<number>(0.65);
+	const [startPrice, setStartPrice] = useState<number>(0.65);
 	const [products, setProducts] = useState<ProductOutputDto[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [productIndex, setProductIndex] = useState<number>(0);
@@ -100,8 +100,10 @@ function UserDashboard() {
 
 	useEffect(() => {
 		if (!current) return;
+		const initialPrice = current.auctionedPrice ?? 0.65;
+		setStartPrice(initialPrice);
 		if (!isClockRunning) {
-			setPrice(current.auctionedPrice ?? 0.65);
+			setPrice(initialPrice);
 		}
 	}, [current, isClockRunning]);
 
@@ -113,8 +115,6 @@ function UserDashboard() {
 	}, [products, productIndex]);
 
 	const [paused, setPaused] = useState<boolean>(false);
-	const [resetToken, setResetToken] = useState<number>(0);
-
 	useEffect(() => {
 		const country = account?.countryCode ?? account?.address?.country ?? DEFAULT_COUNTRY;
 		const region = account?.region ?? account?.address?.regionOrState ?? DEFAULT_REGION;
@@ -138,7 +138,6 @@ function UserDashboard() {
 				setOrderId(null);
 				setIsClockRunning(true);
 				setPaused(false);
-				setResetToken((v) => v + 1);
 				setIsHydratingClock(true);
 				getVeilingKlok(notification.clockId)
 					.then((resp) => {
@@ -146,7 +145,9 @@ function UserDashboard() {
 						setProducts(list);
 						setProductIndex(0);
 						if (list[0]) {
-							setPrice(list[0].auctionedPrice ?? 0.65);
+							const initial = list[0].auctionedPrice ?? 0.65;
+							setPrice(initial);
+							setStartPrice(initial);
 						}
 					})
 					.catch((err) => console.error('Failed to hydrate veilingklok:', err))
@@ -164,6 +165,7 @@ function UserDashboard() {
 			connection.on('VeilingProductChanged', (notification: VeilingProductChangedNotification) => {
 				if (!isActive) return;
 				setPrice(notification.startingPrice);
+				setStartPrice(notification.startingPrice);
 				setProducts((prev) => {
 					const idx = prev.findIndex((p) => p.id === notification.productId);
 					if (idx >= 0) setProductIndex(idx);
@@ -278,15 +280,15 @@ function UserDashboard() {
 					{/* Center profile area */}
 					<div className="user-card-center">
 						<AuctionClock
-							totalSeconds={CLOCK_SECONDS}
-							start={isClockRunning}
+							highestRange={startPrice}
+							startPrice={startPrice}
+							lowestPrice={current.minimumPrice ?? 0}
+							currentPrice={price}
 							paused={paused || !isClockRunning}
-							resetToken={resetToken}
+							amountStock={currentStock}
 							round={1}
 							coin={1}
-							amountPerLot={1}
 							minAmount={1}
-							price={price}
 						/>
 
 						<div className="stock-text">{t('koper_stock', { count: currentStock })}</div>
@@ -313,8 +315,9 @@ function UserDashboard() {
 
 											const nextStock = Math.max(0, currentStock - qty);
 											setProducts((prev) => prev.map((p, i) => (i === productIndex ? { ...p, stock: nextStock } : p)));
-											setResetToken((v) => v + 1);
-											setPrice(current.auctionedPrice ?? 0.65);
+											const initial = current.auctionedPrice ?? 0.65;
+											setPrice(initial);
+											setStartPrice(initial);
 											if (nextStock <= 0) setProductIndex((i) => (i + 1) % products.length);
 										} catch (error) {
 											console.error('Order failed:', error);

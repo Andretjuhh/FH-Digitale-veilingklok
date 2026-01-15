@@ -13,6 +13,9 @@ import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutput
 import {OrderItemOutputDto} from '../../declarations/dtos/output/OrderItemOutputDto';
 import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import {PriceHistoryItemOutputDto} from '../../declarations/dtos/output/PriceHistoryItemOutputDto';
+import {KwekerAveragePriceOutputDto} from '../../declarations/dtos/output/KwekerAveragePriceOutputDto';
+import {OverallAveragePriceOutputDto} from '../../declarations/dtos/output/OverallAveragePriceOutputDto';
 import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
 
 // Create koper account (POST /api/account/koper/create)
@@ -94,6 +97,29 @@ export async function getProducts(nameFilter?: string, regionFilter?: string, ma
 	params.append('pageSize', pageSize.toString());
 
 	return fetchResponse<HttpSuccess<PaginatedOutputDto<ProductOutputDto>>>(`/api/account/koper/products?${params.toString()}`);
+}
+
+// Get kweker price history (GET /api/account/koper/prices/kweker/{kwekerId})
+export async function getKwekerPriceHistory(kwekerId: string, limit: number = 10): Promise<HttpSuccess<PriceHistoryItemOutputDto[]>> {
+	return fetchResponse<HttpSuccess<PriceHistoryItemOutputDto[]>>(`/api/account/koper/prices/kweker/${kwekerId}?limit=${limit}`);
+}
+
+// Get kweker average price (GET /api/account/koper/prices/kweker/{kwekerId}/average)
+export async function getKwekerAveragePrice(kwekerId: string, limit?: number): Promise<HttpSuccess<KwekerAveragePriceOutputDto>> {
+	const params = new URLSearchParams();
+	if (limit !== undefined) params.append('limit', limit.toString());
+	const query = params.toString();
+	return fetchResponse<HttpSuccess<KwekerAveragePriceOutputDto>>(`/api/account/koper/prices/kweker/${kwekerId}/average${query ? `?${query}` : ''}`);
+}
+
+// Get latest prices (GET /api/account/koper/prices/latest)
+export async function getLatestPrices(limit: number = 10): Promise<HttpSuccess<PriceHistoryItemOutputDto[]>> {
+	return fetchResponse<HttpSuccess<PriceHistoryItemOutputDto[]>>(`/api/account/koper/prices/latest?limit=${limit}`);
+}
+
+// Get overall average price (GET /api/account/koper/prices/average)
+export async function getOverallAveragePrice(): Promise<HttpSuccess<OverallAveragePriceOutputDto>> {
+	return fetchResponse<HttpSuccess<OverallAveragePriceOutputDto>>('/api/account/koper/prices/average');
 }
 
 // Get veilingklok (GET /api/account/koper/veilingklok/{klokId})
