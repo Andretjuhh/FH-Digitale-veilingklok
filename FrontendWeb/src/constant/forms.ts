@@ -15,7 +15,7 @@ export const RegisterSteps = {
 		[
 			{label: 'phonenumber', type: 'text', required: true, placeholder: '+31 6 12345678', group: 'contact'},
 			{label: 'country', type: 'select', options: Country, required: true, placeholder: 'Nederland', group: 'contact'},
-			{label: 'region', type: 'select', options: Regions, required: true, placeholder: 'Den Haag', group: 'location'},
+			{label: 'region', type: 'select', options: Regions, required: true, placeholder: 'Zuid-Holland', group: 'location'},
 			{label: 'postcode', type: 'text', placeholder: '1234AB', required: true, group: 'location'},
 			{label: 'address', type: 'text', placeholder: 'Van der Valkstraat 123', required: true},
 		],
@@ -34,7 +34,7 @@ export const RegisterSteps = {
 		],
 		[
 			{label: 'country', type: 'select', options: Country, required: true, placeholder: 'Nederland'},
-			{label: 'region', type: 'select', options: [...Regions], required: true, placeholder: 'Den Haag', group: 'location'},
+			{label: 'region', type: 'select', options: [...Regions], required: true, placeholder: 'Zuid-Holland', group: 'location'},
 			{label: 'postcode', type: 'text', placeholder: '1234AB', required: true, group: 'location'},
 			{label: 'address', type: 'text', placeholder: 'Van der Valkstraat 123', required: true},
 		],
@@ -45,7 +45,7 @@ export const RegisterSteps = {
 			{label: 'password', type: 'password', placeholder: '••••••••', required: true, icon: 'lock-fill'},
 		],
 		[
-			{label: 'region', type: 'select', options: [...Regions], required: true, placeholder: 'Den Haag', group: 'location'},
+			{label: 'region', type: 'select', options: [...Regions], required: true, placeholder: 'Zuid-Holland', group: 'location'},
 			{label: 'country', type: 'select', options: Country, required: true, placeholder: 'Nederland'},
 			{label: 'authorisation_code', type: 'text', placeholder: '123456', required: true},
 		],
