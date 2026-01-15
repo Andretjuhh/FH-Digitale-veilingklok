@@ -9,7 +9,7 @@ import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
 import {VeilingBodNotification, VeilingKlokStateNotification, VeilingProductChangedNotification} from '../../declarations/models/VeilingNotifications';
 import {useVeilingKlokSignalR} from '../../hooks/useVeilingKlokSignalR';
 import {delay, formatDate, formatEur, getNormalizedVeilingKlokStatus} from '../../utils/standards';
-import {getVeilingKlok} from '../../controllers/server/koper';
+import {createOrder, getVeilingKlok} from '../../controllers/server/koper';
 import {isHttpError} from '../../declarations/types/HttpError';
 import Page from '../../components/nav/Page';
 import Button from '../../components/buttons/Button';
@@ -150,12 +150,22 @@ function KoperVeilingKlok() {
 	const placeBid = useCallback(async () => {
 		if (clockWaitingProduct || !currentProduct) return;
 		try {
+			updateActionState({type: 'loading', message: t('placing_auction')});
+			await createOrder({
+				veilingKlokId: currentVeilingKlok?.id as string,
+				productItemId: currentProduct.id,
+				quantity: quantity,
+			});
+			updateActionState({type: 'succeed', message: t('auction_placed')});
 
-		} catch (e) {
-
-
+		} catch (e: any) {
+			if (isHttpError(e) && e.message) updateActionState({type: 'error', message: e.message});
+			else updateActionState({type: 'error', message: t('auction_place_error')});
+		} finally {
+			await delay(1000);
+			updateActionState({type: 'idle'});
 		}
-	}, [clockWaitingProduct, currentProduct]);
+	}, [clockWaitingProduct, currentProduct, quantity]);
 	const increaseQuantity = useCallback(() => {
 		setQuantity((prev) => prev + 1);
 	}, []);

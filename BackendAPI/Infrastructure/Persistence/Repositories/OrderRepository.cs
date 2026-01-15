@@ -62,6 +62,18 @@ public class OrderRepository : IOrderRepository
             .ToListAsync();
     }
 
+    public async Task<Order?> FindOrderAsync(Guid koperId, Guid veilingKlokId, Guid productId)
+    {
+        return await _dbContext
+            .Orders.Include(o => o.OrderItems)
+            .Where(o =>
+                o.KoperId == koperId
+                && o.VeilingKlokId == veilingKlokId
+                && o.OrderItems.Any(oi => oi.ProductId == productId)
+            )
+            .FirstOrDefaultAsync();
+    }
+
     #region Complex Queries
 
     public async Task<(Order order, VeilingKlokStatus klokStatus)?> GetWithKlokStatusByIdAsync(
@@ -206,10 +218,14 @@ public class OrderRepository : IOrderRepository
         return (items, totalCount);
     }
 
-    public async Task<(Order Order, OrderProductInfo OProductInfo, KoperInfo Koper)?> GetKwekerOrderAsync(Guid orderId,
-        Guid kwekerId)
+    public async Task<(
+        Order Order,
+        OrderProductInfo OProductInfo,
+        KoperInfo Koper
+    )?> GetKwekerOrderAsync(Guid orderId, Guid kwekerId)
     {
-        var query = from order in _dbContext.Orders
+        var query =
+            from order in _dbContext.Orders
             from orderItem in order.OrderItems
             join product in _dbContext.Products on orderItem.ProductId equals product.Id
             join kweker in _dbContext.Kwekers on product.KwekerId equals kweker.Id
@@ -222,7 +238,7 @@ public class OrderRepository : IOrderRepository
                 Product = product,
                 Kweker = kweker,
                 Koper = koper,
-                KoperAddress = koper.Adresses.FirstOrDefault()
+                KoperAddress = koper.Adresses.FirstOrDefault(),
             };
 
         var result = await query
@@ -246,7 +262,7 @@ public class OrderRepository : IOrderRepository
                     x.Koper.LastName,
                     x.Koper.Telephone,
                     x.KoperAddress ?? new Address("", "", "", "", "")
-                )
+                ),
             })
             .FirstOrDefaultAsync();
 
@@ -256,20 +272,24 @@ public class OrderRepository : IOrderRepository
         return (result.Order, result.Product, result.Koper);
     }
 
-    public async Task<(IEnumerable<(Order Order, OrderProductInfo Product, KoperInfo Koper)> Items, int TotalCount)>
-        GetAllKwekerWithFilterAsync(
-            string? ProductNameFilter,
-            string? KoperNameFilter,
-            OrderStatus? statusFilter,
-            DateTime? beforeDate,
-            DateTime? afterDate,
-            Guid? productId,
-            Guid kwekerId,
-            int pageNumber,
-            int pageSize)
+    public async Task<(
+        IEnumerable<(Order Order, OrderProductInfo Product, KoperInfo Koper)> Items,
+        int TotalCount
+    )> GetAllKwekerWithFilterAsync(
+        string? ProductNameFilter,
+        string? KoperNameFilter,
+        OrderStatus? statusFilter,
+        DateTime? beforeDate,
+        DateTime? afterDate,
+        Guid? productId,
+        Guid kwekerId,
+        int pageNumber,
+        int pageSize
+    )
     {
         // Build the base query
-        var baseQuery = from order in _dbContext.Orders
+        var baseQuery =
+            from order in _dbContext.Orders
             from orderItem in order.OrderItems
             join product in _dbContext.Products on orderItem.ProductId equals product.Id
             join kweker in _dbContext.Kwekers on product.KwekerId equals kweker.Id
@@ -282,7 +302,7 @@ public class OrderRepository : IOrderRepository
                 Product = product,
                 Kweker = kweker,
                 Koper = koper,
-                KoperAddress = koper.Adresses.FirstOrDefault()
+                KoperAddress = koper.Adresses.FirstOrDefault(),
             };
 
         // Apply filters
@@ -293,7 +313,9 @@ public class OrderRepository : IOrderRepository
             baseQuery = baseQuery.Where(x => x.Product.Name.Contains(ProductNameFilter));
 
         if (!string.IsNullOrEmpty(KoperNameFilter))
-            baseQuery = baseQuery.Where(x => (x.Koper.FirstName + " " + x.Koper.LastName).Contains(KoperNameFilter));
+            baseQuery = baseQuery.Where(x =>
+                (x.Koper.FirstName + " " + x.Koper.LastName).Contains(KoperNameFilter)
+            );
 
         if (beforeDate.HasValue)
             baseQuery = baseQuery.Where(x => x.Order.CreatedAt <= beforeDate.Value);
@@ -333,7 +355,7 @@ public class OrderRepository : IOrderRepository
                     x.Koper.LastName,
                     x.Koper.Telephone,
                     x.KoperAddress ?? new Address("", "", "", "", "")
-                )
+                ),
             })
             .ToListAsync();
 
