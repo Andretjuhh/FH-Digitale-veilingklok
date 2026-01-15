@@ -101,6 +101,7 @@ export async function getVeilingKlok(klokId: string): Promise<HttpSuccess<Veilin
 	return fetchResponse<HttpSuccess<VeilingKlokOutputDto>>(`/api/account/koper/veilingklok/${klokId}`);
 }
 
+// Get veilingklokken (GET /api/account/koper/veilingklokken)
 export async function getVeilingKlokken(statusFilter?: VeilingKlokStatus, region?: string, scheduledAfter?: string, scheduledBefore?: string, startedAfter?: string, startedBefore?: string, endedAfter?: string, endedBefore?: string, meesterId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>> {
 	const params = new URLSearchParams();
 	if (statusFilter) params.append('statusFilter', statusFilter.toString());
