@@ -79,7 +79,7 @@ export async function getAllAccounts(): Promise<HttpSuccess<AccountListItemDTO[]
 
 export async function deleteAccount(accountId: string, hardDelete: boolean): Promise<HttpSuccess<string>> {
 	const queryParam = hardDelete ? '?hardDelete=true' : '';
-	return fetchResponse<HttpSuccess<string>>(`/api/account/admin/${accountId}${queryParam}`, {
+	return fetchResponse<HttpSuccess<string>>(`/api/account/admin/${accountId}/delete${queryParam}`, {
 		method: 'GET',
 	});
 }

@@ -250,7 +250,7 @@ public class MeesterController : ControllerBase
         return HttpSuccess<string>.NoContent("VeilingKlok status updated successfully");
     }
 
-    [HttpGet("veilingklok/{klokId}")]
+    [HttpGet("veilingklok/{klokId}/delete")]
     public async Task<IActionResult> DeleteVeilingKlok(Guid klokId)
     {
         var command = new DeleteVeilingKlokCommand(klokId);

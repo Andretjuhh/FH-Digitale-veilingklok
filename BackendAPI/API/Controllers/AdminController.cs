@@ -62,7 +62,7 @@ public class AdminController : ControllerBase
         return HttpSuccess<List<AccountListItemDto>>.Ok(result, "Accounts retrieved successfully");
     }
 
-    [HttpGet("{accountId}")]
+    [HttpGet("{accountId}/delete")]
     public async Task<IActionResult> DeleteAccount(
         Guid accountId,
         [FromQuery] bool hardDelete = false
@@ -77,7 +77,7 @@ public class AdminController : ControllerBase
         var deleteRequest = new DeleteAccountRequestDTO
         {
             AccountId = accountId,
-            HardDelete = hardDelete
+            HardDelete = hardDelete,
         };
         var command = new DeleteAccountCommand(deleteRequest);
         await _mediator.Send(command);

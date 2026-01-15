@@ -167,7 +167,7 @@ export async function updateVeilingKlokStatus(klokId: string, status: VeilingKlo
 
 // Delete veilingklok (DELETE /api/account/meester/veilingklok/{klokId})
 export async function deleteVeilingKlok(klokId: string): Promise<HttpSuccess<string>> {
-	return fetchResponse<HttpSuccess<string>>(`/api/account/meester/veilingklok/${klokId}`, {
+	return fetchResponse<HttpSuccess<string>>(`/api/account/meester/veilingklok/${klokId}/delete`, {
 		method: 'GET',
 	});
 }
