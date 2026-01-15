@@ -25,6 +25,13 @@ public class TestDataSeeder : ITestDataSeeder
     // Default Password is : Test1234!
     // Email format:  koper{i + 1}@test.nl || kweker{i + 1}@test.nl || veilingmeester{i + 1}@test.nl
 
+    private const int KwekerCount = 5;
+    private const int KoperCount = 10;
+    private const int VeilingmeesterCount = 3;
+    private const int ProductsPerKweker = 1000;
+    private const int VeilingKlokCount = 100;
+    private const int OrderTargetCount = 500;
+
     // Dutch flower and plant names
     private static readonly string[] DutchFlowerNames = new[]
     {
@@ -182,21 +189,18 @@ public class TestDataSeeder : ITestDataSeeder
             // Clear existing data first
             await ClearAllDataAsync();
 
-            await _context.Database.BeginTransactionAsync();
-
             // Seed Roles
             await SeedRolesAsync();
 
             // Seed in order of dependencies
-            var kwekers = await SeedKwekersAsync(5);
-            var kopers = await SeedKopersAsync(10);
-            var veilingmeesters = await SeedVeilingmeestersAsync(3);
+            var kwekers = await SeedKwekersAsync(KwekerCount);
+            var kopers = await SeedKopersAsync(KoperCount);
+            var veilingmeesters = await SeedVeilingmeestersAsync(VeilingmeesterCount);
             var products = await SeedProductsAsync(kwekers);
             var veilingklokken = await SeedVeilingKlokkenAsync(veilingmeesters, products);
             await SeedOrdersAsync(kopers, veilingklokken, products);
 
             await _context.SaveChangesAsync();
-            await _context.Database.CommitTransactionAsync();
             _logger.LogInformation("Test data seeding completed successfully!");
             _logger.LogInformation(
                 $"Created: {kwekers.Count} kwekers, {kopers.Count} kopers, "
@@ -206,7 +210,6 @@ public class TestDataSeeder : ITestDataSeeder
         }
         catch (Exception ex)
         {
-            await _context.Database.RollbackTransactionAsync();
             _logger.LogError(ex, "Error during test data seeding");
             throw;
         }
@@ -221,7 +224,9 @@ public class TestDataSeeder : ITestDataSeeder
         {
             try
             {
-                await _context.Database.ExecuteSqlRawAsync($"DELETE FROM [{table}]");
+                await _context.Database.ExecuteSqlRawAsync(
+                    $"SET QUOTED_IDENTIFIER ON; SET ANSI_NULLS ON; DELETE FROM [{table}]"
+                );
             }
             catch (Exception ex)
             {
@@ -229,6 +234,25 @@ public class TestDataSeeder : ITestDataSeeder
                 _logger.LogWarning($"Could not clear table {table}: {ex.Message}");
             }
         }
+
+        async Task ExecRaw(string sql)
+        {
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync(
+                    $"SET QUOTED_IDENTIFIER ON; SET ANSI_NULLS ON; {sql}"
+                );
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning($"Could not execute cleanup SQL: {ex.Message}");
+            }
+        }
+
+        // Break circular address relationships first
+        await ExecRaw("UPDATE [Koper] SET [primary_adress_id] = NULL");
+        await ExecRaw("UPDATE [Adresses] SET [KoperId] = NULL");
+        await ExecRaw("UPDATE [Kweker] SET [adress_id] = NULL");
 
         // 1. Delete Child/Leaf Tables
         await Exec("OrderItem");
@@ -279,7 +303,12 @@ public class TestDataSeeder : ITestDataSeeder
         {
             if (!await _roleManager.RoleExistsAsync(role))
             {
-                await _roleManager.CreateAsync(new IdentityRole<Guid>(role));
+                var result = await _roleManager.CreateAsync(new IdentityRole<Guid>(role));
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    throw new InvalidOperationException($"Failed to create role '{role}': {errors}");
+                }
             }
         }
     }
@@ -303,8 +332,19 @@ public class TestDataSeeder : ITestDataSeeder
                 Telephone = $"+31 6 {random.Next(10000000, 99999999)}",
             };
 
-            await _userManager.CreateAsync(kweker, "Test1234!");
-            await _userManager.AddToRoleAsync(kweker, nameof(AccountType.Kweker));
+            var createResult = await _userManager.CreateAsync(kweker, "Test1234!");
+            if (!createResult.Succeeded)
+            {
+                var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to create kweker user: {errors}");
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(kweker, nameof(AccountType.Kweker));
+            if (!roleResult.Succeeded)
+            {
+                var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to assign kweker role: {errors}");
+            }
             kwekers.Add(kweker);
 
             var location = DutchLocations[i % DutchLocations.Length];
@@ -344,8 +384,19 @@ public class TestDataSeeder : ITestDataSeeder
                 Telephone = $"+31 6 {random.Next(10000000, 99999999)}",
             };
 
-            await _userManager.CreateAsync(koper, "Test1234!");
-            await _userManager.AddToRoleAsync(koper, nameof(AccountType.Koper));
+            var createResult = await _userManager.CreateAsync(koper, "Test1234!");
+            if (!createResult.Succeeded)
+            {
+                var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to create koper user: {errors}");
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(koper, nameof(AccountType.Koper));
+            if (!roleResult.Succeeded)
+            {
+                var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to assign koper role: {errors}");
+            }
 
             // Add 1-3 addresses per koper
             var addressCount = random.Next(1, 4);
@@ -410,8 +461,19 @@ public class TestDataSeeder : ITestDataSeeder
                 AuthorisatieCode = $"VM{1000 + i}-NL",
             };
 
-            await _userManager.CreateAsync(veilingmeester, "Test1234!");
-            await _userManager.AddToRoleAsync(veilingmeester, nameof(AccountType.Veilingmeester));
+            var createResult = await _userManager.CreateAsync(veilingmeester, "Test1234!");
+            if (!createResult.Succeeded)
+            {
+                var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to create veilingmeester user: {errors}");
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(veilingmeester, nameof(AccountType.Veilingmeester));
+            if (!roleResult.Succeeded)
+            {
+                var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to assign veilingmeester role: {errors}");
+            }
             veilingmeesters.Add(veilingmeester);
         }
 
@@ -426,8 +488,7 @@ public class TestDataSeeder : ITestDataSeeder
         var random = new Random(45);
 
         foreach (var kweker in kwekers)
-            // Create 200 products per kweker to support more veilingklokken and orders
-            for (var i = 0; i < 200; i++)
+            for (var i = 0; i < ProductsPerKweker; i++)
             {
                 var flowerName = DutchFlowerNames[random.Next(DutchFlowerNames.Length)];
                 var color = DutchColors[random.Next(DutchColors.Length)];
@@ -452,7 +513,7 @@ public class TestDataSeeder : ITestDataSeeder
         await _context.Products.AddRangeAsync(products);
         await _context.SaveChangesAsync();
         _logger.LogInformation(
-            $"Seeded {products.Count} products ({kwekers.Count} kwekers × 200 products)"
+            $"Seeded {products.Count} products ({kwekers.Count} kwekers × {ProductsPerKweker} products)"
         );
         return products;
     }
@@ -465,8 +526,8 @@ public class TestDataSeeder : ITestDataSeeder
         var veilingklokken = new List<VeilingKlok>();
         var random = new Random(46);
 
-        // Create 100 veilingklokken to allow for more variety and order spread
-        for (var i = 0; i < 100; i++)
+        // Create veilingklokken to allow for more variety and order spread
+        for (var i = 0; i < VeilingKlokCount; i++)
         {
             var veilingmeester = veilingmeesters[i % veilingmeesters.Count];
             var location = DutchLocations[random.Next(DutchLocations.Length)];
@@ -603,7 +664,7 @@ public class TestDataSeeder : ITestDataSeeder
                 OrderStatus desiredStatus
             )>();
 
-        while (ordersCreated < 500 && attempts < 1500)
+        while (ordersCreated < OrderTargetCount && attempts < OrderTargetCount * 3)
         {
             attempts++;
             var koper = kopers[random.Next(kopers.Count)];
