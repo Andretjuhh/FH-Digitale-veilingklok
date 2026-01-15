@@ -1,8 +1,8 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
-import { formatEur } from '../../utils/standards';
-import { useRootContext } from '../contexts/RootContext';
-import { VeilingPriceTickNotification } from '../../declarations/models/VeilingNotifications';
+import React, {forwardRef, useEffect, useImperativeHandle, useMemo, useState} from 'react';
+import {motion} from 'framer-motion';
+import {formatEur} from '../../utils/standards';
+import {useRootContext} from '../contexts/RootContext';
+import {VeilingPriceTickNotification} from '../../declarations/models/VeilingNotifications';
 
 interface AuctionClockProps {
 	// Clock configuration
@@ -17,6 +17,7 @@ interface AuctionClockProps {
 	startPrice?: number;
 	lowestPrice?: number;
 	currentPrice?: number;
+	hideLowestPrice?: boolean;
 
 	// Center display values
 	round?: number;
@@ -41,9 +42,26 @@ export interface AuctionClockRef {
 }
 
 const AuctionClock = forwardRef<AuctionClockRef, AuctionClockProps>((props, ref) => {
-	const { totalDots = 100, dotSize = 3, dotSpacing = 135, highestRange = 200, startPrice, lowestPrice = 0, currentPrice: initialPrice, round = 1, coin = 1, amountStock = 150, minAmount = 1, autoStart = false, paused = false, onTick, onComplete } = props;
+	const {
+		hideLowestPrice,
+		totalDots = 100,
+		dotSize = 3,
+		dotSpacing = 135,
+		highestRange = 200,
+		startPrice,
+		lowestPrice = 0,
+		currentPrice: initialPrice,
+		round = 1,
+		coin = 1,
+		amountStock = 150,
+		minAmount = 1,
+		autoStart = false,
+		paused = false,
+		onTick,
+		onComplete
+	} = props;
 
-	const { t } = useRootContext();
+	const {t} = useRootContext();
 	const [currentPrice, setCurrentPrice] = useState<number>(initialPrice ?? highestRange);
 	const [isPaused, setIsPaused] = useState(paused);
 	const [isComplete, setIsComplete] = useState(false);
@@ -96,7 +114,7 @@ const AuctionClock = forwardRef<AuctionClockRef, AuctionClockProps>((props, ref)
 			const angle = -((i / totalDots) * 2 * Math.PI) - Math.PI / 2; // start from top, go counter-clockwise
 			const x = cx + Math.cos(angle) * dotSpacing;
 			const y = cy + Math.sin(angle) * dotSpacing;
-			return { x, y };
+			return {x, y};
 		});
 	}, [totalDots, dotSpacing]);
 
@@ -137,7 +155,7 @@ const AuctionClock = forwardRef<AuctionClockRef, AuctionClockProps>((props, ref)
 	// Determine dot color based on position
 	const getDotColor = (index: number) => {
 		if (index === startPriceIndex) return 'clock-dot clock-dot--highest'; // Green for start price
-		if (index === lowestPriceIndex) return 'clock-dot clock-dot--lowest'; // Red for lowest
+		if (index === lowestPriceIndex && !hideLowestPrice) return 'clock-dot clock-dot--lowest'; // Red for lowest
 		if (index === progressIndex) return 'clock-dot clock-dot--active';
 		return 'clock-dot';
 	};

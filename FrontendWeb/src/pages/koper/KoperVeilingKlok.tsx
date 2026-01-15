@@ -1,23 +1,23 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {useParams} from "react-router-dom";
-import {useRootContext} from "../../components/contexts/RootContext";
-import AuctionClock, {AuctionClockRef} from "../../components/elements/AuctionClock";
-import {useComponentStateReducer} from "../../hooks/useComponentStateReducer";
-import {VeilingKlokOutputDto} from "../../declarations/dtos/output/VeilingKlokOutputDto";
-import {ProductOutputDto} from "../../declarations/dtos/output/ProductOutputDto";
-import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
-import {VeilingBodNotification, VeilingProductChangedNotification} from "../../declarations/models/VeilingNotifications";
-import {useVeilingKlokSignalR} from "../../hooks/useVeilingKlokSignalR";
-import {delay, formatDate, formatEur, getNormalizedVeilingKlokStatus} from "../../utils/standards";
-import {getVeilingKlok} from "../../controllers/server/koper";
-import {isHttpError} from "../../declarations/types/HttpError";
-import Page from "../../components/nav/Page";
-import Button from "../../components/buttons/Button";
-import clsx from "clsx";
-import {KlokStatusBadge} from "../../components/elements/StatusBadge";
-import ClockProductCard from "../../components/cards/ClockProductCard";
-import ComponentState, {ComponentStateCard} from "../../components/elements/ComponentState";
-import Modal from "../../components/elements/Modal";
+import {useParams} from 'react-router-dom';
+import {useRootContext} from '../../components/contexts/RootContext';
+import AuctionClock, {AuctionClockRef} from '../../components/elements/AuctionClock';
+import {useComponentStateReducer} from '../../hooks/useComponentStateReducer';
+import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
+import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
+import {VeilingBodNotification, VeilingProductChangedNotification} from '../../declarations/models/VeilingNotifications';
+import {useVeilingKlokSignalR} from '../../hooks/useVeilingKlokSignalR';
+import {delay, formatDate, formatEur, getNormalizedVeilingKlokStatus} from '../../utils/standards';
+import {getVeilingKlok} from '../../controllers/server/koper';
+import {isHttpError} from '../../declarations/types/HttpError';
+import Page from '../../components/nav/Page';
+import Button from '../../components/buttons/Button';
+import clsx from 'clsx';
+import {KlokStatusBadge} from '../../components/elements/StatusBadge';
+import ClockProductCard from '../../components/cards/ClockProductCard';
+import ComponentState, {ComponentStateCard} from '../../components/elements/ComponentState';
+import Modal from '../../components/elements/Modal';
 
 function KoperVeilingKlok() {
 	const {klokId: id} = useParams<{ klokId: string }>();
@@ -122,8 +122,10 @@ function KoperVeilingKlok() {
 			const response = await getVeilingKlok(id as string);
 			setCurrentVeilingKlok(response.data);
 			setCurrentProduct(response.data.products[(response.data.currentProductIndex || 0) % (response.data.products.length ?? 1)]);
-			updateState({type: 'succeed', message: t('veilingklok_loaded')});
+			// Update quantity to max available
+			setQuantity(response.data.products[(response.data.currentProductIndex || 0) % (response.data.products.length ?? 1)]?.stock || 0);
 
+			updateState({type: 'succeed', message: t('veilingklok_loaded')});
 			// Join klok SignalR group
 			if (id) await klokSignalR.joinClock(id);
 		} catch (e) {
@@ -135,7 +137,14 @@ function KoperVeilingKlok() {
 		}
 	}, [id]);
 	const placeBid = useCallback(async () => {
-	}, []);
+		if (clockWaitingProduct || !currentProduct) return;
+		try {
+
+		} catch (e) {
+
+
+		}
+	}, [clockWaitingProduct, currentProduct]);
 	const increaseQuantity = useCallback(() => {
 		setQuantity((prev) => prev + 1);
 	}, []);
@@ -158,11 +167,19 @@ function KoperVeilingKlok() {
 										{t('manage_veiling_klok')}
 									</h2>
 
-									<div className={'vm-veiling-info-status !ml-auto'}>
-										<span className={clsx(`app-table-status-badge text-[0.875rem]`, 'app-table-status-' + klokSignalR.klokConnectionStatus.toLowerCase())}>
+									<div className={'!ml-auto flex flex-row gap-4'}>
+										<div className={'vm-veiling-info-status'}>
+											<span className={clsx(`app-table-status-badge text-[0.875rem] bg-blue-300`)}>
+											<i className="app-table-status-icon bi-geo-alt-fill"/>
+												{currentVeilingKlok.regionOrState}
+											</span>
+										</div>
+										<div className={'vm-veiling-info-status'}>
+											<span className={clsx(`app-table-status-badge text-[0.875rem]`, 'app-table-status-' + klokSignalR.klokConnectionStatus.toLowerCase())}>
 											<i className="app-table-status-icon bi-wifi"/>
-											{t(klokSignalR.klokConnectionStatus as any)}
+												{t(klokSignalR.klokConnectionStatus as any)}
 										</span>
+										</div>
 									</div>
 								</div>
 
@@ -181,10 +198,10 @@ function KoperVeilingKlok() {
 												<div className={'vm-veiling-info-detail-item action'}>
 													<span className={'vm-veiling-info-detail-label'}>{t('live_views')}:</span>
 													<div className={'vm-veiling-info-status'}>
-													<span className={`app-table-status-badge bg-blue-100 text-blue-800`}>
-														<i className="app-table-status-icon bi-eye-fill text-blue-800"/>
-														{currentVeilingKlok.peakedLiveViews}
-													</span>
+														<span className={`app-table-status-badge bg-blue-100 text-blue-800`}>
+															<i className="app-table-status-icon bi-eye-fill text-blue-800"/>
+															{currentVeilingKlok.peakedLiveViews}
+														</span>
 													</div>
 												</div>
 												<div className={'vm-veiling-info-detail-item action'}>
@@ -195,7 +212,6 @@ function KoperVeilingKlok() {
 												</div>
 											</div>
 
-
 											<div className={'vm-veiling-buy-actions'}>
 												<div className={'vm-veiling-buy-actions-card'}>
 													<div className={'vm-veiling-buy-actions-header'}>
@@ -204,41 +220,39 @@ function KoperVeilingKlok() {
 															{t('select_quantity')}
 														</h2>
 														<span className={'vm-veiling-buy-actions-header-h2'}>
-														{t("total_price")}
-															<p className={'vm-veiling-buy-price'}>{formatEur(0)}</p>
-													</span>
+															{t('total_price')}
+															<p className={'vm-veiling-buy-price'}>{formatEur((currentProduct?.auctionedPrice || 0) * quantity)}</p>
+														</span>
 													</div>
 
 													<div className={'vm-veiling-buy-actions-selector-ctn'}>
-														<label htmlFor="quantity" className="vm-veiling-buy-actions-selector-label">{t('quantity')}</label>
+														<label htmlFor="quantity" className="vm-veiling-buy-actions-selector-label">
+															{t('quantity')}
+														</label>
 														<div className={'vm-veiling-buy-actions-selector'}>
-															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-dash'}/>
-															<input
-																id="quantity"
-																type="number"
-																className="vm-veiling-buy-actions-selector-input input-clean-number"
-																defaultValue={0}
-																min={0} step={1}
-															/>
-															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-plus'}/>
+															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-dash'} onClick={decreaseQuantity}/>
+															<input id="quantity" type="number" className="vm-veiling-buy-actions-selector-input input-clean-number"
+															       defaultValue={quantity} min={1} step={1} value={quantity}
+															       onChange={(e) => setQuantity(parseInt(e.target.value, 10))}/>
+															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-plus'} onClick={increaseQuantity}/>
 														</div>
 													</div>
 												</div>
-												<Button className={'vm-veiling-buy-action-btn'} label={t('place_bid')}/>
+												<Button className={'vm-veiling-buy-action-btn'} label={t('place_bid')} onClick={placeBid}/>
 											</div>
 										</div>
 									</div>
-
-									<div className={'vm-veiling-info-klok-ctn'}>
+									<div className={'vm-veiling-info-klok-ctn smaller'}>
 										<AuctionClock
 											ref={klokRef}
 											highestRange={currentVeilingKlok.highestProductPrice}
 											// Product prices
 											startPrice={currentProduct?.auctionedPrice ?? 0}
-											lowestPrice={currentProduct?.minimumPrice ?? 0}
+											lowestPrice={0}
 											currentPrice={currentProduct?.auctionedPrice ?? 0}
 											amountStock={currentProduct?.stock ?? 0}
 											round={currentVeilingKlok.veilingRounds ?? 0}
+											hideLowestPrice
 										/>
 									</div>
 								</div>
@@ -282,14 +296,14 @@ function KoperVeilingKlok() {
 												</div>
 											</div>
 
-											{currentProduct.minimumPrice && (
-												<div className={'vm-veiling-klok-product-field small-box'}>
-													<div className={'vm-veiling-klok-product-field-label'}>{t('minimum_price')}:</div>
-													<div className={'vm-veiling-klok-product-field-box'}>
-														<span className="vm-veiling-klok-product-field-value">{formatEur(currentProduct.minimumPrice)}</span>
-													</div>
-												</div>
-											)}
+											{/*{currentProduct.minimumPrice && (*/}
+											{/*	<div className={'vm-veiling-klok-product-field small-box'}>*/}
+											{/*		<div className={'vm-veiling-klok-product-field-label'}>{t('minimum_price')}:</div>*/}
+											{/*		<div className={'vm-veiling-klok-product-field-box'}>*/}
+											{/*			<span className="vm-veiling-klok-product-field-value">{formatEur(currentProduct.minimumPrice)}</span>*/}
+											{/*		</div>*/}
+											{/*	</div>*/}
+											{/*)}*/}
 										</div>
 
 										<div className={'vm-veiling-klok-product-field small-box'}>
@@ -322,17 +336,10 @@ function KoperVeilingKlok() {
 
 								<div className={'vm-veiling-info-products-scroll custom-scroll'}>
 									<div className={'vm-veiling-info-products-list'}>
-										{
-											currentVeilingKlok?.products.map((product, index) => (
-												<ClockProductCard
-													key={index}
-													product={product}
-													isSelected={currentVeilingKlok.currentProductIndex === index}
-													status={getNormalizedVeilingKlokStatus(currentVeilingKlok.status)!}
-													clockRunning={!clockWaitingProduct}
-												/>
-											))
-										}
+										{currentVeilingKlok?.products.map((product, index) => (
+											<ClockProductCard key={index} product={product} isSelected={currentVeilingKlok.currentProductIndex === index}
+											                  status={getNormalizedVeilingKlokStatus(currentVeilingKlok.status)!} clockRunning={!clockWaitingProduct}/>
+										))}
 									</div>
 								</div>
 							</div>
