@@ -21,6 +21,8 @@ import VeilingmeesterProducts from './pages/meester/VeilingmeesterProducts';
 
 // Koper Pages
 import KoperDashboard from './pages/koper/KoperDashboard';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 // Kweker Pages
 import KwekerDashboard from './pages/kweker/KwekerDashboard';
@@ -60,6 +62,8 @@ function App() {
 					<Route path="/kweker/products" element={<KwekerProducts/>}/>
 					<Route path="/kweker/orders" element={<KwekerOrders/>}/>
 					<Route path="/kweker/product/:id" element={<ProductDetails/>}/>
+					<Route path="/admin" element={<AdminLogin/>}/>
+					<Route path="/admin/dashboard" element={<AdminDashboard/>}/>
 				</Routes>
 			</AnimatePresence>
 		</RootContext>

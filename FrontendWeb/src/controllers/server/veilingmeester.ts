@@ -1,17 +1,17 @@
-import {fetchResponse} from '../../utils/fetchHelpers';
-import {HttpSuccess} from '../../declarations/types/HttpSuccess';
-import {CreateMeesterDTO} from '../../declarations/dtos/input/CreateMeesterDTO';
-import {UpdateVeilingMeesterDTO} from '../../declarations/dtos/input/UpdateVeilingMeesterDTO';
-import {CreateVeilingKlokDTO} from '../../declarations/dtos/input/CreateVeilingKlokDTO';
-import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
-import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
-import {OrderOutputDto} from '../../declarations/dtos/output/OrderOutputDto';
-import {VeilingKlokDetailsOutputDto} from '../../declarations/dtos/output/VeilingKlokDetailsOutputDto';
-import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
-import {ProductDetailsOutputDto} from '../../declarations/dtos/output/ProductDetailsOutputDto';
-import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
-import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
-import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
+import { fetchResponse } from '../../utils/fetchHelpers';
+import { HttpSuccess } from '../../declarations/types/HttpSuccess';
+import { CreateMeesterDTO } from '../../declarations/dtos/input/CreateMeesterDTO';
+import { UpdateVeilingMeesterDTO } from '../../declarations/dtos/input/UpdateVeilingMeesterDTO';
+import { CreateVeilingKlokDTO } from '../../declarations/dtos/input/CreateVeilingKlokDTO';
+import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
+import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
+import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
+import { VeilingKlokDetailsOutputDto } from '../../declarations/dtos/output/VeilingKlokDetailsOutputDto';
+import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import { ProductDetailsOutputDto } from '../../declarations/dtos/output/ProductDetailsOutputDto';
+import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
+import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import { VeilingKlokStatus } from '../../declarations/enums/VeilingKlokStatus';
 
 export type CreateDevVeilingKlokProduct = {
 	id: string;
@@ -73,14 +73,6 @@ export async function createVeilingKlok(veiling: CreateVeilingKlokDTO): Promise<
 	});
 }
 
-// Create dev veilingklok (POST /api/dev/veilingklok/dummy)
-export async function createDevVeilingKlok(payload: CreateDevVeilingKlokRequest): Promise<HttpSuccess<VeilingKlokDetailsOutputDto>> {
-	return fetchResponse<HttpSuccess<VeilingKlokDetailsOutputDto>>('/api/dev/veilingklok/dummy', {
-		method: 'POST',
-		body: JSON.stringify(payload),
-	});
-}
-
 // Get veilingklok (GET /api/account/meester/veilingklok/{klokId})
 export async function getVeilingKlok(klokId: string): Promise<HttpSuccess<VeilingKlokOutputDto>> {
 	return fetchResponse<HttpSuccess<VeilingKlokOutputDto>>(`/api/account/meester/veilingklok/${klokId}`);
@@ -128,19 +120,7 @@ export async function getProducts(nameFilter?: string, regionFilter?: string, ma
 }
 
 // Get veilingklokken (GET /api/account/meester/veilingklokken)
-export async function getVeilingKlokken(
-	statusFilter?: VeilingKlokStatus,
-	region?: string,
-	scheduledAfter?: string,
-	scheduledBefore?: string,
-	startedAfter?: string,
-	startedBefore?: string,
-	endedAfter?: string,
-	endedBefore?: string,
-	meesterId?: string,
-	pageNumber: number = 1,
-	pageSize: number = 10
-): Promise<HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>> {
+export async function getVeilingKlokken(statusFilter?: VeilingKlokStatus, region?: string, scheduledAfter?: string, scheduledBefore?: string, startedAfter?: string, startedBefore?: string, endedAfter?: string, endedBefore?: string, meesterId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>> {
 	const params = new URLSearchParams();
 	if (statusFilter) params.append('statusFilter', statusFilter.toString());
 	if (region) params.append('region', region);

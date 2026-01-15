@@ -40,7 +40,7 @@ const emptyAddress: AddressState = {
 };
 
 function AccountSettings() {
-	const { account, refreshAccount } = useRootContext();
+	const { account, refreshAccount, t } = useRootContext();
 	const accountTypeValue = account?.accountType;
 	const accountType =
 		typeof accountTypeValue === 'string'
@@ -143,11 +143,11 @@ function AccountSettings() {
 
 	const handleSave = async () => {
 		if (!accountType) {
-			setNotice({ type: 'error', message: 'Account information is not available yet.' });
+			setNotice({ type: 'error', message: t('account_notice_not_ready') });
 			return;
 		}
 
-		setNotice({ type: 'saving', message: 'Saving changes...' });
+		setNotice({ type: 'saving', message: t('account_notice_saving') });
 
 		try {
 			if (isKoper) {
@@ -161,12 +161,12 @@ function AccountSettings() {
 				};
 
 				if (!payload.email || !payload.password || !payload.firstName || !payload.lastName || !payload.telephone) {
-					setNotice({ type: 'error', message: 'Please fill in all required fields.' });
+					setNotice({ type: 'error', message: t('account_notice_required') });
 					return;
 				}
 
 				if (Object.values(payload.address).some((value) => value.length === 0)) {
-					setNotice({ type: 'error', message: 'Please complete the full address.' });
+					setNotice({ type: 'error', message: t('account_notice_complete_address') });
 					return;
 				}
 
@@ -182,7 +182,7 @@ function AccountSettings() {
 
 				const hasChanges = Object.values(payload).some((value) => value !== undefined);
 				if (!hasChanges) {
-					setNotice({ type: 'error', message: 'No changes to save.' });
+					setNotice({ type: 'error', message: t('account_notice_no_changes') });
 					return;
 				}
 
@@ -196,7 +196,7 @@ function AccountSettings() {
 
 				const hasChanges = Object.values(payload).some((value) => value !== undefined);
 				if (!hasChanges) {
-					setNotice({ type: 'error', message: 'No changes to save.' });
+					setNotice({ type: 'error', message: t('account_notice_no_changes') });
 					return;
 				}
 
@@ -205,18 +205,18 @@ function AccountSettings() {
 
 			await refreshAccount();
 			setForm((prev) => ({ ...prev, password: '' }));
-			setNotice({ type: 'success', message: 'Account updated successfully.' });
+			setNotice({ type: 'success', message: t('account_notice_updated') });
 		} catch (error) {
 			if (isHttpError(error)) setNotice({ type: 'error', message: error.message });
-			else setNotice({ type: 'error', message: 'Something went wrong while saving.' });
+			else setNotice({ type: 'error', message: t('account_notice_error') });
 		}
 	};
 
 	return (
 		<section className="settings-panel">
 			<header className="settings-panel-header">
-				<h2>Account</h2>
-				<p>Update your profile details and password.</p>
+				<h2>{t('account_settings_title')}</h2>
+				<p>{t('account_settings_subtitle')}</p>
 			</header>
 			<div className="settings-panel-body">
 				{notice.type !== 'idle' && (
@@ -224,13 +224,13 @@ function AccountSettings() {
 				)}
 				{isKweker && (
 					<div className="settings-field">
-						<label htmlFor="companyName">Company name</label>
+						<label htmlFor="companyName">{t('account_company_name_label')}</label>
 						<div className="settings-field-row">
 							<input
 								id="companyName"
 								className="settings-input"
 								type="text"
-								placeholder="Company name"
+								placeholder={t('account_company_name_placeholder')}
 								value={form.companyName}
 								onChange={updateField('companyName')}
 								readOnly={!isEditable('companyName')}
@@ -239,7 +239,7 @@ function AccountSettings() {
 								className="settings-edit-btn"
 								type="button"
 								onClick={() => toggleEditable('companyName')}
-								aria-label="Edit company name"
+								aria-label={t('account_edit_company_name_aria')}
 							>
 								<i className="bi bi-pencil" />
 							</button>
@@ -249,23 +249,23 @@ function AccountSettings() {
 				{!accountType && (
 					<>
 						<div className="settings-field">
-							<label htmlFor="firstName">First name</label>
+							<label htmlFor="firstName">{t('account_first_name_label')}</label>
 							<input
 								id="firstName"
 								className="settings-input"
 								type="text"
-								placeholder="First name"
+								placeholder={t('account_first_name_placeholder')}
 								value={form.firstName}
 								onChange={updateField('firstName')}
 							/>
 						</div>
 						<div className="settings-field">
-							<label htmlFor="lastName">Last name</label>
+							<label htmlFor="lastName">{t('account_last_name_label')}</label>
 							<input
 								id="lastName"
 								className="settings-input"
 								type="text"
-								placeholder="Last name"
+								placeholder={t('account_last_name_placeholder')}
 								value={form.lastName}
 								onChange={updateField('lastName')}
 							/>
@@ -273,13 +273,13 @@ function AccountSettings() {
 					</>
 				)}
 				<div className="settings-field">
-					<label htmlFor="email">Email address</label>
+					<label htmlFor="email">{t('account_email_label')}</label>
 					<div className="settings-field-row">
 						<input
 							id="email"
 							className="settings-input"
 							type="email"
-							placeholder="name@example.com"
+							placeholder={t('account_email_placeholder')}
 							value={form.email}
 							onChange={updateField('email')}
 							readOnly={!isEditable('email')}
@@ -288,7 +288,7 @@ function AccountSettings() {
 							className="settings-edit-btn"
 							type="button"
 							onClick={() => toggleEditable('email')}
-							aria-label="Edit email"
+							aria-label={t('account_edit_email_aria')}
 						>
 							<i className="bi bi-pencil" />
 						</button>
@@ -296,13 +296,13 @@ function AccountSettings() {
 				</div>
 				{(isKoper || isKweker) && (
 					<div className="settings-field">
-						<label htmlFor="telephone">Phone number</label>
+						<label htmlFor="telephone">{t('account_phone_label')}</label>
 						<div className="settings-field-row">
 							<input
 								id="telephone"
 								className="settings-input"
 								type="tel"
-								placeholder="+31 6 12345678"
+								placeholder={t('account_phone_placeholder')}
 								value={form.telephone}
 								onChange={updateField('telephone')}
 								readOnly={!isEditable('telephone')}
@@ -311,7 +311,7 @@ function AccountSettings() {
 								className="settings-edit-btn"
 								type="button"
 								onClick={() => toggleEditable('telephone')}
-								aria-label="Edit phone number"
+								aria-label={t('account_edit_phone_aria')}
 							>
 								<i className="bi bi-pencil" />
 							</button>
@@ -320,13 +320,13 @@ function AccountSettings() {
 				)}
 				{isVeilingmeester && (
 					<div className="settings-field">
-						<label htmlFor="region">Region</label>
+						<label htmlFor="region">{t('account_region_label')}</label>
 						<div className="settings-field-row">
 							<input
 								id="region"
 								className="settings-input"
 								type="text"
-								placeholder="Noord-Holland"
+								placeholder={t('account_region_placeholder')}
 								value={form.region}
 								onChange={updateField('region')}
 								readOnly={!isEditable('region')}
@@ -335,7 +335,7 @@ function AccountSettings() {
 								className="settings-edit-btn"
 								type="button"
 								onClick={() => toggleEditable('region')}
-								aria-label="Edit region"
+								aria-label={t('account_edit_region_aria')}
 							>
 								<i className="bi bi-pencil" />
 							</button>
@@ -350,19 +350,19 @@ function AccountSettings() {
 								type="button"
 								onClick={() => setIsAddressExpanded((prev) => !prev)}
 							>
-								{isAddressExpanded ? 'Verberg adres' : 'Adres wijzigen'}
+								{isAddressExpanded ? t('account_address_hide') : t('account_address_show')}
 							</button>
 						</div>
 						{isAddressExpanded && (
 							<>
 						<div className="settings-field">
-							<label htmlFor="street">{isKoper ? 'Adres' : 'Street'}</label>
+							<label htmlFor="street">{isKoper ? t('address') : t('account_street_label')}</label>
 							<div className="settings-field-row">
 								<input
 									id="street"
 									className="settings-input"
 									type="text"
-									placeholder={isKoper ? 'Adres' : 'Street'}
+									placeholder={isKoper ? t('address') : t('account_street_placeholder')}
 									value={form.address.street}
 									onChange={updateAddressField('street')}
 									readOnly={!isEditable('address.street')}
@@ -371,20 +371,20 @@ function AccountSettings() {
 									className="settings-edit-btn"
 									type="button"
 									onClick={() => toggleEditable('address.street')}
-									aria-label="Edit address"
+									aria-label={t('account_edit_street_aria')}
 								>
 									<i className="bi bi-pencil" />
 								</button>
 							</div>
 						</div>
 						<div className="settings-field">
-							<label htmlFor="city">{isKoper ? 'Plaats' : 'City'}</label>
+							<label htmlFor="city">{isKoper ? t('account_city_label') : t('account_city_label')}</label>
 							<div className="settings-field-row">
 								<input
 									id="city"
 									className="settings-input"
 									type="text"
-									placeholder={isKoper ? 'Plaats' : 'City'}
+									placeholder={isKoper ? t('account_city_placeholder') : t('account_city_placeholder')}
 									value={form.address.city}
 									onChange={updateAddressField('city')}
 									readOnly={!isEditable('address.city')}
@@ -393,20 +393,20 @@ function AccountSettings() {
 									className="settings-edit-btn"
 									type="button"
 									onClick={() => toggleEditable('address.city')}
-									aria-label="Edit city"
+									aria-label={t('account_edit_city_aria')}
 								>
 									<i className="bi bi-pencil" />
 								</button>
 							</div>
 						</div>
 						<div className="settings-field">
-							<label htmlFor="regionOrState">{isKoper ? 'Regio' : 'Region or state'}</label>
+							<label htmlFor="regionOrState">{isKoper ? t('region') : t('account_region_state_label')}</label>
 							<div className="settings-field-row">
 								<input
 									id="regionOrState"
 									className="settings-input"
 									type="text"
-									placeholder={isKoper ? 'Regio' : 'Region or state'}
+									placeholder={isKoper ? t('region') : t('account_region_state_placeholder')}
 									value={form.address.regionOrState}
 									onChange={updateAddressField('regionOrState')}
 									readOnly={!isEditable('address.regionOrState')}
@@ -415,20 +415,20 @@ function AccountSettings() {
 									className="settings-edit-btn"
 									type="button"
 									onClick={() => toggleEditable('address.regionOrState')}
-									aria-label="Edit region"
+									aria-label={t('account_edit_region_state_aria')}
 								>
 									<i className="bi bi-pencil" />
 								</button>
 							</div>
 						</div>
 						<div className="settings-field">
-							<label htmlFor="postalCode">{isKoper ? 'Postcode' : 'Postal code'}</label>
+							<label htmlFor="postalCode">{isKoper ? t('postcode') : t('account_postal_code_label')}</label>
 							<div className="settings-field-row">
 								<input
 									id="postalCode"
 									className="settings-input"
 									type="text"
-									placeholder={isKoper ? 'Postcode' : 'Postal code'}
+									placeholder={isKoper ? t('postcode') : t('account_postal_code_placeholder')}
 									value={form.address.postalCode}
 									onChange={updateAddressField('postalCode')}
 									readOnly={!isEditable('address.postalCode')}
@@ -437,20 +437,20 @@ function AccountSettings() {
 									className="settings-edit-btn"
 									type="button"
 									onClick={() => toggleEditable('address.postalCode')}
-									aria-label="Edit postal code"
+									aria-label={t('account_edit_postal_aria')}
 								>
 									<i className="bi bi-pencil" />
 								</button>
 							</div>
 						</div>
 						<div className="settings-field">
-							<label htmlFor="country">{isKoper ? 'Land' : 'Country'}</label>
+							<label htmlFor="country">{isKoper ? t('country') : t('account_country_label')}</label>
 							<div className="settings-field-row">
 								<input
 									id="country"
 									className="settings-input"
 									type="text"
-									placeholder={isKoper ? 'Land' : 'Country'}
+									placeholder={isKoper ? t('country') : t('account_country_placeholder')}
 									value={form.address.country}
 									onChange={updateAddressField('country')}
 									readOnly={!isEditable('address.country')}
@@ -459,7 +459,7 @@ function AccountSettings() {
 									className="settings-edit-btn"
 									type="button"
 									onClick={() => toggleEditable('address.country')}
-									aria-label="Edit country"
+									aria-label={t('account_edit_country_aria')}
 								>
 									<i className="bi bi-pencil" />
 								</button>
@@ -471,14 +471,14 @@ function AccountSettings() {
 				)}
 				<div className="settings-field">
 					<label htmlFor="password">
-						{isKoper ? 'Password (required)' : 'New password'}
+						{isKoper ? t('account_password_required') : t('account_password_new')}
 					</label>
 					<div className="settings-password-row">
 						<input
 							id="password"
 							className="settings-input"
 							type={showPassword ? 'text' : 'password'}
-							placeholder={allowPasswordChange || isKoper ? '********' : 'Click change password'}
+							placeholder={allowPasswordChange || isKoper ? t('account_password_placeholder') : t('account_password_placeholder_locked')}
 							value={form.password}
 							onChange={updateField('password')}
 							autoComplete="new-password"
@@ -489,7 +489,7 @@ function AccountSettings() {
 							type="button"
 							onClick={() => setShowPassword((prev) => !prev)}
 						>
-							{showPassword ? 'Hide' : 'Show'}
+							{showPassword ? t('account_password_hide') : t('account_password_show')}
 						</button>
 					</div>
 					<div className="settings-inline-actions">
@@ -498,12 +498,12 @@ function AccountSettings() {
 							type="button"
 							onClick={() => setAllowPasswordChange((prev) => !prev)}
 						>
-							{allowPasswordChange ? 'Cancel password change' : 'Change password'}
+							{allowPasswordChange ? t('account_password_cancel_change') : t('account_password_change')}
 						</button>
 					</div>
 				</div>
-				<button className="settings-primary-btn" type="button" onClick={handleSave} disabled={notice.type === 'saving'}>
-					{notice.type === 'saving' ? 'Saving...' : 'Save changes'}
+				<button className="settings-primary-btn" type="button" onClick={handleSave} disabled={notice.type === 'saving'} aria-label={t('account_save_aria')}>
+					{notice.type === 'saving' ? t('account_save_busy') : t('account_save')}
 				</button>
 			</div>
 		</section>
