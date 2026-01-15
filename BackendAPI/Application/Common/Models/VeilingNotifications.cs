@@ -23,6 +23,7 @@ public static class VeilingNotifications
         public required int RemainingQuantity { get; init; }
         public required int LiveViewerCount { get; init; }
         public required DateTimeOffset EndTime { get; init; }
+        public required int TotalRounds { get; init; }
     }
 
     public record VeilingBodNotification

@@ -139,6 +139,13 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
             state
         );
 
+        // Notify connected users of the update
+        await _notifier.NotifyKlokUpdate(
+            GetConnectionGroupName(klokId),
+            state,
+            GetViewerCount(klokId)
+        );
+
         _logger.LogInformation($"Started veiling klok {klokId}");
     }
 
@@ -158,7 +165,11 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         StopPriceTicker(klokId);
 
         // Notify clients about the pause (state update)
-        await _notifier.NotifyPriceTick(GetConnectionGroupName(klokId), state);
+        await _notifier.NotifyKlokUpdate(
+            GetConnectionGroupName(klokId),
+            state,
+            GetViewerCount(klokId)
+        );
 
         _logger.LogInformation($"Paused veiling klok {klokId}");
     }
@@ -348,6 +359,11 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         // Try to get the mapping
         KlokConnections.TryGetValue(connectionId, out var mapping);
         return mapping;
+    }
+
+    private int GetViewerCount(Guid klokId)
+    {
+        return KlokViewers.TryGetValue(klokId, out var viewers) ? viewers.Count : 0;
     }
 
     public Task AddSocketConnection(string connectionId, Guid klokId, Guid userId)

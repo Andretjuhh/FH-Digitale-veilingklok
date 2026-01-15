@@ -23,7 +23,7 @@ public class VeilingKlokNotifier : IVeilingKlokNotifier
             ClockId = state.ClockId,
             Country = state.Country,
             Region = state.RegionOrState,
-            StartTime = state.VeilingStartTime,
+            StartTime = state.VeilingStartTime
         };
         await _hubContext.Clients.Group(regionGroupName).RegionVeilingStarted(notification);
     }
@@ -40,7 +40,7 @@ public class VeilingKlokNotifier : IVeilingKlokNotifier
             ProductId = bid.ProductId,
             Price = bid.LastBidPrice,
             Quantity = bid.InitialStock - bid.RemainingStock,
-            RemainingQuantity = bid.RemainingStock,
+            RemainingQuantity = bid.RemainingStock
         };
         await _hubContext.Clients.Group(groupName).VeilingBodPlaced(notification);
     }
@@ -51,7 +51,7 @@ public class VeilingKlokNotifier : IVeilingKlokNotifier
         {
             ProductId = productChange.ProductId,
             StartingPrice = productChange.StartingPrice,
-            Quantity = productChange.InitialStock,
+            Quantity = productChange.InitialStock
         };
         await _hubContext.Clients.Group(groupName).VeilingProductChanged(notification);
     }
@@ -80,6 +80,7 @@ public class VeilingKlokNotifier : IVeilingKlokNotifier
             RemainingQuantity = currentProduct.RemainingStock,
             LiveViewerCount = viewerCount,
             EndTime = state.VeilingEndTime,
+            TotalRounds = state.TotalRounds
         };
         await _hubContext.Clients.Group(groupName).VeilingKlokUpdated(notification);
     }
@@ -92,7 +93,7 @@ public class VeilingKlokNotifier : IVeilingKlokNotifier
             ClockId = state.ClockId,
             ProductId = currentProduct.ProductId,
             CurrentPrice = state.CurrentPrice,
-            TickTime = DateTimeOffset.UtcNow,
+            TickTime = DateTimeOffset.UtcNow
         };
         await _hubContext.Clients.Group(groupName).VeilingPriceTick(notification);
     }
@@ -106,7 +107,7 @@ public class VeilingKlokNotifier : IVeilingKlokNotifier
         var notification = new VeilingNotifications.VeilingProductWaitingNotification
         {
             ClockId = klokId,
-            CompletedProductId = completedProductId,
+            CompletedProductId = completedProductId
         };
         await _hubContext.Clients.Group(groupName).VeilingProductWaiting(notification);
     }

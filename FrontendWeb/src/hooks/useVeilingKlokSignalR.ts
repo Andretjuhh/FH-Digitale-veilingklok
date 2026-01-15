@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { AuctionClockRef } from '../components/elements/AuctionClock';
-import { RegionVeilingStartedNotification, VeilingBodNotification, VeilingPriceTickNotification, VeilingProductChangedNotification, VeilingProductWaitingNotification } from '../declarations/models/VeilingNotifications';
+import { RegionVeilingStartedNotification, VeilingBodNotification, VeilingKlokStateNotification, VeilingPriceTickNotification, VeilingProductChangedNotification, VeilingProductWaitingNotification } from '../declarations/models/VeilingNotifications';
 import config from '../constant/application';
 
 interface UseVeilingKlokSignalRProps {
@@ -9,18 +9,20 @@ interface UseVeilingKlokSignalRProps {
 	country?: string;
 	region: string;
 	clockRef: React.RefObject<AuctionClockRef | null>;
+
 	onVeilingStarted?: (state: RegionVeilingStartedNotification) => void;
 	onVeilingEnded?: () => void;
 	onBidPlaced?: (bid: VeilingBodNotification) => void;
 	onProductChanged?: (product: VeilingProductChangedNotification) => void;
 	onAuctionEnded?: () => void;
 	onViewerCountChanged?: (count: number) => void;
+	onKlokUpdated?: (state: VeilingKlokStateNotification) => void;
 	onPriceTick?: (state: VeilingPriceTickNotification) => void;
 	onProductWaitingForNext?: (notification: VeilingProductWaitingNotification) => void;
 }
 
 export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
-	const { hubUrl = config.KLOK_HUB_URL, country = 'NL', region, clockRef, onVeilingStarted, onVeilingEnded, onBidPlaced, onProductChanged, onAuctionEnded, onViewerCountChanged, onPriceTick, onProductWaitingForNext } = props;
+	const { hubUrl = config.KLOK_HUB_URL, country = 'NL', region, clockRef, onVeilingStarted, onVeilingEnded, onBidPlaced, onProductChanged, onAuctionEnded, onViewerCountChanged, onKlokUpdated, onPriceTick, onProductWaitingForNext } = props;
 
 	const connectionRef = useRef<signalR.HubConnection | null>(null);
 	const [klokConnectionStatus, setKlokConnectionStatus] = useState<signalR.HubConnectionState>(signalR.HubConnectionState.Disconnected);
@@ -77,9 +79,14 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 			onAuctionEnded?.();
 		});
 
-		connection.on('ViewerCountChanged', (count: number) => {
+		connection.on('VeilingViewerCountChanged', (count: number) => {
 			console.log('Viewer count:', count);
 			onViewerCountChanged?.(count);
+		});
+
+		connection.on('VeilingKlokUpdated', (state: VeilingKlokStateNotification) => {
+			console.log('Klok updated:', state);
+			onKlokUpdated?.(state);
 		});
 
 		connection.on('VeilingPriceTick', (state: VeilingPriceTickNotification) => {
@@ -90,8 +97,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 			onPriceTick?.(state);
 		});
 
-		connection.on('VeilingProductWaiting', (klokId: string, completedProductId: string) => {
-			const notification: VeilingProductWaitingNotification = { clockId: klokId, completedProductId };
+		connection.on('VeilingProductWaiting', (notification: VeilingProductWaitingNotification) => {
 			console.log('Product waiting for next:', notification);
 			clockRef.current?.pause();
 			onProductWaitingForNext?.(notification);
@@ -130,7 +136,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 			connectionRef.current = null;
 			setKlokConnectionStatus(signalR.HubConnectionState.Disconnected);
 		}
-	}, [hubUrl, region, clockRef, onVeilingStarted, onVeilingEnded, onBidPlaced, onProductChanged, onAuctionEnded, onViewerCountChanged, onPriceTick, onProductWaitingForNext]);
+	}, [hubUrl, region, clockRef, onVeilingStarted, onVeilingEnded, onBidPlaced, onProductChanged, onAuctionEnded, onViewerCountChanged, onKlokUpdated, onPriceTick, onProductWaitingForNext]);
 	const disconnect = useCallback(async () => {
 		if (connectionRef.current) {
 			try {

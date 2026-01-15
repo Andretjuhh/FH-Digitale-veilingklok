@@ -7,16 +7,16 @@ import { VeilingKlokStatus } from '../../declarations/enums/VeilingKlokStatus';
 
 type Props = {
 	clockRunning?: boolean;
-	isSelected?: boolean;
-	product: ProductOutputDto;
-	onStartAuctionClick?: () => void;
 	status: VeilingKlokStatus;
+	isSelected?: boolean;
+	onStartAuctionClick?: () => void;
+	product: ProductOutputDto;
 };
 
 function ClockProductCard(props: Props) {
 	const { status, isSelected, product, clockRunning, onStartAuctionClick } = props;
 
-	const isDisabled = status !== VeilingKlokStatus.Started;
+	const isDisabled = status !== VeilingKlokStatus.Started || clockRunning;
 
 	return (
 		<div className={clsx('auction-product-card', isSelected && 'auction-product-card-running')}>

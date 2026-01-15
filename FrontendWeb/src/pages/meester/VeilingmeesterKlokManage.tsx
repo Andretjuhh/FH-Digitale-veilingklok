@@ -32,10 +32,6 @@ function VeilingmeesterKlokManage() {
 	const [currentProduct, setCurrentProduct] = useState<ProductOutputDto>();
 
 	// SignalR event handlers wrapped in useCallback to prevent reconnection loops
-	const handlePriceTick = useCallback((state: VeilingPriceTickNotification) => {
-		// klokRef.current?.tick(state);
-		console.log('Price tick received:', state);
-	}, []);
 	const handleVeilingEnded = useCallback(() => {
 		setCurrentVeilingKlok((prev) => (prev ? { ...prev, status: VeilingKlokStatus.Ended } : prev));
 	}, []);
@@ -60,7 +56,6 @@ function VeilingmeesterKlokManage() {
 	const klokSignalR = useVeilingKlokSignalR({
 		region: account?.region!,
 		clockRef: klokRef,
-		onPriceTick: handlePriceTick,
 		onVeilingEnded: handleVeilingEnded,
 		onVeilingStarted: handleVeilingStarted,
 		onProductChanged: handleProductChanged,
