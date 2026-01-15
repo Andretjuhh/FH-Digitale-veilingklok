@@ -1,4 +1,5 @@
 ﻿using Application.Common.Exceptions;
+using Application.Common.Extensions;
 using Application.DTOs.Input;
 using Application.Repositories;
 using Domain.Entities;
@@ -7,9 +8,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Account;
 
-public sealed record CreateKwekerCommand(CreateKwekerDTO Payload) : IRequest<Guid>;
+public sealed record CreateKwekerCommand(CreateKwekerDTO Payload) : IRequest<Kweker>;
 
-public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, Guid>
+public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, Kweker>
 {
     private readonly UserManager<Domain.Entities.Account> _userManager;
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
@@ -26,7 +27,10 @@ public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, G
         _kwekerRepository = kwekerRepository;
     }
 
-    public async Task<Guid> Handle(CreateKwekerCommand request, CancellationToken cancellationToken)
+    public async Task<Kweker> Handle(
+        CreateKwekerCommand request,
+        CancellationToken cancellationToken
+    )
     {
         var dto = request.Payload;
 
@@ -58,13 +62,7 @@ public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, G
 
         var result = await _userManager.CreateAsync(kweker, dto.Password);
 
-        if (!result.Succeeded)
-        {
-            throw new Exception(
-                "Account creation failed: "
-                    + string.Join(", ", result.Errors.Select(e => e.Description))
-            );
-        }
+        result.ThrowIfFailed();
 
         var roleName = nameof(Domain.Enums.AccountType.Kweker);
         if (!await _roleManager.RoleExistsAsync(roleName))
@@ -73,6 +71,6 @@ public sealed class CreateKwekerHandler : IRequestHandler<CreateKwekerCommand, G
         }
         await _userManager.AddToRoleAsync(kweker, roleName);
 
-        return kweker.Id;
+        return kweker;
     }
 }

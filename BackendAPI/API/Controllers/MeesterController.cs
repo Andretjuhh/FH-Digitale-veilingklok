@@ -9,6 +9,7 @@ using Application.UseCases.VeilingKlok;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -19,19 +20,39 @@ namespace API.Controllers;
 public class MeesterController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly SignInManager<Domain.Entities.Account> _signInManager;
 
-    public MeesterController(IMediator mediator)
+    public MeesterController(
+        IMediator mediator,
+        SignInManager<Domain.Entities.Account> signInManager
+    )
     {
         _mediator = mediator;
+        _signInManager = signInManager;
     }
 
     [HttpPost("create")]
     [AllowAnonymous]
-    public async Task<IActionResult> CreateMeesterAccount([FromBody] CreateMeesterDTO account)
+    public async Task<IActionResult> CreateAccount(
+        [FromBody] CreateMeesterDTO account,
+        [FromQuery] bool useCookies = true,
+        [FromQuery] bool? useSessionCookies = null
+    )
     {
         var command = new CreateMeesterCommand(account);
-        var result = await _mediator.Send(command);
-        return HttpSuccess<Guid>.Ok(result, "Meester account created successfully");
+        var meester = await _mediator.Send(command);
+
+        // Sign in the user automatically after creation
+        if (useCookies)
+        {
+            var isPersistent = useSessionCookies != true;
+            await _signInManager.SignInAsync(meester, isPersistent);
+        }
+
+        return HttpSuccess<Guid>.Created(
+            meester.Id,
+            "Veilingmeester account created and authenticated successfully"
+        );
     }
 
     [HttpPut("update")]

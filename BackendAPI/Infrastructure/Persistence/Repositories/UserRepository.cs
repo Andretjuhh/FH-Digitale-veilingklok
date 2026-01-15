@@ -126,13 +126,13 @@ public class UserRepository : IUserRepository
             }
 
             // 6. Finally, remove the account itself
-            _dbContext.Accounts.Remove(account);
+            _dbContext.Users.Remove(account);
         }
     }
 
     public async Task ReactivateAccountAsync(Guid id)
     {
-        var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id);
+        var account = await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id);
         if (account == null)
             return;
 
@@ -142,7 +142,7 @@ public class UserRepository : IUserRepository
 
         // Reset DeletedAt to null to reactivate
         typeof(Account).GetProperty(nameof(Account.DeletedAt))?.SetValue(account, null);
-        _dbContext.Accounts.Update(account);
+        _dbContext.Users.Update(account);
     }
 
     public async Task<List<string>> GetCountryRegionsAsync(string country)

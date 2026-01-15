@@ -16,7 +16,7 @@ import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOu
 
 // Create koper account (POST /api/account/koper/create)
 export async function createKoperAccount(account: CreateKoperDTO): Promise<HttpSuccess<AuthOutputDto>> {
-	return fetchResponse<HttpSuccess<AuthOutputDto>>('/api/account/koper/create', {
+	return fetchResponse<HttpSuccess<AuthOutputDto>>('/api/account/koper/create?useCookies=true', {
 		method: 'POST',
 		body: JSON.stringify(account),
 	});

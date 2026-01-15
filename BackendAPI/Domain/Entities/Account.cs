@@ -38,7 +38,7 @@ public class Account : IdentityUser<Guid>
 
 #nullable restore
 
-    protected Account(string email, AccountType accountType)
+    public Account(string email, AccountType accountType)
     {
         Email = email;
         UserName = email;

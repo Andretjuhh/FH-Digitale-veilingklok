@@ -62,6 +62,8 @@ function App() {
 					<Route path="/kweker/products" element={<KwekerProducts/>}/>
 					<Route path="/kweker/orders" element={<KwekerOrders/>}/>
 					<Route path="/kweker/product/:id" element={<ProductDetails/>}/>
+
+					{/*Admin Routes*/}
 					<Route path="/admin" element={<AdminLogin/>}/>
 					<Route path="/admin/dashboard" element={<AdminDashboard/>}/>
 				</Routes>

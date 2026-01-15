@@ -1,4 +1,5 @@
 ﻿using Application.Common.Exceptions;
+using Application.Common.Extensions;
 using Application.DTOs.Input;
 using Domain.Entities;
 using MediatR;
@@ -6,9 +7,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Account;
 
-public sealed record CreateKoperCommand(CreateKoperDTO Payload) : IRequest<Guid>;
+public sealed record CreateKoperCommand(CreateKoperDTO Payload) : IRequest<Koper>;
 
-public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Guid>
+public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Koper>
 {
     private readonly UserManager<Domain.Entities.Account> _userManager;
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
@@ -22,7 +23,7 @@ public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Gui
         _roleManager = roleManager;
     }
 
-    public async Task<Guid> Handle(CreateKoperCommand request, CancellationToken cancellationToken)
+    public async Task<Koper> Handle(CreateKoperCommand request, CancellationToken cancellationToken)
     {
         var dto = request.Payload;
 
@@ -49,13 +50,7 @@ public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Gui
 
         var result = await _userManager.CreateAsync(koper, dto.Password);
 
-        if (!result.Succeeded)
-        {
-            throw new Exception(
-                "Account creation failed: "
-                    + string.Join(", ", result.Errors.Select(e => e.Description))
-            );
-        }
+        result.ThrowIfFailed();
 
         var roleName = nameof(Domain.Enums.AccountType.Koper);
         if (!await _roleManager.RoleExistsAsync(roleName))
@@ -64,6 +59,6 @@ public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Gui
         }
         await _userManager.AddToRoleAsync(koper, roleName);
 
-        return koper.Id;
+        return koper;
     }
 }

@@ -13,7 +13,7 @@ export async function getRegions(): Promise<HttpSuccess<string[]>> {
 
 // Login (POST /api/account/login)
 export async function loginAccount(loginRequest: RequestLoginDTO): Promise<HttpSuccess<AuthOutputDto>> {
-	const response = await fetchResponse<any>('/api/account/login?useCookies=true&useSessionCookies=true', {
+	const response = await fetchResponse<any>('/api/account/login?useCookies=true', {
 		method: 'POST',
 		body: JSON.stringify(loginRequest),
 	});

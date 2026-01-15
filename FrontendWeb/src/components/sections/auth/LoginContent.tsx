@@ -55,6 +55,10 @@ function LoginContent() {
 					navigate('/veilingmeester/veilingen-beheren');
 					break;
 
+				case  AccountType.Admin:
+					navigate('/admin/dashboard');
+					break;
+					
 				default:
 					console.error('Unknown account type:', authResponse.data.accountType);
 					navigate('/');

@@ -1,4 +1,5 @@
 ﻿using Application.Common.Exceptions;
+using Application.Common.Extensions;
 using Application.DTOs.Input;
 using Domain.Entities;
 using MediatR;
@@ -6,9 +7,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Account;
 
-public sealed record CreateMeesterCommand(CreateMeesterDTO Payload) : IRequest<Guid>;
+public sealed record CreateMeesterCommand(CreateMeesterDTO Payload) : IRequest<Veilingmeester>;
 
-public sealed class CreateMeesterHandler : IRequestHandler<CreateMeesterCommand, Guid>
+public sealed class CreateMeesterHandler : IRequestHandler<CreateMeesterCommand, Veilingmeester>
 {
     private readonly UserManager<Domain.Entities.Account> _userManager;
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
@@ -22,7 +23,7 @@ public sealed class CreateMeesterHandler : IRequestHandler<CreateMeesterCommand,
         _roleManager = roleManager;
     }
 
-    public async Task<Guid> Handle(
+    public async Task<Veilingmeester> Handle(
         CreateMeesterCommand request,
         CancellationToken cancellationToken
     )
@@ -42,13 +43,7 @@ public sealed class CreateMeesterHandler : IRequestHandler<CreateMeesterCommand,
 
         var result = await _userManager.CreateAsync(meester, dto.Password);
 
-        if (!result.Succeeded)
-        {
-            throw new Exception(
-                "Account creation failed: "
-                    + string.Join(", ", result.Errors.Select(e => e.Description))
-            );
-        }
+        result.ThrowIfFailed();
 
         var roleName = nameof(Domain.Enums.AccountType.Veilingmeester);
         if (!await _roleManager.RoleExistsAsync(roleName))
@@ -57,6 +52,6 @@ public sealed class CreateMeesterHandler : IRequestHandler<CreateMeesterCommand,
         }
         await _userManager.AddToRoleAsync(meester, roleName);
 
-        return meester.Id;
+        return meester;
     }
 }

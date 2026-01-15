@@ -9,6 +9,7 @@ using Application.UseCases.VeilingKlok;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -19,19 +20,36 @@ namespace API.Controllers;
 public class KoperController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly SignInManager<Domain.Entities.Account> _signInManager;
 
-    public KoperController(IMediator mediator)
+    public KoperController(IMediator mediator, SignInManager<Domain.Entities.Account> signInManager)
     {
         _mediator = mediator;
+        _signInManager = signInManager;
     }
 
     [HttpPost("create")]
     [AllowAnonymous]
-    public async Task<IActionResult> CreateAccount([FromBody] CreateKoperDTO account)
+    public async Task<IActionResult> CreateAccount(
+        [FromBody] CreateKoperDTO account,
+        [FromQuery] bool useCookies = true,
+        [FromQuery] bool? useSessionCookies = null
+    )
     {
         var command = new CreateKoperCommand(account);
-        var result = await _mediator.Send(command);
-        return HttpSuccess<Guid>.Created(result, "Koper account created successfully");
+        var koper = await _mediator.Send(command);
+
+        // Sign in the user automatically after creation
+        if (useCookies)
+        {
+            var isPersistent = useSessionCookies != true;
+            await _signInManager.SignInAsync(koper, isPersistent);
+        }
+
+        return HttpSuccess<Guid>.Created(
+            koper.Id,
+            "Koper account created and authenticated successfully"
+        );
     }
 
     [HttpPut("update")]

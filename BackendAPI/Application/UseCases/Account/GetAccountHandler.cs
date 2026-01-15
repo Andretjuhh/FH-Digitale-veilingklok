@@ -13,16 +13,19 @@ public sealed class GetAccountHandler : IRequestHandler<GetAccountCommand, objec
     private readonly IKoperRepository _koperRepository;
     private readonly IKwekerRepository _kwekerRepository;
     private readonly IMeesterRepository _meesterRepository;
+    private readonly IUserRepository _userRepository;
 
     public GetAccountHandler(
         IKoperRepository koperRepository,
         IKwekerRepository kwekerRepository,
-        IMeesterRepository meesterRepository
+        IMeesterRepository meesterRepository,
+        IUserRepository userRepository
     )
     {
         _koperRepository = koperRepository;
         _kwekerRepository = kwekerRepository;
         _meesterRepository = meesterRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<object> Handle(GetAccountCommand request, CancellationToken cancellationToken)
@@ -32,17 +35,21 @@ public sealed class GetAccountHandler : IRequestHandler<GetAccountCommand, objec
         {
             AccountType.Koper => KoperMapper.ToOutputDto(
                 await _koperRepository.GetKoperByIdAsync(accountId)
-                ?? throw RepositoryException.NotFoundAccount()
+                    ?? throw RepositoryException.NotFoundAccount()
             ),
             AccountType.Kweker => KwekerMapper.ToOutputDto(
                 await _kwekerRepository.GetKwekerByIdAsync(accountId)
-                ?? throw RepositoryException.NotFoundAccount()
+                    ?? throw RepositoryException.NotFoundAccount()
             ),
             AccountType.Veilingmeester => VeilingmeesterMapper.ToOutputDto(
                 await _meesterRepository.GetMeesterByIdAsync(accountId)
-                ?? throw RepositoryException.NotFoundAccount()
+                    ?? throw RepositoryException.NotFoundAccount()
             ),
-            _ => throw RepositoryException.NotFoundAccount()
+            AccountType.Admin => AdminMapper.ToOutputDto(
+                await _userRepository.GetByIdAsync(accountId)
+                    ?? throw RepositoryException.NotFoundAccount()
+            ),
+            _ => throw RepositoryException.NotFoundAccount(),
         };
 
         return account;

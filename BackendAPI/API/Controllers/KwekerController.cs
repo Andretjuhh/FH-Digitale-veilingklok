@@ -9,6 +9,7 @@ using Application.UseCases.VeilingKlok;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -19,19 +20,39 @@ namespace API.Controllers;
 public class KwekerController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly SignInManager<Domain.Entities.Account> _signInManager;
 
-    public KwekerController(IMediator mediator)
+    public KwekerController(
+        IMediator mediator,
+        SignInManager<Domain.Entities.Account> signInManager
+    )
     {
         _mediator = mediator;
+        _signInManager = signInManager;
     }
 
     [HttpPost("create")]
     [AllowAnonymous]
-    public async Task<IActionResult> CreateAccount([FromBody] CreateKwekerDTO account)
+    public async Task<IActionResult> CreateAccount(
+        [FromBody] CreateKwekerDTO account,
+        [FromQuery] bool useCookies = true,
+        [FromQuery] bool? useSessionCookies = null
+    )
     {
         var command = new CreateKwekerCommand(account);
-        var result = await _mediator.Send(command);
-        return HttpSuccess<Guid>.Ok(result, "Kweker account created successfully");
+        var kweker = await _mediator.Send(command);
+
+        // Sign in the user automatically after creation
+        if (useCookies)
+        {
+            var isPersistent = useSessionCookies != true;
+            await _signInManager.SignInAsync(kweker, isPersistent);
+        }
+
+        return HttpSuccess<Guid>.Created(
+            kweker.Id,
+            "Kweker account created and authenticated successfully"
+        );
     }
 
     [HttpPut("update")]

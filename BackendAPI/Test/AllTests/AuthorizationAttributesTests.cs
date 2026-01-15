@@ -8,63 +8,66 @@ namespace Test.Authorization;
 
 public class AuthorizationAttributesTests
 {
-	[Fact]
-	public void AccountController_HasAuthorizeAttribute_AndLoginAndReauthAllowAnonymous()
-	{
-		var controllerType = typeof(AccountController);
+    // [Fact]
+    // Login and Reauthenticate are now handled by Identity API Endpoints
+    /*
+    public void AccountController_HasAuthorizeAttribute_AndLoginAndReauthAllowAnonymous()
+    {
+        var controllerType = typeof(AccountController);
 
-		var authorize = controllerType.GetCustomAttribute<AuthorizeAttribute>();
-		Assert.NotNull(authorize);
+        var authorize = controllerType.GetCustomAttribute<AuthorizeAttribute>();
+        Assert.NotNull(authorize);
 
-		var loginMethod = controllerType.GetMethod("Login");
-		var reauthMethod = controllerType.GetMethod("Reauthenticate");
+        var loginMethod = controllerType.GetMethod("Login");
+        var reauthMethod = controllerType.GetMethod("Reauthenticate");
 
-		Assert.NotNull(loginMethod);
-		Assert.NotNull(reauthMethod);
+        Assert.NotNull(loginMethod);
+        Assert.NotNull(reauthMethod);
 
-		Assert.NotNull(loginMethod!.GetCustomAttribute<AllowAnonymousAttribute>());
-		Assert.NotNull(reauthMethod!.GetCustomAttribute<AllowAnonymousAttribute>());
-	}
+        Assert.NotNull(loginMethod!.GetCustomAttribute<AllowAnonymousAttribute>());
+        Assert.NotNull(reauthMethod!.GetCustomAttribute<AllowAnonymousAttribute>());
+    }
+    */
 
-	[Fact]
-	public void KoperController_RequiresKoperRole_AndCreateAccountIsAnonymous()
-	{
-		var controllerType = typeof(KoperController);
+    [Fact]
+    public void KoperController_RequiresKoperRole_AndCreateAccountIsAnonymous()
+    {
+        var controllerType = typeof(KoperController);
 
-		var authorize = controllerType.GetCustomAttribute<AuthorizeAttribute>();
-		Assert.NotNull(authorize);
-		Assert.Equal(nameof(AccountType.Koper), authorize!.Roles);
+        var authorize = controllerType.GetCustomAttribute<AuthorizeAttribute>();
+        Assert.NotNull(authorize);
+        Assert.Equal(nameof(AccountType.Koper), authorize!.Roles);
 
-		var createMethod = controllerType.GetMethod("CreateAccount");
-		Assert.NotNull(createMethod);
-		Assert.NotNull(createMethod!.GetCustomAttribute<AllowAnonymousAttribute>());
-	}
+        var createMethod = controllerType.GetMethod("CreateAccount");
+        Assert.NotNull(createMethod);
+        Assert.NotNull(createMethod!.GetCustomAttribute<AllowAnonymousAttribute>());
+    }
 
-	[Fact]
-	public void KwekerController_RequiresKwekerRole_AndCreateAccountIsAnonymous()
-	{
-		var controllerType = typeof(KwekerController);
+    [Fact]
+    public void KwekerController_RequiresKwekerRole_AndCreateAccountIsAnonymous()
+    {
+        var controllerType = typeof(KwekerController);
 
-		var authorize = controllerType.GetCustomAttribute<AuthorizeAttribute>();
-		Assert.NotNull(authorize);
-		Assert.Equal(nameof(AccountType.Kweker), authorize!.Roles);
+        var authorize = controllerType.GetCustomAttribute<AuthorizeAttribute>();
+        Assert.NotNull(authorize);
+        Assert.Equal(nameof(AccountType.Kweker), authorize!.Roles);
 
-		var createMethod = controllerType.GetMethod("CreateAccount");
-		Assert.NotNull(createMethod);
-		Assert.NotNull(createMethod!.GetCustomAttribute<AllowAnonymousAttribute>());
-	}
+        var createMethod = controllerType.GetMethod("CreateAccount");
+        Assert.NotNull(createMethod);
+        Assert.NotNull(createMethod!.GetCustomAttribute<AllowAnonymousAttribute>());
+    }
 
-	[Fact]
-	public void MeesterController_RequiresVeilingmeesterRole_AndCreateAccountIsAnonymous()
-	{
-		var controllerType = typeof(MeesterController);
+    [Fact]
+    public void MeesterController_RequiresVeilingmeesterRole_AndCreateAccountIsAnonymous()
+    {
+        var controllerType = typeof(MeesterController);
 
-		var authorize = controllerType.GetCustomAttribute<AuthorizeAttribute>();
-		Assert.NotNull(authorize);
-		Assert.Equal(nameof(AccountType.Veilingmeester), authorize!.Roles);
+        var authorize = controllerType.GetCustomAttribute<AuthorizeAttribute>();
+        Assert.NotNull(authorize);
+        Assert.Equal(nameof(AccountType.Veilingmeester), authorize!.Roles);
 
-		var createMethod = controllerType.GetMethod("CreateMeesterAccount");
-		Assert.NotNull(createMethod);
-		Assert.NotNull(createMethod!.GetCustomAttribute<AllowAnonymousAttribute>());
-	}
+        var createMethod = controllerType.GetMethod("CreateAccount");
+        Assert.NotNull(createMethod);
+        Assert.NotNull(createMethod!.GetCustomAttribute<AllowAnonymousAttribute>());
+    }
 }

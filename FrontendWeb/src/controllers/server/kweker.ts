@@ -18,7 +18,7 @@ import {getOrderStatusString} from "../../utils/standards";
 
 // Create kweker account (POST /api/account/kweker/create)
 export async function createKwekerAccount(account: CreateKwekerDTO): Promise<HttpSuccess<AuthOutputDto>> {
-	return fetchResponse<HttpSuccess<AuthOutputDto>>('/api/account/kweker/create', {
+	return fetchResponse<HttpSuccess<AuthOutputDto>>('/api/account/kweker/create?useCookies=true', {
 		method: 'POST',
 		body: JSON.stringify(account),
 	});
