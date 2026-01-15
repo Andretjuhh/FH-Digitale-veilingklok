@@ -14,23 +14,22 @@ builder.Services.AddRouting();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(
-        "AllowFrontend",
-        policy =>
-        {
-            policy
-                .WithOrigins(
-                    "http://localhost:3000",
-                    "http://localhost:5219",
-                    "https://backendgroep2klas1-ctckb9acgvcwb2aj.germanywestcentral-01.azurewebsites.net"
-                )
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials()
-                .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
-        }
-    );
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins(
+                // Local development
+                "http://localhost:3000",
+
+                // Azure frontend (DIT WAS DE MISSENDE)
+                "https://veilingklok-frontendklas1groep2-hvcmg3eua4fhgqft.germanywestcentral-01.azurewebsites.net"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
 });
+
 
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddProblemsExtension();
@@ -124,3 +123,9 @@ if (app.Environment.IsDevelopment())
 #endregion
 
 app.Run();
+
+// Note: For running dotnet ( !!!! Run In the same order always !!!! )
+//  dotnet ef database drop --project Infrastructure --startup-project API --force
+//  dotnet ef migrations remove --project Infrastructure --startup-project API
+//  dotnet ef migrations add InitialCreate --project Infrastructure --startup-project API
+//  dotnet ef database update --project Infrastructure --startup-project API
