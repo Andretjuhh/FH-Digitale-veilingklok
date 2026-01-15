@@ -24,7 +24,7 @@ builder.Services.AddCors(options =>
                     "http://localhost:3000",
                     "http://localhost:5219",
                     "https://yourdomain.com",
-                    "webappklas1groep2-g2gtftgfgdg3fzcc.germanywestcentral-01.azurewebsites.net"
+                    "backendgroep2klas1-ctckb9acgvcwb2aj.germanywestcentral-01.azurewebsites.net"
                 )
                 .AllowAnyHeader()
                 .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
