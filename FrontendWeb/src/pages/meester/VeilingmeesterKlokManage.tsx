@@ -152,6 +152,12 @@ function VeilingmeesterKlokManage() {
 					...currentVeilingKlok,
 					status: status,
 				});
+
+				if (status === VeilingKlokStatus.Started) {
+					setClockWaitingProduct(true);
+				} else {
+					setClockWaitingProduct(false);
+				}
 			} catch (e: any) {
 				if (isHttpError(e) && e.message) updateActionState({type: 'error', message: e.message});
 				else updateActionState({type: 'error', message: t('veilingklok_update_error')});
