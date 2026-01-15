@@ -6,7 +6,7 @@ name: Build and deploy ASP.Net Core app to Azure Web App - WebAppKlas1Groep2
 on:
   push:
     branches:
-      - azure
+      - azuremain
   workflow_dispatch:
 
 jobs:
@@ -66,5 +66,6 @@ jobs:
           package: ./publish
 
           
+
 
 
