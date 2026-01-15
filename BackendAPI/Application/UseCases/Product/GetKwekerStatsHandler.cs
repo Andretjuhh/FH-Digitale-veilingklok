@@ -55,24 +55,21 @@ public sealed class GetKwekerStatsHandler : IRequestHandler<GetKwekerStatsComman
 
         var ordersList = orders.ToList();
         
+        // Total orders received (all orders, not just completed)
+        int ordersReceived = ordersList.Count;
+        
         // Calculate total revenue from completed orders
         var completedOrders = ordersList
             .Where(o => o.Order.Status == OrderStatus.Processed || o.Order.Status == OrderStatus.Delivered)
             .ToList();
 
         decimal totalRevenue = 0;
-        int ordersReceived = completedOrders.Count;
 
+        // Calculate revenue directly from the order tuples which already have the product info
         foreach (var orderInfo in completedOrders)
         {
-            var orderItems = orderInfo.Order.OrderItems
-                .Where(oi => productIds.Contains(oi.ProductId))
-                .ToList();
-
-            foreach (var item in orderItems)
-            {
-                totalRevenue += item.PriceAtPurchase * item.Quantity;
-            }
+            // The Product in the tuple has PriceAtPurchase and Quantity
+            totalRevenue += orderInfo.Product.PriceAtPurchase * orderInfo.Product.Quantity;
         }
 
         // Calculate monthly revenue for the last 12 months
@@ -89,8 +86,7 @@ public sealed class GetKwekerStatsHandler : IRequestHandler<GetKwekerStatsComman
                 .Where(o => (o.Order.Status == OrderStatus.Processed || o.Order.Status == OrderStatus.Delivered)
                     && o.Order.CreatedAt >= monthStart
                     && o.Order.CreatedAt < monthEnd)
-                .SelectMany(o => o.Order.OrderItems.Where(oi => productIds.Contains(oi.ProductId)))
-                .Sum(item => item.PriceAtPurchase * item.Quantity);
+                .Sum(o => o.Product.PriceAtPurchase * o.Product.Quantity);
 
             monthlyRevenue.Add(new MonthlyRevenueDto
             {
@@ -101,13 +97,39 @@ public sealed class GetKwekerStatsHandler : IRequestHandler<GetKwekerStatsComman
             });
         }
 
+        // Calculate daily revenue for the last 30 days
+        var dailyRevenue = new List<DailyRevenueDto>();
+        
+        for (int i = 29; i >= 0; i--)
+        {
+            var targetDate = today.AddDays(-i);
+            var dayStart = new DateTimeOffset(targetDate.Year, targetDate.Month, targetDate.Day, 0, 0, 0, TimeSpan.Zero);
+            var dayEnd = dayStart.AddDays(1);
+
+            var dayRevenue = ordersList
+                .Where(o => (o.Order.Status == OrderStatus.Processed || o.Order.Status == OrderStatus.Delivered)
+                    && o.Order.CreatedAt >= dayStart
+                    && o.Order.CreatedAt < dayEnd)
+                .Sum(o => o.Product.PriceAtPurchase * o.Product.Quantity);
+
+            dailyRevenue.Add(new DailyRevenueDto
+            {
+                Year = targetDate.Year,
+                Month = targetDate.Month,
+                Day = targetDate.Day,
+                DateLabel = targetDate.ToString("dd MMM"),
+                Revenue = dayRevenue
+            });
+        }
+
         return new KwekerStatsOutputDto
         {
             TotalProducts = totalProducts,
             ActiveAuctions = activeAuctions,
             TotalRevenue = totalRevenue,
             OrdersReceived = ordersReceived,
-            MonthlyRevenue = monthlyRevenue
+            MonthlyRevenue = monthlyRevenue,
+            DailyRevenue = dailyRevenue
         };
     }
 }

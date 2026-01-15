@@ -1,19 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import {useRootContext} from '../../contexts/RootContext';
 import {getKwekerStats} from '../../../controllers/server/kweker';
-import {MonthlyRevenueDto} from '../../../declarations/dtos/output/KwekerStatsOutputDto';
+import {MonthlyRevenueDto, DailyRevenueDto} from '../../../declarations/dtos/output/KwekerStatsOutputDto';
+
+type ViewMode = 'month' | 'day';
 
 export function RevenueChart() {
 	const {t} = useRootContext();
 	const [monthlyData, setMonthlyData] = useState<MonthlyRevenueDto[]>([]);
+	const [dailyData, setDailyData] = useState<DailyRevenueDto[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [viewMode, setViewMode] = useState<ViewMode>('month');
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				const response = await getKwekerStats();
-				if (response.success && response.data) {
+				if (response.data && response.data.monthlyRevenue) {
 					setMonthlyData(response.data.monthlyRevenue);
+					setDailyData(response.data.dailyRevenue || []);
 				}
 			} catch (error) {
 				console.error('Failed to fetch revenue data:', error);
@@ -36,7 +41,12 @@ export function RevenueChart() {
 		);
 	}
 
-	if (monthlyData.length === 0) {
+	const displayData = viewMode === 'month' ? monthlyData : dailyData;
+	const dataPoints = viewMode === 'month' 
+		? monthlyData.map(d => ({ label: d.monthName, revenue: d.revenue }))
+		: dailyData.map(d => ({ label: d.dateLabel, revenue: d.revenue }));
+
+	if (displayData.length === 0) {
 		return (
 			<section className="kweker-dashboard-section revenue-chart-section">
 				<h2 className="section-title">Inkomsten overzicht</h2>
@@ -49,7 +59,7 @@ export function RevenueChart() {
 	}
 
 	// Calculate chart dimensions and scales
-	const maxRevenue = Math.max(...monthlyData.map(d => d.revenue), 100);
+	const maxRevenue = Math.max(...dataPoints.map(d => d.revenue), 100);
 	const chartWidth = 900;
 	const chartHeight = 300;
 	const padding = { top: 20, right: 20, bottom: 60, left: 70 };
@@ -57,8 +67,8 @@ export function RevenueChart() {
 	const innerHeight = chartHeight - padding.top - padding.bottom;
 
 	// Create points for the line
-	const points = monthlyData.map((data, index) => {
-		const x = padding.left + (index / (monthlyData.length - 1)) * innerWidth;
+	const points = dataPoints.map((data, index) => {
+		const x = padding.left + (index / (dataPoints.length - 1)) * innerWidth;
 		const y = padding.top + innerHeight - (data.revenue / maxRevenue) * innerHeight;
 		return { x, y, data };
 	});
@@ -86,13 +96,39 @@ export function RevenueChart() {
 
 	return (
 		<section className="kweker-dashboard-section revenue-chart-section">
-			<div className="section-header">
+			<div className="section-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
 				<h2 className="section-title">Inkomsten overzicht</h2>
-				<div className="chart-legend">
-					<span className="legend-item">
-						<span className="legend-color" style={{backgroundColor: '#10b981'}}></span>
-						Laatste 12 maanden
-					</span>
+				<div className="view-toggle" style={{display: 'flex', gap: '0.5rem'}}>
+					<button 
+						className={`toggle-btn ${viewMode === 'month' ? 'active' : ''}`}
+						onClick={() => setViewMode('month')}
+						style={{
+							padding: '0.5rem 1rem',
+							border: '1px solid #e5e7eb',
+							borderRadius: '0.375rem',
+							background: viewMode === 'month' ? '#10b981' : 'white',
+							color: viewMode === 'month' ? 'white' : '#374151',
+							cursor: 'pointer',
+							fontWeight: viewMode === 'month' ? '600' : '400'
+						}}
+					>
+						Maand
+					</button>
+					<button 
+						className={`toggle-btn ${viewMode === 'day' ? 'active' : ''}`}
+						onClick={() => setViewMode('day')}
+						style={{
+							padding: '0.5rem 1rem',
+							border: '1px solid #e5e7eb',
+							borderRadius: '0.375rem',
+							background: viewMode === 'day' ? '#10b981' : 'white',
+							color: viewMode === 'day' ? 'white' : '#374151',
+							cursor: 'pointer',
+							fontWeight: viewMode === 'day' ? '600' : '400'
+						}}
+					>
+						Dag
+					</button>
 				</div>
 			</div>
 
@@ -155,15 +191,16 @@ export function RevenueChart() {
 								className="chart-point"
 							/>
 							<title>
-								{point.data.monthName}: €{point.data.revenue.toFixed(2)}
+								{point.data.label}: €{point.data.revenue.toFixed(2)}
 							</title>
 						</g>
 					))}
 
 					{/* X-axis labels */}
 					{points.map((point, i) => {
-						// Show every other label to avoid crowding
-						if (i % 2 === 0 || i === points.length - 1) {
+						// For daily view show every 3rd label, for monthly show every 2nd
+						const skipCount = viewMode === 'day' ? 3 : 2;
+						if (i % skipCount === 0 || i === points.length - 1) {
 							return (
 								<text
 									key={i}
@@ -172,7 +209,7 @@ export function RevenueChart() {
 									textAnchor="middle"
 									className="chart-label"
 								>
-									{point.data.monthName}
+									{point.data.label}
 								</text>
 							);
 						}
@@ -191,21 +228,21 @@ export function RevenueChart() {
 
 			<div className="chart-summary">
 				<div className="summary-item">
-					<span className="summary-label">Hoogste maand:</span>
+					<span className="summary-label">{viewMode === 'month' ? 'Hoogste maand:' : 'Hoogste dag:'}</span>
 					<span className="summary-value">
-						€{Math.max(...monthlyData.map(d => d.revenue)).toFixed(2)}
+						€{Math.max(...dataPoints.map(d => d.revenue)).toFixed(2)}
 					</span>
 				</div>
 				<div className="summary-item">
-					<span className="summary-label">Gemiddelde per maand:</span>
+					<span className="summary-label">{viewMode === 'month' ? 'Gemiddelde per maand:' : 'Gemiddelde per dag:'}</span>
 					<span className="summary-value">
-						€{(monthlyData.reduce((sum, d) => sum + d.revenue, 0) / monthlyData.length).toFixed(2)}
+						€{(dataPoints.reduce((sum, d) => sum + d.revenue, 0) / dataPoints.length).toFixed(2)}
 					</span>
 				</div>
 				<div className="summary-item">
-					<span className="summary-label">Totaal (12 maanden):</span>
+					<span className="summary-label">{viewMode === 'month' ? 'Totaal (12 maanden):' : 'Totaal (30 dagen):'}</span>
 					<span className="summary-value">
-						€{monthlyData.reduce((sum, d) => sum + d.revenue, 0).toFixed(2)}
+						€{dataPoints.reduce((sum, d) => sum + d.revenue, 0).toFixed(2)}
 					</span>
 				</div>
 			</div>

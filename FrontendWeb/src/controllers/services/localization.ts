@@ -225,8 +225,8 @@ export const resources = {
 			active_auctions: 'Actieve veilingen',
 			total_revenue: 'Totale inkomsten',
 			orders_received: 'Orders ontvangen',
-			total_products: 'Totaal producten',
-			inventory_stock: 'Totaal voorraad',
+			total_products: 'Aantal producten',
+			inventory_stock: 'Totale voorraad',
 
 			// ===== KWEKER ORDERS =====
 			total_orders: 'Totaal bestellingen',
