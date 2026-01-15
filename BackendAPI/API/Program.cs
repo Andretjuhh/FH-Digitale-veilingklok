@@ -8,9 +8,23 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ===========================
+// FORCE AZURE CONFIG LOADING
+// ===========================
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
+
+// ===========================
+// LOGGING
+// ===========================
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
+// ===========================
+// KESTREL PORT FIX FOR AZURE
+// ===========================
 builder.WebHost.ConfigureKestrel(options =>
 {
     var port = Environment.GetEnvironmentVariable("PORT");
@@ -18,12 +32,30 @@ builder.WebHost.ConfigureKestrel(options =>
         options.ListenAnyIP(int.Parse(port));
 });
 
+// ===========================
+// CONNECTION STRING VALIDATION
+// ===========================
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection") ??
+    builder.Configuration["ConnectionStrings:DefaultConnection"];
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new Exception("❌ DefaultConnection not found. Check Azure → Configuration → Connection strings");
+}
+
+// ===========================
+// SERVICE REGISTRATION
+// ===========================
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddControllers();
 builder.Services.AddProblemsExtension();
 
+// ===========================
+// CORS
+// ===========================
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -45,6 +77,9 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// ===========================
+// PIPELINE
+// ===========================
 app.UseExceptionHandler();
 
 app.UseDefaultFiles();
@@ -62,45 +97,41 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-
-// =====================
-// Identity API Endpoints
-// =====================
+// ===========================
+// IDENTITY API
+// ===========================
 app.MapGroup("/api/account")
     .MapIdentityApi<Domain.Entities.Account>()
     .RequireCors("AllowFrontend")
     .AddEndpointFilter(async (context, next) =>
-{
-    var result = await next(context);
-
-    if (context.HttpContext.Request.Path.Value?.EndsWith("/login",
-            StringComparison.OrdinalIgnoreCase) == true)
     {
-        if (result is Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult problem &&
-            problem.StatusCode == 401)
+        var result = await next(context);
+
+        if (context.HttpContext.Request.Path.Value?.EndsWith("/login",
+                StringComparison.OrdinalIgnoreCase) == true)
         {
-            if (problem.ProblemDetails?.Detail == "LockedOut")
-                throw CustomException.AccountLocked();
+            if (result is Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult problem &&
+                problem.StatusCode == 401)
+            {
+                if (problem.ProblemDetails?.Detail == "LockedOut")
+                    throw CustomException.AccountLocked();
 
-            throw CustomException.InvalidCredentials();
+                throw CustomException.InvalidCredentials();
+            }
         }
-    }
 
-    return result;
-});
+        return result;
+    });
 
-
-
-// ==============
-// SignalR Hub
-// ==============
+// ===========================
+// SIGNALR
+// ===========================
 app.MapHub<VeilingHub>("/hubs/veiling-klok")
    .RequireCors("AllowFrontend");
 
-
-// ======================
-// Auto-migrate ONLY in DEV
-// ======================
+// ===========================
+// AUTO MIGRATE ONLY DEV
+// ===========================
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
