@@ -1,34 +1,17 @@
-import { fetchResponse } from '../../utils/fetchHelpers';
-import { HttpSuccess } from '../../declarations/types/HttpSuccess';
-import { CreateMeesterDTO } from '../../declarations/dtos/input/CreateMeesterDTO';
-import { UpdateVeilingMeesterDTO } from '../../declarations/dtos/input/UpdateVeilingMeesterDTO';
-import { CreateVeilingKlokDTO } from '../../declarations/dtos/input/CreateVeilingKlokDTO';
-import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
-import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
-import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
-import { VeilingKlokDetailsOutputDto } from '../../declarations/dtos/output/VeilingKlokDetailsOutputDto';
-import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
-import { ProductDetailsOutputDto } from '../../declarations/dtos/output/ProductDetailsOutputDto';
-import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
-import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
-import { VeilingKlokStatus } from '../../declarations/enums/VeilingKlokStatus';
-
-export type CreateDevVeilingKlokProduct = {
-	id: string;
-	name: string;
-	description: string;
-	imageUrl?: string;
-	dimension?: string | null;
-	stock: number;
-	companyName: string;
-	maxPrice: number;
-};
-
-export type CreateDevVeilingKlokRequest = {
-	scheduledAt: string;
-	veilingDurationSeconds: number;
-	products: CreateDevVeilingKlokProduct[];
-};
+import {fetchResponse} from '../../utils/fetchHelpers';
+import {HttpSuccess} from '../../declarations/types/HttpSuccess';
+import {CreateMeesterDTO} from '../../declarations/dtos/input/CreateMeesterDTO';
+import {UpdateVeilingMeesterDTO} from '../../declarations/dtos/input/UpdateVeilingMeesterDTO';
+import {CreateVeilingKlokDTO} from '../../declarations/dtos/input/CreateVeilingKlokDTO';
+import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
+import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
+import {OrderOutputDto} from '../../declarations/dtos/output/OrderOutputDto';
+import {VeilingKlokDetailsOutputDto} from '../../declarations/dtos/output/VeilingKlokDetailsOutputDto';
+import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import {ProductDetailsOutputDto} from '../../declarations/dtos/output/ProductDetailsOutputDto';
+import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
+import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
+import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
 
 // Create veilingmeester account (POST /api/account/meester/create)
 export async function createVeilingmeesterAccount(account: CreateMeesterDTO): Promise<HttpSuccess<AuthOutputDto>> {

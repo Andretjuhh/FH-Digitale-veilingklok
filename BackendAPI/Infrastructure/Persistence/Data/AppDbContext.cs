@@ -186,6 +186,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
         #region PRODUCT & INVENTORY
 
+        // Indexes for performance optimization on filtering and sorting
+        modelBuilder.Entity<Product>().HasIndex(p => p.CreatedAt);
+        modelBuilder.Entity<Product>().HasIndex(p => p.Name);
+        modelBuilder.Entity<Product>().HasIndex(p => p.Region);
+        modelBuilder.Entity<Product>().HasIndex(p => p.AuctionPrice);
+
         // Decimal precision for Product prices
         modelBuilder.Entity<Product>().Property(p => p.AuctionPrice).HasPrecision(18, 2);
         modelBuilder.Entity<Product>().Property(p => p.MinimumPrice).HasPrecision(18, 2);

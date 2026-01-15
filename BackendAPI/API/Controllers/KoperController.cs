@@ -170,4 +170,36 @@ public class KoperController : ControllerBase
         var result = await _mediator.Send(command);
         return HttpSuccess<VeilingKlokOutputDto>.Ok(result);
     }
+
+    [HttpGet("veilingklokken")]
+    public async Task<IActionResult> GetVeilingKlokken(
+        [FromQuery] VeilingKlokStatus? statusFilter,
+        [FromQuery] string? region,
+        [FromQuery] DateTime? scheduledAfter,
+        [FromQuery] DateTime? scheduledBefore,
+        [FromQuery] DateTime? startedAfter,
+        [FromQuery] DateTime? startedBefore,
+        [FromQuery] DateTime? endedAfter,
+        [FromQuery] DateTime? endedBefore,
+        [FromQuery] Guid? meesterId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        var query = new GetVeilingKlokkenQuery(
+            statusFilter,
+            region,
+            scheduledAfter,
+            scheduledBefore,
+            startedAfter,
+            startedBefore,
+            endedAfter,
+            endedBefore,
+            meesterId,
+            pageNumber,
+            pageSize
+        );
+        var result = await _mediator.Send(query);
+        return HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>.Ok(result);
+    }
 }

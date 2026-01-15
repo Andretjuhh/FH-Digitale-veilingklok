@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import { initReactI18next, useTranslation } from 'react-i18next';
+import {initReactI18next, useTranslation} from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -143,6 +143,7 @@ export const resources = {
 			koper_upcoming_meta: '{{company}} - {{dimension}}',
 			koper_upcoming_badge: 'A1',
 			no_products_available: 'Geen producten beschikbaar',
+			region_products_txt: 'Hier kunt u de bloemen en planten bekijken die beschikbaar zijn in uw regio.',
 
 			// ===== KOPER FOOTER =====
 			koper_footer_about_title: 'Over FloriClock',
@@ -342,6 +343,7 @@ export const resources = {
 			schedule_veilingklok: 'Veilingklok plannen',
 			auction_products: 'Veilingklok producten',
 			manage_auction_clock: 'Veilingklok beheren',
+			join_auction_clock_txt: 'Hier kunt u deelnemen aan de veilingklok die gepland is voor uw regio.',
 			manage_product_price_txt: 'Hier kunt u de prijzen van producten beheren die beschikbaar zijn in uw regio.',
 			manage_auction_txt: 'Hier kunt u de veilingen beheren die u heeft gepland voor uw regio.',
 			manage_veiling_klok_txt: 'Hier kunt u de veilingklokken beheren die u heeft gepland voor uw regio.',
@@ -357,6 +359,7 @@ export const resources = {
 			starting_product_veiling: 'Veiling van product starten...',
 			product_veiling_started: 'Veiling van product succesvol gestart',
 			product_veiling_start_error: 'Fout bij het starten van de veiling van het product',
+			no_active_veilingklok: 'Geen actieve veilingklok gevonden',
 
 			// ===== CLOCK DISPLAY =====
 			munt: 'Munt',
@@ -558,11 +561,11 @@ i18n
 		lng: 'nl', // if you're using a language detector, do not define the lng option
 		fallbackLng: 'nl',
 		debug: false,
-		interpolation: { escapeValue: false },
+		interpolation: {escapeValue: false},
 	})
 	.then(null);
 
 type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
-export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };
+export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};

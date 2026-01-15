@@ -323,11 +323,11 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar(450)")
                         .HasColumnName("name");
 
                     b.Property<string>("Region")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar(450)")
                         .HasColumnName("region");
 
                     b.Property<byte[]>("RowVersion")
@@ -347,7 +347,15 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AuctionPrice");
+
+                    b.HasIndex("CreatedAt");
+
                     b.HasIndex("KwekerId");
+
+                    b.HasIndex("Name");
+
+                    b.HasIndex("Region");
 
                     b.HasIndex("VeilingKlokId");
 

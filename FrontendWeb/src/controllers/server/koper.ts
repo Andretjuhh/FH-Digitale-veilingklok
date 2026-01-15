@@ -1,18 +1,19 @@
-import { fetchResponse } from '../../utils/fetchHelpers';
-import { HttpSuccess } from '../../declarations/types/HttpSuccess';
-import { CreateKoperDTO } from '../../declarations/dtos/input/CreateKoperDTO';
-import { UpdateKoperDTO } from '../../declarations/dtos/input/UpdateKoperDTO';
-import { AddressInputDTO } from '../../declarations/dtos/input/AddressInputDTO';
-import { CreateOrderDTO } from '../../declarations/dtos/input/CreateOrderDTO';
-import { AddressOutputDto } from '../../declarations/dtos/output/AddressOutputDto';
-import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
-import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
-import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
-import { OrderDetailsOutputDto } from '../../declarations/dtos/output/OrderDetailsOutputDto';
-import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
-import { OrderItemOutputDto } from '../../declarations/dtos/output/OrderItemOutputDto';
-import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
-import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import {fetchResponse} from '../../utils/fetchHelpers';
+import {HttpSuccess} from '../../declarations/types/HttpSuccess';
+import {CreateKoperDTO} from '../../declarations/dtos/input/CreateKoperDTO';
+import {UpdateKoperDTO} from '../../declarations/dtos/input/UpdateKoperDTO';
+import {AddressInputDTO} from '../../declarations/dtos/input/AddressInputDTO';
+import {CreateOrderDTO} from '../../declarations/dtos/input/CreateOrderDTO';
+import {AddressOutputDto} from '../../declarations/dtos/output/AddressOutputDto';
+import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
+import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
+import {OrderOutputDto} from '../../declarations/dtos/output/OrderOutputDto';
+import {OrderDetailsOutputDto} from '../../declarations/dtos/output/OrderDetailsOutputDto';
+import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
+import {OrderItemOutputDto} from '../../declarations/dtos/output/OrderItemOutputDto';
+import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
+import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
 
 // Create koper account (POST /api/account/koper/create)
 export async function createKoperAccount(account: CreateKoperDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -99,3 +100,21 @@ export async function getProducts(nameFilter?: string, regionFilter?: string, ma
 export async function getVeilingKlok(klokId: string): Promise<HttpSuccess<VeilingKlokOutputDto>> {
 	return fetchResponse<HttpSuccess<VeilingKlokOutputDto>>(`/api/account/koper/veilingklok/${klokId}`);
 }
+
+export async function getVeilingKlokken(statusFilter?: VeilingKlokStatus, region?: string, scheduledAfter?: string, scheduledBefore?: string, startedAfter?: string, startedBefore?: string, endedAfter?: string, endedBefore?: string, meesterId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>> {
+	const params = new URLSearchParams();
+	if (statusFilter) params.append('statusFilter', statusFilter.toString());
+	if (region) params.append('region', region);
+	if (scheduledAfter) params.append('scheduledAfter', scheduledAfter);
+	if (scheduledBefore) params.append('scheduledBefore', scheduledBefore);
+	if (startedAfter) params.append('startedAfter', startedAfter);
+	if (startedBefore) params.append('startedBefore', startedBefore);
+	if (endedAfter) params.append('endedAfter', endedAfter);
+	if (endedBefore) params.append('endedBefore', endedBefore);
+	if (meesterId) params.append('meesterId', meesterId);
+	params.append('pageNumber', pageNumber.toString());
+	params.append('pageSize', pageSize.toString());
+
+	return fetchResponse<HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>>(`/api/account/koper/veilingklokken?${params.toString()}`);
+}
+

@@ -1,350 +1,134 @@
-// External imports
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import React, {useCallback, useMemo, useState} from 'react';
+import {useRootContext} from "../../components/contexts/RootContext";
+import {useComponentStateReducer} from "../../hooks/useComponentStateReducer";
+import {PaginatedOutputDto} from "../../declarations/dtos/output/PaginatedOutputDto";
+import {VeilingKlokOutputDto} from "../../declarations/dtos/output/VeilingKlokOutputDto";
+import {Column, DataTable, OnFetchHandlerParams} from "../../components/layout/Table";
+import {getVeilingKlokken} from "../../controllers/server/koper";
+import {KlokStatusBadge} from "../../components/elements/StatusBadge";
+import Page from "../../components/nav/Page";
+import {KwekerProductStats} from "../../components/sections/kweker/KwekerStats";
 
-// Internal imports
-import Page from '../../components/nav/Page';
-import Button from '../../components/buttons/Button';
-import AuctionClock from '../../components/elements/AuctionClock2';
-import { useRootContext } from '../../components/contexts/RootContext';
-import { getProducts } from '../../controllers/server/koper';
-import config from '../../constant/application';
-import { RegionVeilingStartedNotification, VeilingPriceTickNotification, VeilingProductChangedNotification } from '../../declarations/models/VeilingNotifications';
-import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+function KoperVeilingKlokken() {
+	const {t, account, languageCode, navigate} = useRootContext();
 
-function UserDashboard() {
-	const { t, account } = useRootContext();
-	const CLOCK_SECONDS = 4;
-	const [price, setPrice] = useState<number>(0.65);
-	const [products, setProducts] = useState<ProductOutputDto[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [productIndex, setProductIndex] = useState<number>(0);
-	const [isClockRunning, setIsClockRunning] = useState(false);
-	const connectionRef = useRef<HubConnection | null>(null);
+	const [paginatedVeilingenState, setPaginatedVeilingenState] = useComponentStateReducer();
+	const [paginatedVeilingen, setPaginatedVeilingen] = useState<PaginatedOutputDto<VeilingKlokOutputDto>>();
 
-	const initializeProducts = useCallback(async () => {
-		setLoading(true);
+	const handleFetchVeilingen = useCallback(async (params: OnFetchHandlerParams) => {
 		try {
-			const response = await getProducts();
-			if (response.data) {
-				setProducts(response.data.data);
-			}
-		} catch (error) {
-			console.error('Failed to fetch products:', error);
-		} finally {
-			setLoading(false);
+			setPaginatedVeilingenState({type: 'loading'});
+			const response = await getVeilingKlokken(
+				undefined,
+				account?.region,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				params.page,
+				params.pageSize
+			);
+			if (response.data) setPaginatedVeilingen(response.data);
+			setPaginatedVeilingenState({type: 'succeed'});
+		} catch (err) {
+			console.error('Failed to fetch orders', err);
 		}
+
 	}, []);
 
-	useEffect(() => {
-		initializeProducts();
-	}, [initializeProducts]);
-
-	const current = products[productIndex];
-	// afbeelding bron per product
-	const [imgSrc, setImgSrc] = useState<string>('');
-	useEffect(() => {
-		if (current) {
-			setImgSrc(current.imageUrl || '/pictures/kweker.png');
-		}
-	}, [current]);
-
-	useEffect(() => {
-		if (!current) return;
-		if (!isClockRunning) {
-			setPrice(current.auctionedPrice ?? 0.65);
-		}
-	}, [current, isClockRunning]);
-
-	const upcoming = useMemo(() => {
-		if (products.length === 0) return [];
-		const after = products.slice(productIndex + 1);
-		const before = products.slice(0, productIndex);
-		return [...after, ...before];
-	}, [products, productIndex]);
-
-	const [paused, setPaused] = useState<boolean>(false);
-	const [resetToken, setResetToken] = useState<number>(0);
-
-	useEffect(() => {
-		const country = account?.countryCode ?? account?.address?.country;
-		const region = account?.region ?? account?.address?.regionOrState;
-		if (!country || !region) return;
-		let isActive = true;
-
-		const startSignalR = async () => {
-			const connection = new HubConnectionBuilder()
-				.withUrl(`${config.API}hubs/veiling-klok`, {
-					// accessTokenFactory: async () => {
-					// 	const auth = await getAuthentication();
-					// 	return auth?.accessToken ?? '';
-					// },
-				})
-				.withAutomaticReconnect()
-				.configureLogging(LogLevel.Warning)
-				.build();
-
-			connection.on('RegionVeilingStarted', (notification: RegionVeilingStartedNotification) => {
-				if (!isActive) return;
-				setIsClockRunning(true);
-				setPaused(false);
-				setResetToken((v) => v + 1);
-				connection.invoke('JoinClock', notification.clockId).catch((err) => {
-					console.error('JoinClock failed:', err);
-				});
-			});
-
-			connection.on('VeilingPriceTick', (notification: VeilingPriceTickNotification) => {
-				if (!isActive) return;
-				setPrice(notification.currentPrice);
-			});
-
-			connection.on('VeilingProductChanged', (notification: VeilingProductChangedNotification) => {
-				if (!isActive) return;
-				setPrice(notification.startingPrice);
-			});
-
-			connection.on('VeilingEnded', () => {
-				if (!isActive) return;
-				setIsClockRunning(false);
-			});
-
-			connection.on('RegionVeilingEnded', () => {
-				if (!isActive) return;
-				setIsClockRunning(false);
-			});
-
-			try {
-				await connection.start();
-				await connection.invoke('JoinRegion', country, region);
-			} catch (err) {
-				console.error('SignalR connection failed:', err);
-			}
-
-			connectionRef.current = connection;
-		};
-
-		startSignalR();
-
-		return () => {
-			isActive = false;
-			const connection = connectionRef.current;
-			connectionRef.current = null;
-			if (connection) {
-				connection.stop().catch(() => undefined);
-			}
-		};
-	}, [account?.countryCode, account?.region, account?.address?.country, account?.address?.regionOrState]);
-
-	const [qty, setQty] = useState<number>(5);
-	const currentStock = current?.stock ?? 0;
-
-	useEffect(() => {
-		// clamp quantity when product or stock_quantity changes
-		setQty((q) => Math.max(0, Math.min(currentStock, q)));
-	}, [currentStock, productIndex]);
-
-	if (loading) {
-		return (
-			<Page enableHeader className="user-dashboard">
-				<div className="flex items-center justify-center h-64">
-					<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-main"></div>
-				</div>
-			</Page>
-		);
-	}
-
-	if (products.length === 0) {
-		return (
-			<Page enableHeader className="user-dashboard">
-				<div className="flex flex-col items-center justify-center h-64">
-					<p className="text-gray-500 mb-4">{t('no_products_available')}</p>
-					<Button label={t('refresh')} onClick={initializeProducts} />
-				</div>
-			</Page>
-		);
-	}
-
-	// prijs wordt gestuurd door de klok (onTick)
+	const klokColumns: Column<VeilingKlokOutputDto>[] = useMemo(
+		() => [
+			{
+				key: 'scheduledAt',
+				label: t('scheduledDate'),
+				sortable: true,
+				render: (item) => <span className="font-medium capitalize">{new Date(item.scheduledAt).toLocaleString(languageCode, {
+					weekday: 'long',
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric',
+					hour: '2-digit',
+					minute: '2-digit'
+				})}</span>
+			},
+			{
+				key: 'status',
+				label: t('veilingklok_status'),
+				sortable: true,
+				render: (item) => <KlokStatusBadge status={item.status}/>
+			},
+			{
+				key: 'totalProducts',
+				label: t('totalProducts'),
+				sortable: true,
+				render: (item) => <span className="font-medium">{item.totalProducts}</span>
+			},
+			{
+				key: 'totalBids',
+				label: t('totalBids'),
+				sortable: true,
+				render: (item) => <span className="font-medium">{item.currentBids}</span>
+			},
+			{
+				key: 'endedDate',
+				label: t('endedDate'),
+				sortable: true,
+				render: (item) => <span className="font-medium capitalize">
+					{
+						item.endedAt ?
+							new Date(item.endedAt).toLocaleDateString(languageCode, {
+								weekday: 'long',
+								year: 'numeric',
+								month: 'long',
+								day: 'numeric'
+							})
+							: '-- / -- / ----'
+					}
+				</span>
+			},
+		],
+		[t, languageCode]
+	);
 
 	return (
-		<Page enableHeader className="user-dashboard">
-			<section className="user-hero">
-				<div className="user-hero-head">
-					<div>
-						<h1 className="user-hero-title">{t('koper_dashboard')}</h1>
-						<p className="user-hero-sub">{t('koper_dashboard_sub')}</p>
-					</div>
-				</div>
-			</section>
+		<Page enableHeader className="vm-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
+			<main className="vm-products-page-ctn">
+				<section className="page-title-section">
+					<h1>
+						{t('welcome')}, {account?.firstName} {account?.lastName}
+					</h1>
+					<h2>
+						{t('join_auction_clock_txt')}
+					</h2>
+				</section>
 
-			<section className="user-card-wrap">
-				<div className="user-card">
-					{/* Left media block */}
-					<div className="user-card-mediaBlock">
-						<img className="user-card-media" src={imgSrc} onError={() => setImgSrc((prev) => (prev.endsWith('.svg') ? '/pictures/kweker.png' : '/pictures/roses.svg'))} alt={t('koper_product_image_alt')} />
-						<div className="product-info">
-							<div className="prod-row">
-								<span className="prod-label">{t('koper_supplier')}</span>
-								<span className="prod-val">{current.companyName}</span>
-								{/*<span className="prod-label">{t('koper_id')}</span>*/}
-								<span className="prod-val">{current.id.substring(0, 8)}</span>
-							</div>
-							<div className="prod-row">
-								<span className="prod-label">{t('products')}</span>
-								<span className="prod-val prod-val--wide">{current.name}</span>
-								{/*<span className="prod-label">{t('koper_dimension')}</span>*/}
-								<span className="prod-val">{current.dimension}</span>
-							</div>
-							<div className="prod-row">
-								{/*<span className="prod-label">{t('koper_stock_label')}</span>*/}
-								<span className="prod-val prod-val--wide">{current.stock}</span>
-							</div>
-						</div>
-					</div>
+				<section className={'products-page-stats'}>
+					<KwekerProductStats/>
+				</section>
 
-					{/* Center profile area */}
-					<div className="user-card-center">
-						<AuctionClock totalSeconds={CLOCK_SECONDS} start={isClockRunning} paused={paused || !isClockRunning} resetToken={resetToken} round={1} coin={1} amountPerLot={1} minAmount={1} price={price} />
+				<DataTable<VeilingKlokOutputDto>
+					isLazy
+					enableSearch={false}
+					loading={paginatedVeilingenState.type == 'loading'}
+					data={paginatedVeilingen?.data || []}
+					itemsPerPage={20}
+					totalItems={paginatedVeilingen?.totalCount || 0}
+					getItemKey={item => item.id}
+					onFetchData={handleFetchVeilingen}
+					onCellClick={(item) => navigate(`/koper/veilingen/${item.id}`)}
 
-						<div className="stock-text">{t('koper_stock', { count: currentStock })}</div>
+					title={t('recent_auctionclocks')}
+					icon={<i className="bi bi-clock-fill"></i>}
+					columns={klokColumns}
+					emptyText={t('no_products_available')}
+				/>
 
-						<div className="user-actions">
-							<div className="buy-controls">
-								<Button
-									className="user-action-btn !bg-primary-main buy-full"
-									label={`${t('koper_buy')} (${qty})`}
-									onClick={async () => {
-										if (qty <= 0) return;
-										setPaused(true);
-										try {
-											// In a real app, we'd need an orderId.
-											// For now, we might need to create an order first or use a default one.
-											// The backend has createOrder.
-											// Let's assume for this demo we just call orderProduct with a dummy orderId if none exists.
-											// Or better, just show a success message for now if we don't have the full flow.
-											// But the user asked to "fix this" and "make it match".
-
-											// For now, let's just simulate the stock_quantity reduction locally and move to next product if empty
-											// as the backend integration for "buying" on the clock is complex (SignalR usually).
-
-											const nextStock = currentStock - qty;
-											setProducts((prev) => prev.map((p, i) => (i === productIndex ? { ...p, stock: nextStock } : p)));
-
-											setTimeout(() => {
-												setResetToken((v) => v + 1);
-												setPrice(current.auctionedPrice ?? 0.65);
-												setPaused(false);
-												if (nextStock <= 0) {
-													setProductIndex((i) => (i + 1) % products.length);
-												}
-											}, 500);
-										} catch (error) {
-											console.error('Order failed:', error);
-											setPaused(false);
-										}
-									}}
-								/>
-								<div className="buy-inline">
-									<input
-										type="number"
-										min={0}
-										max={currentStock}
-										className="buy-inline-input"
-										value={Number.isFinite(qty) ? qty : ''}
-										onChange={(e) => {
-											const val = parseInt(e.target.value, 10);
-											if (Number.isNaN(val)) {
-												setQty(0);
-												return;
-											}
-											setQty(Math.max(0, Math.min(currentStock, val)));
-										}}
-										aria-label={t('koper_qty_input_aria')}
-									/>
-									<Button className="qty-max-btn btn-outline" label={t('koper_max_stock')} aria-label={t('koper_max_stock')} onClick={() => setQty(currentStock)} disabled={currentStock === 0} />
-								</div>
-							</div>
-						</div>
-					</div>
-
-					{/* Right side: compacte wachtrij */}
-					<aside className="upcoming-side">
-						<h4 className="upcoming-side-title">{t('next')}</h4>
-						<ul className="upcoming-side-list">
-							{upcoming.map((p, i) => (
-								<li className="upcoming-side-item" key={p.id}>
-									<img
-										className="upcoming-side-thumb"
-										src={p.imageUrl || '/pictures/kweker.png'}
-										alt={p.name}
-										onError={(e) => {
-											(e.currentTarget as HTMLImageElement).src = '/pictures/kweker.png';
-										}}
-									/>
-									<div className="upcoming-side-info">
-										<div className="upcoming-side-name">{p.name}</div>
-										<div className="upcoming-side-meta">{t('koper_upcoming_meta', { company: p.companyName, dimension: p.dimension ?? '' })}</div>
-									</div>
-									<span className="upcoming-side-badge">{t('koper_upcoming_badge')}</span>
-								</li>
-							))}
-						</ul>
-					</aside>
-				</div>
-			</section>
-
-			<footer className="app-footer">
-				<div className="user-footer-col">
-					<h4 className="user-footer-title">{t('koper_footer_about_title')}</h4>
-					<p className="user-footer-line">{t('koper_footer_about_line1')}</p>
-					<p className="user-footer-line">{t('koper_footer_about_line2')}</p>
-				</div>
-				<div className="user-footer-col">
-					<h4 className="user-footer-title">{t('koper_footer_product_title')}</h4>
-					<ul className="user-footer-list">
-						<li>
-							<a href="#">{t('koper_footer_live')}</a>
-						</li>
-						<li>
-							<a href="#">{t('koper_footer_history')}</a>
-						</li>
-						<li>
-							<a href="#">{t('koper_footer_favorites')}</a>
-						</li>
-					</ul>
-				</div>
-				<div className="user-footer-col">
-					<h4 className="user-footer-title">{t('koper_footer_resources_title')}</h4>
-					<ul className="user-footer-list">
-						<li>
-							<a href="#">{t('koper_footer_docs')}</a>
-						</li>
-						<li>
-							<a href="#">{t('koper_footer_faq')}</a>
-						</li>
-						<li>
-							<a href="#">{t('koper_footer_status')}</a>
-						</li>
-					</ul>
-				</div>
-				<div className="user-footer-col">
-					<h4 className="user-footer-title">{t('koper_footer_contact_title')}</h4>
-					<ul className="user-footer-list">
-						<li>
-							<a href="#">{t('koper_footer_support')}</a>
-						</li>
-						<li>
-							<a href="#">{t('koper_footer_form')}</a>
-						</li>
-						<li>
-							<a href="#">{t('koper_footer_locations')}</a>
-						</li>
-					</ul>
-				</div>
-			</footer>
+			</main>
 		</Page>
 	);
 }
 
-export default UserDashboard;
+export default KoperVeilingKlokken;

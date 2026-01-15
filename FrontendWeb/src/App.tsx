@@ -29,6 +29,9 @@ import KwekerOrders from './pages/kweker/KwekerOrders';
 import KwekerProducts from './pages/kweker/KwekerProducts';
 import ProductDetails from './pages/kweker/ProductDetails';
 import VeilingmeesterManageHome from './pages/meester/VeilingmeesterHome';
+import KoperVeilingKlok from "./pages/koper/KoperVeilingKlok";
+import KoperProducts from "./pages/koper/KoperProducts";
+import KoperOrders from "./pages/koper/KoperOrders";
 
 function App() {
 	const location = useLocation();
@@ -54,9 +57,9 @@ function App() {
 
 					{/*Koper Routes*/}
 					<Route path="/koper/veilingen" element={<KoperVeilingKlokken/>}/>
-					<Route path="/koper/veilingen/:id" element={<KoperVeilingKlokken/>}/>
-					<Route path="/koper/producten" element={<KoperVeilingKlokken/>}/>
-					<Route path="/koper/orders" element={<KoperVeilingKlokken/>}/>
+					<Route path="/koper/veilingen/:id" element={<KoperVeilingKlok/>}/>
+					<Route path="/koper/zoeken" element={<KoperProducts/>}/>
+					<Route path="/koper/orders" element={<KoperOrders/>}/>
 
 					{/*Kweker Routes*/}
 					<Route path="/kweker/dashboard" element={<KwekerDashboard/>}/>

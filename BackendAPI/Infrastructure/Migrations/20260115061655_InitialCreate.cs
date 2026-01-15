@@ -351,12 +351,12 @@ namespace Infrastructure.Migrations
                     created_at = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     image_url = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     dimension = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     auction_price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     minimum_price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     stock = table.Column<int>(type: "int", nullable: false),
-                    region = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    region = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     auctioned_at = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     auctioned_count = table.Column<int>(type: "int", nullable: false),
                     kweker_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -540,9 +540,29 @@ namespace Infrastructure.Migrations
                 column: "veilingklok_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Product_auction_price",
+                table: "Product",
+                column: "auction_price");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Product_created_at",
+                table: "Product",
+                column: "created_at");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Product_kweker_id",
                 table: "Product",
                 column: "kweker_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Product_name",
+                table: "Product",
+                column: "name");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Product_region",
+                table: "Product",
+                column: "region");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Product_veilingklok_id",
