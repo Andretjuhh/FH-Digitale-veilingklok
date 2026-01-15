@@ -105,6 +105,7 @@ app.MapDevelopmentEndpoints();
 #region Home Page Routing
 
 // Restored the simple root endpoint.
+
 app.MapGet(
         "/",
         async context =>
