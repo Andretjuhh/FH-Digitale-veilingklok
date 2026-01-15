@@ -36,6 +36,11 @@ public interface IVeilingKlokNotifier
     Task NotifyViewerCountChanged(string groupName, int count);
 
     /// <summary>
+    /// Notify clients that the veiling klok state has been updated
+    /// </summary>
+    Task NotifyKlokUpdate(string groupName, VeilingKlokState state, int viewerCount);
+
+    /// <summary>
     /// Notify clients of price tick (price decrease over time)
     /// </summary>
     Task NotifyPriceTick(string groupName, VeilingKlokState state);

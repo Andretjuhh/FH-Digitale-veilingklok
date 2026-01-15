@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { AuctionClockRef } from '../components/elements/AuctionClock';
-import { getAuthentication } from '../controllers/server/account';
 import { RegionVeilingStartedNotification, VeilingBodNotification, VeilingPriceTickNotification, VeilingProductChangedNotification, VeilingProductWaitingNotification } from '../declarations/models/VeilingNotifications';
 import config from '../constant/application';
 
@@ -101,12 +100,10 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 		// Handle reconnection events
 		connection.onreconnecting((error) => {
 			console.warn('SignalR reconnecting...', error);
-			setKlokConnectionStatus(signalR.HubConnectionState.Reconnecting);
 		});
 
 		connection.onreconnected((connectionId) => {
 			console.log('SignalR reconnected:', connectionId);
-			setKlokConnectionStatus(signalR.HubConnectionState.Connected);
 			// Rejoin the group after reconnection
 			connection.invoke('JoinRegion', country, region).catch((err) => {
 				console.error('Failed to rejoin group:', err);
@@ -120,10 +117,8 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 		});
 
 		try {
-			setKlokConnectionStatus(signalR.HubConnectionState.Connecting);
 			await connection.start();
 			console.log('SignalR connected');
-			setKlokConnectionStatus(signalR.HubConnectionState.Connected);
 
 			// Join the region group
 			await joinRegion(country, region);

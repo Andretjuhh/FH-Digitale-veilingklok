@@ -1,9 +1,9 @@
 import React from 'react';
-import {ProductOutputDto} from "../../declarations/dtos/output/ProductOutputDto";
-import {formatEur} from "../../utils/standards";
-import clsx from "clsx";
-import Button from "../buttons/Button";
-import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
+import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import { formatEur } from '../../utils/standards';
+import clsx from 'clsx';
+import Button from '../buttons/Button';
+import { VeilingKlokStatus } from '../../declarations/enums/VeilingKlokStatus';
 
 type Props = {
 	clockRunning?: boolean;
@@ -11,18 +11,17 @@ type Props = {
 	product: ProductOutputDto;
 	onStartAuctionClick?: () => void;
 	status: VeilingKlokStatus;
-}
+};
 
 function ClockProductCard(props: Props) {
-	const {status, isSelected, product, clockRunning, onStartAuctionClick} = props;
+	const { status, isSelected, product, clockRunning, onStartAuctionClick } = props;
 
-	const isDisabled =
-		status == VeilingKlokStatus.Ended || status == VeilingKlokStatus.Scheduled;
+	const isDisabled = status !== VeilingKlokStatus.Started;
 
 	return (
 		<div className={clsx('auction-product-card', isSelected && 'auction-product-card-running')}>
 			<div className={'auction-product-card-img-ctn'}>
-				<img className={'auction-product-card-img'} src="/pictures/flower-test.avif"/>
+				<img className={'auction-product-card-img'} src="/pictures/flower-test.avif" />
 			</div>
 
 			<div className={'auction-product-card-texts'}>
@@ -31,23 +30,14 @@ function ClockProductCard(props: Props) {
 			</div>
 
 			<div className={'auction-product-card-digits'}>
-				<span className={'auction-product-card-price'}>
-					{product.auctionedPrice ? formatEur(product.auctionedPrice) : '-'}
-				</span>
+				<span className={'auction-product-card-price'}>{product.auctionedPrice ? formatEur(product.auctionedPrice) : '-'}</span>
 
-				<span
-					className={clsx('auction-product-card-percentage', product.stock == 0 && 'negative')}>
-					 <i className={'bi-inbox-fill'}/> {product.stock}
+				<span className={clsx('auction-product-card-percentage', product.stock == 0 && 'negative')}>
+					<i className={'bi-inbox-fill'} /> {product.stock}
 				</span>
-
 			</div>
 
-			<Button
-				disabled={isDisabled || product.stock == 0}
-				className={'auction-product-card-start-auction-btn'}
-				onClick={onStartAuctionClick}
-				icon={'bi-skip-end-fill'}
-			/>
+			<Button disabled={isDisabled || product.stock == 0} className={'auction-product-card-start-auction-btn'} onClick={onStartAuctionClick} icon={'bi-skip-end-fill'} />
 		</div>
 	);
 }

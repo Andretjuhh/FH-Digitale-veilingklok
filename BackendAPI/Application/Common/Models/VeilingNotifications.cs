@@ -1,4 +1,6 @@
-﻿namespace Application.Common.Models;
+﻿using Domain.Enums;
+
+namespace Application.Common.Models;
 
 public static class VeilingNotifications
 {
@@ -12,6 +14,7 @@ public static class VeilingNotifications
 
     public record VeilingKlokStateNotification
     {
+        public required VeilingKlokStatus Status { get; init; }
         public required Guid ClockId { get; init; }
         public required Guid CurrentProductId { get; init; }
         public required decimal CurrentPrice { get; init; }

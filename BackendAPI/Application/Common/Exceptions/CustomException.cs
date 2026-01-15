@@ -5,10 +5,14 @@ namespace Application.Common.Exceptions;
 public class CustomException : ProcessException
 {
     private CustomException(int statusCode, string messageCode)
-        : base(statusCode, messageCode) { }
+        : base(statusCode, messageCode)
+    {
+    }
 
     private CustomException(int statusCode, string messageCode, string? message)
-        : base(statusCode, messageCode, message) { }
+        : base(statusCode, messageCode, message)
+    {
+    }
 
     public static CustomException ExistingTransaction()
     {
@@ -56,6 +60,14 @@ public class CustomException : ProcessException
             StatusCodes.Status401Unauthorized,
             "CUSTOM.ACCOUNT_LOCKED",
             "Account is locked due to too many failed attempts."
+        );
+    }
+
+    public static CustomException VeilingKlokNotStarted()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.VEILING_KLOK_NOT_STARTED"
         );
     }
 

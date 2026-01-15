@@ -122,34 +122,33 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
     }
 
     // Start the veiling klok
-    public Task StartVeilingAsync(Guid klokId)
+    public async Task StartVeilingAsync(Guid klokId)
     {
         if (!_activeVeilingClocks.TryGetValue(klokId, out var state))
         {
             _logger.LogError($"Cannot start veiling klok {klokId}: not found in active clocks");
-            return Task.CompletedTask;
+            return;
         }
 
         // Start the veiling klok
         state.StartVeiling();
 
         // Notify region users that veiling has started
-        _notifier.NotifyRegionVeilingStarted(
+        await _notifier.NotifyRegionVeilingStarted(
             GetRegionConnectionGroupName(state.Country, state.RegionOrState),
             state
         );
 
         _logger.LogInformation($"Started veiling klok {klokId}");
-        return Task.CompletedTask;
     }
 
     // Pause the veiling klok
-    public Task PauseVeilingAsync(Guid klokId)
+    public async Task PauseVeilingAsync(Guid klokId)
     {
         if (!_activeVeilingClocks.TryGetValue(klokId, out var state))
         {
             _logger.LogError($"Cannot pause veiling klok {klokId}: not found in active clocks");
-            return Task.CompletedTask;
+            return;
         }
 
         // Update status
@@ -159,10 +158,9 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         StopPriceTicker(klokId);
 
         // Notify clients about the pause (state update)
-        _notifier.NotifyPriceTick(GetConnectionGroupName(klokId), state);
+        await _notifier.NotifyPriceTick(GetConnectionGroupName(klokId), state);
 
         _logger.LogInformation($"Paused veiling klok {klokId}");
-        return Task.CompletedTask;
     }
 
     // Stop the veiling klok
@@ -196,7 +194,7 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
     }
 
     // Place a bid on the veiling klok
-    public Task PlaceVeilingBidAsync(
+    public async Task PlaceVeilingBidAsync(
         Guid klokId,
         Guid productId,
         DateTimeOffset placedAt,
@@ -215,17 +213,25 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         productState.PlaceBid(bidPrice, quantity);
 
         // Notify clients about the bid placement
-        _notifier.NotifyBidPlaced(GetConnectionGroupName(klokId), productState);
-        return Task.CompletedTask;
+        await _notifier.NotifyBidPlaced(GetConnectionGroupName(klokId), productState);
     }
 
-    public Task ChangeVeilingProductAsync(Guid klokId, Guid newProductId)
+    public async Task ChangeVeilingProductAsync(Guid klokId, Guid newProductId)
     {
+        _logger.LogInformation(
+            "Changing product to {ProductId} for klok {KlokId}",
+            newProductId,
+            klokId
+        );
+
         if (!_activeVeilingClocks.TryGetValue(klokId, out var state))
         {
             _logger.LogError("Cannot change product for klok {KlokId}: not found", klokId);
-            return Task.CompletedTask;
+            throw CustomException.VeilingKlokNotStarted();
         }
+
+        // Stop existing ticker before starting a new one for the new product
+        StopPriceTicker(klokId);
 
         state.StartProductVeiling(newProductId);
         var currentProduct = state.GetCurrentProduct();
@@ -233,14 +239,13 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         // Restart the price ticker for the new product
         StartPriceTicker(klokId, state);
 
-        _notifier.NotifyProductChanged(GetConnectionGroupName(klokId), currentProduct);
+        await _notifier.NotifyProductChanged(GetConnectionGroupName(klokId), currentProduct);
 
         _logger.LogInformation(
             "Changed product to {ProductId} for klok {KlokId}",
             newProductId,
             klokId
         );
-        return Task.CompletedTask;
     }
 
     #endregion
@@ -260,6 +265,13 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
                         // Update the current price based on time
                         currentState.Tick();
                         var currentProduct = currentState.GetCurrentProduct();
+
+                        // Debug log to confirm ticker is running
+                        // _logger.LogInformation(
+                        //     "Ticker running for {KlokId}. Price: {Price}",
+                        //     klokId,
+                        //     currentState.CurrentPrice
+                        // );
 
                         // Notify clients about the price tick
                         await _notifier.NotifyPriceTick(
@@ -283,7 +295,15 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
                                 klokId,
                                 currentProduct.ProductId
                             );
+
+                            // Stop ticker as product ended
+                            StopPriceTicker(klokId);
                         }
+                    }
+                    else
+                    {
+                        // Safely cleanup if clock is gone
+                        StopPriceTicker(klokId);
                     }
                 }
                 catch (Exception ex)
