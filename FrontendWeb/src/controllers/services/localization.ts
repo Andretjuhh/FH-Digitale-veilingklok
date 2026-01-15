@@ -249,7 +249,7 @@ export const resources = {
 			no_products: 'Geen product gevonden',
 
 			// ===== VEILINGMEESTER DASHBOARD =====
-			total_veilingklokken: 'Totaal veilingklokken',
+			total_veilingklokken: 'Totaal aantal veilingklokken',
 			active_veilingklokken: 'Actieve veilingklokken',
 			scheduled_auctions: 'Geplande veilingen',
 			available_products: 'Beschikbare producten',
