@@ -73,8 +73,7 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         // Create a scope to get scoped services (repositories)
         using var scope = _serviceProvider.CreateScope();
         // Add necessary repositories here
-        var veilingKlokRepository =
-            scope.ServiceProvider.GetRequiredService<IVeilingKlokRepository>();
+        var veilingKlokRepository = scope.ServiceProvider.GetRequiredService<IVeilingKlokRepository>();
         var productRepository = scope.ServiceProvider.GetRequiredService<IProductRepository>();
 
         // Load active veiling clocks from the repository

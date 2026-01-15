@@ -17,7 +17,7 @@ import ClockProductCard from '../../components/cards/ClockProductCard';
 import clsx from 'clsx';
 import { useVeilingKlokSignalR } from '../../hooks/useVeilingKlokSignalR';
 import Modal from '../../components/elements/Modal';
-import { VeilingPriceTickNotification, VeilingProductChangedNotification } from '../../declarations/models/VeilingNotifications';
+import { VeilingBodNotification, VeilingProductChangedNotification } from '../../declarations/models/VeilingNotifications';
 
 function VeilingmeesterKlokManage() {
 	const { klokId: id } = useParams<{ klokId: string }>();
@@ -28,6 +28,7 @@ function VeilingmeesterKlokManage() {
 	// Component state
 	const [state, updateState] = useComponentStateReducer();
 	const [actionState, updateActionState] = useComponentStateReducer();
+	const [clockWaitingProduct, setClockWaitingProduct] = useState<boolean>(false);
 	const [currentVeilingKlok, setCurrentVeilingKlok] = useState<VeilingKlokOutputDto>();
 	const [currentProduct, setCurrentProduct] = useState<ProductOutputDto>();
 
@@ -40,6 +41,7 @@ function VeilingmeesterKlokManage() {
 	}, []);
 	const handleProductChanged = useCallback((state: VeilingProductChangedNotification) => {
 		klokRef.current?.reset();
+		setClockWaitingProduct(false);
 		setCurrentVeilingKlok((prev) => {
 			if (!prev) return prev;
 			const productIndex = prev.products.findIndex((p) => p.id === state.productId);
@@ -51,6 +53,44 @@ function VeilingmeesterKlokManage() {
 			return prev;
 		});
 	}, []);
+	const handleBidPlaced = useCallback((state: VeilingBodNotification) => {
+		// Update product reamaining stock and current price
+		setCurrentProduct((prev) => {
+			if (!prev) return prev;
+			return {
+				...prev,
+				stock: state.remainingQuantity,
+			};
+		});
+
+		// Update klok product stock as well
+		setCurrentVeilingKlok((prev) => {
+			if (!prev) return prev;
+			const updatedProducts = prev.products.map((p) => {
+				if (p.id === state.productId) {
+					return {
+						...p,
+						stock: state.remainingQuantity,
+					};
+				}
+				return p;
+			});
+
+			return { ...prev, products: updatedProducts };
+		});
+	}, []);
+	const handleWaitingForProduct = useCallback(() => {
+		setClockWaitingProduct(true);
+	}, []);
+	const handleTick = useCallback(() => {
+		setClockWaitingProduct(false);
+	}, []);
+	const handleLiveViewsUpdate = useCallback((liveViews: number) => {
+		setCurrentVeilingKlok((prev) => {
+			if (!prev) return prev;
+			return { ...prev, peakedLiveViews: liveViews };
+		});
+	}, []);
 
 	// Veiling klok SignalR hook
 	const klokSignalR = useVeilingKlokSignalR({
@@ -59,6 +99,10 @@ function VeilingmeesterKlokManage() {
 		onVeilingEnded: handleVeilingEnded,
 		onVeilingStarted: handleVeilingStarted,
 		onProductChanged: handleProductChanged,
+		onBidPlaced: handleBidPlaced,
+		onProductWaitingForNext: handleWaitingForProduct,
+		onPriceTick: handleTick,
+		onViewerCountChanged: handleLiveViewsUpdate,
 	});
 
 	useEffect(() => {
@@ -310,7 +354,7 @@ function VeilingmeesterKlokManage() {
 								<div className={'vm-veiling-info-products-scroll custom-scroll'}>
 									<div className={'vm-veiling-info-products-list'}>
 										{currentVeilingKlok?.products.map((product, index) => (
-											<ClockProductCard key={index} product={product} isSelected={currentVeilingKlok.currentProductIndex === index} status={getNormalizedVeilingKlokStatus(currentVeilingKlok.status)!} clockRunning={getNormalizedVeilingKlokStatus(currentVeilingKlok.status) === VeilingKlokStatus.Started} onStartAuctionClick={() => startProductVeiling(product.id)} />
+											<ClockProductCard key={index} product={product} isSelected={currentVeilingKlok.currentProductIndex === index} status={getNormalizedVeilingKlokStatus(currentVeilingKlok.status)!} clockRunning={!clockWaitingProduct} onStartAuctionClick={() => startProductVeiling(product.id)} />
 										))}
 									</div>
 								</div>
