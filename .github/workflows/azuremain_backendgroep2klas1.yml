@@ -63,7 +63,8 @@ jobs:
         with:
           app-name: backendGroep2Klas1
           slot-name: Production
-          package: .
+          package: ./publish
 
           
+
 
