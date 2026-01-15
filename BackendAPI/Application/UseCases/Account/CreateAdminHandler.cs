@@ -1,67 +1,68 @@
 using Application.Common.Exceptions;
+using Application.Common.Extensions;
 using Application.DTOs.Input;
-using Application.DTOs.Output;
-using Application.Repositories;
 using Application.Services;
 using Domain.Entities;
-using Domain.Interfaces;
-using Domain.ValueObjects;
+using Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Account;
 
-public sealed record CreateAdminCommand(CreateAdminDTO Payload) : IRequest<AuthOutputDto>;
+public sealed record CreateAdminCommand(CreateAdminDTO Payload) : IRequest<Domain.Entities.Account>;
 
-public sealed class CreateAdminHandler : IRequestHandler<CreateAdminCommand, AuthOutputDto>
+public sealed class CreateAdminHandler
+    : IRequestHandler<CreateAdminCommand, Domain.Entities.Account>
 {
-    private readonly IAdminRepository _adminRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly UserManager<Domain.Entities.Account> _userManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly ITokenService _tokenService;
 
     public CreateAdminHandler(
-        IAdminRepository adminRepository,
-        IUserRepository userRepository,
-        IUnitOfWork unitOfWork,
-        IPasswordHasher passwordHasher,
-        ITokenService tokenService
+        UserManager<Domain.Entities.Account> userManager,
+        RoleManager<IdentityRole<Guid>> roleManager,
+        IUnitOfWork unitOfWork
     )
     {
-        _adminRepository = adminRepository;
-        _userRepository = userRepository;
-        _tokenService = tokenService;
+        _userManager = userManager;
+        _roleManager = roleManager;
         _unitOfWork = unitOfWork;
-        _passwordHasher = passwordHasher;
     }
 
-    public async Task<AuthOutputDto> Handle(
+    public async Task<Domain.Entities.Account> Handle(
         CreateAdminCommand request,
         CancellationToken cancellationToken
     )
     {
+        var dto = request.Payload;
+
+        var existing = await _userManager.FindByEmailAsync(dto.Email);
+        if (existing != null)
+            throw RepositoryException.ExistingAccount();
+
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
         try
         {
-            var dto = request.Payload;
-            if (await _userRepository.ExistingAccountAsync(dto.Email))
-                throw RepositoryException.ExistingAccount();
+            var admin = new Domain.Entities.Account(dto.Email, AccountType.Admin);
 
-            await _unitOfWork.BeginTransactionAsync(cancellationToken);
+            var result = await _userManager.CreateAsync(admin, dto.Password);
+            result.ThrowIfFailed();
 
-            // Create Admin account
-            var admin = new Admin(dto.Email, Password.Create(dto.Password, _passwordHasher));
-            await _adminRepository.CreateAsync(admin);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var roleName = nameof(AccountType.Admin);
+            if (!await _roleManager.RoleExistsAsync(roleName))
+            {
+                await _roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+            }
+            await _userManager.AddToRoleAsync(admin, roleName);
 
-            // Generate Tokens
-            var (token, _) = _tokenService.GenerateAuthenticationTokens(admin);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
-            return token;
+
+            return admin;
         }
-        catch (Exception)
+        catch
         {
-            await _unitOfWork.RollbackAsync(cancellationToken);
+            await _unitOfWork.RollbackAsync();
             throw;
         }
     }

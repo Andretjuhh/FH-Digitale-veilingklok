@@ -35,20 +35,15 @@ public class Kweker : Account
     public required string Telephone { get; set; }
 
     // Adress Relationshiop Company have one  Adresses
-    [Column("adress_id")] public int? AdressId { get; private set; }
+    [Column("adress_id")]
+    public int? AdressId { get; private set; }
     public Address? Adress { get; set; } = default!;
 
-    [NotMapped] public override AccountType AccountType => AccountType.Kweker;
-
     private Kweker()
-        : base()
-    {
-    }
+        : base(AccountType.Kweker) { }
 
-    public Kweker(string email, Password password)
-        : base(email, password)
-    {
-    }
+    public Kweker(string email)
+        : base(email, AccountType.Kweker) { }
 
     public void UpdateAdress(Address updatedAdress)
     {

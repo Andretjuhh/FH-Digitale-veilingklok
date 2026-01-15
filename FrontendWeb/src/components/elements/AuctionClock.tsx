@@ -1,193 +1,302 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {forwardRef, useEffect, useImperativeHandle, useMemo, useState} from 'react';
+import {motion} from 'framer-motion';
+import {formatEur} from '../../utils/standards';
+import {useRootContext} from '../contexts/RootContext';
+import {VeilingPriceTickNotification} from '../../declarations/models/VeilingNotifications';
 
-type ClockProps = {
-	totalSeconds?: number;
-	start?: boolean;
-	paused?: boolean;
-	resetToken?: number; // change this value to reset to start
-	// Center values
+interface AuctionClockProps {
+	// Clock configuration
+	totalDots?: number;
+	dotSize?: number;
+	dotSpacing?: number; // radius of the ring
+
+	// Clock data
+	highestRange?: number;
+
+	// Price data
+	startPrice?: number;
+	lowestPrice?: number;
+	currentPrice?: number;
+	hideLowestPrice?: boolean;
+
+	// Center display values
 	round?: number;
 	coin?: number;
-	amountPerLot?: number; // "Aant/ehd"
+	amountStock?: number;
 	minAmount?: number;
-	price?: number; // dynamic price shown
-	maxPrice?: number;
-	minPrice?: number;
-	onTick?: (remaining: number) => void;
-	onComplete?: () => void;
-};
 
-// Simple SVG clock that paints 100 dots around and highlights progress
-export default function AuctionClock(props: ClockProps) {
+	// Control
+	autoStart?: boolean;
+	paused?: boolean;
+
+	// Callbacks
+	onTick?: (price: number) => void;
+	onComplete?: () => void;
+}
+
+export interface AuctionClockRef {
+	tick: (state: VeilingPriceTickNotification) => void;
+	reset: () => void;
+	pause: () => void;
+	resume: () => void;
+}
+
+const AuctionClock = forwardRef<AuctionClockRef, AuctionClockProps>((props, ref) => {
 	const {
-		totalSeconds = 8,
-		start = true,
+		hideLowestPrice,
+		totalDots = 100,
+		dotSize = 3,
+		dotSpacing = 135,
+		highestRange = 200,
+		startPrice,
+		lowestPrice = 0,
+		currentPrice: initialPrice,
 		round = 1,
 		coin = 1,
-		amountPerLot = 150,
+		amountStock = 150,
 		minAmount = 1,
-		price = 1,
-		maxPrice,
-		minPrice,
+		autoStart = false,
+		paused = false,
 		onTick,
-		onComplete,
+		onComplete
 	} = props;
 
-	const DOTS = 100; // number of dots around the ring
-	const totalMs = totalSeconds * 1000;
-	const [remainingMs, setRemainingMs] = useState<number>(totalMs);
-	const [roundCount, setRoundCount] = useState<number>(round);
+	const {t} = useRootContext();
+	const [currentPrice, setCurrentPrice] = useState<number>(initialPrice ?? highestRange);
+	const [isPaused, setIsPaused] = useState(paused);
 	const [isComplete, setIsComplete] = useState(false);
 
-	useEffect(() => {
-		setRoundCount(round);
-	}, [round]);
-
-	useEffect(() => {
-		if (!start) return;
-		setRemainingMs(totalMs);
-		setIsComplete(false);
-	}, [totalMs, start]);
-
-	// External reset trigger
-	useEffect(() => {
-		if (!start) return;
-		setRemainingMs(totalMs);
-		setIsComplete(false);
-	}, [props.resetToken]);
-
-	useEffect(() => {
-		if (!start || props.paused || isComplete) return;
-		const id = window.setInterval(() => {
-			setRemainingMs((r) => {
-				if (r <= 0) return 0;
-				const next = Math.max(0, r - 100);
-				const secs = Math.ceil(next / 1000);
-				onTick?.(secs);
-				if (next === 0) {
-					setIsComplete(true);
-					onComplete?.();
-					return 0;
-				}
-				return next;
-			});
-		}, 100);
-		return () => window.clearInterval(id);
-	}, [start, props.paused, totalMs, onTick, onComplete, isComplete]);
-
-	const displayPrice = useMemo(() => {
-		if (typeof maxPrice === 'number' && typeof minPrice === 'number') {
-			const high = Math.max(maxPrice, minPrice);
-			const low = Math.min(maxPrice, minPrice);
-			if (high === low || totalMs === 0) return high;
-			const progress = (totalMs - remainingMs) / totalMs;
-			return high - (high - low) * progress;
-		}
-		return price;
-	}, [maxPrice, minPrice, price, remainingMs, totalMs]);
-
-	const ringHigh = 200;
-	const ringLow = 0;
-
+	// Calculate progress based on price (high to 0)
 	const progressIndex = useMemo(() => {
-		if (typeof maxPrice === 'number' && typeof minPrice === 'number') {
-			const clamped = Math.min(ringHigh, Math.max(ringLow, displayPrice));
-			const progress = (ringHigh - clamped) / (ringHigh - ringLow);
-			return Math.min(DOTS - 1, Math.floor(progress * DOTS));
-		}
-		const elapsedMs = totalMs - remainingMs;
-		return Math.min(DOTS - 1, Math.floor((elapsedMs / totalMs) * DOTS));
-	}, [displayPrice, maxPrice, minPrice, remainingMs, totalMs]);
+		const priceRange = highestRange;
+		if (priceRange === 0) return 0;
 
+		const priceDrop = highestRange - currentPrice;
+		const progress = priceDrop / priceRange;
+
+		return Math.min(totalDots - 1, Math.floor(progress * totalDots));
+	}, [currentPrice, highestRange, totalDots]);
+
+	const startPriceIndex = useMemo(() => {
+		const priceRange = highestRange;
+		if (priceRange === 0) return 0;
+
+		const targetStart = startPrice ?? highestRange;
+		const priceDrop = highestRange - targetStart;
+		const progress = priceDrop / priceRange;
+
+		return Math.min(totalDots - 1, Math.floor(progress * totalDots));
+	}, [startPrice, highestRange, totalDots]);
+
+	const lowestPriceIndex = useMemo(() => {
+		const priceRange = highestRange;
+		if (priceRange === 0) return 0;
+
+		const priceDrop = highestRange - lowestPrice;
+		const progress = priceDrop / priceRange;
+
+		return Math.min(totalDots - 1, Math.floor(progress * totalDots));
+	}, [highestRange, lowestPrice, totalDots]);
+
+	// Generate ring labels (price markers)
 	const ringLabels = useMemo(() => {
 		const steps = 10;
-		const stepValue = (ringHigh - ringLow) / steps;
-		return new Array(steps + 1).fill(0).map((_, i) => ringHigh - stepValue * i);
-	}, []);
+		const stepValue = (highestRange - 0) / steps;
+		return new Array(steps + 1).fill(0).map((_, i) => highestRange - stepValue * i);
+	}, [highestRange, lowestPrice]);
 
-	const formatRingLabel = (value: number) => {
-		return Number.isInteger(value) ? value.toString() : value.toFixed(2);
-	};
-
-	// Precompute ring dots
+	// Precompute dot positions (counter-clockwise, opposite of clock)
 	const dots = useMemo(() => {
-		const r = 135; // spread outwards to create more inner space
-		const cx = 150; // center x
-		const cy = 150; // center y
-		return new Array(DOTS).fill(0).map((_, i) => {
-			const angle = (i / DOTS) * 2 * Math.PI - Math.PI / 2; // start from top
-			const x = cx + Math.cos(angle) * r;
-			const y = cy + Math.sin(angle) * r;
+		const cx = 150;
+		const cy = 150;
+		return new Array(totalDots).fill(0).map((_, i) => {
+			// Reverse direction: subtract instead of add angle for counter-clockwise
+			const angle = -((i / totalDots) * 2 * Math.PI) - Math.PI / 2; // start from top, go counter-clockwise
+			const x = cx + Math.cos(angle) * dotSpacing;
+			const y = cy + Math.sin(angle) * dotSpacing;
 			return {x, y};
 		});
-	}, []);
+	}, [totalDots, dotSpacing]);
+
+	// Expose methods via ref
+	useImperativeHandle(
+		ref,
+		() => ({
+			tick: (state: VeilingPriceTickNotification) => {
+				setCurrentPrice(state.currentPrice);
+				onTick?.(state.currentPrice);
+
+				// Check if we've reached the lowest price
+				if (state.currentPrice <= lowestPrice) {
+					setIsComplete(true);
+					onComplete?.();
+				}
+			},
+			reset: () => {
+				setCurrentPrice(highestRange);
+				setIsComplete(false);
+				setIsPaused(false);
+			},
+			pause: () => setIsPaused(true),
+			resume: () => setIsPaused(false),
+		}),
+		[highestRange, lowestPrice, onTick, onComplete]
+	);
+
+	// Sync with paused prop
+	useEffect(() => {
+		setIsPaused(paused);
+	}, [paused]);
+
+	const formatPrice = (value: number) => {
+		return Math.round(value).toString();
+	};
+
+	// Determine dot color based on position
+	const getDotColor = (index: number) => {
+		if (index === startPriceIndex) return 'clock-dot clock-dot--highest'; // Green for start price
+		if (index === lowestPriceIndex && !hideLowestPrice) return 'clock-dot clock-dot--lowest'; // Red for lowest
+		if (index === progressIndex) return 'clock-dot clock-dot--active';
+		return 'clock-dot';
+	};
 
 	return (
 		<div className="auction-clock">
 			<svg viewBox="0 0 300 300" className="clock-svg" aria-label="Auction clock">
-				{/* Outer ticks (dots) */}
-				{dots.map((d, i) => (
-					<circle
-						key={i}
-						cx={d.x}
-						cy={d.y}
-						r={4}
-						className={i === progressIndex ? 'clock-dot clock-dot--active' : 'clock-dot'}
-					/>
-				))}
+				{/* Outer ring dots */}
+				{dots.map((d, i) => {
+					const isActive = i === progressIndex;
+					const isStart = i === startPriceIndex;
+					const isLowest = i === lowestPriceIndex;
 
-				{/* Minute marks numbers every 10% */}
+					return (
+						<motion.circle
+							key={i}
+							cx={d.x}
+							cy={d.y}
+							r={dotSize}
+							className={getDotColor(i)}
+							initial={false}
+							animate={{
+								scale: 1,
+								opacity: isActive ? 1 : isStart || isLowest ? 0.9 : 0.6,
+							}}
+							transition={{
+								duration: 0.4,
+								ease: 'easeInOut',
+							}}
+						/>
+					);
+				})}
+
+				{/* Price labels around the ring */}
 				{ringLabels.map((label, index) => {
+					if (Math.round(label) === 0) return null;
+
 					const percent = index / (ringLabels.length - 1);
-					const i = Math.round(percent * DOTS);
-					const r = 145;
+					const i = Math.round(percent * totalDots);
+					const labelRadius = dotSpacing + 10;
 					const cx = 150;
 					const cy = 150;
-					const a = (i / DOTS) * 2 * Math.PI - Math.PI / 2;
-					const x = cx + Math.cos(a) * r;
-					const y = cy + Math.sin(a) * r;
+					const angle = -((i / totalDots) * 2 * Math.PI) - Math.PI / 2; // counter-clockwise
+					const x = cx + Math.cos(angle) * labelRadius;
+					const y = cy + Math.sin(angle) * labelRadius;
+
+					// Calculate text anchor based on position to avoid overlap with dots
+					let anchor = 'middle';
+					let baseline = 'middle';
+					const normalizedAngle = (((angle + Math.PI / 2) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+					// Right side (3 o'clock area)
+					if (normalizedAngle > Math.PI * 0.25 && normalizedAngle < Math.PI * 0.75) {
+						anchor = 'start';
+					}
+					// Left side (9 o'clock area)
+					else if (normalizedAngle > Math.PI * 1.25 && normalizedAngle < Math.PI * 1.75) {
+						anchor = 'end';
+					}
+					// Top area (12 o'clock)
+					else if (normalizedAngle < Math.PI * 0.25 || normalizedAngle > Math.PI * 1.75) {
+						baseline = 'auto';
+					}
+					// Bottom area (6 o'clock)
+					else if (normalizedAngle > Math.PI * 0.75 && normalizedAngle < Math.PI * 1.25) {
+						baseline = 'hanging';
+					}
+
 					return (
-						<text
-							key={label}
-							x={x}
-							y={y}
-							className="clock-num"
-							textAnchor="middle"
-							dominantBaseline="middle"
-						>
-							{formatRingLabel(label)}
+						<text key={`${label}-${index}`} x={x} y={y} className="clock-num" textAnchor={anchor as any} dominantBaseline={baseline as any}>
+							{formatPrice(label)}
 						</text>
 					);
 				})}
 
-				{/* Center panel */}
-				<g className="clock-center" transform="translate(150,150)">
-					{/* top row */}
-					<text x={-40} y={-75} className="clock-label" textAnchor="middle">Ronde</text>
-					<rect x={-58} y={-70} width={36} height={22} rx={4} className="clock-box"/>
-					<text x={-40} y={-55} className="clock-value" textAnchor="middle">{roundCount}</text>
+				{/* Center group for foreignObject */}
+				<g className="clock-center" transform="translate(150,150) scale(0.85)">
+					<foreignObject x="-100" y="-100" width="200" height="200">
+						<div className="clock-center-panel">
+							{/* Top row */}
+							<div className="clock-row">
+								<div className="clock-field">
+									<span className="clock-label">
+										<i className="bi bi-arrow-repeat me-1"></i>
+										{t('rounds')}
+									</span>
+									<div className="clock-box">
+										<span className="clock-value">{round}</span>
+									</div>
+								</div>
 
-					<text x={40} y={-75} className="clock-label" textAnchor="middle">Munt</text>
-					<rect x={22} y={-70} width={36} height={22} rx={4} className="clock-box"/>
-					<text x={40} y={-55} className="clock-value" textAnchor="middle">{coin}</text>
+								<div className="clock-field">
+									<span className="clock-label">
+										<i className="bi bi-coin me-1"></i>
+										{t('munt')}
+									</span>
+									<div className="clock-box">
+										<span className="clock-value">{coin}</span>
+									</div>
+								</div>
+							</div>
 
-					{/* second row */}
-					<text x={0} y={-35} className="clock-label" textAnchor="middle">Aant/ehd</text>
-					<rect x={-23} y={-30} width={46} height={22} rx={4} className="clock-box"/>
-					<text x={0} y={-15} className="clock-value" textAnchor="middle">{amountPerLot}</text>
+							{/* Second row */}
+							<div className="clock-row">
+								<div className="clock-field">
+									<span className="clock-label">
+										<i className="bi bi-inbox-fill me-1"></i>
+										{t('aant_stock')}
+									</span>
+									<div className="clock-box">
+										<span className="clock-value">{amountStock}</span>
+									</div>
+								</div>
+							</div>
 
-					{/* third row */}
-					<text x={-20} y={28} className="clock-label" textAnchor="end">Prijs</text>
-					<rect x={-90} y={10} width={70} height={24} rx={6} className="clock-box"/>
-					<text x={-55} y={28} className="clock-value" textAnchor="middle">€ {displayPrice.toFixed(2)}</text>
+							{/* Third row */}
+							<div className="clock-row clock-row--wide">
+								<div className="clock-field clock-field--price">
+									<span className="clock-label">
+										<i className="bi bi-currency-euro me-1"></i>
+										{t('price')}
+									</span>
+									<div className="clock-box clock-box--large">
+										<span className="clock-value clock-value--large">{formatEur(currentPrice)}</span>
+									</div>
+								</div>
 
-					<text x={58} y={28} className="clock-label" textAnchor="end">Min. aant.</text>
-					<rect x={60} y={10} width={44} height={24} rx={6} className="clock-box"/>
-					<text x={82} y={28} className="clock-value" textAnchor="middle">{minAmount}</text>
-
-					{/* bottom label */}
+								<div className="clock-field">
+									<span className="clock-label">{t('min_aant')}</span>
+									<div className="clock-box">
+										<span className="clock-value">{minAmount}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</foreignObject>
 				</g>
 			</svg>
 		</div>
 	);
-}
+});
+
+AuctionClock.displayName = 'AuctionClock';
+export default AuctionClock;

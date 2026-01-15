@@ -1,10 +1,10 @@
-import {fetchResponse} from '../../utils/fetchHelpers';
-import {HttpSuccess} from '../../declarations/types/HttpSuccess';
-import {RequestLoginDTO} from '../../declarations/dtos/input/RequestLoginDTO';
-import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
-import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
-import {AccountListItemDTO} from '../../declarations/dtos/output/AccountListItemDTO';
-import {LocalStorageService} from '../services/localStorage';
+import { fetchResponse } from '../../utils/fetchHelpers';
+import { HttpSuccess } from '../../declarations/types/HttpSuccess';
+import { RequestLoginDTO } from '../../declarations/dtos/input/RequestLoginDTO';
+import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
+import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
+import { AccountListItemDTO } from '../../declarations/dtos/output/AccountListItemDTO';
+import { LocalStorageService } from '../services/localStorage';
 
 // Get regions (GET /api/account/country/region)
 export async function getRegions(): Promise<HttpSuccess<string[]>> {
@@ -13,12 +13,23 @@ export async function getRegions(): Promise<HttpSuccess<string[]>> {
 
 // Login (POST /api/account/login)
 export async function loginAccount(loginRequest: RequestLoginDTO): Promise<HttpSuccess<AuthOutputDto>> {
-	const response = await fetchResponse<HttpSuccess<AuthOutputDto>>('/api/account/login', {
+	const response = await fetchResponse<any>('/api/account/login?useCookies=true', {
 		method: 'POST',
 		body: JSON.stringify(loginRequest),
 	});
-	saveAuthenticationResponse(response.data ?? null);
-	return response;
+
+	const info = await getAccountInfo();
+	const authData: HttpSuccess<AuthOutputDto> = {
+		success: response.success,
+		message: response.message,
+		data: {
+			accountType: info.data.accountType,
+			accessToken: response.accessToken,
+			accessTokenExpiresAt: response.accessTokenExpiresAt,
+		},
+	};
+	saveAuthenticationResponse(authData.data ?? null);
+	return authData;
 }
 
 // Get account info (GET /api/account/info)
@@ -68,13 +79,13 @@ export async function getAllAccounts(): Promise<HttpSuccess<AccountListItemDTO[]
 
 export async function deleteAccount(accountId: string, hardDelete: boolean): Promise<HttpSuccess<string>> {
 	const queryParam = hardDelete ? '?hardDelete=true' : '';
-	return fetchResponse<HttpSuccess<string>>(`/api/account/admin/${accountId}${queryParam}`, {
-		method: 'DELETE',
+	return fetchResponse<HttpSuccess<string>>(`/api/account/admin/${accountId}/delete${queryParam}`, {
+		method: 'GET',
 	});
 }
 
 export async function reactivateAccount(accountId: string): Promise<HttpSuccess<string>> {
 	return fetchResponse<HttpSuccess<string>>(`/api/account/admin/${accountId}/reactivate`, {
-		method: 'PATCH',
+		method: 'POST',
 	});
 }

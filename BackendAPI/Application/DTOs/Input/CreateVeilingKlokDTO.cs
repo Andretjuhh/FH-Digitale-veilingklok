@@ -9,14 +9,14 @@ namespace Application.DTOs.Input;
 public class CreateVeilingKlokDTO
 {
     [Required(ErrorMessage = "VEILINGKLOK.SCHEDULED_TIME_REQUIRED")]
-    [InFuture(ErrorMessage = "VEILINGKLOK.SCHEDULED_TIME_INVALID")]
+    [InFuture(ErrorMessage = "VEILINGKLOK.SCHEDULED_TIME_NOT_IN_FUTURE")]
     public DateTimeOffset ScheduledAt { get; set; }
 
     [Required(ErrorMessage = "VEILINGKLOK.DURATION_REQUIRED")]
-    [Range(1, 60, ErrorMessage = "VEILINGKLOK.DURATION_INVALID")]
-    public int VeilingDurationMinutes { get; set; }
+    [Range(10, 1000, ErrorMessage = "VEILINGKLOK.DURATION_INVALID")]
+    public int VeilingDurationSeconds { get; set; }
 
-    [Required(ErrorMessage = "VEILINGKLOK.PRODUCTS_REQUIRED")]
-    [MinLength(1, ErrorMessage = "VEILINGKLOK.AT_LEAST_ONE_PRODUCT_REQUIRED")]
+    // [Required(ErrorMessage = "VEILINGKLOK.PRODUCTS_REQUIRED")]
+    // [MinLength(1, ErrorMessage = "VEILINGKLOK.AT_LEAST_ONE_PRODUCT_REQUIRED")]
     public Dictionary<Guid, decimal> Products { get; set; } = new();
 }

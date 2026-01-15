@@ -20,12 +20,9 @@ public class KoperControllerTests
 {
     private static KoperController CreateController(FakeMediator mediator)
     {
-        var controller = new KoperController(mediator)
+        var controller = new KoperController(mediator, new FakeSignInManager())
         {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            }
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
         };
 
         return controller;
@@ -36,7 +33,7 @@ public class KoperControllerTests
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, accountId.ToString()),
-            new(ClaimTypes.Role, AccountType.Koper.ToString())
+            new(ClaimTypes.Role, AccountType.Koper.ToString()),
         };
 
         var identity = new ClaimsIdentity(claims, "TestAuth");
@@ -47,13 +44,15 @@ public class KoperControllerTests
     public async Task CreateAccount_WithValidData_ReturnsCreatedAuthOutputInHttpSuccess()
     {
         var mediator = new FakeMediator();
-        var authResult = new AuthOutputDto
+        var koperId = Guid.NewGuid();
+        var koper = new global::Domain.Entities.Koper("koper@example.com")
         {
-            AccessToken = "token",
-            AccessTokenExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
-            AccountType = AccountType.Koper
+            Id = koperId,
+            FirstName = "First",
+            LastName = "Last",
+            Telephone = "1234567890",
         };
-        mediator.RegisterResponse<CreateKoperCommand, AuthOutputDto>(authResult);
+        mediator.RegisterResponse<CreateKoperCommand, global::Domain.Entities.Koper>(koper);
 
         var controller = CreateController(mediator);
 
@@ -70,15 +69,16 @@ public class KoperControllerTests
                 City = "City",
                 RegionOrState = "Region",
                 PostalCode = "1234AB",
-                Country = "NL"
-            }
+                Country = "NL",
+            },
         };
 
         var result = await controller.CreateAccount(dto);
 
-        var success = Assert.IsType<HttpSuccess<AuthOutputDto>>(result);
+        var success = Assert.IsType<HttpSuccess<Guid>>(result);
         Assert.Equal(StatusCodes.Status201Created, success.StatusCode);
-        Assert.Equal("Koper account created successfully", success.Message);
+        Assert.Equal("Koper account created and authenticated successfully", success.Message);
+        Assert.Equal(koperId, success.Data);
     }
 
     [Fact]
@@ -88,7 +88,7 @@ public class KoperControllerTests
         var accountResult = new AccountOutputDto
         {
             AccountType = AccountType.Koper,
-            Email = "koper@example.com"
+            Email = "koper@example.com",
         };
         mediator.RegisterResponse<UpdateKoperCommand, AccountOutputDto>(accountResult);
 
@@ -109,8 +109,8 @@ public class KoperControllerTests
                 City = "City",
                 RegionOrState = "Region",
                 PostalCode = "1234AB",
-                Country = "NL"
-            }
+                Country = "NL",
+            },
         };
 
         var result = await controller.UpdateAccount(dto);
@@ -131,7 +131,7 @@ public class KoperControllerTests
             City = "City",
             RegionOrState = "Region",
             PostalCode = "1234AB",
-            Country = "NL"
+            Country = "NL",
         };
         mediator.RegisterResponse<CreateAddressCommand, AddressOutputDto>(addressResult);
 
@@ -145,7 +145,7 @@ public class KoperControllerTests
             City = "City",
             RegionOrState = "Region",
             PostalCode = "1234AB",
-            Country = "NL"
+            Country = "NL",
         };
 
         var result = await controller.CreateAddress(dto);
@@ -166,7 +166,7 @@ public class KoperControllerTests
             City = "City",
             RegionOrState = "Region",
             PostalCode = "1234AB",
-            Country = "NL"
+            Country = "NL",
         };
         mediator.RegisterResponse<UpdatePrimaryAddressCommand, AddressOutputDto>(addressResult);
 
@@ -191,7 +191,7 @@ public class KoperControllerTests
             CreatedAt = DateTimeOffset.UtcNow,
             Status = OrderStatus.Open,
             TotalAmount = 10,
-            TotalItems = 1
+            TotalItems = 1,
         };
         mediator.RegisterResponse<CreateOrderCommand, OrderOutputDto>(orderResult);
 
@@ -199,10 +199,7 @@ public class KoperControllerTests
         var accountId = Guid.NewGuid();
         SetUser(controller, accountId);
 
-        var dto = new CreateOrderDTO
-        {
-            VeilingKlokId = Guid.NewGuid()
-        };
+        var dto = new CreateOrderDTO { VeilingKlokId = Guid.NewGuid() };
 
         var result = await controller.CreateOrder(dto);
 
@@ -222,7 +219,7 @@ public class KoperControllerTests
             Status = OrderStatus.Open,
             TotalAmount = 20,
             TotalItems = 2,
-            Products = new List<OrderItemOutputDto>()
+            Products = new List<OrderItemOutputDto>(),
         };
         mediator.RegisterResponse<GetOrderCommand, OrderDetailsOutputDto>(details);
 
@@ -245,7 +242,7 @@ public class KoperControllerTests
             Page = 1,
             Limit = 10,
             TotalCount = 0,
-            Data = new List<OrderOutputDto>()
+            Data = new List<OrderOutputDto>(),
         };
         mediator.RegisterResponse<GetOrdersCommand, PaginatedOutputDto<OrderOutputDto>>(orders);
 
@@ -272,7 +269,7 @@ public class KoperControllerTests
             CompanyName = "Company",
             Quantity = 1,
             PriceAtPurchase = 10,
-            OrderedAt = DateTimeOffset.UtcNow
+            OrderedAt = DateTimeOffset.UtcNow,
         };
         mediator.RegisterResponse<CreateOrderProductCommand, OrderItemOutputDto>(item);
 
@@ -298,10 +295,13 @@ public class KoperControllerTests
             Description = "Desc",
             ImageUrl = "img",
             AuctionedPrice = null,
+            MinimumPrice = null,
             AuctionedAt = null,
+            Region = null,
             Dimension = "10x10",
             Stock = 10,
-            CompanyName = "Company"
+            CompanyName = "Company",
+            AuctionPlanned = false,
         };
         mediator.RegisterResponse<GetProductCommand, ProductOutputDto>(product);
 
@@ -322,13 +322,13 @@ public class KoperControllerTests
             Page = 1,
             Limit = 10,
             TotalCount = 0,
-            Data = new List<ProductOutputDto>()
+            Data = new List<ProductOutputDto>(),
         };
         mediator.RegisterResponse<GetProductsQuery, PaginatedOutputDto<ProductOutputDto>>(products);
 
         var controller = CreateController(mediator);
 
-        var result = await controller.GetProducts(null, null, null, 1, 10);
+        var result = await controller.GetProducts(null, null, null, null, 1, 10);
 
         var success = Assert.IsType<HttpSuccess<PaginatedOutputDto<ProductOutputDto>>>(result);
         Assert.Equal(StatusCodes.Status200OK, success.StatusCode);
@@ -348,7 +348,8 @@ public class KoperControllerTests
             Country = "NL",
             CurrentBids = 0,
             TotalProducts = 0,
-            Products = new List<ProductOutputDto>()
+            VeilingDurationSeconds = 1800,
+            Products = new List<ProductOutputDto>(),
         };
         mediator.RegisterResponse<GetVeilingKlokCommand, VeilingKlokOutputDto>(klok);
 

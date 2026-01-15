@@ -52,14 +52,17 @@ public sealed class UpdateProductHandler
                     throw CustomException.CannotUpdateProductLinkedToActiveVeilingKlok();
             }
 
+            // Update product fields
             product.Update(
                 dto.Name,
                 dto.Description,
                 dto.ImageBase64,
                 dto.Dimension,
+                dto.Region,
                 dto.MinimumPrice,
                 dto.Stock
             );
+
             _productRepository.Update(product);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);

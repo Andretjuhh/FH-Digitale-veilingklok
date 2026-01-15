@@ -9,6 +9,7 @@ using Application.UseCases.VeilingKlok;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -19,22 +20,42 @@ namespace API.Controllers;
 public class KwekerController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly SignInManager<Domain.Entities.Account> _signInManager;
 
-    public KwekerController(IMediator mediator)
+    public KwekerController(
+        IMediator mediator,
+        SignInManager<Domain.Entities.Account> signInManager
+    )
     {
         _mediator = mediator;
+        _signInManager = signInManager;
     }
 
     [HttpPost("create")]
     [AllowAnonymous]
-    public async Task<IActionResult> CreateAccount([FromBody] CreateKwekerDTO account)
+    public async Task<IActionResult> CreateAccount(
+        [FromBody] CreateKwekerDTO account,
+        [FromQuery] bool useCookies = true,
+        [FromQuery] bool? useSessionCookies = null
+    )
     {
         var command = new CreateKwekerCommand(account);
-        var result = await _mediator.Send(command);
-        return HttpSuccess<AuthOutputDto>.Ok(result, "Kweker account created successfully");
+        var kweker = await _mediator.Send(command);
+
+        // Sign in the user automatically after creation
+        if (useCookies)
+        {
+            var isPersistent = useSessionCookies != true;
+            await _signInManager.SignInAsync(kweker, isPersistent);
+        }
+
+        return HttpSuccess<Guid>.Created(
+            kweker.Id,
+            "Kweker account created and authenticated successfully"
+        );
     }
 
-    [HttpPut("update")]
+    [HttpPost("update")]
     public async Task<IActionResult> UpdateAccount([FromBody] UpdateKwekerDTO account)
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);
@@ -43,7 +64,7 @@ public class KwekerController : ControllerBase
         return HttpSuccess<AccountOutputDto>.Ok(result, "Kweker account updated successfully");
     }
 
-    [HttpPut("order/{orderId}/product/{productItemId}")]
+    [HttpPost("order/{orderId}/product/{productItemId}")]
     public async Task<IActionResult> UpdateOrderProduct(
         Guid orderId,
         Guid productItemId,
@@ -58,12 +79,41 @@ public class KwekerController : ControllerBase
     [HttpGet("order/{orderId}")]
     public async Task<IActionResult> GetOrder(Guid orderId)
     {
-        var query = new GetOrderCommand(orderId, Guid.Empty);
+        var (kwekerId, _) = GetUserClaim.GetInfo(User);
+        var query = new GetKwekerOrderCommand(orderId, kwekerId);
         var result = await _mediator.Send(query);
-        return HttpSuccess<OrderDetailsOutputDto>.Ok(result);
+        return HttpSuccess<OrderKwekerOutput>.Ok(result);
     }
 
-    [HttpPut("order/{orderId}/status")]
+    [HttpGet("orders")]
+    public async Task<IActionResult> GetOrders(
+        [FromQuery] string? productNameFilter,
+        [FromQuery] string? koperNameFilter,
+        [FromQuery] OrderStatus? statusFilter,
+        [FromQuery] DateTime? beforeDate,
+        [FromQuery] DateTime? afterDate,
+        [FromQuery] Guid? productId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        var (kwekerId, _) = GetUserClaim.GetInfo(User);
+        var command = new GetKwekerOrdersCommand(
+            kwekerId,
+            productNameFilter,
+            koperNameFilter,
+            statusFilter,
+            beforeDate,
+            afterDate,
+            productId,
+            pageNumber,
+            pageSize
+        );
+        var result = await _mediator.Send(command);
+        return HttpSuccess<PaginatedOutputDto<OrderKwekerOutput>>.Ok(result);
+    }
+
+    [HttpPost("order/{orderId}/status")]
     public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromQuery] OrderStatus status)
     {
         var command = new UpdateOrderStatusCommand(orderId, status);
@@ -112,7 +162,7 @@ public class KwekerController : ControllerBase
         return HttpSuccess<PaginatedOutputDto<OrderOutputDto>>.Ok(result);
     }
 
-    [HttpPut("product/{productId}")]
+    [HttpPost("product/{productId}")]
     public async Task<IActionResult> UpdateProduct(
         Guid productId,
         [FromBody] UpdateProductDTO product
@@ -127,13 +177,22 @@ public class KwekerController : ControllerBase
     [HttpGet("products")]
     public async Task<IActionResult> GetProducts(
         [FromQuery] string? nameFilter,
+        [FromQuery] string? regionFilter,
         [FromQuery] decimal? maxPrice,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10
     )
     {
         var (kwekerId, _) = GetUserClaim.GetInfo(User);
-        var query = new GetProductsQuery(nameFilter, maxPrice, kwekerId, pageNumber, pageSize);
+        var query = new GetProductsQuery(
+            nameFilter,
+            regionFilter,
+            maxPrice,
+            kwekerId,
+            null,
+            pageNumber,
+            pageSize
+        );
         var result = await _mediator.Send(query);
         return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }

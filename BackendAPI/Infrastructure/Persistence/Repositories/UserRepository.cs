@@ -16,47 +16,44 @@ public class UserRepository : IUserRepository
 
     public async Task<bool> ExistingAccountAsync(string email)
     {
-        return await _dbContext.Accounts.AnyAsync(a => a.Email == email);
+        return await _dbContext.Users.AnyAsync(a => a.Email == email);
     }
 
     public async Task<bool> ExistingAccountAsync(Guid accountId)
     {
-        return await _dbContext.Accounts.AnyAsync(a => a.Id == accountId);
+        return await _dbContext.Users.AnyAsync(a => a.Id == accountId);
     }
 
     public async Task<Account?> GetByEmailAsync(string email)
     {
-        return await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Email == email);
+        return await _dbContext.Users.FirstOrDefaultAsync(a => a.Email == email);
     }
 
     public async Task<Account?> GetByIdAsync(Guid accountId)
     {
-        return await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == accountId);
+        return await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == accountId);
     }
 
     public async Task<List<Account>> GetAllAccountsAsync()
     {
-        return await _dbContext.Accounts.ToListAsync();
+        return await _dbContext.Users.ToListAsync();
     }
 
     public async Task DeleteAccountAsync(Guid id, bool softDelete = true)
     {
-        var account = await _dbContext.Accounts
-            .Include(a => a.RefreshTokens)
-            .FirstOrDefaultAsync(a => a.Id == id);
-        
+        var account = await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id);
         if (account == null)
             return;
 
         if (softDelete)
         {
             account.SoftDelete();
-            _dbContext.Accounts.Update(account);
+            _dbContext.Users.Update(account);
         }
         else
         {
             // Hard delete: remove all related entities first in the correct order
-            
+
             // 1. Remove refresh tokens (should cascade, but doing explicitly to be safe)
             if (account.RefreshTokens.Any())
             {
@@ -64,28 +61,26 @@ public class UserRepository : IUserRepository
             }
 
             // 2. If this is a Veilingmeester, remove all VeilingKlok entities
-            var veilingKlokken = await _dbContext.Veilingklokken
-                .Where(vk => vk.VeilingmeesterId == id)
+            var veilingKlokken = await _dbContext
+                .Veilingklokken.Where(vk => vk.VeilingmeesterId == id)
                 .ToListAsync();
-            
+
             if (veilingKlokken.Any())
             {
                 _dbContext.Veilingklokken.RemoveRange(veilingKlokken);
             }
 
             // 3. If this is a Kweker, remove all products (and their related data)
-            var products = await _dbContext.Products
-                .Where(p => p.KwekerId == id)
-                .ToListAsync();
-            
+            var products = await _dbContext.Products.Where(p => p.KwekerId == id).ToListAsync();
+
             if (products.Any())
             {
                 // First remove order items that reference these products
                 var productIds = products.Select(p => p.Id).ToList();
-                var orderItems = await _dbContext.OrderItems
-                    .Where(oi => productIds.Contains(oi.ProductId))
+                var orderItems = await _dbContext
+                    .OrderItems.Where(oi => productIds.Contains(oi.ProductId))
                     .ToListAsync();
-                
+
                 if (orderItems.Any())
                 {
                     _dbContext.OrderItems.RemoveRange(orderItems);
@@ -96,11 +91,11 @@ public class UserRepository : IUserRepository
             }
 
             // 4. If this is a Koper, remove all orders and clear PrimaryAdressId
-            var orders = await _dbContext.Orders
-                .Include(o => o.OrderItems)
+            var orders = await _dbContext
+                .Orders.Include(o => o.OrderItems)
                 .Where(o => o.KoperId == id)
                 .ToListAsync();
-            
+
             if (orders.Any())
             {
                 foreach (var order in orders)
@@ -123,23 +118,21 @@ public class UserRepository : IUserRepository
             }
 
             // 5. Remove addresses linked to this account
-            var addresses = await _dbContext.Addresses
-                .Where(a => a.AccountId == id)
-                .ToListAsync();
-            
+            var addresses = await _dbContext.Addresses.Where(a => a.AccountId == id).ToListAsync();
+
             if (addresses.Any())
             {
                 _dbContext.Addresses.RemoveRange(addresses);
             }
 
             // 6. Finally, remove the account itself
-            _dbContext.Accounts.Remove(account);
+            _dbContext.Users.Remove(account);
         }
     }
 
     public async Task ReactivateAccountAsync(Guid id)
     {
-        var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id);
+        var account = await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id);
         if (account == null)
             return;
 
@@ -149,13 +142,13 @@ public class UserRepository : IUserRepository
 
         // Reset DeletedAt to null to reactivate
         typeof(Account).GetProperty(nameof(Account.DeletedAt))?.SetValue(account, null);
-        _dbContext.Accounts.Update(account);
+        _dbContext.Users.Update(account);
     }
 
     public async Task<List<string>> GetCountryRegionsAsync(string country)
     {
-        var regions = await _dbContext.Addresses
-            .Where(r => r.Country == country)
+        var regions = await _dbContext
+            .Addresses.Where(r => r.Country == country)
             .Select(r => r.RegionOrState)
             .Distinct() // This ensures unique values
             .ToListAsync();

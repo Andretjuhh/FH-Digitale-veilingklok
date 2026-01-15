@@ -1,7 +1,9 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 using Domain.Interfaces;
 using Domain.ValueObjects;
 using Infrastructure.Persistence.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -16,7 +18,8 @@ public interface ITestDataSeeder
 public class TestDataSeeder : ITestDataSeeder
 {
     private readonly AppDbContext _context;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly UserManager<Account> _userManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly ILogger<TestDataSeeder> _logger;
 
     // Default Password is : Test1234!
@@ -44,7 +47,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Zonnebloemen",
         "Lisianthus",
         "Ranonkels",
-        "Anemonen"
+        "Anemonen",
     };
 
     private static readonly string[] DutchColors = new[]
@@ -56,7 +59,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Oranje",
         "Paars",
         "Blauw",
-        "Gemengd"
+        "Gemengd",
     };
 
     private static readonly string[] FlowerDescriptions = new[]
@@ -68,7 +71,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Biologisch geteelde bloemen",
         "Langbloeiend en sterk",
         "Perfect voor boeketten",
-        "Ideaal voor evenementen"
+        "Ideaal voor evenementen",
     };
 
     // Dutch cities for addresses
@@ -88,7 +91,7 @@ public class TestDataSeeder : ITestDataSeeder
         ("Zaandam", "1506", "Noord-Holland"),
         ("Leiden", "2311", "Zuid-Holland"),
         ("Amersfoort", "3811", "Utrecht"),
-        ("Apeldoorn", "7311", "Gelderland")
+        ("Apeldoorn", "7311", "Gelderland"),
     };
 
     private static readonly string[] DutchStreets = new[]
@@ -102,7 +105,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Stationsweg",
         "Parkweg",
         "Nieuwstraat",
-        "Lange Gracht"
+        "Lange Gracht",
     };
 
     private static readonly string[] CompanyNames = new[]
@@ -118,7 +121,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Bloemendaal Kwekers",
         "Royal Dutch Flowers",
         "Aalsmeer Bloemen BV",
-        "Green Garden Holland"
+        "Green Garden Holland",
     };
 
     private static readonly string[] FirstNames = new[]
@@ -138,7 +141,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Lisa",
         "Eva",
         "Sara",
-        "Julia"
+        "Julia",
     };
 
     private static readonly string[] LastNames = new[]
@@ -154,17 +157,19 @@ public class TestDataSeeder : ITestDataSeeder
         "Meijer",
         "de Boer",
         "Mulder",
-        "de Groot"
+        "de Groot",
     };
 
     public TestDataSeeder(
         AppDbContext context,
-        IPasswordHasher passwordHasher,
+        UserManager<Account> userManager,
+        RoleManager<IdentityRole<Guid>> roleManager,
         ILogger<TestDataSeeder> logger
     )
     {
         _context = context;
-        _passwordHasher = passwordHasher;
+        _userManager = userManager;
+        _roleManager = roleManager;
         _logger = logger;
     }
 
@@ -178,6 +183,10 @@ public class TestDataSeeder : ITestDataSeeder
             await ClearAllDataAsync();
 
             await _context.Database.BeginTransactionAsync();
+
+            // Seed Roles
+            await SeedRolesAsync();
+
             // Seed in order of dependencies
             var kwekers = await SeedKwekersAsync(5);
             var kopers = await SeedKopersAsync(10);
@@ -191,8 +200,8 @@ public class TestDataSeeder : ITestDataSeeder
             _logger.LogInformation("Test data seeding completed successfully!");
             _logger.LogInformation(
                 $"Created: {kwekers.Count} kwekers, {kopers.Count} kopers, "
-                + $"{veilingmeesters.Count} veilingmeesters, {products.Count} products, "
-                + $"{veilingklokken.Count} veilingklokken"
+                    + $"{veilingmeesters.Count} veilingmeesters, {products.Count} products, "
+                    + $"{veilingklokken.Count} veilingklokken"
             );
         }
         catch (Exception ex)
@@ -207,22 +216,72 @@ public class TestDataSeeder : ITestDataSeeder
     {
         _logger.LogInformation("Clearing existing test data...");
 
-        // Delete in reverse order of dependencies
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [OrderItem]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Order]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Product]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Veilingklok]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [RefreshToken]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Veilingmeester]");
-        await _context.Database.ExecuteSqlRawAsync(
-            "DELETE FROM [Kweker]"); // Delete Kweker before Adresses (has FK to Adresses)
-        await _context.Database.ExecuteSqlRawAsync(
-            "DELETE FROM [Koper]"); // Delete Koper before Adresses (has FK to Adresses)
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Adresses]"); // Delete Adresses after Kweker and Koper
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Account]");
+        // Helper to execute SQL and ignore "table not found" errors
+        async Task Exec(string table)
+        {
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync($"DELETE FROM [{table}]");
+            }
+            catch (Exception ex)
+            {
+                // Log but continue - mostly for tables that might not exist or empty
+                _logger.LogWarning($"Could not clear table {table}: {ex.Message}");
+            }
+        }
+
+        // 1. Delete Child/Leaf Tables
+        await Exec("OrderItem");
+        await Exec("VeilingKlokProduct");
+
+        // 2. Delete Main Tables
+        await Exec("Order");
+        await Exec("Product");
+        await Exec("Veilingklok");
+
+        // 3. Delete Identity Tables (Children of Account)
+        await Exec("RefreshToken");
+        await Exec("AspNetUserClaims");
+        await Exec("AspNetUserLogins");
+        await Exec("AspNetUserRoles");
+        await Exec("AspNetUserTokens");
+
+        // 4. Delete Account Subtypes (TPT) - Free up References to Address
+        await Exec("Veilingmeester");
+        await Exec("Kweker");
+        await Exec("Koper");
+
+        // 5. Delete Address (References Account, referenced by Koper/Kweker)
+        await Exec("Adresses"); // Check correct spelling
+        await Exec("Addresses"); // Check common spelling
+
+        // 6. Delete Account (Root)
+        await Exec("Account");
+        await Exec("AspNetUsers"); // Fallback
+
+        // 7. Last resort cleanup for Roles if used
+        await Exec("AspNetRoles");
 
         await _context.SaveChangesAsync();
         _logger.LogInformation("Existing data cleared.");
+    }
+
+    private async Task SeedRolesAsync()
+    {
+        string[] roles =
+        {
+            nameof(AccountType.Koper),
+            nameof(AccountType.Kweker),
+            nameof(AccountType.Veilingmeester),
+        };
+
+        foreach (var role in roles)
+        {
+            if (!await _roleManager.RoleExistsAsync(role))
+            {
+                await _roleManager.CreateAsync(new IdentityRole<Guid>(role));
+            }
+        }
     }
 
     private async Task<List<Kweker>> SeedKwekersAsync(int count)
@@ -234,19 +293,18 @@ public class TestDataSeeder : ITestDataSeeder
         {
             var firstName = FirstNames[random.Next(FirstNames.Length)];
             var lastName = LastNames[random.Next(LastNames.Length)];
-            var password = Password.Create("Test1234!", _passwordHasher);
 
-            var kweker = new Kweker($"kweker{i + 1}@test.nl", password)
+            var kweker = new Kweker($"kweker{i + 1}@test.nl")
             {
                 KvkNumber = $"{60000000 + i + random.Next(1000, 9999)}",
                 CompanyName = CompanyNames[i % CompanyNames.Length],
                 FirstName = firstName,
                 LastName = lastName,
-                Telephone = $"+31 6 {random.Next(10000000, 99999999)}"
+                Telephone = $"+31 6 {random.Next(10000000, 99999999)}",
             };
 
-            await _context.Kwekers.AddAsync(kweker);
-            await _context.SaveChangesAsync(); // Save to get Kweker ID
+            await _userManager.CreateAsync(kweker, "Test1234!");
+            await _userManager.AddToRoleAsync(kweker, nameof(AccountType.Kweker));
             kwekers.Add(kweker);
 
             var location = DutchLocations[i % DutchLocations.Length];
@@ -278,17 +336,16 @@ public class TestDataSeeder : ITestDataSeeder
         {
             var firstName = FirstNames[random.Next(FirstNames.Length)];
             var lastName = LastNames[random.Next(LastNames.Length)];
-            var password = Password.Create("Test1234!", _passwordHasher);
 
-            var koper = new Koper($"koper{i + 1}@test.nl", password)
+            var koper = new Koper($"koper{i + 1}@test.nl")
             {
                 FirstName = firstName,
                 LastName = lastName,
-                Telephone = $"+31 6 {random.Next(10000000, 99999999)}"
+                Telephone = $"+31 6 {random.Next(10000000, 99999999)}",
             };
 
-            await _context.Kopers.AddAsync(koper);
-            await _context.SaveChangesAsync(); // Save to get koper ID
+            await _userManager.CreateAsync(koper, "Test1234!");
+            await _userManager.AddToRoleAsync(koper, nameof(AccountType.Koper));
 
             // Add 1-3 addresses per koper
             var addressCount = random.Next(1, 4);
@@ -341,21 +398,20 @@ public class TestDataSeeder : ITestDataSeeder
             "Zuid-Holland",
             "Utrecht",
             "Noord-Brabant",
-            "Gelderland"
+            "Gelderland",
         };
 
         for (var i = 0; i < count; i++)
         {
-            var password = Password.Create("Test1234!", _passwordHasher);
-
-            var veilingmeester = new Veilingmeester($"veilingmeester{i + 1}@test.nl", password)
+            var veilingmeester = new Veilingmeester($"veilingmeester{i + 1}@test.nl")
             {
                 CountryCode = "NL",
                 Region = regions[i % regions.Length],
-                AuthorisatieCode = $"VM{1000 + i}-NL"
+                AuthorisatieCode = $"VM{1000 + i}-NL",
             };
 
-            await _context.Veilingmeesters.AddAsync(veilingmeester);
+            await _userManager.CreateAsync(veilingmeester, "Test1234!");
+            await _userManager.AddToRoleAsync(veilingmeester, nameof(AccountType.Veilingmeester));
             veilingmeesters.Add(veilingmeester);
         }
 
@@ -370,31 +426,33 @@ public class TestDataSeeder : ITestDataSeeder
         var random = new Random(45);
 
         foreach (var kweker in kwekers)
-            // Create 20 products per kweker
-            for (var i = 0; i < 20; i++)
+            // Create 200 products per kweker to support more veilingklokken and orders
+            for (var i = 0; i < 200; i++)
             {
                 var flowerName = DutchFlowerNames[random.Next(DutchFlowerNames.Length)];
                 var color = DutchColors[random.Next(DutchColors.Length)];
                 var description = FlowerDescriptions[random.Next(FlowerDescriptions.Length)];
                 var minimumPrice = Math.Round((decimal)(random.NextDouble() * 15 + 5), 2); // €5-€20
                 var stock = random.Next(50, 500);
+                var region = DutchLocations[random.Next(DutchLocations.Length)].Region;
 
-                var product = new Product(minimumPrice, stock)
+                var product = new Product(minimumPrice, stock, region)
                 {
                     Name = $"{color} {flowerName}",
                     Description = description,
                     ImageUrl = GenerateBase64PlaceholderImage(),
                     Dimension = $"{random.Next(30, 80)}cm",
-                    KwekerId = kweker.Id
+                    KwekerId = kweker.Id,
                 };
 
-                await _context.Products.AddAsync(product);
                 products.Add(product);
             }
 
+        // Batch add all products at once for performance
+        await _context.Products.AddRangeAsync(products);
         await _context.SaveChangesAsync();
         _logger.LogInformation(
-            $"Seeded {products.Count} products ({kwekers.Count} kwekers × 20 products)"
+            $"Seeded {products.Count} products ({kwekers.Count} kwekers × 200 products)"
         );
         return products;
     }
@@ -406,28 +464,20 @@ public class TestDataSeeder : ITestDataSeeder
     {
         var veilingklokken = new List<VeilingKlok>();
         var random = new Random(46);
-        var availableProducts = new List<Product>(allProducts);
-        var regions = new[]
-        {
-            "Noord-Holland",
-            "Zuid-Holland",
-            "Utrecht",
-            "Noord-Brabant",
-            "Gelderland"
-        };
 
-        // Create 10 veilingklokken
-        for (var i = 0; i < 10; i++)
+        // Create 100 veilingklokken to allow for more variety and order spread
+        for (var i = 0; i < 100; i++)
         {
             var veilingmeester = veilingmeesters[i % veilingmeesters.Count];
             var location = DutchLocations[random.Next(DutchLocations.Length)];
 
             var veilingKlok = new VeilingKlok
             {
-                VeilingDurationMinutes = random.Next(60, 180),
+                VeilingDurationSeconds = random.Next(60, 180),
                 ScheduledAt = DateTimeOffset.UtcNow.AddDays(random.Next(-5, 30)),
                 RegionOrState = location.Region,
-                Country = "NL"
+                Country = "NL",
+                VeilingRounds = 1,
             };
 
             // Assign veilingmeester using reflection since the setter is private
@@ -435,38 +485,93 @@ public class TestDataSeeder : ITestDataSeeder
                 .GetProperty("VeilingmeesterId")
                 ?.SetValue(veilingKlok, veilingmeester.Id);
 
-            await _context.Veilingklokken.AddAsync(veilingKlok);
-            await _context.SaveChangesAsync(); // Save to get ID
+            veilingklokken.Add(veilingKlok);
 
-            // Assign unique products to each klok so historical auctions keep their products.
-            var productCount = Math.Min(random.Next(5, 16), availableProducts.Count);
-            if (productCount > 0)
+            var statusRoll = random.NextDouble();
+            if (statusRoll < 0.2)
             {
-                // Add 5-15 random products from the remaining pool
-                var selectedProducts = availableProducts
-                    .OrderBy(x => random.Next())
-                    .Take(productCount)
-                    .ToList();
+                // Leave as Scheduled
+            }
+            else if (statusRoll < 0.6)
+            {
+                veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
+            }
+            else
+            {
+                veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
+                veilingKlok.UpdateStatus(VeilingKlokStatus.Ended);
+            }
+        }
 
+        // Batch add all veilingklokken at once
+        await _context.Veilingklokken.AddRangeAsync(veilingklokken);
+        await _context.SaveChangesAsync(); // Save to get IDs
+
+        // Now assign products to veilingklokken
+        var productIndex = 0;
+        foreach (var veilingKlok in veilingklokken)
+        {
+            var addedProducts = 0;
+            // 90% chance to add products
+            if (random.NextDouble() > 0.1)
+            {
+                var productCount = random.Next(10, 25);
                 var lowestPrice = decimal.MaxValue;
                 var highestPrice = decimal.MinValue;
 
-                foreach (var product in selectedProducts)
+                for (
+                    var j = 0;
+                    j < productCount && productIndex < allProducts.Count;
+                    j++, productIndex++
+                )
                 {
+                    var product = allProducts[productIndex];
                     product.AddToVeilingKlok(veilingKlok.Id);
-                    availableProducts.Remove(product);
 
-                    if (product.MinimumPrice < lowestPrice)
-                        lowestPrice = product.MinimumPrice;
-                    if (product.MinimumPrice > highestPrice)
-                        highestPrice = product.MinimumPrice;
+                    // Determine price
+                    decimal currentPrice = product.MinimumPrice;
+                    if (
+                        veilingKlok.Status == VeilingKlokStatus.Started
+                        || veilingKlok.Status == VeilingKlokStatus.Ended
+                    )
+                    {
+                        currentPrice =
+                            product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
+                    }
+                    else
+                    {
+                        // Scheduled: use minimum price as starting point in join table
+                        currentPrice = product.MinimumPrice;
+                    }
+
+                    // Add to clock with determined price
+                    veilingKlok.AddProduct(product.Id, currentPrice);
+                    addedProducts++;
+
+                    if (veilingKlok.Status != VeilingKlokStatus.Scheduled)
+                    {
+                        product.UpdateAuctionPrice(currentPrice);
+                    }
+
+                    // If the veiling has ended, the product should not be actively linked anymore
+                    if (veilingKlok.Status == VeilingKlokStatus.Ended)
+                    {
+                        product.RemoveVeilingKlok();
+                    }
                 }
-
-                veilingKlok.LowestPrice = lowestPrice;
-                veilingKlok.HighestPrice = highestPrice;
             }
 
-            veilingklokken.Add(veilingKlok);
+            if (addedProducts == 0 && veilingKlok.Status != VeilingKlokStatus.Scheduled)
+            {
+                // Assign status using reflection since the setter is private/protected logic
+                typeof(VeilingKlok)
+                    .GetProperty("Status")
+                    ?.SetValue(veilingKlok, VeilingKlokStatus.Scheduled);
+
+                // Clear timestamps
+                typeof(VeilingKlok).GetProperty("StartedAt")?.SetValue(veilingKlok, null);
+                typeof(VeilingKlok).GetProperty("EndedAt")?.SetValue(veilingKlok, null);
+            }
         }
 
         await _context.SaveChangesAsync();
@@ -482,54 +587,142 @@ public class TestDataSeeder : ITestDataSeeder
     {
         var random = new Random(47);
         var ordersCreated = 0;
+        var soldProductIds = new HashSet<Guid>();
 
-        // Create some orders for random kopers
-        foreach (var koper in kopers.Take(5)) // First 5 kopers get orders
+        // Group products by VeilingKlok for faster lookup
+        var productsByVeilingKlok = products
+            .Where(p => p.VeilingKlokId.HasValue)
+            .GroupBy(p => p.VeilingKlokId.Value)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        var attempts = 0;
+        var ordersToSave =
+            new List<(
+                Order order,
+                List<(Product product, int quantity, decimal unitPrice)> items,
+                OrderStatus desiredStatus
+            )>();
+
+        while (ordersCreated < 500 && attempts < 1500)
         {
+            attempts++;
+            var koper = kopers[random.Next(kopers.Count)];
             var veilingKlok = veilingklokken[random.Next(veilingklokken.Count)];
+
+            // Get available products for this veilingklok
+            if (!productsByVeilingKlok.TryGetValue(veilingKlok.Id, out var veilingKlokProducts))
+                continue;
+
+            var availableProducts = veilingKlokProducts
+                .Where(p => !soldProductIds.Contains(p.Id))
+                .ToList();
+
+            if (!availableProducts.Any())
+                continue;
 
             var order = new Order(koper.Id) { VeilingKlokId = veilingKlok.Id };
 
-            await _context.Orders.AddAsync(order);
-            await _context.SaveChangesAsync(); // Save to get order ID
-
-            // Add 2-5 order items
-            var itemCount = random.Next(2, 6);
-            var selectedProducts = products
-                .Where(p => p.VeilingKlokId == veilingKlok.Id)
+            // Add 1-4 order items (reduced from 1-5 for faster processing)
+            var itemCount = random.Next(1, 5);
+            var selectedProducts = availableProducts
                 .OrderBy(x => random.Next())
                 .Take(itemCount)
                 .ToList();
 
+            var orderItemsData = new List<(Product product, int quantity, decimal unitPrice)>();
+
             foreach (var product in selectedProducts)
             {
                 var quantity = random.Next(1, 10);
-                // Ensure price is at least the minimum price, or slightly higher if auctioned
-                var unitPrice = product.AuctionPrice ?? product.MinimumPrice;
-                // If auction price is set, use it; otherwise add 10-50% markup to minimum price
-                if (!product.AuctionPrice.HasValue)
+
+                // Determine the unit price
+                decimal unitPrice;
+                if (product.AuctionPrice.HasValue)
+                {
+                    unitPrice = product.AuctionPrice.Value;
+                }
+                else
+                {
                     unitPrice =
                         product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
+                    product.UpdateAuctionPrice(unitPrice);
+                }
 
-                // Fetch the full product object for the constructor
-                var fullProduct = await _context.Products.FindAsync(product.Id);
-                if (fullProduct == null)
-                    continue;
-
-                var orderItem = new OrderItem(unitPrice, quantity, fullProduct, order.Id)
-                {
-                    VeilingKlokId = veilingKlok.Id
-                };
-
-                order.AddItem(orderItem);
-                await _context.OrderItems.AddAsync(orderItem);
+                orderItemsData.Add((product, quantity, unitPrice));
+                soldProductIds.Add(product.Id);
             }
 
+            // Determine desired Order Status (but don't apply yet - need to add items first)
+            var desiredStatus = OrderStatus.Open;
+            var statusRoll = random.NextDouble();
+            if (veilingKlok.Status == VeilingKlokStatus.Ended)
+            {
+                if (statusRoll < 0.1)
+                    desiredStatus = OrderStatus.Processing;
+                else if (statusRoll < 0.4)
+                    desiredStatus = OrderStatus.Processed;
+                else
+                    desiredStatus = OrderStatus.Delivered;
+            }
+            else
+            {
+                if (statusRoll < 0.4)
+                    desiredStatus = OrderStatus.Processing;
+            }
+
+            ordersToSave.Add((order, orderItemsData, desiredStatus));
             ordersCreated++;
+
+            // Batch save every 100 orders for better performance
+            if (ordersCreated % 100 == 0)
+            {
+                await SaveOrderBatchAsync(ordersToSave);
+                ordersToSave.Clear();
+                _logger.LogInformation($"Seeded {ordersCreated} orders so far...");
+            }
         }
 
-        await _context.SaveChangesAsync();
+        // Save remaining orders
+        if (ordersToSave.Any())
+            await SaveOrderBatchAsync(ordersToSave);
+
         _logger.LogInformation($"Seeded {ordersCreated} orders with items");
+    }
+
+    private async Task SaveOrderBatchAsync(
+        List<(
+            Order order,
+            List<(Product product, int quantity, decimal unitPrice)> items,
+            OrderStatus desiredStatus
+        )> ordersToSave
+    )
+    {
+        // First, save all orders to get their IDs (and let database generate GUIDs)
+        var orders = ordersToSave.Select(x => x.order).ToList();
+        await _context.Orders.AddRangeAsync(orders);
+        await _context.SaveChangesAsync();
+
+        // Now create and save order items with the correct order IDs
+        // IMPORTANT: Items must be added while order status is still Open
+        var allOrderItems = new List<OrderItem>();
+        foreach (var (order, items, desiredStatus) in ordersToSave)
+        foreach (var (product, quantity, unitPrice) in items)
+        {
+            var orderItem = new OrderItem(unitPrice, quantity, product, order.Id);
+            order.AddItem(orderItem); // This validates that order is Open
+            allOrderItems.Add(orderItem);
+        }
+
+        await _context.OrderItems.AddRangeAsync(allOrderItems);
+        await _context.SaveChangesAsync();
+
+        // Now that items are added, we can change the order status
+        foreach (var (order, items, desiredStatus) in ordersToSave)
+            if (desiredStatus != OrderStatus.Open)
+                order.UpdateOrderStatus(desiredStatus);
+
+        // Save status updates
+        await _context.SaveChangesAsync();
     }
 
     private string GenerateBase64PlaceholderImage()

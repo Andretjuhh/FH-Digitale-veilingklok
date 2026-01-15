@@ -1,20 +1,22 @@
 using Domain.Entities;
 using Domain.ValueObjects;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Data;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options)
+    : IdentityDbContext<Account, IdentityRole<Guid>, Guid>(options)
 {
-    public DbSet<Account> Accounts { get; set; }
     public DbSet<Address> Addresses { get; set; }
-    public DbSet<Admin> Admins { get; set; }
     public DbSet<Koper> Kopers { get; set; }
     public DbSet<Kweker> Kwekers { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<Veilingmeester> Veilingmeesters { get; set; }
     public DbSet<VeilingKlok> Veilingklokken { get; set; }
+    public DbSet<VeilingKlokProduct> VeilingKlokProducts { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
 
@@ -23,8 +25,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         base.OnModelCreating(modelBuilder);
 
         #region GLOBAL DEFAULTS (IDs & Timestamps)
-
-        modelBuilder.Entity<Account>().Property(a => a.Id).HasDefaultValueSql("NEWID()");
 
         modelBuilder.Entity<Order>().Property(o => o.Id).HasDefaultValueSql("NEWID()");
 
@@ -62,6 +62,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .Property(rt => rt.CreatedAt)
             .HasDefaultValueSql("SYSDATETIMEOFFSET()");
 
+        // Account RowVersion - IdentityUser has ConcurrencyStamp, but we kept RowVersion in Account.cs
         modelBuilder.Entity<Account>().Property(p => p.RowVersion).IsRowVersion();
         modelBuilder.Entity<Order>().Property(p => p.RowVersion).IsRowVersion();
         modelBuilder.Entity<OrderItem>().Property(p => p.RowVersion).IsRowVersion();
@@ -72,18 +73,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         #region ACCOUNT HIERARCHY & AUTHENTICATION
 
-        // Password Value Object Conversion
-        modelBuilder
-            .Entity<Account>()
-            .Property(a => a.Password)
-            .HasConversion(password => password.Value, hash => Password.FromHash(hash))
-            .HasColumnName("password");
-
         // Table-Per-Type (TPT) Strategy
         modelBuilder.Entity<Account>().UseTptMappingStrategy();
 
-        // Unique Email Index
-        modelBuilder.Entity<Account>().HasIndex(a => a.Email).IsUnique();
+        // Map Identity Tables to clean names if desired, but sticking to defaults for Identity tables is standard.
+        // Account table is already mapped via [Table("Account")] in entity.
 
         // RefreshToken Configuration
         modelBuilder.Entity<RefreshToken>().HasIndex(rt => rt.Jti);
@@ -173,17 +167,38 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
 
-        // Decimal precision for VeilingKlok prices
-        modelBuilder.Entity<VeilingKlok>().Property(vk => vk.HighestPrice).HasPrecision(18, 2);
-        modelBuilder.Entity<VeilingKlok>().Property(vk => vk.LowestPrice).HasPrecision(18, 2);
+        // Decimal precision for VeilingKlokProduct prices
+        modelBuilder
+            .Entity<VeilingKlokProduct>()
+            .Property(vk => vk.AuctionPrice)
+            .HasPrecision(18, 2);
+
+        // VeilingKlok -> VeilingKlokProducts (Cascade Delete)
+        modelBuilder
+            .Entity<VeilingKlok>()
+            .HasMany(vk => vk.VeilingKlokProducts)
+            .WithOne()
+            .HasForeignKey(vkp => vkp.VeilingKlokId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
 
         #endregion
 
         #region PRODUCT & INVENTORY
 
+        // Indexes for performance optimization on filtering and sorting
+        modelBuilder.Entity<Product>().HasIndex(p => p.CreatedAt);
+        modelBuilder.Entity<Product>().HasIndex(p => p.Name);
+        modelBuilder.Entity<Product>().HasIndex(p => p.Region);
+        modelBuilder.Entity<Product>().HasIndex(p => p.AuctionPrice);
+
         // Decimal precision for Product prices
         modelBuilder.Entity<Product>().Property(p => p.AuctionPrice).HasPrecision(18, 2);
         modelBuilder.Entity<Product>().Property(p => p.MinimumPrice).HasPrecision(18, 2);
+
+        // Decimal precision for OrderItem price
+        modelBuilder.Entity<OrderItem>().Property(oi => oi.PriceAtPurchase).HasPrecision(18, 2);
+        modelBuilder.Entity<OrderItem>().Property(oi => oi.ProductMinimumPrice).HasPrecision(18, 2);
 
         // Check Constraint: MinimumPrice <= AuctionPrice (when AuctionPrice is not null)
         modelBuilder
@@ -203,6 +218,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(p => p.VeilingKlokId)
             .OnDelete(DeleteBehavior.SetNull)
             .IsRequired(false); // A  Product may or may not be associated with a VeilingKlok.
+
+        // VeilingKlokProduct -> Product (Restrict Delete)
+        modelBuilder
+            .Entity<VeilingKlokProduct>()
+            .HasOne<Product>()
+            .WithMany()
+            .HasForeignKey(vkp => vkp.ProductId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
 
         // OrderItem -> Product (Restrict Delete)
         modelBuilder

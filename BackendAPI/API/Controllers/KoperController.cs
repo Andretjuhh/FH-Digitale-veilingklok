@@ -9,6 +9,7 @@ using Application.UseCases.VeilingKlok;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -19,22 +20,39 @@ namespace API.Controllers;
 public class KoperController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly SignInManager<Domain.Entities.Account> _signInManager;
 
-    public KoperController(IMediator mediator)
+    public KoperController(IMediator mediator, SignInManager<Domain.Entities.Account> signInManager)
     {
         _mediator = mediator;
+        _signInManager = signInManager;
     }
 
     [HttpPost("create")]
     [AllowAnonymous]
-    public async Task<IActionResult> CreateAccount([FromBody] CreateKoperDTO account)
+    public async Task<IActionResult> CreateAccount(
+        [FromBody] CreateKoperDTO account,
+        [FromQuery] bool useCookies = true,
+        [FromQuery] bool? useSessionCookies = null
+    )
     {
         var command = new CreateKoperCommand(account);
-        var result = await _mediator.Send(command);
-        return HttpSuccess<AuthOutputDto>.Created(result, "Koper account created successfully");
+        var koper = await _mediator.Send(command);
+
+        // Sign in the user automatically after creation
+        if (useCookies)
+        {
+            var isPersistent = useSessionCookies != true;
+            await _signInManager.SignInAsync(koper, isPersistent);
+        }
+
+        return HttpSuccess<Guid>.Created(
+            koper.Id,
+            "Koper account created and authenticated successfully"
+        );
     }
 
-    [HttpPut("update")]
+    [HttpPost("update")]
     public async Task<IActionResult> UpdateAccount([FromBody] UpdateKoperDTO account)
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);
@@ -52,7 +70,7 @@ public class KoperController : ControllerBase
         return HttpSuccess<AddressOutputDto>.Created(result, "Address created successfully");
     }
 
-    [HttpPut("address/primary/{addressId}")]
+    [HttpPost("address/primary/{addressId}")]
     public async Task<IActionResult> UpdatePrimaryAddress(int addressId)
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);
@@ -125,13 +143,22 @@ public class KoperController : ControllerBase
     [HttpGet("products")]
     public async Task<IActionResult> GetProducts(
         [FromQuery] string? nameFilter,
+        [FromQuery] string? regionFilter,
         [FromQuery] decimal? maxPrice,
         [FromQuery] Guid? kwekerId,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10
     )
     {
-        var query = new GetProductsQuery(nameFilter, maxPrice, kwekerId, pageNumber, pageSize);
+        var query = new GetProductsQuery(
+            nameFilter,
+            regionFilter,
+            maxPrice,
+            kwekerId,
+            null,
+            pageNumber,
+            pageSize
+        );
         var result = await _mediator.Send(query);
         return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }
@@ -142,5 +169,37 @@ public class KoperController : ControllerBase
         var command = new GetVeilingKlokCommand(klokId);
         var result = await _mediator.Send(command);
         return HttpSuccess<VeilingKlokOutputDto>.Ok(result);
+    }
+
+    [HttpGet("veilingklokken")]
+    public async Task<IActionResult> GetVeilingKlokken(
+        [FromQuery] VeilingKlokStatus? statusFilter,
+        [FromQuery] string? region,
+        [FromQuery] DateTime? scheduledAfter,
+        [FromQuery] DateTime? scheduledBefore,
+        [FromQuery] DateTime? startedAfter,
+        [FromQuery] DateTime? startedBefore,
+        [FromQuery] DateTime? endedAfter,
+        [FromQuery] DateTime? endedBefore,
+        [FromQuery] Guid? meesterId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        var query = new GetVeilingKlokkenQuery(
+            statusFilter,
+            region,
+            scheduledAfter,
+            scheduledBefore,
+            startedAfter,
+            startedBefore,
+            endedAfter,
+            endedBefore,
+            meesterId,
+            pageNumber,
+            pageSize
+        );
+        var result = await _mediator.Send(query);
+        return HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>.Ok(result);
     }
 }

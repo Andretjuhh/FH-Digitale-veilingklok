@@ -1,7 +1,7 @@
 // External dependencies
 import React from 'react';
 import CardSwap, {Card} from '../../../libraries/react-bits/CardSwap';
-import TinyCardCounter from '../../elements/TinyCardCounter';
+import TinyCardCounter from '../../cards/TinyCardCounter';
 import {useRootContext} from '../../contexts/RootContext';
 
 function AppBloemSoort() {

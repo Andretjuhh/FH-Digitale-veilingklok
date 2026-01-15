@@ -54,6 +54,23 @@ public class CustomException : ProcessException
         return new CustomException(StatusCodes.Status403Forbidden, "CUSTOM.ACCOUNT_SOFT_DELETED");
     }
 
+    public static CustomException AccountLocked()
+    {
+        return new CustomException(
+            StatusCodes.Status401Unauthorized,
+            "CUSTOM.ACCOUNT_LOCKED",
+            "Account is locked due to too many failed attempts."
+        );
+    }
+
+    public static CustomException VeilingKlokNotStarted()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.VEILING_KLOK_NOT_STARTED"
+        );
+    }
+
     public static CustomException InvalidVeilingKlokStatus()
     {
         return new CustomException(
@@ -70,6 +87,14 @@ public class CustomException : ProcessException
         );
     }
 
+    public static CustomException InvalidVeilingKlokNoProduct()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.INVALID_VEILING_KLOK_NO_PRODUCT"
+        );
+    }
+
     public static CustomException CannotChangeRunningVeilingKlok()
     {
         return new CustomException(
@@ -78,12 +103,26 @@ public class CustomException : ProcessException
         );
     }
 
-    public static CustomException InvalidProductPrice()
+    public static CustomException CannotDeleteStartedVeilingKlok()
     {
         return new CustomException(
             StatusCodes.Status400BadRequest,
-            "CUSTOM.INVALID_PRODUCT_PRICE"
+            "CUSTOM.CANNOT_DELETE_STARTED_VEILING_KLOK",
+            "Cannot delete a VeilingKlok that has already started. Only scheduled VeilingKlokken can be deleted."
         );
+    }
+
+    public static CustomException InvalidOperationKlokStillRunning()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.INVALID_OPERATION_KLOK_STILL_RUNNING"
+        );
+    }
+
+    public static CustomException InvalidProductPrice()
+    {
+        return new CustomException(StatusCodes.Status400BadRequest, "CUSTOM.INVALID_PRODUCT_PRICE");
     }
 
     public static CustomException FailedTokenGeneration()
@@ -115,5 +154,29 @@ public class CustomException : ProcessException
     public static CustomException InsufficientStock()
     {
         return new CustomException(StatusCodes.Status400BadRequest, "PRODUCT.INSUFFICIENT_STOCK");
+    }
+
+    public static CustomException ProductAlreadyLinkedToVeilingKlok()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.PRODUCT_ALREADY_LINKED_TO_VEILING_KLOK"
+        );
+    }
+
+    public static CustomException ProductNotLinkedToVeilingKlok()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.PRODUCT_NOT_LINKED_TO_VEILING_KLOK"
+        );
+    }
+
+    public static CustomException ProductAlreadyInVeilingKlok()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.PRODUCT_ALREADY_IN_VEILING_KLOK"
+        );
     }
 }

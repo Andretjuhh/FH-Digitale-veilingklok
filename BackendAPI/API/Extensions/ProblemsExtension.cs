@@ -1,4 +1,5 @@
-﻿using API.Models;
+﻿using System.Text.Json;
+using API.Models;
 using Application.Common.Exceptions;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
@@ -35,7 +36,18 @@ public static class ProblemsExtension
                     .SelectMany(e => e.Value!.Errors.Select(x => x.ErrorMessage))
                     .FirstOrDefault();
 
-                var errorMessage = errors ?? "Invalid request data";
+                // Check if it's a JSON parsing error and hide the sensitive details
+                var errorMessage =
+                    errors != null
+                    && (
+                        errors.Contains("could not be converted")
+                        || errors.Contains("JSON")
+                        || errors.Contains("Path:")
+                        || errors.Contains("LineNumber:")
+                    )
+                        ? "Invalid request format"
+                        : errors ?? "Invalid request data";
+
                 return HttpError.BadRequest(errorMessage);
             };
         });
@@ -52,7 +64,8 @@ public static class ProblemsExtension
 
         public ProblemExceptionHandler(
             IProblemDetailsService problemDetailsService,
-            ILogger<ProblemExceptionHandler> logger)
+            ILogger<ProblemExceptionHandler> logger
+        )
         {
             _problemDetailsService = problemDetailsService;
             _logger = logger;
@@ -81,6 +94,11 @@ public static class ProblemsExtension
                 case DomainException domainException:
                     // This catches all DomainException derived classes
                     errorResponse = HttpError.BadRequest(domainException.ErrorCode);
+                    break;
+
+                case JsonException:
+                    // This catches JSON deserialization errors (e.g., invalid enum values in request body)
+                    errorResponse = HttpError.BadRequest("Invalid request format");
                     break;
 
                 default:
