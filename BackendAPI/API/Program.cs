@@ -98,32 +98,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 // ===========================
-// IDENTITY API
-// ===========================
-app.MapGroup("/api/account")
-    .MapIdentityApi<Domain.Entities.Account>()
-    .RequireCors("AllowFrontend")
-    .AddEndpointFilter(async (context, next) =>
-    {
-        var result = await next(context);
-
-        if (context.HttpContext.Request.Path.Value?.EndsWith("/login",
-                StringComparison.OrdinalIgnoreCase) == true)
-        {
-            if (result is Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult problem &&
-                problem.StatusCode == 401)
-            {
-                if (problem.ProblemDetails?.Detail == "LockedOut")
-                    throw CustomException.AccountLocked();
-
-                throw CustomException.InvalidCredentials();
-            }
-        }
-
-        return result;
-    });
-
-// ===========================
 // SIGNALR
 // ===========================
 app.MapHub<VeilingHub>("/hubs/veiling-klok")

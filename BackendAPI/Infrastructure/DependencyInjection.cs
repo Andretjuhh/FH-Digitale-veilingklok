@@ -27,7 +27,8 @@ public static class DependencyInjection
     {
         // This makes HttpContext available throughout your application's request pipeline.
         services.AddHttpContextAccessor();
-        services.AddAuthenticationSecurity(configuration);
+        services.AddAuthentication().AddJwtBearer();
+
 
         // Get app.json configurations
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -46,20 +47,19 @@ public static class DependencyInjection
                 b => b.MigrationsAssembly("Infrastructure")
             )
         ); // This is crucial!
-        services
-        .AddIdentity<Account, IdentityRole<Guid>>(options =>
-        {
-            options.Password.RequiredLength = 6;
-            options.Password.RequireDigit = false;
-            options.Password.RequireLowercase = false;
-            options.Password.RequireUppercase = false;
-            options.Password.RequireNonAlphanumeric = false;
-
-            options.User.RequireUniqueEmail = true;
-            options.SignIn.RequireConfirmedAccount = false;
-        })
-        .AddEntityFrameworkStores<AppDbContext>()
-        .AddApiEndpoints();
+        services.AddIdentityCore<Account>(options =>
+            {
+                options.Password.RequiredLength = 6;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddSignInManager()
+            .AddDefaultTokenProviders();
 
         
         return services;
