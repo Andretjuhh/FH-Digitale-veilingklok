@@ -50,7 +50,13 @@ export const RegisterSteps = {
 			{label: 'authorisation_code', type: 'text', placeholder: '123456', required: true},
 		],
 	],
-} as const satisfies Readonly<Record<Exclude<AccountType, AccountType.Admin>, readonly (readonly InputField[])[]>>;
+	[AccountType.Admin]: [
+		[
+			{label: 'email', type: 'email', placeholder: '', required: true, icon: 'envelope-fill'},
+			{label: 'password', type: 'password', placeholder: '', required: true, icon: 'lock-fill'},
+		],
+	]
+} as const satisfies Readonly<Record<AccountType, readonly (readonly InputField[])[]>>;
 
 export const ProductFormFields: InputField[] = [
 	{label: 'product_name', type: 'text', placeholder: undefined, placeholderLocalizedKey: 'enter_product_name', required: true, icon: 'box-seam-fill'},
