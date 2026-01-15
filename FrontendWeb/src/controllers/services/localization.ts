@@ -171,6 +171,7 @@ export const resources = {
 			kweker_welcome: 'Welkom, {{firstName}} {{lastName}}!',
 			kweker_desc: 'Welkom op de dashboard pagina! Bekijk hier uw producten!',
 			kweker_products_description: 'Beheer uw producten en voorraden efficiënt',
+			koper_products_description: 'Bekijk hier alle aangeboden bloemen!',
 			kweker_orders_description: 'Overzicht en beheer van uw bestellingen',
 			kweker_section_products: 'Producten',
 
@@ -229,7 +230,7 @@ export const resources = {
 			inventory_stock: 'Totale voorraad',
 
 			// ===== KWEKER ORDERS =====
-			total_orders: 'Totaal bestellingen',
+			total_orders: 'Totaal aantal bestellingen',
 			pending_orders: 'Openstaande bestellingen',
 			completed_orders: 'Voltooide bestellingen',
 			canceled_orders: 'Geannuleerde bestellingen',
@@ -248,6 +249,12 @@ export const resources = {
 			no_products: 'Geen product gevonden',
 
 			// ===== VEILINGMEESTER DASHBOARD =====
+			total_veilingklokken: 'Totaal veilingklokken',
+			active_veilingklokken: 'Actieve veilingklokken',
+			scheduled_auctions: 'Geplande veilingen',
+			available_products: 'Beschikbare producten',
+			available_flowers: 'Beschikbare bloemen',
+			your_purchases: 'Jouw aankopen',
 			vm_title: 'Veilingmeester',
 			vm_tab_auction: 'Veiling',
 			vm_tab_history: 'History',

@@ -720,6 +720,14 @@
     flex: 5;
 }
 
+.meester-stats {
+    flex: 5;
+}
+
+.meester-stats .kweker-stat-card {
+    max-width: 30%;
+}
+
 .kweker-stat-card {
     padding: 1rem 1.6rem;
     background-color: #fff;

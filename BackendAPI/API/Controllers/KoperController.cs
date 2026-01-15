@@ -61,6 +61,24 @@ public class KoperController : ControllerBase
         return HttpSuccess<AccountOutputDto>.Ok(result, "Koper account updated successfully");
     }
 
+    [HttpGet("stats")]
+    public async Task<IActionResult> GetKoperStats()
+    {
+        var (koperId, _) = GetUserClaim.GetInfo(User);
+        var query = new GetKoperStatsCommand(koperId);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<KoperStatsOutputDto>.Ok(result);
+    }
+
+    [HttpGet("veiling-stats")]
+    public async Task<IActionResult> GetKoperVeilingStats()
+    {
+        var (koperId, _) = GetUserClaim.GetInfo(User);
+        var query = new GetKoperVeilingStatsCommand(koperId);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<KoperVeilingStatsOutputDto>.Ok(result);
+    }
+
     [HttpPost("address")]
     public async Task<IActionResult> CreateAddress([FromBody] AddressInputDto address)
     {

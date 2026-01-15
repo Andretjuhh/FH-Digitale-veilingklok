@@ -6,7 +6,7 @@ import {ProductOutputDto} from "../../declarations/dtos/output/ProductOutputDto"
 import {OnFetchHandlerParams} from "../../components/layout/Table";
 import {getProducts} from "../../controllers/server/veilingmeester";
 import Page from "../../components/nav/Page";
-import {KwekerProductStats} from "../../components/sections/kweker/KwekerStats";
+import {MeesterProductStats} from "../../components/sections/meester/MeesterStats";
 import Button from "../../components/buttons/Button";
 import GridTable from "../../components/layout/GridTable";
 import ProductCard from "../../components/cards/ProductCard";
@@ -52,7 +52,7 @@ function VeilingmeesterProducts() {
 					</h2>
 				</section>
 				<section className={'products-page-stats'}>
-					<KwekerProductStats/>
+					<MeesterProductStats/>
 
 					<div className="products-page-action-card">
 						<div className="products-page-action-card-title">

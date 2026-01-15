@@ -10,7 +10,7 @@ import { getOrders } from '../../controllers/server/koper';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Page from '../../components/nav/Page';
-import { KwekerOrderStats } from '../../components/sections/kweker/KwekerStats';
+import { KoperStats } from '../../components/sections/koper/KoperStats';
 import Modal from '../../components/elements/Modal';
 import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
 
@@ -174,7 +174,7 @@ function KoperOrders() {
 					<h2>{t('kweker_orders_description')}</h2>
 				</section>
 
-				<KwekerOrderStats />
+				<KoperStats />
 
 				<DataTable<OrderOutputDto>
 					isLazy

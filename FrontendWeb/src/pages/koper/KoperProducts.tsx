@@ -43,7 +43,7 @@ function KoperProducts() {
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
 					<h2>
-						{t('kweker_products_description')}
+						{t('koper_products_description')}
 					</h2>
 				</section>
 
@@ -55,7 +55,7 @@ function KoperProducts() {
 					totalItems={paginatedProducts?.totalCount || 0}
 					onFetchData={handleFetchProducts}
 
-					title={t('your_products')}
+					title={t('available_flowers')}
 					icon={<i className="bi bi-bag-fill"></i>}
 					renderItem={(item, index) => (
 						<ProductCard
