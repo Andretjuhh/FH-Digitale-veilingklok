@@ -6,6 +6,7 @@ import {useRootContext} from '../../components/contexts/RootContext';
 
 // Components
 import {KwekerDashboardStats} from '../../components/sections/kweker/KwekerStats';
+import {RevenueChart} from '../../components/sections/kweker/RevenueChart';
 import Page from '../../components/nav/Page';
 
 
@@ -19,9 +20,12 @@ function KwekerDashboard() {
 					<h1>
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
+					<p className="page-subtitle">{t('kweker_desc')}</p>
 				</section>
 
 				<KwekerDashboardStats/>
+
+				<RevenueChart/>
 			</main>
 		</Page>
 	);

@@ -45,8 +45,8 @@ public sealed class UpdateOrderStatusHandler
             var klok = await _veilingKlokRepository.GetByIdAsync(order.VeilingKlokId)
                        ?? throw RepositoryException.NotFoundOrder();
 
-            // If Klok is still under auction is not possible to change status active
-            if (klok.Status < VeilingKlokStatus.Ended)
+            // Only allow status change if Klok is not actively running (Started or Paused)
+            if (klok.Status == VeilingKlokStatus.Started || klok.Status == VeilingKlokStatus.Paused)
                 throw CustomException.InvalidOperationKlokStillRunning();
 
             // Business rules for status transition can be added here

@@ -14,6 +14,8 @@ import {OrderItemOutputDto} from '../../declarations/dtos/output/OrderItemOutput
 import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
 import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
+import {KoperStatsOutputDto} from '../../declarations/dtos/output/KoperStatsOutputDto';
+import {KoperVeilingStatsOutputDto} from '../../declarations/dtos/output/KoperVeilingStatsOutputDto';
 
 // Create koper account (POST /api/account/koper/create)
 export async function createKoperAccount(account: CreateKoperDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -28,6 +30,20 @@ export async function updateKoperAccount(account: UpdateKoperDTO): Promise<HttpS
 	return fetchResponse<HttpSuccess<AccountOutputDto>>('/api/account/koper/update', {
 		method: 'POST',
 		body: JSON.stringify(account),
+	});
+}
+
+// Get koper stats (GET /api/account/koper/stats)
+export async function getKoperStats(): Promise<HttpSuccess<KoperStatsOutputDto>> {
+	return fetchResponse<HttpSuccess<KoperStatsOutputDto>>('/api/account/koper/stats', {
+		method: 'GET',
+	});
+}
+
+// Get koper veiling stats (GET /api/account/koper/veiling-stats)
+export async function getKoperVeilingStats(): Promise<HttpSuccess<KoperVeilingStatsOutputDto>> {
+	return fetchResponse<HttpSuccess<KoperVeilingStatsOutputDto>>('/api/account/koper/veiling-stats', {
+		method: 'GET',
 	});
 }
 

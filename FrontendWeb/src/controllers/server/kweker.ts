@@ -13,6 +13,8 @@ import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutp
 import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
 import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
 import { KwekerStatsOutputDto } from '../../declarations/dtos/output/KwekerStatsOutputDto';
+import { KwekerProductStatsOutputDto } from '../../declarations/dtos/output/KwekerProductStatsOutputDto';
+import { KwekerOrderStatsOutputDto } from '../../declarations/dtos/output/KwekerOrderStatsOutputDto';
 import { OrderStatus } from '../../declarations/enums/OrderStatus';
 import { getOrderStatusString } from '../../utils/standards';
 
@@ -119,4 +121,14 @@ export async function getVeilingKlok(klokId: string): Promise<HttpSuccess<Veilin
 // Get kweker stats (GET /api/account/kweker/stats)
 export async function getKwekerStats(): Promise<HttpSuccess<KwekerStatsOutputDto>> {
 	return fetchResponse<HttpSuccess<KwekerStatsOutputDto>>('/api/account/kweker/stats');
+}
+
+// Get kweker product stats (GET /api/account/kweker/product-stats)
+export async function getKwekerProductStats(): Promise<HttpSuccess<KwekerProductStatsOutputDto>> {
+	return fetchResponse<HttpSuccess<KwekerProductStatsOutputDto>>('/api/account/kweker/product-stats');
+}
+
+// Get kweker order stats (GET /api/account/kweker/order-stats)
+export async function getKwekerOrderStats(): Promise<HttpSuccess<KwekerOrderStatsOutputDto>> {
+	return fetchResponse<HttpSuccess<KwekerOrderStatsOutputDto>>('/api/account/kweker/order-stats');
 }
