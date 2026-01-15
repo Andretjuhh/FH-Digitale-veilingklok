@@ -1,19 +1,19 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - backendGroep2Klas1
+name: Build and deploy ASP.Net Core app to Azure Web App - WebAppKlas1Groep2
 
 on:
   push:
     branches:
-      - azuremain
+      - azure
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -23,43 +23,46 @@ jobs:
         with:
           dotnet-version: '9.x'
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      - name: Restore
+        run: dotnet restore BackendAPI/API/API.csproj
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      - name: Build
+        run: dotnet build BackendAPI/API/API.csproj --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish BackendAPI/API/API.csproj -c Release -o publish
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: publish
 
   deploy:
     runs-on: windows-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1BF3AD86CF924C2FB6ACE837ED5CA465 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_336DC2A2556047F68697DD12064582E8 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D7957CC5155C42EA80E0DED3E1414074 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_89FB2EB385AD436EA16860995367D43A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C6182FABB5FB4B57BB5E15E96BB96846 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2227C245E87B45DDB812A7C7AEE7E9B9 }}
 
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'backendGroep2Klas1'
-          slot-name: 'Production'
+          app-name: WebAppKlas1Groep2
+          slot-name: Production
           package: .
+
           
