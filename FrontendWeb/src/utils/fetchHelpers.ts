@@ -22,8 +22,6 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 	const defaultOptions: RequestInit = isAppFetch
 		? {
 				method: 'GET',
-				//...(request.toString().includes('/reauthenticate') ? {credentials: 'include'} : {}),
-				// ...(!['PUT', 'DELETE', 'PUT', 'UPDATE'].includes(options.method || '') ? { credentials: 'include' } : {}),
 				credentials: 'include', // Include cookies in the request
 				headers: {
 					'Content-Type': 'application/json',

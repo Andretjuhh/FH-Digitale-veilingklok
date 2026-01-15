@@ -1,6 +1,8 @@
 ﻿using Application.Common.Exceptions;
 using Application.Common.Extensions;
 using Application.DTOs.Input;
+using Application.Repositories;
+using Application.Services;
 using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -13,14 +15,20 @@ public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Kop
 {
     private readonly UserManager<Domain.Entities.Account> _userManager;
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+    private readonly IAddressRepository _addressRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CreateKoperHandler(
         UserManager<Domain.Entities.Account> userManager,
-        RoleManager<IdentityRole<Guid>> roleManager
+        RoleManager<IdentityRole<Guid>> roleManager,
+        IAddressRepository addressRepository,
+        IUnitOfWork unitOfWork
     )
     {
         _userManager = userManager;
         _roleManager = roleManager;
+        _addressRepository = addressRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Koper> Handle(CreateKoperCommand request, CancellationToken cancellationToken)
@@ -31,41 +39,68 @@ public sealed class CreateKoperHandler : IRequestHandler<CreateKoperCommand, Kop
         if (existing != null)
             throw RepositoryException.ExistingAccount();
 
-        var koper = new Koper(dto.Email)
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+        try
         {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Telephone = dto.Telephone,
-        };
+            var koper = new Koper(dto.Email)
+            {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Telephone = dto.Telephone,
+            };
 
-        var address = new Address(
-            dto.Address.Street,
-            dto.Address.City,
-            dto.Address.RegionOrState,
-            dto.Address.PostalCode,
-            dto.Address.Country
-        );
+            // Save Koper to get ID first
+            var result = await _userManager.CreateAsync(koper, dto.Password);
+            result.ThrowIfFailed();
 
-        // Add address without setting as primary yet (Address doesn't have an ID until saved)
-        koper.AddNewAdress(address, false);
+            var address = new Address(
+                dto.Address.Street,
+                dto.Address.City,
+                dto.Address.RegionOrState,
+                dto.Address.PostalCode,
+                dto.Address.Country
+            );
 
-        var result = await _userManager.CreateAsync(koper, dto.Password);
+            // Set AccountId on the address
+            typeof(Address).GetProperty(nameof(Address.AccountId))?.SetValue(address, koper.Id);
 
-        result.ThrowIfFailed();
+            // Save address
+            await _addressRepository.CreateAsync(address, cancellationToken);
 
-        // Now that the address has an ID, set it as primary
-        koper.SetPrimaryAdress(address);
-        await _userManager.UpdateAsync(koper);
+            // Now set the primary address reference on the koper
+            typeof(Koper).GetProperty(nameof(Koper.PrimaryAdressId))?.SetValue(koper, address.Id);
 
-        result.ThrowIfFailed();
+            // Add to Adresses collection using reflection since it's a readonly collection wrapper
+            var adressesList = typeof(Koper).GetField(
+                "IAdresses",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance
+            );
+            if (adressesList != null)
+            {
+                var list = (List<Address>)adressesList.GetValue(koper)!;
+                if (!list.Contains(address))
+                    list.Add(address);
+            }
 
-        var roleName = nameof(Domain.Enums.AccountType.Koper);
-        if (!await _roleManager.RoleExistsAsync(roleName))
-        {
-            await _roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+            // Update Koper with new Primary ID
+            await _userManager.UpdateAsync(koper);
+
+            var roleName = nameof(Domain.Enums.AccountType.Koper);
+            if (!await _roleManager.RoleExistsAsync(roleName))
+            {
+                await _roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+            }
+            await _userManager.AddToRoleAsync(koper, roleName);
+
+            await _unitOfWork.CommitAsync(cancellationToken);
+
+            return koper;
         }
-        await _userManager.AddToRoleAsync(koper, roleName);
-
-        return koper;
+        catch
+        {
+            await _unitOfWork.RollbackAsync();
+            throw;
+        }
     }
 }

@@ -1,6 +1,7 @@
 using Application.Common.Exceptions;
 using Application.Common.Extensions;
 using Application.DTOs.Input;
+using Application.Services;
 using Domain.Entities;
 using Domain.Enums;
 using MediatR;
@@ -15,14 +16,17 @@ public sealed class CreateAdminHandler
 {
     private readonly UserManager<Domain.Entities.Account> _userManager;
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CreateAdminHandler(
         UserManager<Domain.Entities.Account> userManager,
-        RoleManager<IdentityRole<Guid>> roleManager
+        RoleManager<IdentityRole<Guid>> roleManager,
+        IUnitOfWork unitOfWork
     )
     {
         _userManager = userManager;
         _roleManager = roleManager;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Domain.Entities.Account> Handle(
@@ -36,19 +40,30 @@ public sealed class CreateAdminHandler
         if (existing != null)
             throw RepositoryException.ExistingAccount();
 
-        var admin = new Domain.Entities.Account(dto.Email, AccountType.Admin);
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
-        var result = await _userManager.CreateAsync(admin, dto.Password);
-
-        result.ThrowIfFailed();
-
-        var roleName = nameof(AccountType.Admin);
-        if (!await _roleManager.RoleExistsAsync(roleName))
+        try
         {
-            await _roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
-        }
-        await _userManager.AddToRoleAsync(admin, roleName);
+            var admin = new Domain.Entities.Account(dto.Email, AccountType.Admin);
 
-        return admin;
+            var result = await _userManager.CreateAsync(admin, dto.Password);
+            result.ThrowIfFailed();
+
+            var roleName = nameof(AccountType.Admin);
+            if (!await _roleManager.RoleExistsAsync(roleName))
+            {
+                await _roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+            }
+            await _userManager.AddToRoleAsync(admin, roleName);
+
+            await _unitOfWork.CommitAsync(cancellationToken);
+
+            return admin;
+        }
+        catch
+        {
+            await _unitOfWork.RollbackAsync();
+            throw;
+        }
     }
 }
