@@ -70,30 +70,25 @@ app.MapGroup("/api/account")
     .MapIdentityApi<Domain.Entities.Account>()
     .RequireCors("AllowFrontend")
     .AddEndpointFilter(async (context, next) =>
+{
+    var result = await next(context);
+
+    if (context.HttpContext.Request.Path.Value?.EndsWith("/login",
+            StringComparison.OrdinalIgnoreCase) == true)
     {
-        var result = await next(context);
-
-        if (context.HttpContext.Request.Path.Value?.EndsWith("/login",
-                StringComparison.OrdinalIgnoreCase) == true)
+        if (result is Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult problem &&
+            problem.StatusCode == 401)
         {
-            var resultType = result?.GetType();
-            var actualResult = resultType?.GetProperty("Result")?.GetValue(result);
+            if (problem.ProblemDetails?.Detail == "LockedOut")
+                throw CustomException.AccountLocked();
 
-            if (actualResult is Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult problem &&
-                problem.StatusCode == 401)
-            {
-                if (problem.ProblemDetails.Detail == "LockedOut")
-                    throw CustomException.AccountLocked();
-                else
-                    throw CustomException.InvalidCredentials();
-            }
-
-            if (actualResult is IStatusCodeHttpResult { StatusCode: 401 })
-                throw CustomException.InvalidCredentials();
+            throw CustomException.InvalidCredentials();
         }
+    }
 
-        return result;
-    });
+    return result;
+});
+
 
 
 // ==============
