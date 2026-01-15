@@ -1,34 +1,34 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Button from '../../buttons/Button';
 import FormInputField from '../../form-elements/FormInputField';
 import FormLink from '../../buttons/FormLink';
-import {useRootContext} from '../../contexts/RootContext';
-import {AccountType} from '../../../declarations/enums/AccountTypes';
-import {buildFieldLayout, RegisterSteps} from '../../../constant/forms';
-import {useForm} from 'react-hook-form';
-import {InputField} from '../../../declarations/types/FormField';
-import {CreateKoperDTO} from '../../../declarations/dtos/input/CreateKoperDTO';
-import {CreateKwekerDTO} from '../../../declarations/dtos/input/CreateKwekerDTO';
-import {CreateMeesterDTO} from '../../../declarations/dtos/input/CreateMeesterDTO';
-import {createKoperAccount} from '../../../controllers/server/koper';
-import {createKwekerAccount} from '../../../controllers/server/kweker';
-import {createVeilingmeesterAccount} from '../../../controllers/server/veilingmeester';
-import {LayoutGroup, motion} from 'framer-motion';
-import {Spring} from '../../../constant/animation';
-import {useComponentStateReducer} from '../../../hooks/useComponentStateReducer';
-import {delay} from '../../../utils/standards';
-import {isHttpError} from '../../../declarations/types/HttpError';
-import ComponentState from "../../elements/ComponentState";
+import { useRootContext } from '../../contexts/RootContext';
+import { AccountType } from '../../../declarations/enums/AccountTypes';
+import { buildFieldLayout, RegisterSteps } from '../../../constant/forms';
+import { useForm } from 'react-hook-form';
+import { InputField } from '../../../declarations/types/FormField';
+import { CreateKoperDTO } from '../../../declarations/dtos/input/CreateKoperDTO';
+import { CreateKwekerDTO } from '../../../declarations/dtos/input/CreateKwekerDTO';
+import { CreateMeesterDTO } from '../../../declarations/dtos/input/CreateMeesterDTO';
+import { createKoperAccount } from '../../../controllers/server/koper';
+import { createKwekerAccount } from '../../../controllers/server/kweker';
+import { createVeilingmeesterAccount } from '../../../controllers/server/veilingmeester';
+import { LayoutGroup, motion } from 'framer-motion';
+import { Spring } from '../../../constant/animation';
+import { useComponentStateReducer } from '../../../hooks/useComponentStateReducer';
+import { delay } from '../../../utils/standards';
+import { isHttpError } from '../../../declarations/types/HttpError';
+import ComponentState from '../../elements/ComponentState';
 
 function RegisterContent() {
-	const {t, navigate, authenticateAccount} = useRootContext();
+	const { t, navigate, authenticateAccount } = useRootContext();
 	const [state, updateState] = useComponentStateReducer();
 
 	const {
 		register,
 		handleSubmit,
 		trigger,
-		formState: {errors},
+		formState: { errors },
 	} = useForm();
 
 	const [step, setStep] = useState(1);
@@ -82,7 +82,7 @@ function RegisterContent() {
 	const handleFormSubmittion = useCallback(
 		async (data: any) => {
 			try {
-				updateState({type: 'loading', message: t('creating_account')});
+				updateState({ type: 'loading', message: t('creating_account') });
 				await delay(1000); // Simulate loading delay
 				let dashboardDestination = '/';
 				switch (selectedAccountType) {
@@ -146,16 +146,16 @@ function RegisterContent() {
 					}
 				}
 
-				updateState({type: 'succeed', message: t('account_created')});
+				updateState({ type: 'succeed', message: t('account_created') });
 				await delay(1000); // Simulate loading delay
-				navigate(dashboardDestination, {replace: true});
+				navigate(dashboardDestination, { replace: true });
 			} catch (error) {
 				console.error('Login failed:', error);
-				if (isHttpError(error)) updateState({type: 'error', message: error.message});
-				else updateState({type: 'error', message: t('something_went_wrong')});
+				if (isHttpError(error)) updateState({ type: 'error', message: error.message });
+				else updateState({ type: 'error', message: t('something_went_wrong') });
 				await delay(2000); // Simulate loading delay
 			} finally {
-				updateState({type: 'idle', message: ''});
+				updateState({ type: 'idle', message: '' });
 			}
 		},
 		[navigate, selectedAccountType, authenticateAccount]
@@ -167,8 +167,8 @@ function RegisterContent() {
 				{state.type === 'idle' && (
 					<>
 						<div className="auth-header">
-							<Button className="auth-header-back-button" icon="bi-x" onClick={handleGoBack} type="button" aria-label={t('aria_back_button')}/>
-							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('aria_back_button')} onClick={handleGoBack}/>
+							<Button className="auth-header-back-button" icon="bi-x" onClick={handleGoBack} type="button" aria-label={t('aria_back_button')} />
+							<img className="auth-header-logo" src="/svg/logo-flori.svg" alt={t('aria_back_button')} onClick={handleGoBack} />
 							<div className="auth-text-ctn">
 								<h2 className="auth-header-h1" aria-label={t('create_account')}>
 									{t('create_account')}
@@ -180,16 +180,15 @@ function RegisterContent() {
 
 							{/* Stepper */}
 							<div className="registration-stepper" aria-label={`Registration step ${step} of ${totalSteps}`}>
-								{Array.from({length: totalSteps}, (_, index) => {
+								{Array.from({ length: totalSteps }, (_, index) => {
 									const stepNumber = index + 1;
 									const isActive = stepNumber === step;
 									const isCompleted = stepNumber < step;
 
 									return (
 										<React.Fragment key={stepNumber}>
-											<div className={`stepper-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>{isCompleted ?
-												<span className="checkmark">✓</span> : stepNumber}</div>
-											{stepNumber < totalSteps && <div className={`stepper-connector ${isCompleted ? 'completed' : ''}`}/>}
+											<div className={`stepper-dot ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>{isCompleted ? <span className="checkmark">✓</span> : stepNumber}</div>
+											{stepNumber < totalSteps && <div className={`stepper-connector ${isCompleted ? 'completed' : ''}`} />}
 										</React.Fragment>
 									);
 								})}
@@ -197,22 +196,24 @@ function RegisterContent() {
 
 							{/* Tabs */}
 							<div className="auth-tabs" role="tablist" aria-label="Select user type">
-								{Object.values(AccountType).map((type) => (
-									<div
-										key={type}
-										className={`auth-tab ${selectedAccountType === type ? 'active' : ''}`}
-										onClick={() => {
-											setAccountType(type);
-											setStep(1);
-										}}
-										role="tab"
-										aria-selected={selectedAccountType === type}
-										tabIndex={0}
-										aria-label={`Register as ${type}`}
-									>
-										{type.charAt(0).toUpperCase() + type.slice(1)}
-									</div>
-								))}
+								{Object.values(AccountType)
+									.filter((type) => type !== AccountType.Admin)
+									.map((type) => (
+										<div
+											key={type}
+											className={`auth-tab ${selectedAccountType === type ? 'active' : ''}`}
+											onClick={() => {
+												setAccountType(type);
+												setStep(1);
+											}}
+											role="tab"
+											aria-selected={selectedAccountType === type}
+											tabIndex={0}
+											aria-label={`Register as ${type}`}
+										>
+											{type.charAt(0).toUpperCase() + type.slice(1)}
+										</div>
+									))}
 							</div>
 						</div>
 
@@ -236,8 +237,7 @@ function RegisterContent() {
 
 							{/* Navigation Buttons */}
 							<div className="auth-move-btns">
-								{step > 1 &&
-									<Button label={t('previous')} className="auth-form-move-button prev-btn" icon="bi-arrow-left" onClick={() => setStep(step - 1)} type="button"/>}
+								{step > 1 && <Button label={t('previous')} className="auth-form-move-button prev-btn" icon="bi-arrow-left" onClick={() => setStep(step - 1)} type="button" />}
 								{step < totalSteps && (
 									<Button
 										label={t('next')}
@@ -252,15 +252,13 @@ function RegisterContent() {
 								)}
 							</div>
 
-							{step == totalSteps && <Button className="auth-submit-btn" label={t('create_account')} type="button" onClick={handleSubmit(handleFormSubmittion)}/>}
-							{step <= 1 && <FormLink className="back-to-login-link" label={t('login') + "?"} onClick={() => navigate('/login')} type="button"/>}
+							{step == totalSteps && <Button className="auth-submit-btn" label={t('create_account')} type="button" onClick={handleSubmit(handleFormSubmittion)} />}
+							{step <= 1 && <FormLink className="back-to-login-link" label={t('login') + '?'} onClick={() => navigate('/login')} type="button" />}
 						</form>
 					</>
 				)}
 
-				{state.type !== 'idle' && (
-					<ComponentState state={state}/>
-				)}
+				{state.type !== 'idle' && <ComponentState state={state} />}
 			</motion.div>
 		</LayoutGroup>
 	);
