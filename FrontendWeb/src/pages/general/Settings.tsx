@@ -27,7 +27,7 @@ function Settings() {
 			case AccountType.Kweker:
 				return '/kweker/dashboard';
 			case AccountType.Veilingmeester:
-				return '/veilingmeester/dashboard';
+				return '/veilingmeester/veilingen-beheren';
 			default:
 				return '/';
 		}
