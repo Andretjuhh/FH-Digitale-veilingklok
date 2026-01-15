@@ -28,9 +28,7 @@ public class GetKwekerOrderStatsHandler : IRequestHandler<GetKwekerOrderStatsCom
         // Count orders by status
         var pendingOrders = allOrders.Count(o => o.Order.Status == OrderStatus.Open || o.Order.Status == OrderStatus.Processing);
         var completedOrders = allOrders.Count(o => o.Order.Status == OrderStatus.Delivered || o.Order.Status == OrderStatus.Processed);
-        
-        // Canceled orders - keep at 0 for now as requested
-        var canceledOrders = 0;
+        var canceledOrders = allOrders.Count(o => o.Order.Status == OrderStatus.Cancelled);
 
         return new KwekerOrderStatsOutputDto
         {
