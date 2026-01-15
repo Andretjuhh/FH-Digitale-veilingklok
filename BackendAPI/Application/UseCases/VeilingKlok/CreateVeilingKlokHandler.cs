@@ -12,7 +12,7 @@ namespace Application.UseCases.VeilingKlok;
 public sealed record CreateVeilingKlokCommand(CreateVeilingKlokDTO Payload, Guid MeesterId)
     : IRequest<VeilingKlokDetailsOutputDto>;
 
-public sealed class CreateVeilingHandler
+public sealed class CreateVeilingKlokHandler
     : IRequestHandler<CreateVeilingKlokCommand, VeilingKlokDetailsOutputDto>
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -20,7 +20,7 @@ public sealed class CreateVeilingHandler
     private readonly IVeilingKlokRepository _veilingKlokRepository;
     private readonly IProductRepository _productRepository;
 
-    public CreateVeilingHandler(
+    public CreateVeilingKlokHandler(
         IUnitOfWork unitOfWork,
         IMeesterRepository meesterRepository,
         IVeilingKlokRepository veilingKlokRepository,
