@@ -16,6 +16,8 @@ public class VeilingKlokProduct
 
     [Column("product_id")] [Required] public required Guid ProductId { get; init; }
 
+    [Column("auction_price")] public required decimal AuctionPrice { get; set; }
+
     /// <summary>
     /// The position/index of this product in the VeilingKlok queue.
     /// This allows maintaining the order of products in the auction.

@@ -5,14 +5,10 @@ namespace Application.Common.Exceptions;
 public sealed class RepositoryException : ProcessException
 {
     private RepositoryException(int statusCode, string messageCode)
-        : base(statusCode, messageCode)
-    {
-    }
+        : base(statusCode, messageCode) { }
 
     private RepositoryException(int statusCode, string messageCode, string? message)
-        : base(statusCode, messageCode, message)
-    {
-    }
+        : base(statusCode, messageCode, message) { }
 
     private static RepositoryException EntityNotFound(string errorCode)
     {
@@ -62,5 +58,14 @@ public sealed class RepositoryException : ProcessException
     public static RepositoryException ExistingKvkNumber()
     {
         return EntityAlreadyExists("ACCOUNT.KVK_ALREADY_EXISTS");
+    }
+
+    public static RepositoryException AccountCreationFailed(string errors)
+    {
+        return new RepositoryException(
+            StatusCodes.Status400BadRequest,
+            "ACCOUNT.CREATION_FAILED",
+            errors
+        );
     }
 }

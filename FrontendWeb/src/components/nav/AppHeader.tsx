@@ -6,14 +6,13 @@ import clsx from 'clsx';
 // Internal imports
 import LanguageDropdown from '../buttons/LanguageDropdown';
 import {useRootContext} from '../contexts/RootContext';
-import AccountAvatar from "../buttons/AccountAvatar";
-import {AccountType} from "../../declarations/enums/AccountTypes";
-import NavBar from "./NavBar";
+import AccountAvatar from '../buttons/AccountAvatar';
+import {AccountType} from '../../declarations/enums/AccountTypes';
+import NavBar from './NavBar';
 
-function AppHeader(props: { className?: string, slideAnimation?: boolean }) {
+function AppHeader(props: { className?: string; slideAnimation?: boolean }) {
 	let location = useLocation();
 	const {loggedIn, t, account} = useRootContext();
-
 
 	const [scrollScale, setScrollScale] = useState(0);
 	const [isFilled, setIsFilled] = useState(false);
@@ -25,15 +24,14 @@ function AppHeader(props: { className?: string, slideAnimation?: boolean }) {
 			setScrollScale(scrollFraction);
 			setIsFilled(scrollFraction === 1);
 		};
-		if (props.slideAnimation == true)
-			window.addEventListener('scroll', handleScroll);
+		if (props.slideAnimation == true) window.addEventListener('scroll', handleScroll);
 		return () => {
 			window.removeEventListener('scroll', handleScroll);
 		};
 	}, []);
 
 	const headerBottom = useMemo(() => {
-		return loggedIn ? <AccountAvatar/> : <LanguageDropdown/>
+		return loggedIn ? <AccountAvatar/> : <LanguageDropdown/>;
 	}, [loggedIn]);
 
 	return (
@@ -60,8 +58,7 @@ function AppHeader(props: { className?: string, slideAnimation?: boolean }) {
 						</nav>
 					) : (
 						<>
-							{
-								account?.accountType == AccountType.Kweker &&
+							{account?.accountType == AccountType.Kweker && (
 								<NavBar
 									pages={[
 										{key: 'dashboard', name: t('dashboard'), location: '/kweker/dashboard', icon: 'bi-grid-fill'},
@@ -69,21 +66,19 @@ function AppHeader(props: { className?: string, slideAnimation?: boolean }) {
 										{key: 'orders', name: t('orders'), location: '/kweker/orders', icon: 'bi-cart-fill'},
 									]}
 								/>
-							}
+							)}
 
-							{
-								account?.accountType == AccountType.Koper &&
+							{account?.accountType == AccountType.Koper && (
 								<NavBar
 									pages={[
-										{key: 'dashboard', name: t('dashboard'), location: '/koper/dashboard', icon: 'bi-grid-fill'},
-										{key: 'browse', name: t('browse_flowers'), location: '/koper/browse', icon: 'bi-search'},
-										{key: 'orders', name: t('my_orders'), location: '/koper/orders', icon: 'bi-cart-fill'},
+										{key: 'auctions', name: t('auctions'), location: '/koper/veilingen', icon: 'bi-grid-fill', strict: false},
+										{key: 'browse', name: t('browse_flowers'), location: '/koper/zoeken', icon: 'bi-search'},
+										{key: 'orders', name: t('my_orders'), location: '/koper/orders', icon: 'bi-cart-fill', strict: false},
 									]}
 								/>
-							}
+							)}
 
-							{
-								account?.accountType == AccountType.Veilingmeester &&
+							{account?.accountType == AccountType.Veilingmeester && (
 								<NavBar
 									pages={[
 										{key: 'manage_auction', name: t('manage_auction'), location: '/veilingmeester/veilingen-beheren', icon: 'bi-grid-fill', strict: false},
@@ -91,7 +86,7 @@ function AppHeader(props: { className?: string, slideAnimation?: boolean }) {
 										{key: 'region_flowers', name: t('region_flowers'), location: '/veilingmeester/region-flowers', icon: 'bi-tags-fill'},
 									]}
 								/>
-							}
+							)}
 						</>
 					)}
 				</div>

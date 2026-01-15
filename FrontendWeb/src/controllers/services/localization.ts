@@ -1,34 +1,40 @@
 import i18n from 'i18next';
-import {initReactI18next, useTranslation} from 'react-i18next';
+import { initReactI18next, useTranslation } from 'react-i18next';
 
 export const resources = {
 	nl: {
 		translation: {
-			// General texts
+			// ===== GENERAL TEXTS =====
 			welcome: 'Welcome',
 			language: 'Taal',
 			services: 'Diensten',
+			back: 'Terug',
+			close: 'Sluiten',
+			go_back_home: 'Ga terug naar home',
+			cancel: 'Annuleren',
+			refresh: 'Vernieuwen',
+			view_details: 'Bekijk details',
 
-			// App Objects
-			veilingklok: 'Veilingklok',
-			growers: 'Kwekers',
-			buyer: 'Kopers',
-			flowers: 'Bloemen',
-			transactions: 'Transacties',
+			// ===== NAVIGATION & MENU =====
 			dashboard: 'Dashboard',
 			settings: 'Instellingen',
 			orders: 'Orders',
 			products: 'Producten',
-			back: 'Terug',
 			manage_account: 'Account beheren',
 			my_orders: 'Mijn bestellingen',
 			browse_flowers: 'Bloemen bekijken',
 			auctions: 'Veilingen',
 			manage_auction: 'Veilingbeheren',
+
+			// ===== APP OBJECTS =====
+			veilingklok: 'Veilingklok',
+			growers: 'Kwekers',
+			buyer: 'Kopers',
+			flowers: 'Bloemen',
+			transactions: 'Transacties',
 			region_flowers: 'Regio bloemen',
 
-
-			// Dictionary terms
+			// ===== DICTIONARY TERMS =====
 			welcome_back: 'Welkom terug',
 			this_month: 'Deze maand',
 			select_region: 'Selecteer regio',
@@ -38,8 +44,6 @@ export const resources = {
 			is: 'is',
 			step: 'Stap',
 			of: 'van',
-			close: 'Sluiten',
-			go_back_home: 'Ga terug naar home',
 			previous: 'Vorige',
 			next: 'Volgende',
 			added: 'Toegevoegd',
@@ -47,6 +51,8 @@ export const resources = {
 			date: 'Datum',
 			seconds: 'seconden',
 			total: 'Totaal',
+
+			// ===== STATUS VALUES =====
 			open: 'Open',
 			scheduled: 'Ingepland',
 			started: 'Gestart',
@@ -59,15 +65,17 @@ export const resources = {
 			delivered: 'Geleverd',
 			cancelled: 'Geannuleerd',
 			returned: 'Geretourneerd',
+
+			// ===== ERROR MESSAGES =====
 			something_went_wrong: 'Something went wrong.',
 			unexpected_happened: 'An unexpected error occurred. Please try again later.',
 
-			// Account types
+			// ===== ACCOUNT TYPES =====
 			Koper: 'Koper',
 			Kweker: 'Kweker',
 			Veilingmeester: 'Veilingmeester',
 
-			// Auth State messages
+			// ===== AUTH & LOGIN =====
 			login: 'Inloggen',
 			get_Started: 'Meld je aan',
 			logout: 'Uitloggen',
@@ -80,12 +88,12 @@ export const resources = {
 			account_created_error_message: 'An error occurred while creating your account. Please try again later.',
 			account_created_error_message_technical: 'An error occurred while creating your account. Please contact support.',
 			account_created_error_message_technical_technical: 'An error occurred while creating your account. Please contact support.',
-
-			//Login and register page texts
 			login_title: 'Log in',
 			sign_in_message: 'Meld u alstublieft aan bij uw account',
 			forgot_password: 'Wachtwoord vergeten?',
 			create_account: 'Account aanmaken',
+
+			// ===== FORM FIELDS =====
 			password: 'Wachtwoord',
 			email: 'E-mailadres',
 			address: 'Adres',
@@ -99,7 +107,7 @@ export const resources = {
 			first_name: 'Voornaam',
 			last_name: 'Achternaam',
 
-			// Home page Texts
+			// ===== HOME PAGE =====
 			what_is_flori_clock: 'Wat is FloriClock?',
 			what_is_flori_clock_description: 'FloriClock is een digitaal veilingplatform dat kwekers en bloemisten samenbrengt om bloemen en planten efficiënt te verhandelen. Ons doel is om de veilinghandel in bloemen en planten te vereenvoudigen en te optimaliseren door middel van een gebruiksvriendelijke online marktplaats.',
 			how_it_works: 'Hoe werkt het?',
@@ -119,7 +127,7 @@ export const resources = {
 			what_do_buyer: 'Zoeken en bieden op bloemen en planten van hun keuze',
 			what_is_veilingklok: 'Een geavanceerd systeem dat de tijd en volgorde van biedingen regelt tijdens veilingen',
 
-			// Koper Dashboard texts
+			// ===== KOPER DASHBOARD =====
 			koper_dashboard: 'Mijn Dashboard',
 			koper_dashboard_sub: 'Overzicht van je profiel en acties',
 			koper_supplier: 'Aanvoerder',
@@ -131,6 +139,16 @@ export const resources = {
 			koper_buy: 'Koop product',
 			koper_max_stock: 'Max voorraad',
 			koper_bundle_label: 'bos',
+			koper_product_image_alt: 'Productafbeelding',
+			koper_upcoming_meta: '{{company}} - {{dimension}}',
+			koper_upcoming_badge: 'A1',
+			no_products_available: 'Geen producten beschikbaar',
+			region_products_txt: 'Hier kunt u de bloemen en planten bekijken die beschikbaar zijn in uw regio.',
+
+			product_naam: 'Productnaam',
+			company_naam: 'Bedrijfsnaam',
+
+			// ===== KOPER FOOTER =====
 			koper_footer_about_title: 'Over FloriClock',
 			koper_footer_about_line1: 'Digitale veiling voor bloemen en planten.',
 			koper_footer_about_line2: 'Gebouwd door studenten - demo omgeving.',
@@ -146,10 +164,162 @@ export const resources = {
 			koper_footer_support: 'Service & support',
 			koper_footer_form: 'Contactformulier',
 			koper_footer_locations: 'Locaties',
-			refresh: 'Vernieuwen',
-			no_products_available: 'Geen producten beschikbaar',
 
-			// Veilingmeester Texts
+			// ===== KWEKER DASHBOARD =====
+			kweker_dashboard: 'Mijn Dashboard',
+			kweker_dashboard_sub: 'Overzicht van je profiel en acties',
+			kweker_welcome: 'Welkom, {{firstName}} {{lastName}}!',
+			kweker_desc: 'Welkom op de dashboard pagina! Bekijk hier uw producten!',
+			kweker_products_description: 'Beheer uw producten en voorraden efficiënt',
+			kweker_orders_description: 'Overzicht en beheer van uw bestellingen',
+			kweker_section_products: 'Producten',
+
+			// ===== KWEKER TABLE =====
+			kweker_table_product_label: 'Product',
+			kweker_table_stock_label: 'Voorraad',
+			kweker_table_price_label: 'Prijs',
+			kweker_table_action_label: 'Actie',
+			kweker_table_action_view: 'Bekijk',
+			kweker_table_action_view_aria: 'Bekijk product {{name}}',
+
+			// ===== KWEKER PRODUCT FORM =====
+			kweker_add_product_button: 'Voeg nieuw product toe',
+			kweker_add_product_button_aria: 'Knop om nieuw product toe te voegen',
+			kweker_add_product_modal_title: 'Nieuw product toevoegen',
+			kweker_modal_close_aria: 'Sluiten',
+			kweker_form_name_label: 'Naam',
+			kweker_form_name_required: 'Naam is verplicht',
+			kweker_form_description_label: 'Beschrijving',
+			kweker_form_description_required: 'Beschrijving is verplicht',
+			kweker_form_min_price_label: 'Minimum prijs (EUR)',
+			kweker_form_min_price_required: 'Minimum prijs is verplicht',
+			kweker_form_stock_label: 'Aantal',
+			kweker_form_stock_required: 'Aantal is verplicht',
+			kweker_form_image_label: 'Afbeelding (Base64)',
+			kweker_form_dimension_label: 'Maat',
+			kweker_form_submit_busy: 'Bezig...',
+			kweker_form_submit: 'Voeg nieuw product toe',
+			kweker_form_cancel: 'Annuleren',
+			kweker_form_create_error: 'Onbekende fout bij het aanmaken van product',
+
+			// ===== KWEKER PREVIEW =====
+			kweker_preview_title: 'Product',
+			kweker_preview_loading: 'Bezig met laden...',
+			kweker_preview_error: 'Kon het product niet laden.',
+			kweker_preview_stock: 'Voorraad: {{count}}',
+			kweker_preview_size: 'Maat: {{dimension}}',
+			kweker_preview_grower: 'Kweker: {{company}}',
+
+			// ===== KWEKER STATS =====
+			kweker_stats_offered: 'Producten aangeboden',
+			kweker_stats_sold: 'Producten verkocht',
+			kweker_stats_total_revenue: 'Totale omzet',
+			kweker_stats_stems_sold: 'Bloemstelen verkocht',
+			kweker_stats_offered_value: '1,500 EUR',
+			kweker_stats_sold_value: '50',
+			kweker_stats_total_revenue_value: '1,500 EUR',
+			kweker_stats_stems_sold_value: '1,000',
+			kweker_stats_change: '+0.00%',
+			kweker_stats_this_month: 'Deze maand',
+			products_offered: 'Producten aangeboden',
+			products_sold: 'Producten verkocht',
+			total_earnings: 'Totale verdiensten',
+			plants_sold: 'Bloemstelen verkocht',
+			active_auctions: 'Actieve veilingen',
+			total_products: 'Totaal producten',
+			inventory_stock: 'Totaal voorraad',
+
+			// ===== KWEKER ORDERS =====
+			total_orders: 'Totaal bestellingen',
+			pending_orders: 'Openstaande bestellingen',
+			completed_orders: 'Voltooide bestellingen',
+			canceled_orders: 'Geannuleerde bestellingen',
+			returned_orders: 'Retourede bestellingen',
+			recent_orders: 'Recente bestellingen',
+			your_products: 'Jouw producten',
+			order_update_success: 'Order succesvol bijgewerkt',
+			order_update_error: 'Fout bij het bijwerken van de order',
+			order_updating: 'Order bijwerken...',
+			no_orders: 'Geen bestellingen gevonden',
+			no_orders_yet: 'Nog geen bestellingen',
+			order_id: 'Order ID',
+			order_status: 'Order Status',
+			order_datum: 'Order datum',
+			total_value: 'Total waarde',
+			no_products: 'Geen product gevonden',
+
+			// ===== VEILINGMEESTER DASHBOARD =====
+			vm_title: 'Veilingmeester',
+			vm_tab_auction: 'Veiling',
+			vm_tab_history: 'History',
+			vm_section_subtitle: 'Beheer de veiling en volg de producten.',
+			vm_button_open_auction: 'Open veiling',
+			vm_button_end_auction: 'Eindig veiling',
+			vm_button_start_auction: 'Start veiling',
+			vm_alert_no_products: 'Er zijn geen producten om te veilen.',
+			vm_alert_open_failed: 'Openen van veiling mislukt (zie console)',
+			vm_alert_min_price_invalid: 'Vul eerst een geldige minimumprijs in.',
+			vm_queue_load_error: 'Producten ophalen mislukt.',
+			vm_empty_no_products: 'Geen producten beschikbaar.',
+			vm_clock_placeholder: 'Klok',
+			vm_label_duration_seconds: 'Duur (seconden)',
+			vm_label_min_price: 'Minimumprijs (veilingmeester)',
+			vm_section_other_products: 'Overige producten',
+			vm_loading_products: 'Producten laden...',
+			vm_stock_label: 'Voorraad',
+			vm_stock_value: 'Voorraad: {{count}}',
+			vm_max_price_label: 'Maximumprijs (kweker)',
+			vm_price_not_set: 'Nog niet gezet',
+			vm_demo_buyer: 'Demo koper',
+
+			// ===== VEILINGMEESTER HISTORY =====
+			vm_history_empty: 'Nog geen veilinghistorie beschikbaar.',
+			vm_history_loading: 'Veilinghistorie laden...',
+			vm_history_load_error: 'Kon veilinghistorie niet laden.',
+			vm_history_unknown_date: 'Onbekende datum',
+			vm_history_total_revenue_label: 'Totale omzet',
+			vm_history_start_label: 'Start',
+			vm_history_end_label: 'Einde',
+			vm_history_products_label: 'Producten',
+			vm_history_revenue_label: 'Omzet',
+			vm_history_sold_products_title: 'Verkochte producten',
+			vm_history_unknown_buyer: 'Onbekende koper',
+			vm_history_piece_count: '{{count}} stuks',
+			vm_history_products_count: '{{count}} producten',
+			vm_history_auction_title: 'Veiling {{date}}',
+
+			// ===== VEILINGMEESTER ARIA LABELS =====
+			vm_tab_auction_aria: 'Tabblad veiling',
+			vm_tab_history_aria: 'Tabblad historie',
+			vm_button_open_auction_aria: 'Knop om veiling te openen',
+			vm_button_end_auction_aria: 'Knop om veiling te eindigen',
+			vm_button_start_auction_aria: 'Knop om veiling te starten',
+			vm_input_duration_aria: 'Invoerveld voor veilingduur in seconden',
+			vm_input_min_price_aria: 'Invoerveld voor minimumprijs',
+			vm_history_summary_aria: 'Toon details voor veiling op {{date}}',
+
+			// ===== VEILINGMEESTER DEMO DATA =====
+			vm_queue_name_1: 'Rode Rozen Premium',
+			vm_queue_desc_1: 'Dieprode rozen van topkwaliteit',
+			vm_queue_company_1: 'Kwekerij Bloemenhof',
+			vm_queue_name_2: 'Witte Lelies',
+			vm_queue_desc_2: 'Verse witte lelies, grote knoppen',
+			vm_queue_company_2: 'Lelie Centrum BV',
+			vm_queue_name_3: 'Zonnebloem XL',
+			vm_queue_desc_3: 'Grote zonnebloemen met stevige stelen',
+			vm_queue_company_3: 'Zon & Co',
+			vm_queue_name_4: 'Tulpen Mix',
+			vm_queue_desc_4: 'Mix van voorjaarskleuren, premium selectie',
+			vm_queue_company_4: 'Tulipa Holland',
+			vm_queue_name_5: 'Orchidee Phalaenopsis',
+			vm_queue_desc_5: 'Bloeiend en rijk vertakt',
+			vm_queue_company_5: 'Orchid World',
+
+			// ===== VEILINGKLOK MANAGEMENT =====
+			select_quantity: 'Aantal selecteren',
+			place_bid: 'Bod plaatsen',
+			total_price: 'Totale prijs',
+			quantity: 'Aantal',
 			veilingklok_created: 'Veilingklok succesvol aangemaakt',
 			veilingklok_removing_product: 'Product verwijderen van veilingklok...',
 			veilingklok_product_removed: 'Product succesvol verwijderd van veilingklok',
@@ -160,7 +330,6 @@ export const resources = {
 			veilingklok_loading: 'Veilingklokken laden...',
 			veilingklok_loaded: 'Veilingklokken succesvol geladen',
 			veilingklok_load_error: 'Fout bij het laden van veilingklokken',
-
 			update_auction_clock: 'Veilingklok bijwerken',
 			create_auction_clock: 'Veilingklok aanmaken',
 			auction_clock_details: 'Veilingklok details',
@@ -181,71 +350,153 @@ export const resources = {
 			schedule_veilingklok: 'Veilingklok plannen',
 			auction_products: 'Veilingklok producten',
 			manage_auction_clock: 'Veilingklok beheren',
+			join_auction_clock_txt: 'Hier kunt u deelnemen aan de veilingklok die gepland is voor uw regio.',
 			manage_product_price_txt: 'Hier kunt u de prijzen van producten beheren die beschikbaar zijn in uw regio.',
 			manage_auction_txt: 'Hier kunt u de veilingen beheren die u heeft gepland voor uw regio.',
 			manage_veiling_klok_txt: 'Hier kunt u de veilingklokken beheren die u heeft gepland voor uw regio.',
 			manage_veiling_klok: 'Veilingklok beheren',
+			start_veiling_klok: 'Start Veilingklok',
+			stop_veiling_klok: 'Stop Veilingklok',
+			pause_veiling_klok: 'Pause Veilingklok',
+			resume_veiling_klok: 'Hervat Veilingklok',
+			live_views: 'Live weergaven',
+			updating_veilingklok: 'Veilingklok bijwerken...',
+			veilingklok_updated: 'Veilingklok succesvol bijgewerkt',
+			veilingklok_update_error: 'Fout bij het bijwerken van veilingklok',
+			starting_product_veiling: 'Veiling van product starten...',
+			product_veiling_started: 'Veiling van product succesvol gestart',
+			product_veiling_start_error: 'Fout bij het starten van de veiling van het product',
+			no_active_veilingklok: 'Geen actieve veilingklok gevonden',
 
-			// Clock Text
+			// ===== CLOCK DISPLAY =====
 			munt: 'Munt',
 			aant_stock: 'Aant/stock',
 			rounds: 'Rounde',
 			price: 'Prijs',
 			min_aant: 'Min. aantal',
+			aanvoerder: 'Aanvoerder',
+			product_id: 'Product ID',
+			dimension: 'Dimensie',
 
+			// ===== SIGNALR HUB CONNECTION STATE =====
+			Disconnected: 'Disconnected',
+			Connecting: 'Connecting',
+			Connected: 'Connected',
+			Reconnecting: 'Reconnecting',
+			Disconnecting: 'Disconnecting',
 
-			// Kweker Page texts
-			kweker_dashboard: 'Mijn Dashboard',
-			kweker_dashboard_sub: 'Overzicht van je profiel en acties',
-			kweker_products_description: 'Beheer uw producten en voorraden efficiënt',
-			kweker_orders_description: 'Overzicht en beheer van uw bestellingen',
-			products_offered: 'Producten aangeboden',
-			products_sold: 'Producten verkocht',
-			total_earnings: 'Totale verdiensten',
-			plants_sold: 'Bloemstelen verkocht',
-			active_auctions: 'Actieve veilingen',
-			total_products: 'Totaal producten',
-			inventory_stock: 'Totaal voorraad',
-			total_orders: 'Totaal bestellingen',
-			pending_orders: 'Openstaande bestellingen',
-			completed_orders: 'Voltooide bestellingen',
-			canceled_orders: 'Geannuleerde bestellingen',
-			returned_orders: 'Retourede bestellingen',
-			recent_orders: 'Recente bestellingen',
-			your_products: 'Jouw producten',
-			order_update_success: 'Order succesvol bijgewerkt',
-			order_update_error: 'Fout bij het bijwerken van de order',
-			order_updating: 'Order bijwerken...',
-			view_details: 'Bekijk details',
-			no_orders: 'Geen bestellingen gevonden',
-			no_orders_yet: 'Nog geen bestellingen',
-			order_id: 'Order ID',
-			order_status: 'Order Status',
-			order_datum: 'Order datum',
-			total_value: 'Total waarde',
-			no_products: 'Geen product gevonden',
+			// ===== SETTINGS GENERAL =====
+			settings_account: 'Account',
+			settings_privacy: 'Privacy',
+			settings_notifications: 'Meldingen',
+			settings_preferences: 'Voorkeuren',
+			settings_preferences_title: 'Voorkeuren',
+			settings_preferences_subtitle: 'Pas thema en taal aan voor je account.',
+			settings_theme_label: 'Weergavemodus',
+			settings_theme_aria: 'Schakel tussen licht en donker thema',
+			settings_theme_dark: 'Donkere modus',
+			settings_theme_light: 'Lichte modus',
+			settings_language_label: 'Taal',
+			settings_account_aria: 'Tabblad account',
+			settings_privacy_aria: 'Tabblad privacy',
+			settings_notifications_aria: 'Tabblad meldingen',
+			settings_preferences_aria: 'Tabblad voorkeuren',
+			settings_back_to_dashboard: 'Terug naar dashboard',
+			settings_back_to_dashboard_aria: 'Knop om terug naar dashboard te gaan',
 
-			loading_regions: "Regio's laden...",
-			failed_load_regions: "Fout bij het laden van regio's",
-			regions_loaded: "Regio's succesvol geladen",
-			image_upload_error: 'Fout bij het uploaden van de afbeelding',
+			// ===== LANGUAGE LABELS =====
+			language_dutch: 'Nederlands',
+			language_english: 'English',
+			language_french: 'Francais',
+			language_spanish: 'Espanol',
+			language_german: 'Deutsch',
 
-			// Create Product texts
+			// ===== ACCOUNT SETTINGS =====
+			account_settings_title: 'Account',
+			account_settings_subtitle: 'Werk je profielgegevens en wachtwoord bij.',
+			account_notice_not_ready: 'Accountgegevens zijn nog niet beschikbaar.',
+			account_notice_saving: 'Wijzigingen opslaan...',
+			account_notice_required: 'Vul alle verplichte velden in.',
+			account_notice_complete_address: 'Vul het volledige adres in.',
+			account_notice_no_changes: 'Geen wijzigingen om op te slaan.',
+			account_notice_updated: 'Account succesvol bijgewerkt.',
+			account_notice_error: 'Er is iets misgegaan bij het opslaan.',
+			account_company_name_label: 'Bedrijfsnaam',
+			account_company_name_placeholder: 'Bedrijfsnaam',
+			account_edit_company_name_aria: 'Bedrijfsnaam bewerken',
+			account_first_name_label: 'Voornaam',
+			account_first_name_placeholder: 'Voornaam',
+			account_last_name_label: 'Achternaam',
+			account_last_name_placeholder: 'Achternaam',
+			account_email_label: 'E-mailadres',
+			account_email_placeholder: 'naam@example.com',
+			account_edit_email_aria: 'E-mailadres bewerken',
+			account_phone_label: 'Telefoonnummer',
+			account_phone_placeholder: '+31 6 12345678',
+			account_edit_phone_aria: 'Telefoonnummer bewerken',
+			account_region_label: 'Regio',
+			account_region_placeholder: 'Noord-Holland',
+			account_edit_region_aria: 'Regio bewerken',
+			account_address_show: 'Adres wijzigen',
+			account_address_hide: 'Verberg adres',
+			account_street_label: 'Straat',
+			account_street_placeholder: 'Straat',
+			account_edit_street_aria: 'Adres bewerken',
+			account_city_label: 'Plaats',
+			account_city_placeholder: 'Plaats',
+			account_edit_city_aria: 'Plaats bewerken',
+			account_region_state_label: 'Regio',
+			account_region_state_placeholder: 'Regio',
+			account_edit_region_state_aria: 'Regio bewerken',
+			account_postal_code_label: 'Postcode',
+			account_postal_code_placeholder: 'Postcode',
+			account_edit_postal_aria: 'Postcode bewerken',
+			account_country_label: 'Land',
+			account_country_placeholder: 'Land',
+			account_edit_country_aria: 'Land bewerken',
+			account_password_required: 'Wachtwoord (verplicht)',
+			account_password_new: 'Nieuw wachtwoord',
+			account_password_placeholder: '********',
+			account_password_placeholder_locked: 'Klik om wachtwoord te wijzigen',
+			account_password_hide: 'Verbergen',
+			account_password_show: 'Tonen',
+			account_password_cancel_change: 'Wachtwoord wijzigen annuleren',
+			account_password_change: 'Wachtwoord wijzigen',
+			account_save_busy: 'Opslaan...',
+			account_save: 'Wijzigingen opslaan',
+			account_save_aria: 'Knop om wijzigingen op te slaan',
+
+			// ===== PRIVACY SETTINGS =====
+			privacy_title: 'Privacy',
+			privacy_subtitle: 'Beheer hoe je profiel en activiteit worden gedeeld.',
+			privacy_toggle_profile: 'Toon mijn profiel aan andere gebruikers',
+			privacy_toggle_search: 'Sta zoekmachines toe mijn profiel te indexeren',
+			privacy_toggle_status: 'Deel activiteitsstatus',
+			privacy_save: 'Privacy bijwerken',
+
+			// ===== NOTIFICATIONS SETTINGS =====
+			notifications_title: 'Meldingen',
+			notifications_subtitle: 'Kies hoe je updates wilt ontvangen.',
+			notifications_email_updates: 'Stuur e-mail over veilingupdates',
+			notifications_sms_bids: 'Stuur SMS alerts voor biedingen',
+			notifications_product_announcements: 'Productaankondigingen',
+			notifications_save: 'Meldingen opslaan',
+
+			// ===== PRODUCT MANAGEMENT =====
 			product_name: 'Productnaam',
 			product_description: 'Productbeschrijving',
 			product_dimension: 'Afmeting (bijv. lengte/stamhoogte)',
 			enter_product_name: 'Voer productnaam in....',
 			enter_product_description: 'Voer productbeschrijving in....',
-			minimum_price: 'Minimale prijs per stuk (€)',
+			minimum_price: 'Prijs per stuk (€)',
+			start_price: 'Start Veilingprijs',
 			stock_quantity: 'Voorraadhoeveelheid',
 			product_image: 'Productafbeelding',
 			upload_image: 'Upload afbeelding',
 			change_image: 'Wijzig afbeelding',
 			choose_image: 'Kies een afbeelding',
 			image_upload_instructions: 'Klik om een afbeelding te uploaden (max. 5MB)',
-			required_field: 'Verplicht veld',
-			invalid_number: 'Ongeldig nummer',
-			negative_number: 'Waarde mag niet negatief zijn',
+			image_upload_error: 'Fout bij het uploaden van de afbeelding',
 			create_product_button: 'Product aanmaken',
 			update_product_button: 'Product bijwerken',
 			edit_product: 'Bewerk product',
@@ -260,13 +511,21 @@ export const resources = {
 			product_deleted_success: 'Product succesvol verwijderd',
 			product_deleted_error: 'Fout bij het verwijderen van het product',
 
-			// Required field and error messages
+			// ===== REGIONS =====
+			loading_regions: "Regio's laden...",
+			failed_load_regions: "Fout bij het laden van regio's",
+			regions_loaded: "Regio's succesvol geladen",
+
+			// ===== FORM VALIDATION =====
+			required_field: 'Verplicht veld',
+			invalid_number: 'Ongeldig nummer',
+			negative_number: 'Waarde mag niet negatief zijn',
 			required: 'vereist',
 			email_required_error: 'E-mail vereist',
 			email_invalid_error: 'E-mail klopt niet (example@email.com)',
 			password_required_error: 'Wachtwoord vereist',
 
-			// Aria labels and alt texts
+			// ===== ARIA LABELS & ALT TEXTS =====
 			alt_flower_picture: 'Bloem afbeelding',
 			alt_error_bug_picture: 'Error bug image',
 			aria_email: 'Input veld om email in te vullen',
@@ -278,8 +537,7 @@ export const resources = {
 			aria_forgot_password: 'Wachtwoord vergeten link',
 			aria_create_account: 'Account aanmaken link',
 
-			// Common actions
-			cancel: 'Annuleren',
+			// ===== COMMON ACTIONS =====
 			create: 'Aanmaken',
 			created: 'Aangemaakt',
 			update: 'Bijwerken',
@@ -297,7 +555,11 @@ export const resources = {
 	fr: {
 		translation: {},
 	},
+	de: {
+		translation: {},
+	},
 };
+
 i18n
 	.use(initReactI18next)
 	.init({
@@ -305,12 +567,11 @@ i18n
 		lng: 'nl', // if you're using a language detector, do not define the lng option
 		fallbackLng: 'nl',
 		debug: false,
-		interpolation: {escapeValue: false},
+		interpolation: { escapeValue: false },
 	})
 	.then(null);
 
 type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
-export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};
-
+export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };

@@ -11,28 +11,11 @@ import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOu
 import {ProductDetailsOutputDto} from '../../declarations/dtos/output/ProductDetailsOutputDto';
 import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
 import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
-import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
-
-export type CreateDevVeilingKlokProduct = {
-	id: string;
-	name: string;
-	description: string;
-	imageUrl?: string;
-	dimension?: string | null;
-	stock: number;
-	companyName: string;
-	maxPrice: number;
-};
-
-export type CreateDevVeilingKlokRequest = {
-	scheduledAt: string;
-	veilingDurationSeconds: number;
-	products: CreateDevVeilingKlokProduct[];
-};
+import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
 
 // Create veilingmeester account (POST /api/account/meester/create)
 export async function createVeilingmeesterAccount(account: CreateMeesterDTO): Promise<HttpSuccess<AuthOutputDto>> {
-	return fetchResponse<HttpSuccess<AuthOutputDto>>('/api/account/meester/create', {
+	return fetchResponse<HttpSuccess<AuthOutputDto>>('/api/account/meester/create?useCookies=true', {
 		method: 'POST',
 		body: JSON.stringify(account),
 	});
@@ -41,7 +24,7 @@ export async function createVeilingmeesterAccount(account: CreateMeesterDTO): Pr
 // Update veilingmeester account (PUT /api/account/meester/update)
 export async function updateVeilingmeesterAccount(account: UpdateVeilingMeesterDTO): Promise<HttpSuccess<AccountOutputDto>> {
 	return fetchResponse<HttpSuccess<AccountOutputDto>>('/api/account/meester/update', {
-		method: 'PUT',
+		method: 'POST',
 		body: JSON.stringify(account),
 	});
 }
@@ -49,7 +32,7 @@ export async function updateVeilingmeesterAccount(account: UpdateVeilingMeesterD
 // Update order product (PUT /api/account/meester/order/{orderId}/product/{productItemId}?quantity=)
 export async function updateOrderProduct(orderId: string, productItemId: string, quantity: number): Promise<HttpSuccess<OrderOutputDto>> {
 	return fetchResponse<HttpSuccess<OrderOutputDto>>(`/api/account/meester/order/${orderId}/product/${productItemId}?quantity=${quantity}`, {
-		method: 'PUT',
+		method: 'POST',
 	});
 }
 
@@ -61,7 +44,7 @@ export async function getOrder(orderId: string): Promise<HttpSuccess<OrderOutput
 // Update order status (PUT /api/account/meester/order/{orderId}/status?status=)
 export async function updateOrderStatus(orderId: string, status: string): Promise<HttpSuccess<string>> {
 	return fetchResponse<HttpSuccess<string>>(`/api/account/meester/order/${orderId}/status?status=${status}`, {
-		method: 'PUT',
+		method: 'POST',
 	});
 }
 
@@ -70,14 +53,6 @@ export async function createVeilingKlok(veiling: CreateVeilingKlokDTO): Promise<
 	return fetchResponse<HttpSuccess<VeilingKlokDetailsOutputDto>>('/api/account/meester/veilingklok', {
 		method: 'POST',
 		body: JSON.stringify(veiling),
-	});
-}
-
-// Create dev veilingklok (POST /api/dev/veilingklok/dummy)
-export async function createDevVeilingKlok(payload: CreateDevVeilingKlokRequest): Promise<HttpSuccess<VeilingKlokDetailsOutputDto>> {
-	return fetchResponse<HttpSuccess<VeilingKlokDetailsOutputDto>>('/api/dev/veilingklok/dummy', {
-		method: 'POST',
-		body: JSON.stringify(payload),
 	});
 }
 
@@ -109,7 +84,7 @@ export async function getProductDetails(productId: string): Promise<HttpSuccess<
 // Update product price (PUT /api/account/meester/product/{productId}/price?)
 export async function updateProductPrice(productId: string, price: number): Promise<HttpSuccess<ProductDetailsOutputDto>> {
 	return fetchResponse<HttpSuccess<ProductDetailsOutputDto>>(`/api/account/meester/product/${productId}/price?price=${price}`, {
-		method: 'PUT',
+		method: 'POST',
 	});
 }
 
@@ -128,19 +103,7 @@ export async function getProducts(nameFilter?: string, regionFilter?: string, ma
 }
 
 // Get veilingklokken (GET /api/account/meester/veilingklokken)
-export async function getVeilingKlokken(
-	statusFilter?: VeilingKlokStatus,
-	region?: string,
-	scheduledAfter?: string,
-	scheduledBefore?: string,
-	startedAfter?: string,
-	startedBefore?: string,
-	endedAfter?: string,
-	endedBefore?: string,
-	meesterId?: string,
-	pageNumber: number = 1,
-	pageSize: number = 10
-): Promise<HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>> {
+export async function getVeilingKlokken(statusFilter?: VeilingKlokStatus, region?: string, scheduledAfter?: string, scheduledBefore?: string, startedAfter?: string, startedBefore?: string, endedAfter?: string, endedBefore?: string, meesterId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>> {
 	const params = new URLSearchParams();
 	if (statusFilter) params.append('statusFilter', statusFilter.toString());
 	if (region) params.append('region', region);
@@ -174,20 +137,20 @@ export async function addProductToVeilingKlok(klokId: string, productId: string,
 // Remove product from veilingklok (DELETE /api/account/meester/veilingklok/{klokId}/product/{productId})
 export async function removeProductFromVeilingKlok(klokId: string, productId: string): Promise<HttpSuccess<string>> {
 	return fetchResponse<HttpSuccess<string>>(`/api/account/meester/veilingklok/${klokId}/product/${productId}`, {
-		method: 'DELETE',
+		method: 'GET',
 	});
 }
 
 // Update veilingklok status (PUT /api/account/meester/veilingklok/{klokId}/status?status=)
-export async function updateVeilingKlokStatus(klokId: string, status: string): Promise<HttpSuccess<string>> {
+export async function updateVeilingKlokStatus(klokId: string, status: VeilingKlokStatus): Promise<HttpSuccess<string>> {
 	return fetchResponse<HttpSuccess<string>>(`/api/account/meester/veilingklok/${klokId}/status?status=${status}`, {
-		method: 'PUT',
+		method: 'POST',
 	});
 }
 
 // Delete veilingklok (DELETE /api/account/meester/veilingklok/{klokId})
 export async function deleteVeilingKlok(klokId: string): Promise<HttpSuccess<string>> {
-	return fetchResponse<HttpSuccess<string>>(`/api/account/meester/veilingklok/${klokId}`, {
-		method: 'DELETE',
+	return fetchResponse<HttpSuccess<string>>(`/api/account/meester/veilingklok/${klokId}/delete`, {
+		method: 'GET',
 	});
 }

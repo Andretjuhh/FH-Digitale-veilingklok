@@ -42,13 +42,19 @@ public sealed class UpdateProductAuctionPriceHandler
             // Check if product is linked to an active VeilingKlok
             if (product.VeilingKlokId.HasValue)
             {
-                var veilingKlokStatus =
-                    await _veilingKlokRepository.GetStatusAsync(product.VeilingKlokId.Value, cancellationToken);
+                var veilingKlok = await _veilingKlokRepository.GetByIdAsync(product.VeilingKlokId.Value)
+                                  ?? throw RepositoryException.NotFoundVeilingKlok();
 
-                if (veilingKlokStatus < VeilingKlokStatus.Ended)
+
+                // Validate that the VeilingKlok hasn't been scheduled yet or is active
+                if (veilingKlok.Status < VeilingKlokStatus.Ended)
                     throw CustomException.CannotUpdateProductLinkedToActiveVeilingKlok();
+
+                // Update price in the VeilingKlok info
+                veilingKlok.UpdateProductPrice(request.ProductId, request.AuctionPrice);
             }
 
+            // Update the auction price & in the VeilingKlokProduct entity too
             product.UpdateAuctionPrice(request.AuctionPrice);
 
             _productRepository.Update(product);

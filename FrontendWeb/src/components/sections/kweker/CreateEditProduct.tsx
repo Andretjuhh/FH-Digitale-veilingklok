@@ -254,7 +254,7 @@ function CreateEditProduct(props: Props) {
 
 	return (
 		<LayoutGroup>
-			<motion.div layout className={'modal-card create-product-card'} onClick={(e) => e.stopPropagation()}>
+			<motion.div layout className={'modal-card create-product-card auto-width'} onClick={(e) => e.stopPropagation()}>
 				{state.type === 'idle' && (
 					<>
 						<div className={'create-product-card-header'}>

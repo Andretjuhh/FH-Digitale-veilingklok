@@ -33,7 +33,6 @@ public class VeilingKlokNotifier : IVeilingKlokNotifier
         await _hubContext.Clients.Group(regionGroupName).RegionVeilingEnded();
     }
 
-
     public async Task NotifyBidPlaced(string groupName, VeilingProductState bid)
     {
         var notification = new VeilingNotifications.VeilingBodNotification
@@ -65,6 +64,25 @@ public class VeilingKlokNotifier : IVeilingKlokNotifier
     public async Task NotifyViewerCountChanged(string groupName, int count)
     {
         await _hubContext.Clients.Group(groupName).VeilingViewerCountChanged(count);
+    }
+
+    public async Task NotifyKlokUpdate(string groupName, VeilingKlokState state, int viewerCount)
+    {
+        var currentProduct = state.GetCurrentProduct();
+        var notification = new VeilingNotifications.VeilingKlokStateNotification
+        {
+            Status = state.Status,
+            ClockId = state.ClockId,
+            CurrentProductId = currentProduct.ProductId,
+            CurrentPrice = state.CurrentPrice,
+            StartingPrice = currentProduct.StartingPrice,
+            LowestPrice = currentProduct.LowestPrice,
+            RemainingQuantity = currentProduct.RemainingStock,
+            LiveViewerCount = viewerCount,
+            EndTime = state.VeilingEndTime,
+            TotalRounds = state.TotalRounds
+        };
+        await _hubContext.Clients.Group(groupName).VeilingKlokUpdated(notification);
     }
 
     public async Task NotifyPriceTick(string groupName, VeilingKlokState state)

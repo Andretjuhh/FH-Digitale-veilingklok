@@ -49,6 +49,28 @@ public class CustomException : ProcessException
         return new CustomException(StatusCodes.Status401Unauthorized, "CUSTOM.INVALID_CREDENTIALS");
     }
 
+    public static CustomException AccountSoftDeleted()
+    {
+        return new CustomException(StatusCodes.Status403Forbidden, "CUSTOM.ACCOUNT_SOFT_DELETED");
+    }
+
+    public static CustomException AccountLocked()
+    {
+        return new CustomException(
+            StatusCodes.Status401Unauthorized,
+            "CUSTOM.ACCOUNT_LOCKED",
+            "Account is locked due to too many failed attempts."
+        );
+    }
+
+    public static CustomException VeilingKlokNotStarted()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.VEILING_KLOK_NOT_STARTED"
+        );
+    }
+
     public static CustomException InvalidVeilingKlokStatus()
     {
         return new CustomException(
@@ -62,6 +84,14 @@ public class CustomException : ProcessException
         return new CustomException(
             StatusCodes.Status400BadRequest,
             "CUSTOM.INVALID_VEILING_KLOK_PRODUCT_ID"
+        );
+    }
+
+    public static CustomException InvalidVeilingKlokNoProduct()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.INVALID_VEILING_KLOK_NO_PRODUCT"
         );
     }
 
@@ -92,10 +122,7 @@ public class CustomException : ProcessException
 
     public static CustomException InvalidProductPrice()
     {
-        return new CustomException(
-            StatusCodes.Status400BadRequest,
-            "CUSTOM.INVALID_PRODUCT_PRICE"
-        );
+        return new CustomException(StatusCodes.Status400BadRequest, "CUSTOM.INVALID_PRODUCT_PRICE");
     }
 
     public static CustomException FailedTokenGeneration()

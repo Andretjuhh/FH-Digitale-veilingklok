@@ -1,12 +1,10 @@
 ﻿using API.Extensions;
 using Application;
+using Application.Common.Exceptions;
 using Infrastructure;
 using Infrastructure.Microservices.SignalR.Hubs;
 using Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Diagnostics;
-using Application.Common.Exceptions;
-using System.Threading;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,15 +32,19 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "http://localhost:3000",
                 "http://localhost:5173",
+                "https://yourdomain.com",
                 "https://veilingklok-frontendklas1groep2-hvcmg3eua4fhgqft.germanywestcentral-01.azurewebsites.net"
             )
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+            .AllowCredentials()
+            .WithExposedHeaders("Content-Disposition", "Content-Length")
+            .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
     });
 });
 
 var app = builder.Build();
+
 app.UseExceptionHandler();
 
 app.UseDefaultFiles();
@@ -53,16 +55,57 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 
 app.UseRouting();
-
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<VeilingHub>("/hubs/veiling-klok");
 
-// ONLY IN DEV
+
+// =====================
+// Identity API Endpoints
+// =====================
+app.MapGroup("/api/account")
+    .MapIdentityApi<Domain.Entities.Account>()
+    .RequireCors("AllowFrontend")
+    .AddEndpointFilter(async (context, next) =>
+    {
+        var result = await next(context);
+
+        if (context.HttpContext.Request.Path.Value?.EndsWith("/login",
+                StringComparison.OrdinalIgnoreCase) == true)
+        {
+            var resultType = result?.GetType();
+            var actualResult = resultType?.GetProperty("Result")?.GetValue(result);
+
+            if (actualResult is Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult problem &&
+                problem.StatusCode == 401)
+            {
+                if (problem.ProblemDetails.Detail == "LockedOut")
+                    throw CustomException.AccountLocked();
+                else
+                    throw CustomException.InvalidCredentials();
+            }
+
+            if (actualResult is IStatusCodeHttpResult { StatusCode: 401 })
+                throw CustomException.InvalidCredentials();
+        }
+
+        return result;
+    });
+
+
+// ==============
+// SignalR Hub
+// ==============
+app.MapHub<VeilingHub>("/hubs/veiling-klok")
+   .RequireCors("AllowFrontend");
+
+
+// ======================
+// Auto-migrate ONLY in DEV
+// ======================
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -71,10 +114,3 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
-
-
-// // Note: For running dotnet ( !!!! Run In the same order always !!!! )
-// //  dotnet ef database drop --project Infrastructure --startup-project API --force
-// //  dotnet ef migrations remove --project Infrastructure --startup-project API
-// //  dotnet ef migrations add InitialCreate --project Infrastructure --startup-project API
-// //  dotnet ef database update --project Infrastructure --startup-project API

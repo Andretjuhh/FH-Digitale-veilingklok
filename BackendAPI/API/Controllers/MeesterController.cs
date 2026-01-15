@@ -9,6 +9,7 @@ using Application.UseCases.VeilingKlok;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -19,22 +20,42 @@ namespace API.Controllers;
 public class MeesterController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly SignInManager<Domain.Entities.Account> _signInManager;
 
-    public MeesterController(IMediator mediator)
+    public MeesterController(
+        IMediator mediator,
+        SignInManager<Domain.Entities.Account> signInManager
+    )
     {
         _mediator = mediator;
+        _signInManager = signInManager;
     }
 
     [HttpPost("create")]
     [AllowAnonymous]
-    public async Task<IActionResult> CreateMeesterAccount([FromBody] CreateMeesterDTO account)
+    public async Task<IActionResult> CreateAccount(
+        [FromBody] CreateMeesterDTO account,
+        [FromQuery] bool useCookies = true,
+        [FromQuery] bool? useSessionCookies = null
+    )
     {
         var command = new CreateMeesterCommand(account);
-        var result = await _mediator.Send(command);
-        return HttpSuccess<AuthOutputDto>.Ok(result, "Meester account created successfully");
+        var meester = await _mediator.Send(command);
+
+        // Sign in the user automatically after creation
+        if (useCookies)
+        {
+            var isPersistent = useSessionCookies != true;
+            await _signInManager.SignInAsync(meester, isPersistent);
+        }
+
+        return HttpSuccess<Guid>.Created(
+            meester.Id,
+            "Veilingmeester account created and authenticated successfully"
+        );
     }
 
-    [HttpPut("update")]
+    [HttpPost("update")]
     public async Task<IActionResult> UpdateMeesterAccount(
         [FromBody] UpdateVeilingMeesterDTO account
     )
@@ -45,7 +66,7 @@ public class MeesterController : ControllerBase
         return HttpSuccess<AccountOutputDto>.Ok(result, "Meester account updated successfully");
     }
 
-    [HttpPut("order/{orderId}/product/{productItemId}")]
+    [HttpPost("order/{orderId}/product/{productItemId}")]
     public async Task<IActionResult> UpdateOrderProduct(
         Guid orderId,
         Guid productItemId,
@@ -66,7 +87,7 @@ public class MeesterController : ControllerBase
         return HttpSuccess<OrderDetailsOutputDto>.Ok(result);
     }
 
-    [HttpPut("order/{orderId}/status")]
+    [HttpPost("order/{orderId}/status")]
     public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromQuery] OrderStatus status)
     {
         var command = new UpdateOrderStatusCommand(orderId, status);
@@ -110,12 +131,7 @@ public class MeesterController : ControllerBase
         [FromQuery] DateTime? afterDate
     )
     {
-        var query = new GetVeilingKlokOrdersQuery(
-            klokId,
-            status,
-            beforeDate,
-            afterDate
-        );
+        var query = new GetVeilingKlokOrdersQuery(klokId, status, beforeDate, afterDate);
         var result = await _mediator.Send(query);
         return HttpSuccess<List<OrderOutputDto>>.Ok(result);
     }
@@ -128,11 +144,8 @@ public class MeesterController : ControllerBase
         return HttpSuccess<ProductDetailsOutputDto>.Ok(result);
     }
 
-    [HttpPut("product/{productId}/price")]
-    public async Task<IActionResult> UpdateProductPrice(
-        Guid productId,
-        [FromQuery] decimal price
-    )
+    [HttpPost("product/{productId}/price")]
+    public async Task<IActionResult> UpdateProductPrice(Guid productId, [FromQuery] decimal price)
     {
         var command = new UpdateProductAuctionPriceCommand(productId, price);
         var result = await _mediator.Send(command);
@@ -153,7 +166,15 @@ public class MeesterController : ControllerBase
         [FromQuery] int pageSize = 10
     )
     {
-        var query = new GetProductsQuery(nameFilter, regionFilter, maxPrice, kwekerId, klokId, pageNumber, pageSize);
+        var query = new GetProductsQuery(
+            nameFilter,
+            regionFilter,
+            maxPrice,
+            kwekerId,
+            klokId,
+            pageNumber,
+            pageSize
+        );
         var result = await _mediator.Send(query);
         return HttpSuccess<PaginatedOutputDto<ProductOutputDto>>.Ok(result);
     }
@@ -210,18 +231,15 @@ public class MeesterController : ControllerBase
         return HttpSuccess<string>.Ok("Product added to VeilingKlok successfully");
     }
 
-    [HttpDelete("veilingklok/{klokId}/product/{productId}")]
-    public async Task<IActionResult> RemoveProductFromVeilingKlok(
-        Guid klokId,
-        Guid productId
-    )
+    [HttpGet("veilingklok/{klokId}/product/{productId}")]
+    public async Task<IActionResult> RemoveProductFromVeilingKlok(Guid klokId, Guid productId)
     {
         var command = new RemoveProductFromVeilingKlokCommand(klokId, productId);
         await _mediator.Send(command);
         return HttpSuccess<string>.Ok("Product removed from VeilingKlok successfully");
     }
 
-    [HttpPut("veilingklok/{klokId}/status")]
+    [HttpPost("veilingklok/{klokId}/status")]
     public async Task<IActionResult> UpdateVeilingKlokStatus(
         Guid klokId,
         [FromQuery] VeilingKlokStatus status
@@ -232,7 +250,7 @@ public class MeesterController : ControllerBase
         return HttpSuccess<string>.NoContent("VeilingKlok status updated successfully");
     }
 
-    [HttpDelete("veilingklok/{klokId}")]
+    [HttpGet("veilingklok/{klokId}/delete")]
     public async Task<IActionResult> DeleteVeilingKlok(Guid klokId)
     {
         var command = new DeleteVeilingKlokCommand(klokId);

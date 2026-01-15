@@ -5,10 +5,9 @@ using Application.DTOs.Output;
 using Application.Repositories;
 using Application.Services;
 using Domain.Entities;
-using Domain.Enums;
-using Domain.Interfaces;
 using Domain.ValueObjects;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Account;
 
@@ -19,17 +18,20 @@ public sealed class UpdateKoperHandler : IRequestHandler<UpdateKoperCommand, Acc
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IKoperRepository _koperRepository;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IPasswordHasher<Domain.Entities.Account> _passwordHasher;
+    private readonly ILookupNormalizer _lookupNormalizer;
 
     public UpdateKoperHandler(
         IUnitOfWork unitOfWork,
         IKoperRepository koperRepository,
-        IPasswordHasher passwordHasher
+        IPasswordHasher<Domain.Entities.Account> passwordHasher,
+        ILookupNormalizer lookupNormalizer
     )
     {
         _unitOfWork = unitOfWork;
         _koperRepository = koperRepository;
         _passwordHasher = passwordHasher;
+        _lookupNormalizer = lookupNormalizer;
     }
 
     public async Task<AccountOutputDto> Handle(
@@ -53,11 +55,17 @@ public sealed class UpdateKoperHandler : IRequestHandler<UpdateKoperCommand, Acc
                 if (await _koperRepository.ExistingAccountAsync(dto.Email))
                     throw RepositoryException.ExistingAccount();
 
-                koper.ChangeEmail(dto.Email);
+                koper.Email = dto.Email;
+                koper.UserName = dto.Email;
+                koper.NormalizedEmail = _lookupNormalizer.NormalizeEmail(dto.Email);
+                koper.NormalizedUserName = _lookupNormalizer.NormalizeName(dto.Email);
             }
 
             // Update password if provided
-            if (!string.IsNullOrWhiteSpace(dto.Password)) koper.ChangePassword(dto.Password, _passwordHasher);
+            if (!string.IsNullOrWhiteSpace(dto.Password))
+            {
+                koper.PasswordHash = _passwordHasher.HashPassword(koper, dto.Password);
+            }
 
             // Update Koper-specific fields
             koper.FirstName = dto.FirstName;
@@ -99,7 +107,7 @@ public sealed class UpdateKoperHandler : IRequestHandler<UpdateKoperCommand, Acc
                 FirstName = koper.FirstName,
                 LastName = koper.LastName,
                 Telephone = koper.Telephone,
-                AccountType = koper.AccountType
+                AccountType = koper.AccountType,
             };
         }
         catch (Exception)

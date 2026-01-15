@@ -73,8 +73,8 @@ public sealed class GetVeilingKlokkenHandler
             var info = new VeilingKlokExtraInfo<ProductOutputDto>(
                 bidCount,
                 products,
-                veilingKlok.HighestPrice,
-                veilingKlok.LowestPrice
+                null,
+                null
             );
 
             results.Add(VeilingKlokMapper.Minimal.ToOutputDto(veilingKlok, info));

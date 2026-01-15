@@ -67,8 +67,7 @@ public sealed class AddVeilingKlokProductHandler
 
             // Link product to VeilingKlok
             product.AddToVeilingKlok(request.KlokId);
-            veilingKlok.AddProductId(request.ProductId);
-            veilingKlok.UpdatePriceRange(request.AuctionPrice);
+            veilingKlok.AddProduct(request.ProductId, product.AuctionPrice ?? product.MinimumPrice);
 
             // Update repositories
             _productRepository.Update(product);

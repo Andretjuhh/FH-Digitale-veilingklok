@@ -13,10 +13,11 @@ import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutput
 import {OrderItemOutputDto} from '../../declarations/dtos/output/OrderItemOutputDto';
 import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
 
 // Create koper account (POST /api/account/koper/create)
 export async function createKoperAccount(account: CreateKoperDTO): Promise<HttpSuccess<AuthOutputDto>> {
-	return fetchResponse<HttpSuccess<AuthOutputDto>>('/api/account/koper/create', {
+	return fetchResponse<HttpSuccess<AuthOutputDto>>('/api/account/koper/create?useCookies=true', {
 		method: 'POST',
 		body: JSON.stringify(account),
 	});
@@ -25,7 +26,7 @@ export async function createKoperAccount(account: CreateKoperDTO): Promise<HttpS
 // Update koper account (PUT /api/account/koper/update)
 export async function updateKoperAccount(account: UpdateKoperDTO): Promise<HttpSuccess<AccountOutputDto>> {
 	return fetchResponse<HttpSuccess<AccountOutputDto>>('/api/account/koper/update', {
-		method: 'PUT',
+		method: 'POST',
 		body: JSON.stringify(account),
 	});
 }
@@ -41,7 +42,7 @@ export async function createKoperAddress(address: AddressInputDTO): Promise<Http
 // Update primary address (PUT /api/account/koper/address/primary/{addressId})
 export async function updatePrimaryAddress(addressId: number): Promise<HttpSuccess<AddressOutputDto>> {
 	return fetchResponse<HttpSuccess<AddressOutputDto>>(`/api/account/koper/address/primary/${addressId}`, {
-		method: 'PUT',
+		method: 'POST',
 	});
 }
 
@@ -99,3 +100,22 @@ export async function getProducts(nameFilter?: string, regionFilter?: string, ma
 export async function getVeilingKlok(klokId: string): Promise<HttpSuccess<VeilingKlokOutputDto>> {
 	return fetchResponse<HttpSuccess<VeilingKlokOutputDto>>(`/api/account/koper/veilingklok/${klokId}`);
 }
+
+// Get veilingklokken (GET /api/account/koper/veilingklokken)
+export async function getVeilingKlokken(statusFilter?: VeilingKlokStatus, region?: string, scheduledAfter?: string, scheduledBefore?: string, startedAfter?: string, startedBefore?: string, endedAfter?: string, endedBefore?: string, meesterId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>> {
+	const params = new URLSearchParams();
+	if (statusFilter) params.append('statusFilter', statusFilter.toString());
+	if (region) params.append('region', region);
+	if (scheduledAfter) params.append('scheduledAfter', scheduledAfter);
+	if (scheduledBefore) params.append('scheduledBefore', scheduledBefore);
+	if (startedAfter) params.append('startedAfter', startedAfter);
+	if (startedBefore) params.append('startedBefore', startedBefore);
+	if (endedAfter) params.append('endedAfter', endedAfter);
+	if (endedBefore) params.append('endedBefore', endedBefore);
+	if (meesterId) params.append('meesterId', meesterId);
+	params.append('pageNumber', pageNumber.toString());
+	params.append('pageSize', pageSize.toString());
+
+	return fetchResponse<HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>>(`/api/account/koper/veilingklokken?${params.toString()}`);
+}
+

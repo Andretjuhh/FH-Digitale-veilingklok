@@ -1,3 +1,5 @@
+import { VeilingKlokStatus } from '../enums/VeilingKlokStatus';
+
 // VeilingNotifications.ts
 
 export interface RegionVeilingStartedNotification {
@@ -8,6 +10,7 @@ export interface RegionVeilingStartedNotification {
 }
 
 export interface VeilingKlokStateNotification {
+	status: VeilingKlokStatus;
 	clockId: string;
 	currentProductId: string;
 	currentPrice: number;
@@ -16,6 +19,7 @@ export interface VeilingKlokStateNotification {
 	remainingQuantity: number;
 	liveViewerCount: number;
 	endTime: string; // ISO string
+	totalRounds: number;
 }
 
 export interface VeilingBodNotification {

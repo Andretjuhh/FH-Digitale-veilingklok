@@ -1,72 +1,71 @@
 ﻿using Application.Common.Exceptions;
+using Application.Common.Extensions;
 using Application.DTOs.Input;
-using Application.DTOs.Output;
-using Application.Repositories;
 using Application.Services;
 using Domain.Entities;
-using Domain.Interfaces;
-using Domain.ValueObjects;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Account;
 
-public sealed record CreateMeesterCommand(CreateMeesterDTO Payload)
-    : IRequest<AuthOutputDto>;
+public sealed record CreateMeesterCommand(CreateMeesterDTO Payload) : IRequest<Veilingmeester>;
 
-public sealed class CreateMeesterHandler : IRequestHandler<CreateMeesterCommand, AuthOutputDto>
+public sealed class CreateMeesterHandler : IRequestHandler<CreateMeesterCommand, Veilingmeester>
 {
-    private readonly IMeesterRepository _meesterRepository;
+    private readonly UserManager<Domain.Entities.Account> _userManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly ITokenService _tokenService;
 
     public CreateMeesterHandler(
-        IMeesterRepository meesterRepository,
-        IUnitOfWork unitOfWork,
-        IPasswordHasher passwordHasher,
-        ITokenService tokenService
+        UserManager<Domain.Entities.Account> userManager,
+        RoleManager<IdentityRole<Guid>> roleManager,
+        IUnitOfWork unitOfWork
     )
     {
+        _userManager = userManager;
+        _roleManager = roleManager;
         _unitOfWork = unitOfWork;
-        _meesterRepository = meesterRepository;
-        _passwordHasher = passwordHasher;
-        _tokenService = tokenService;
     }
 
-    public async Task<AuthOutputDto> Handle(
+    public async Task<Veilingmeester> Handle(
         CreateMeesterCommand request,
         CancellationToken cancellationToken
     )
     {
+        var dto = request.Payload;
+
+        var existing = await _userManager.FindByEmailAsync(dto.Email);
+        if (existing != null)
+            throw RepositoryException.ExistingAccount();
+
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
         try
         {
-            var dto = request.Payload;
-            if (await _meesterRepository.ExistingAccountAsync(dto.Email))
-                throw RepositoryException.ExistingAccount();
-
-            await _unitOfWork.BeginTransactionAsync(cancellationToken);
-            var meester = new Veilingmeester(
-                dto.Email,
-                Password.Create(dto.Password, _passwordHasher)
-            )
+            var meester = new Veilingmeester(dto.Email)
             {
                 CountryCode = dto.CountryCode,
                 Region = dto.Region,
-                AuthorisatieCode = dto.AuthorisatieCode
+                AuthorisatieCode = dto.AuthorisatieCode,
             };
 
-            await _meesterRepository.AddAsync(meester);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var result = await _userManager.CreateAsync(meester, dto.Password);
+            result.ThrowIfFailed();
 
-            // Generate Tokens
-            var (auth, _) = _tokenService.GenerateAuthenticationTokens(meester);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var roleName = nameof(Domain.Enums.AccountType.Veilingmeester);
+            if (!await _roleManager.RoleExistsAsync(roleName))
+            {
+                await _roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+            }
+            await _userManager.AddToRoleAsync(meester, roleName);
+
             await _unitOfWork.CommitAsync(cancellationToken);
-            return auth;
+
+            return meester;
         }
-        catch (Exception)
+        catch
         {
-            await _unitOfWork.RollbackAsync(cancellationToken);
+            await _unitOfWork.RollbackAsync();
             throw;
         }
     }

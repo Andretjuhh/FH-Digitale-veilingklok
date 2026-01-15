@@ -3,8 +3,8 @@ using Application.DTOs.Input;
 using Application.DTOs.Output;
 using Application.Repositories;
 using Application.Services;
-using Domain.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 
 namespace Application.UseCases.Account;
 
@@ -16,17 +16,20 @@ public sealed class UpdateVeilingmeesterHandler
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMeesterRepository _meesterRepository;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly IPasswordHasher<Domain.Entities.Account> _passwordHasher;
+    private readonly ILookupNormalizer _lookupNormalizer;
 
     public UpdateVeilingmeesterHandler(
         IUnitOfWork unitOfWork,
         IMeesterRepository meesterRepository,
-        IPasswordHasher passwordHasher
+        IPasswordHasher<Domain.Entities.Account> passwordHasher,
+        ILookupNormalizer lookupNormalizer
     )
     {
         _unitOfWork = unitOfWork;
         _meesterRepository = meesterRepository;
         _passwordHasher = passwordHasher;
+        _lookupNormalizer = lookupNormalizer;
     }
 
     public async Task<AccountOutputDto> Handle(
@@ -50,11 +53,17 @@ public sealed class UpdateVeilingmeesterHandler
                 if (await _meesterRepository.ExistingAccountAsync(dto.Email))
                     throw RepositoryException.ExistingAccount();
 
-                meester.ChangeEmail(dto.Email);
+                meester.Email = dto.Email;
+                meester.UserName = dto.Email;
+                meester.NormalizedEmail = _lookupNormalizer.NormalizeEmail(dto.Email);
+                meester.NormalizedUserName = _lookupNormalizer.NormalizeName(dto.Email);
             }
 
             // Update password if provided
-            if (!string.IsNullOrWhiteSpace(dto.Password)) meester.ChangePassword(dto.Password, _passwordHasher);
+            if (!string.IsNullOrWhiteSpace(dto.Password))
+            {
+                meester.PasswordHash = _passwordHasher.HashPassword(meester, dto.Password);
+            }
 
             // Update Veilingmeester-specific fields
             if (dto.Regio != null)
@@ -72,7 +81,7 @@ public sealed class UpdateVeilingmeesterHandler
                 Email = meester.Email,
                 AccountType = meester.AccountType,
                 CountryCode = meester.CountryCode,
-                Region = meester.Region
+                Region = meester.Region,
             };
         }
         catch (Exception)

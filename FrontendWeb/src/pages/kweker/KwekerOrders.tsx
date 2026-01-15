@@ -14,6 +14,7 @@ import Button from "../../components/buttons/Button";
 import {getOrders} from "../../controllers/server/kweker";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import Modal from "../../components/elements/Modal";
 
 function KwekerOrders() {
 	const {t, account} = useRootContext();
@@ -211,11 +212,9 @@ function KwekerOrders() {
 				/>
 
 
-				{showOrderModal.visible && selectedOrder && (
-					<div className="modal-overlay" onClick={() => showOrder(false)}>
-						<OrderDetails order={selectedOrder} editMode={showOrderModal.editMode} onClose={() => showOrder(false)}/>
-					</div>
-				)}
+				<Modal enabled={showOrderModal.visible && selectedOrder != null} onClose={() => showOrder(false)}>
+					<OrderDetails order={selectedOrder!} editMode={showOrderModal.editMode} onClose={() => showOrder(false)}/>
+				</Modal>
 
 				{/* Hidden container for PDF generation */}
 				<div style={{position: 'absolute', left: '-9999px', top: 0, width: '210mm'}}>

@@ -3,6 +3,7 @@ using Domain.Enums;
 using Domain.Interfaces;
 using Domain.ValueObjects;
 using Infrastructure.Persistence.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -17,7 +18,8 @@ public interface ITestDataSeeder
 public class TestDataSeeder : ITestDataSeeder
 {
     private readonly AppDbContext _context;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly UserManager<Account> _userManager;
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
     private readonly ILogger<TestDataSeeder> _logger;
 
     // Default Password is : Test1234!
@@ -45,7 +47,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Zonnebloemen",
         "Lisianthus",
         "Ranonkels",
-        "Anemonen"
+        "Anemonen",
     };
 
     private static readonly string[] DutchColors = new[]
@@ -57,7 +59,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Oranje",
         "Paars",
         "Blauw",
-        "Gemengd"
+        "Gemengd",
     };
 
     private static readonly string[] FlowerDescriptions = new[]
@@ -69,7 +71,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Biologisch geteelde bloemen",
         "Langbloeiend en sterk",
         "Perfect voor boeketten",
-        "Ideaal voor evenementen"
+        "Ideaal voor evenementen",
     };
 
     // Dutch cities for addresses
@@ -89,7 +91,7 @@ public class TestDataSeeder : ITestDataSeeder
         ("Zaandam", "1506", "Noord-Holland"),
         ("Leiden", "2311", "Zuid-Holland"),
         ("Amersfoort", "3811", "Utrecht"),
-        ("Apeldoorn", "7311", "Gelderland")
+        ("Apeldoorn", "7311", "Gelderland"),
     };
 
     private static readonly string[] DutchStreets = new[]
@@ -103,7 +105,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Stationsweg",
         "Parkweg",
         "Nieuwstraat",
-        "Lange Gracht"
+        "Lange Gracht",
     };
 
     private static readonly string[] CompanyNames = new[]
@@ -119,7 +121,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Bloemendaal Kwekers",
         "Royal Dutch Flowers",
         "Aalsmeer Bloemen BV",
-        "Green Garden Holland"
+        "Green Garden Holland",
     };
 
     private static readonly string[] FirstNames = new[]
@@ -139,7 +141,7 @@ public class TestDataSeeder : ITestDataSeeder
         "Lisa",
         "Eva",
         "Sara",
-        "Julia"
+        "Julia",
     };
 
     private static readonly string[] LastNames = new[]
@@ -155,17 +157,19 @@ public class TestDataSeeder : ITestDataSeeder
         "Meijer",
         "de Boer",
         "Mulder",
-        "de Groot"
+        "de Groot",
     };
 
     public TestDataSeeder(
         AppDbContext context,
-        IPasswordHasher passwordHasher,
+        UserManager<Account> userManager,
+        RoleManager<IdentityRole<Guid>> roleManager,
         ILogger<TestDataSeeder> logger
     )
     {
         _context = context;
-        _passwordHasher = passwordHasher;
+        _userManager = userManager;
+        _roleManager = roleManager;
         _logger = logger;
     }
 
@@ -179,6 +183,10 @@ public class TestDataSeeder : ITestDataSeeder
             await ClearAllDataAsync();
 
             await _context.Database.BeginTransactionAsync();
+
+            // Seed Roles
+            await SeedRolesAsync();
+
             // Seed in order of dependencies
             var kwekers = await SeedKwekersAsync(5);
             var kopers = await SeedKopersAsync(10);
@@ -192,8 +200,8 @@ public class TestDataSeeder : ITestDataSeeder
             _logger.LogInformation("Test data seeding completed successfully!");
             _logger.LogInformation(
                 $"Created: {kwekers.Count} kwekers, {kopers.Count} kopers, "
-                + $"{veilingmeesters.Count} veilingmeesters, {products.Count} products, "
-                + $"{veilingklokken.Count} veilingklokken"
+                    + $"{veilingmeesters.Count} veilingmeesters, {products.Count} products, "
+                    + $"{veilingklokken.Count} veilingklokken"
             );
         }
         catch (Exception ex)
@@ -208,24 +216,72 @@ public class TestDataSeeder : ITestDataSeeder
     {
         _logger.LogInformation("Clearing existing test data...");
 
-        // Delete in reverse order of dependencies
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [OrderItem]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Order]");
-        await _context.Database.ExecuteSqlRawAsync(
-            "DELETE FROM [VeilingKlokProduct]"); // Delete join table before Product and Veilingklok
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Product]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Veilingklok]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [RefreshToken]");
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Veilingmeester]");
-        await _context.Database.ExecuteSqlRawAsync(
-            "DELETE FROM [Kweker]"); // Delete Kweker before Adresses (has FK to Adresses)
-        await _context.Database.ExecuteSqlRawAsync(
-            "DELETE FROM [Koper]"); // Delete Koper before Adresses (has FK to Adresses)
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Adresses]"); // Delete Adresses after Kweker and Koper
-        await _context.Database.ExecuteSqlRawAsync("DELETE FROM [Account]");
+        // Helper to execute SQL and ignore "table not found" errors
+        async Task Exec(string table)
+        {
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync($"DELETE FROM [{table}]");
+            }
+            catch (Exception ex)
+            {
+                // Log but continue - mostly for tables that might not exist or empty
+                _logger.LogWarning($"Could not clear table {table}: {ex.Message}");
+            }
+        }
+
+        // 1. Delete Child/Leaf Tables
+        await Exec("OrderItem");
+        await Exec("VeilingKlokProduct");
+
+        // 2. Delete Main Tables
+        await Exec("Order");
+        await Exec("Product");
+        await Exec("Veilingklok");
+
+        // 3. Delete Identity Tables (Children of Account)
+        await Exec("RefreshToken");
+        await Exec("AspNetUserClaims");
+        await Exec("AspNetUserLogins");
+        await Exec("AspNetUserRoles");
+        await Exec("AspNetUserTokens");
+
+        // 4. Delete Account Subtypes (TPT) - Free up References to Address
+        await Exec("Veilingmeester");
+        await Exec("Kweker");
+        await Exec("Koper");
+
+        // 5. Delete Address (References Account, referenced by Koper/Kweker)
+        await Exec("Adresses"); // Check correct spelling
+        await Exec("Addresses"); // Check common spelling
+
+        // 6. Delete Account (Root)
+        await Exec("Account");
+        await Exec("AspNetUsers"); // Fallback
+
+        // 7. Last resort cleanup for Roles if used
+        await Exec("AspNetRoles");
 
         await _context.SaveChangesAsync();
         _logger.LogInformation("Existing data cleared.");
+    }
+
+    private async Task SeedRolesAsync()
+    {
+        string[] roles =
+        {
+            nameof(AccountType.Koper),
+            nameof(AccountType.Kweker),
+            nameof(AccountType.Veilingmeester),
+        };
+
+        foreach (var role in roles)
+        {
+            if (!await _roleManager.RoleExistsAsync(role))
+            {
+                await _roleManager.CreateAsync(new IdentityRole<Guid>(role));
+            }
+        }
     }
 
     private async Task<List<Kweker>> SeedKwekersAsync(int count)
@@ -237,19 +293,18 @@ public class TestDataSeeder : ITestDataSeeder
         {
             var firstName = FirstNames[random.Next(FirstNames.Length)];
             var lastName = LastNames[random.Next(LastNames.Length)];
-            var password = Password.Create("Test1234!", _passwordHasher);
 
-            var kweker = new Kweker($"kweker{i + 1}@test.nl", password)
+            var kweker = new Kweker($"kweker{i + 1}@test.nl")
             {
                 KvkNumber = $"{60000000 + i + random.Next(1000, 9999)}",
                 CompanyName = CompanyNames[i % CompanyNames.Length],
                 FirstName = firstName,
                 LastName = lastName,
-                Telephone = $"+31 6 {random.Next(10000000, 99999999)}"
+                Telephone = $"+31 6 {random.Next(10000000, 99999999)}",
             };
 
-            await _context.Kwekers.AddAsync(kweker);
-            await _context.SaveChangesAsync(); // Save to get Kweker ID
+            await _userManager.CreateAsync(kweker, "Test1234!");
+            await _userManager.AddToRoleAsync(kweker, nameof(AccountType.Kweker));
             kwekers.Add(kweker);
 
             var location = DutchLocations[i % DutchLocations.Length];
@@ -281,17 +336,16 @@ public class TestDataSeeder : ITestDataSeeder
         {
             var firstName = FirstNames[random.Next(FirstNames.Length)];
             var lastName = LastNames[random.Next(LastNames.Length)];
-            var password = Password.Create("Test1234!", _passwordHasher);
 
-            var koper = new Koper($"koper{i + 1}@test.nl", password)
+            var koper = new Koper($"koper{i + 1}@test.nl")
             {
                 FirstName = firstName,
                 LastName = lastName,
-                Telephone = $"+31 6 {random.Next(10000000, 99999999)}"
+                Telephone = $"+31 6 {random.Next(10000000, 99999999)}",
             };
 
-            await _context.Kopers.AddAsync(koper);
-            await _context.SaveChangesAsync(); // Save to get koper ID
+            await _userManager.CreateAsync(koper, "Test1234!");
+            await _userManager.AddToRoleAsync(koper, nameof(AccountType.Koper));
 
             // Add 1-3 addresses per koper
             var addressCount = random.Next(1, 4);
@@ -344,21 +398,20 @@ public class TestDataSeeder : ITestDataSeeder
             "Zuid-Holland",
             "Utrecht",
             "Noord-Brabant",
-            "Gelderland"
+            "Gelderland",
         };
 
         for (var i = 0; i < count; i++)
         {
-            var password = Password.Create("Test1234!", _passwordHasher);
-
-            var veilingmeester = new Veilingmeester($"veilingmeester{i + 1}@test.nl", password)
+            var veilingmeester = new Veilingmeester($"veilingmeester{i + 1}@test.nl")
             {
                 CountryCode = "NL",
                 Region = regions[i % regions.Length],
-                AuthorisatieCode = $"VM{1000 + i}-NL"
+                AuthorisatieCode = $"VM{1000 + i}-NL",
             };
 
-            await _context.Veilingmeesters.AddAsync(veilingmeester);
+            await _userManager.CreateAsync(veilingmeester, "Test1234!");
+            await _userManager.AddToRoleAsync(veilingmeester, nameof(AccountType.Veilingmeester));
             veilingmeesters.Add(veilingmeester);
         }
 
@@ -389,7 +442,7 @@ public class TestDataSeeder : ITestDataSeeder
                     Description = description,
                     ImageUrl = GenerateBase64PlaceholderImage(),
                     Dimension = $"{random.Next(30, 80)}cm",
-                    KwekerId = kweker.Id
+                    KwekerId = kweker.Id,
                 };
 
                 products.Add(product);
@@ -423,7 +476,8 @@ public class TestDataSeeder : ITestDataSeeder
                 VeilingDurationSeconds = random.Next(60, 180),
                 ScheduledAt = DateTimeOffset.UtcNow.AddDays(random.Next(-5, 30)),
                 RegionOrState = location.Region,
-                Country = "NL"
+                Country = "NL",
+                VeilingRounds = 1,
             };
 
             // Assign veilingmeester using reflection since the setter is private
@@ -456,6 +510,8 @@ public class TestDataSeeder : ITestDataSeeder
         // Now assign products to veilingklokken
         var productIndex = 0;
         foreach (var veilingKlok in veilingklokken)
+        {
+            var addedProducts = 0;
             // 90% chance to add products
             if (random.NextDouble() > 0.1)
             {
@@ -463,32 +519,60 @@ public class TestDataSeeder : ITestDataSeeder
                 var lowestPrice = decimal.MaxValue;
                 var highestPrice = decimal.MinValue;
 
-                for (var j = 0; j < productCount && productIndex < allProducts.Count; j++, productIndex++)
+                for (
+                    var j = 0;
+                    j < productCount && productIndex < allProducts.Count;
+                    j++, productIndex++
+                )
                 {
                     var product = allProducts[productIndex];
                     product.AddToVeilingKlok(veilingKlok.Id);
-                    veilingKlok.AddProductId(product.Id);
 
-                    // Set auction price for products in started/ended auctions
-                    if (veilingKlok.Status == VeilingKlokStatus.Started ||
-                        veilingKlok.Status == VeilingKlokStatus.Ended)
+                    // Determine price
+                    decimal currentPrice = product.MinimumPrice;
+                    if (
+                        veilingKlok.Status == VeilingKlokStatus.Started
+                        || veilingKlok.Status == VeilingKlokStatus.Ended
+                    )
                     {
-                        var auctionPrice = product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
-                        product.UpdateAuctionPrice(auctionPrice);
+                        currentPrice =
+                            product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
+                    }
+                    else
+                    {
+                        // Scheduled: use minimum price as starting point in join table
+                        currentPrice = product.MinimumPrice;
                     }
 
-                    if (product.MinimumPrice < lowestPrice)
-                        lowestPrice = product.MinimumPrice;
-                    if (product.MinimumPrice > highestPrice)
-                        highestPrice = product.MinimumPrice;
-                }
+                    // Add to clock with determined price
+                    veilingKlok.AddProduct(product.Id, currentPrice);
+                    addedProducts++;
 
-                if (lowestPrice != decimal.MaxValue)
-                {
-                    veilingKlok.LowestPrice = lowestPrice;
-                    veilingKlok.HighestPrice = highestPrice;
+                    if (veilingKlok.Status != VeilingKlokStatus.Scheduled)
+                    {
+                        product.UpdateAuctionPrice(currentPrice);
+                    }
+
+                    // If the veiling has ended, the product should not be actively linked anymore
+                    if (veilingKlok.Status == VeilingKlokStatus.Ended)
+                    {
+                        product.RemoveVeilingKlok();
+                    }
                 }
             }
+
+            if (addedProducts == 0 && veilingKlok.Status != VeilingKlokStatus.Scheduled)
+            {
+                // Assign status using reflection since the setter is private/protected logic
+                typeof(VeilingKlok)
+                    .GetProperty("Status")
+                    ?.SetValue(veilingKlok, VeilingKlokStatus.Scheduled);
+
+                // Clear timestamps
+                typeof(VeilingKlok).GetProperty("StartedAt")?.SetValue(veilingKlok, null);
+                typeof(VeilingKlok).GetProperty("EndedAt")?.SetValue(veilingKlok, null);
+            }
+        }
 
         await _context.SaveChangesAsync();
         _logger.LogInformation($"Seeded {veilingklokken.Count} veilingklokken");
@@ -513,8 +597,11 @@ public class TestDataSeeder : ITestDataSeeder
 
         var attempts = 0;
         var ordersToSave =
-            new List<(Order order, List<(Product product, int quantity, decimal unitPrice)> items, OrderStatus
-                desiredStatus)>();
+            new List<(
+                Order order,
+                List<(Product product, int quantity, decimal unitPrice)> items,
+                OrderStatus desiredStatus
+            )>();
 
         while (ordersCreated < 500 && attempts < 1500)
         {
@@ -556,7 +643,8 @@ public class TestDataSeeder : ITestDataSeeder
                 }
                 else
                 {
-                    unitPrice = product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
+                    unitPrice =
+                        product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
                     product.UpdateAuctionPrice(unitPrice);
                 }
 
@@ -595,14 +683,19 @@ public class TestDataSeeder : ITestDataSeeder
         }
 
         // Save remaining orders
-        if (ordersToSave.Any()) await SaveOrderBatchAsync(ordersToSave);
+        if (ordersToSave.Any())
+            await SaveOrderBatchAsync(ordersToSave);
 
         _logger.LogInformation($"Seeded {ordersCreated} orders with items");
     }
 
     private async Task SaveOrderBatchAsync(
-        List<(Order order, List<(Product product, int quantity, decimal unitPrice)> items, OrderStatus desiredStatus)>
-            ordersToSave)
+        List<(
+            Order order,
+            List<(Product product, int quantity, decimal unitPrice)> items,
+            OrderStatus desiredStatus
+        )> ordersToSave
+    )
     {
         // First, save all orders to get their IDs (and let database generate GUIDs)
         var orders = ordersToSave.Select(x => x.order).ToList();
@@ -631,7 +724,6 @@ public class TestDataSeeder : ITestDataSeeder
         // Save status updates
         await _context.SaveChangesAsync();
     }
-
 
     private string GenerateBase64PlaceholderImage()
     {

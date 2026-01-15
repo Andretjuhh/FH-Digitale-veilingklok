@@ -14,8 +14,6 @@ public class VeilingKlok
 
     [Column("peaked_live_views")] public int PeakedLiveViews { get; private set; } = 0;
 
-    [Column("bidding_product_index")] public int BiddingProductIndex { get; private set; } = 0;
-
     [Column("veiling_duration")] public required int VeilingDurationSeconds { get; init; } = 0;
 
     [Column("scheduled_at")] public required DateTimeOffset ScheduledAt { get; set; }
@@ -26,8 +24,9 @@ public class VeilingKlok
 
     [Column("created_at")] public DateTimeOffset CreatedAt { get; init; }
 
-    [Column("highest_price")] public decimal HighestPrice { get; set; } = 0;
-    [Column("lowest_price")] public decimal LowestPrice { get; set; } = 0;
+    [Column("veiling_rounds")] public int VeilingRounds { get; set; } = 0;
+
+    [Column("bidding_product_index")] public int BiddingProductIndex { get; private set; } = 0;
 
     [Column("total_products")] public int TotalProducts { get; private set; } = 0;
 
@@ -50,6 +49,14 @@ public class VeilingKlok
     // Navigation property for the many-to-many relationship with Product through VeilingKlokProduct
     private readonly List<VeilingKlokProduct> _veilingKlokProducts = new();
     public IReadOnlyCollection<VeilingKlokProduct> VeilingKlokProducts => _veilingKlokProducts;
+
+    [NotMapped]
+    public decimal LowestProductPrice =>
+        _veilingKlokProducts.Count != 0 ? _veilingKlokProducts.Min(vkp => vkp.AuctionPrice) : 0;
+
+    [NotMapped]
+    public decimal HighestProductPrice =>
+        _veilingKlokProducts.Count != 0 ? _veilingKlokProducts.Max(vkp => vkp.AuctionPrice) : 0;
 
     /// <summary>
     /// Gets the product IDs in the correct order (by position).
@@ -75,8 +82,12 @@ public class VeilingKlok
 
     public void UpdateStatus(VeilingKlokStatus newStatus)
     {
-        if (newStatus > Status)
-            Status = newStatus;
+        if (Status == VeilingKlokStatus.Ended)
+            throw KlokValidationException.KlokAlreadyEnded();
+
+        // if Status is higher than ingepland cannot go back to ingepland
+        if (newStatus == VeilingKlokStatus.Scheduled && Status != VeilingKlokStatus.Scheduled)
+            throw KlokValidationException.InvalidStatusTransition();
 
         if (newStatus == VeilingKlokStatus.Started)
             StartedAt = DateTimeOffset.UtcNow;
@@ -86,6 +97,8 @@ public class VeilingKlok
 
         if (newStatus == VeilingKlokStatus.Scheduled)
             ScheduledAt = DateTimeOffset.UtcNow;
+
+        Status = newStatus;
     }
 
     public void AssignVeilingmeester(Guid veilingmeesterId)
@@ -95,7 +108,7 @@ public class VeilingKlok
         VeilingmeesterId = veilingmeesterId;
     }
 
-    public void AddProductId(Guid productId)
+    public void AddProduct(Guid productId, decimal auctionPrice)
     {
         // Check if product already exists in the collection
         var existingEntry = _veilingKlokProducts.FirstOrDefault(vkp => vkp.ProductId == productId);
@@ -109,12 +122,15 @@ public class VeilingKlok
             ? _veilingKlokProducts.Max(vkp => vkp.Position) + 1
             : 0;
 
-        _veilingKlokProducts.Add(new VeilingKlokProduct
-        {
-            VeilingKlokId = Id,
-            ProductId = productId,
-            Position = position
-        });
+        _veilingKlokProducts.Add(
+            new VeilingKlokProduct
+            {
+                VeilingKlokId = Id,
+                ProductId = productId,
+                AuctionPrice = auctionPrice,
+                Position = position
+            }
+        );
         TotalProducts++;
     }
 
@@ -145,11 +161,12 @@ public class VeilingKlok
         BiddingProductIndex = newIndex;
     }
 
-    public void UpdatePriceRange(decimal addedProductPrice)
+    public void UpdateProductPrice(Guid productId, decimal newPrice)
     {
-        if (addedProductPrice > HighestPrice)
-            HighestPrice = addedProductPrice;
-        else if (LowestPrice == 0 || addedProductPrice < LowestPrice)
-            LowestPrice = addedProductPrice;
+        var entry = _veilingKlokProducts.FirstOrDefault(vkp => vkp.ProductId == productId);
+        if (entry == null)
+            throw KlokValidationException.ProductNotInVeilingKlok();
+
+        entry.AuctionPrice = newPrice;
     }
 }

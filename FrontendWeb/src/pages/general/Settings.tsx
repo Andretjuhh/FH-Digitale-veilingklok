@@ -11,7 +11,7 @@ import SettingsSidebar from '../../components/sections/settingspage/SettingsSide
 import { AccountType } from '../../declarations/enums/AccountTypes';
 
 function Settings() {
-	const { account, navigate } = useRootContext();
+	const { account, navigate, t } = useRootContext();
 	const [searchParams] = useSearchParams();
 	const sectionParam = searchParams.get('section') || 'account';
 	const [section, setSection] = useState(sectionParam);
@@ -23,7 +23,7 @@ function Settings() {
 	const dashboardPath = useMemo(() => {
 		switch (account?.accountType) {
 			case AccountType.Koper:
-				return '/koper/dashboard';
+				return '/koper/veilingen';
 			case AccountType.Kweker:
 				return '/kweker/dashboard';
 			case AccountType.Veilingmeester:
@@ -39,11 +39,7 @@ function Settings() {
 				<SettingsSidebar onChange={setSection} active={section} />
 				<div className="settings-main">
 					<div className="settings-main-header">
-						<Button
-							label="Terug naar dashboard"
-							className="settings-back-btn"
-							onClick={() => navigate(dashboardPath)}
-						/>
+						<Button label={t('settings_back_to_dashboard')} aria-label={t('settings_back_to_dashboard_aria')} className="settings-back-btn" onClick={() => navigate(dashboardPath)} />
 					</div>
 					<SettingsContent active={section} />
 				</div>

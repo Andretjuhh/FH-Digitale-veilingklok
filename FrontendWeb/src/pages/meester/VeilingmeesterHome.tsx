@@ -6,7 +6,6 @@ import {VeilingKlokOutputDto} from "../../declarations/dtos/output/VeilingKlokOu
 import {Column, DataTable, OnFetchHandlerParams} from "../../components/layout/Table";
 import {getVeilingKlokken} from "../../controllers/server/veilingmeester";
 import {KlokStatusBadge} from "../../components/elements/StatusBadge";
-import Button from "../../components/buttons/Button";
 import Page from "../../components/nav/Page";
 import CreateVeilingKlok from "../../components/sections/veiling-dashboard/CreateVeilingKlok";
 import {KwekerProductStats} from "../../components/sections/kweker/KwekerStats";
@@ -128,11 +127,7 @@ function VeilingmeesterManageHome() {
 					columns={klokColumns}
 					filterGroups={
 						<>
-							<Button
-								icon={'bi-calendar-plus-fill'}
-								label={t('schedule_veilingklok')}
-								onClick={() => setOpenCreateModal(true)}
-							/>
+
 						</>
 					}
 					emptyText={t('no_veilingen_planned')}

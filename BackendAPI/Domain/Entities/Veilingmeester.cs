@@ -20,13 +20,10 @@ namespace Domain.Entities
         [Required, MaxLength(20)]
         public required string AuthorisatieCode { get; set; }
 
-        [NotMapped]
-        public override AccountType AccountType => AccountType.Veilingmeester;
-
         private Veilingmeester()
-            : base() { }
+            : base(AccountType.Veilingmeester) { }
 
-        public Veilingmeester(string email, Password password)
-            : base(email, password) { }
+        public Veilingmeester(string email)
+            : base(email, AccountType.Veilingmeester) { }
     }
 }

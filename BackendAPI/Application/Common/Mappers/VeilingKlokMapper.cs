@@ -29,8 +29,10 @@ public class
                 CurrentBids = info.TotalBids,
                 Products = info.Products,
                 VeilingDurationSeconds = veiling.VeilingDurationSeconds,
-                HighestBidAmount = veiling.HighestPrice,
-                LowestBidAmount = veiling.LowestPrice
+                LowestProductPrice = veiling.LowestProductPrice,
+                HighestProductPrice = veiling.HighestProductPrice,
+                VeilingRounds = veiling.VeilingRounds,
+                CurrentProductIndex = veiling.BiddingProductIndex
             };
 
     public static VeilingKlokDetailsOutputDto ToOutputDto(VeilingKlok entity,
@@ -51,8 +53,10 @@ public class
             CurrentBids = info.TotalBids,
             VeilingDurationSeconds = entity.VeilingDurationSeconds,
             Products = info.Products,
-            HighestBidAmount = entity.HighestPrice,
-            LowestBidAmount = entity.LowestPrice
+            LowestProductPrice = entity.LowestProductPrice,
+            HighestProductPrice = entity.HighestProductPrice,
+            VeilingRounds = entity.VeilingRounds,
+            CurrentProductIndex = entity.BiddingProductIndex
         };
     }
 
@@ -77,8 +81,10 @@ public class
                     VeilingDurationSeconds = entity.VeilingDurationSeconds,
                     CurrentBids = info.TotalBids,
                     Products = info.Products,
-                    HighestBidAmount = info.HighestPrice,
-                    LowestBidAmount = info.LowestPrice
+                    LowestProductPrice = info.LowestPrice,
+                    HighestProductPrice = info.HighestPrice,
+                    VeilingRounds = entity.VeilingRounds,
+                    CurrentProductIndex = entity.BiddingProductIndex
                 };
 
         public static VeilingKlokOutputDto ToOutputDto(VeilingKlok entity,
@@ -99,8 +105,10 @@ public class
                 VeilingDurationSeconds = entity.VeilingDurationSeconds,
                 CurrentBids = info.TotalBids,
                 Products = info.Products,
-                HighestBidAmount = info.HighestPrice,
-                LowestBidAmount = info.LowestPrice
+                LowestProductPrice = info.LowestPrice,
+                HighestProductPrice = info.HighestPrice,
+                VeilingRounds = entity.VeilingRounds,
+                CurrentProductIndex = entity.BiddingProductIndex
             };
         }
     }

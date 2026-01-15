@@ -17,7 +17,9 @@ public class VeilingKlokDetailsOutputDto
     public DateTimeOffset? StartedAt { get; set; }
     public DateTimeOffset? EndedAt { get; set; }
 
-    public decimal? HighestBidAmount { get; set; }
-    public decimal? LowestBidAmount { get; set; }
+    public int? VeilingRounds { get; set; }
+    public int? CurrentProductIndex { get; set; }
+    public decimal LowestProductPrice { get; set; }
+    public decimal HighestProductPrice { get; set; }
     public required List<ProductDetailsOutputDto> Products { get; set; }
 }

@@ -78,10 +78,7 @@ public sealed class CreateVeilingHandler
 
                 // Mark as being auctioned on the veiling klok
                 result.Product.AddToVeilingKlok(newKlok.Id);
-                newKlok.AddProductId(result.Product.Id);
-
-                // Recalculate klok price range
-                newKlok.UpdatePriceRange(price);
+                newKlok.AddProduct(result.Product.Id, result.Product.AuctionPrice ?? result.Product.MinimumPrice);
 
                 // Persist change on product repository (unit of work will commit)
                 _productRepository.Update(result.Product);
