@@ -392,30 +392,6 @@
 	gap: 1rem;
 }
 
-.vm-veiling-info-klok-actions {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	align-items: flex-start;
-	justify-content: center;
-}
-
-.vm-veiling-info-klok-actions .start {
-}
-
-.vm-veiling-info-klok-actions .pause {
-	background-color: theme(colors.orange.400);
-}
-
-.vm-veiling-info-klok-actions .resume {
-	background-color: theme(colors.green.400);
-}
-
-.vm-veiling-info-klok-actions .end {
-	background-color: theme(colors.red.500);
-}
-
 /*#region Place Bid Card*/
 .vm-veiling-buy-actions {
 	display: flex;
@@ -455,12 +431,14 @@
 	font-size: 1.25rem;
 	line-height: 1.25rem;
 
-	font-weight: 700;
+	font-weight: 600;
 	color: theme(colors.gray.800);
 
 	display: flex;
 	align-items: center;
 	gap: 1rem;
+	flex-direction: row-reverse;
+	justify-content: flex-end;
 }
 
 .vm-veiling-buy-actions-header-h1 i {
@@ -483,7 +461,7 @@
 	font-size: 1.2rem;
 	line-height: 1.2rem;
 	font-weight: 700;
-	color: theme(colors.rose.600);
+	color: theme(colors.green.800);
 	margin: 0.8rem 0;
 }
 
@@ -498,7 +476,6 @@
 	font-size: 1rem;
 	line-height: 1rem;
 	font-weight: 500;
-	margin-top: 1rem;
 
 	color: theme(colors.gray.600);
 	display: flex;
@@ -544,6 +521,32 @@
 }
 
 /*#endregion*/
+
+/*#region Klok Actions*/
+
+.vm-veiling-info-klok-actions {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	align-items: flex-start;
+	justify-content: center;
+}
+
+.vm-veiling-info-klok-actions .start {
+}
+
+.vm-veiling-info-klok-actions .pause {
+	background-color: theme(colors.orange.400);
+}
+
+.vm-veiling-info-klok-actions .resume {
+	background-color: theme(colors.green.400);
+}
+
+.vm-veiling-info-klok-actions .end {
+	background-color: theme(colors.red.500);
+}
 
 .vm-veiling-info-klok-action-primary-btn,
 .vm-veiling-info-klok-action-secondary-btn {
@@ -607,6 +610,8 @@
 	flex-direction: row;
 	gap: 1rem;
 }
+
+/*#endregion*/
 
 .vm-veiling-info-klok-ctn {
 	flex: 1;
