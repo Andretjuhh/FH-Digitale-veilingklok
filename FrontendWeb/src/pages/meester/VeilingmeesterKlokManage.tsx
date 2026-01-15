@@ -268,7 +268,7 @@ function VeilingmeesterKlokManage() {
 												<Button className={'vm-veiling-info-klok-action-primary-btn resume'} label={t('resume_veiling_klok')} icon="bi-play-fill"
 												        onClick={resumeVeilingKlok}/>}
 
-											{getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! !== VeilingKlokStatus.Scheduled && getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! < VeilingKlokStatus.Ended && (
+											{getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! !== VeilingKlokStatus.Ended && getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! > VeilingKlokStatus.Scheduled && (
 												<>
 													<Button className={'vm-veiling-info-klok-action-secondary-btn end'} label={t('stop_veiling_klok')} icon="bi-stop-fill"
 													        onClick={stopVeilingKlok}/>
