@@ -8,7 +8,7 @@ import {getVeilingKlokken} from "../../controllers/server/veilingmeester";
 import {KlokStatusBadge} from "../../components/elements/StatusBadge";
 import Page from "../../components/nav/Page";
 import CreateVeilingKlok from "../../components/sections/veiling-dashboard/CreateVeilingKlok";
-import {KwekerProductStats} from "../../components/sections/kweker/KwekerStats";
+import {MeesterStats} from "../../components/sections/meester/MeesterStats";
 
 function VeilingmeesterManageHome() {
 	const {t, account, languageCode, navigate} = useRootContext();
@@ -108,7 +108,7 @@ function VeilingmeesterManageHome() {
 				</section>
 
 				<section className={'products-page-stats'}>
-					<KwekerProductStats/>
+					<MeesterStats/>
 				</section>
 
 				<DataTable<VeilingKlokOutputDto>

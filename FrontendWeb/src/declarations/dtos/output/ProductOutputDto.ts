@@ -11,5 +11,6 @@ export interface ProductOutputDto {
 	dimension: string;
 	stock: number;
 	companyName: string;
+	kwekerId?: string | null;
 	auctionPlanned: boolean;
 }

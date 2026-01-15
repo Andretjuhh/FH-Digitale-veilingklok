@@ -3,6 +3,7 @@ using Application.Repositories;
 using Domain.Entities;
 using Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Infrastructure.Persistence.Repositories;
 
@@ -159,6 +160,211 @@ public class ProductRepository : IProductRepository
             .ToListAsync();
 
         return results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
+    }
+
+    public async Task<List<PriceHistoryItem>> GetLatestPricesByKwekerAsync(Guid kwekerId, int limit)
+    {
+        const string sql = @"
+SELECT TOP (@limit)
+    p.id AS product_id,
+    p.name AS product_name,
+    k.id AS kweker_id,
+    k.company_name AS kweker_name,
+    oi.price_at_purchase AS price_at_purchase,
+    oi.created_at AS purchased_at
+FROM OrderItem oi
+JOIN Product p ON oi.product_id = p.id
+JOIN Kweker k ON p.kweker_id = k.id
+WHERE p.kweker_id = @kwekerId
+ORDER BY oi.created_at DESC;";
+
+        return await ExecutePriceHistoryQueryAsync(sql, new Dictionary<string, object>
+        {
+            ["@limit"] = limit,
+            ["@kwekerId"] = kwekerId
+        });
+    }
+
+    public async Task<List<PriceHistoryItem>> GetLatestPricesAsync(int limit)
+    {
+        const string sql = @"
+SELECT TOP (@limit)
+    p.id AS product_id,
+    p.name AS product_name,
+    k.id AS kweker_id,
+    k.company_name AS kweker_name,
+    oi.price_at_purchase AS price_at_purchase,
+    oi.created_at AS purchased_at
+FROM OrderItem oi
+JOIN Product p ON oi.product_id = p.id
+JOIN Kweker k ON p.kweker_id = k.id
+ORDER BY oi.created_at DESC;";
+
+        return await ExecutePriceHistoryQueryAsync(sql, new Dictionary<string, object>
+        {
+            ["@limit"] = limit
+        });
+    }
+
+    public async Task<KwekerPriceAverage?> GetAveragePriceByKwekerAsync(Guid kwekerId, int? limit)
+    {
+        var sql = @"
+SELECT
+    k.id AS kweker_id,
+    k.company_name AS kweker_name,
+    AVG(CAST(oi.price_at_purchase AS decimal(18,2))) AS avg_price,
+    COUNT(1) AS sample_count
+FROM OrderItem oi
+JOIN Product p ON oi.product_id = p.id
+JOIN Kweker k ON p.kweker_id = k.id
+WHERE p.kweker_id = @kwekerId
+GROUP BY k.id, k.company_name;";
+
+        var parameters = new Dictionary<string, object>
+        {
+            ["@kwekerId"] = kwekerId
+        };
+
+        if (limit.HasValue && limit.Value > 0)
+        {
+            sql = @"
+WITH Recent AS (
+    SELECT TOP (@limit)
+        oi.price_at_purchase AS price_at_purchase
+    FROM OrderItem oi
+    JOIN Product p ON oi.product_id = p.id
+    WHERE p.kweker_id = @kwekerId
+    ORDER BY oi.created_at DESC
+)
+SELECT
+    k.id AS kweker_id,
+    k.company_name AS kweker_name,
+    AVG(CAST(r.price_at_purchase AS decimal(18,2))) AS avg_price,
+    COUNT(1) AS sample_count
+FROM Recent r
+JOIN Kweker k ON k.id = @kwekerId
+GROUP BY k.id, k.company_name;";
+            parameters["@limit"] = limit.Value;
+        }
+
+        return await ExecuteKwekerAverageQueryAsync(sql, parameters);
+    }
+
+    public async Task<(decimal AveragePrice, int SampleCount)> GetAveragePriceAllAsync()
+    {
+        const string sql = @"
+SELECT
+    AVG(CAST(oi.price_at_purchase AS decimal(18,2))) AS avg_price,
+    COUNT(1) AS sample_count
+FROM OrderItem oi;";
+
+        var connection = _dbContext.Database.GetDbConnection();
+        var shouldClose = connection.State != ConnectionState.Open;
+        if (shouldClose)
+            await connection.OpenAsync();
+
+        try
+        {
+            await using var command = connection.CreateCommand();
+            command.CommandText = sql;
+            await using var reader = await command.ExecuteReaderAsync();
+            if (!await reader.ReadAsync())
+                return (0, 0);
+
+            var avg = reader.IsDBNull(0) ? 0 : reader.GetDecimal(0);
+            var count = reader.IsDBNull(1) ? 0 : reader.GetInt32(1);
+            return (avg, count);
+        }
+        finally
+        {
+            if (shouldClose)
+                await connection.CloseAsync();
+        }
+    }
+
+    private async Task<List<PriceHistoryItem>> ExecutePriceHistoryQueryAsync(
+        string sql,
+        Dictionary<string, object> parameters
+    )
+    {
+        var connection = _dbContext.Database.GetDbConnection();
+        var shouldClose = connection.State != ConnectionState.Open;
+        if (shouldClose)
+            await connection.OpenAsync();
+
+        try
+        {
+            await using var command = connection.CreateCommand();
+            command.CommandText = sql;
+            foreach (var (key, value) in parameters)
+            {
+                var p = command.CreateParameter();
+                p.ParameterName = key;
+                p.Value = value;
+                command.Parameters.Add(p);
+            }
+
+            var results = new List<PriceHistoryItem>();
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                results.Add(new PriceHistoryItem(
+                    reader.GetGuid(0),
+                    reader.GetString(1),
+                    reader.GetGuid(2),
+                    reader.GetString(3),
+                    reader.GetDecimal(4),
+                    reader.GetFieldValue<DateTimeOffset>(5)
+                ));
+            }
+
+            return results;
+        }
+        finally
+        {
+            if (shouldClose)
+                await connection.CloseAsync();
+        }
+    }
+
+    private async Task<KwekerPriceAverage?> ExecuteKwekerAverageQueryAsync(
+        string sql,
+        Dictionary<string, object> parameters
+    )
+    {
+        var connection = _dbContext.Database.GetDbConnection();
+        var shouldClose = connection.State != ConnectionState.Open;
+        if (shouldClose)
+            await connection.OpenAsync();
+
+        try
+        {
+            await using var command = connection.CreateCommand();
+            command.CommandText = sql;
+            foreach (var (key, value) in parameters)
+            {
+                var p = command.CreateParameter();
+                p.ParameterName = key;
+                p.Value = value;
+                command.Parameters.Add(p);
+            }
+
+            await using var reader = await command.ExecuteReaderAsync();
+            if (!await reader.ReadAsync())
+                return null;
+
+            var kwekerId = reader.GetGuid(0);
+            var kwekerName = reader.GetString(1);
+            var avg = reader.IsDBNull(2) ? 0 : reader.GetDecimal(2);
+            var count = reader.IsDBNull(3) ? 0 : reader.GetInt32(3);
+
+            return new KwekerPriceAverage(kwekerId, kwekerName, avg, count);
+        }
+        finally
+        {
+            if (shouldClose)
+                await connection.CloseAsync();
+        }
     }
 
     public async Task<(

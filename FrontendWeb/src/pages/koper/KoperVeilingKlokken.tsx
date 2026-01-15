@@ -7,7 +7,7 @@ import {Column, DataTable, OnFetchHandlerParams} from "../../components/layout/T
 import {getVeilingKlokken} from "../../controllers/server/koper";
 import {KlokStatusBadge} from "../../components/elements/StatusBadge";
 import Page from "../../components/nav/Page";
-import {KwekerProductStats} from "../../components/sections/kweker/KwekerStats";
+import {KoperVeilingStats} from "../../components/sections/koper/KoperStats";
 
 function KoperVeilingKlokken() {
 	const {t, account, languageCode, navigate} = useRootContext();
@@ -106,7 +106,7 @@ function KoperVeilingKlokken() {
 				</section>
 
 				<section className={'products-page-stats'}>
-					<KwekerProductStats/>
+					<KoperVeilingStats/>
 				</section>
 
 				<DataTable<VeilingKlokOutputDto>

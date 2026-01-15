@@ -75,8 +75,13 @@ public sealed class OrderProductHandler
             if (product.Stock < request.Quantity)
                 throw CustomException.InsufficientStock();
 
+            var currentPrice = _veilingKlokEngine.GetCurrentPrice(
+                order.VeilingKlokId,
+                orderPlacedAt
+            );
+
             var orderItem = new OrderItem(
-                product.AuctionPrice.Value,
+                currentPrice,
                 request.Quantity,
                 product,
                 order.Id
