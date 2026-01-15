@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import {initReactI18next, useTranslation} from 'react-i18next';
+import { initReactI18next, useTranslation } from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -316,6 +316,10 @@ export const resources = {
 			vm_queue_company_5: 'Orchid World',
 
 			// ===== VEILINGKLOK MANAGEMENT =====
+			select_quantity: 'Aantal selecteren',
+			place_bid: 'Bod plaatsen',
+			total_price: 'Totale prijs',
+			quantity: 'Aantal',
 			veilingklok_created: 'Veilingklok succesvol aangemaakt',
 			veilingklok_removing_product: 'Product verwijderen van veilingklok...',
 			veilingklok_product_removed: 'Product succesvol verwijderd van veilingklok',
@@ -563,11 +567,11 @@ i18n
 		lng: 'nl', // if you're using a language detector, do not define the lng option
 		fallbackLng: 'nl',
 		debug: false,
-		interpolation: {escapeValue: false},
+		interpolation: { escapeValue: false },
 	})
 	.then(null);
 
 type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
-export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};
+export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };

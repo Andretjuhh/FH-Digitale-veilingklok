@@ -57,7 +57,7 @@ function App() {
 
 					{/*Koper Routes*/}
 					<Route path="/koper/veilingen" element={<KoperVeilingKlokken/>}/>
-					<Route path="/koper/veilingen/:id" element={<KoperVeilingKlok/>}/>
+					<Route path="/koper/veilingen/:klokId" element={<KoperVeilingKlok/>}/>
 					<Route path="/koper/zoeken" element={<KoperProducts/>}/>
 					<Route path="/koper/orders" element={<KoperOrders/>}/>
 

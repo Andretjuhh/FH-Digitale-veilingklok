@@ -85,6 +85,12 @@ img {
 	outline: none;
 }
 
+.input-clean-number::-webkit-outer-spin-button,
+.input-clean-number::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
 .app-page {
 	width: 100%;
 	height: 100%;
