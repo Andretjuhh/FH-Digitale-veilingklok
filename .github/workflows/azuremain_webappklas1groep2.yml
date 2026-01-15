@@ -1,0 +1,68 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy ASP.Net Core app to Azure Web App - WebAppKlas1Groep2
+
+on:
+  push:
+    branches:
+      - azure
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Restore
+        run: dotnet restore BackendAPI/API/API.csproj
+
+      - name: Build
+        run: dotnet build BackendAPI/API/API.csproj --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish BackendAPI/API/API.csproj -c Release -o publish
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: .net-app
+          path: publish
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_89FB2EB385AD436EA16860995367D43A }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C6182FABB5FB4B57BB5E15E96BB96846 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2227C245E87B45DDB812A7C7AEE7E9B9 }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: WebAppKlas1Groep2
+          slot-name: Production
+          package: .
+
+          
