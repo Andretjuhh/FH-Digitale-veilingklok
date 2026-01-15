@@ -11,7 +11,6 @@ import { getAuthentication } from '../../controllers/server/account';
 import {
 	createOrder,
 	getProducts,
-	orderProduct,
 	getVeilingKlok,
 	getKwekerAveragePrice,
 	getKwekerPriceHistory,
@@ -37,7 +36,6 @@ function UserDashboard() {
 	const [productIndex, setProductIndex] = useState<number>(0);
 	const [isClockRunning, setIsClockRunning] = useState(false);
 	const [clockId, setClockId] = useState<string | null>(null);
-	const [orderId, setOrderId] = useState<string | null>(null);
 	const [isHydratingClock, setIsHydratingClock] = useState<boolean>(false);
 	const [kwekerHistory, setKwekerHistory] = useState<PriceHistoryItemOutputDto[]>([]);
 	const [kwekerAverage, setKwekerAverage] = useState<KwekerAveragePriceOutputDto | null>(null);
@@ -135,7 +133,6 @@ function UserDashboard() {
 			connection.on('RegionVeilingStarted', (notification: RegionVeilingStartedNotification) => {
 				if (!isActive) return;
 				setClockId(notification.clockId);
-				setOrderId(null);
 				setIsClockRunning(true);
 				setPaused(false);
 				setIsHydratingClock(true);
@@ -302,16 +299,12 @@ function UserDashboard() {
 										if (qty <= 0 || !current) return;
 										setPaused(true);
 										try {
-											let currentOrderId = orderId;
-											if (!currentOrderId && clockId) {
-												const orderResp = await createOrder({ veilingKlokId: clockId });
-												currentOrderId = (orderResp as any)?.data?.id ?? (orderResp as any)?.data?.data?.id ?? null;
-												if (currentOrderId) setOrderId(currentOrderId);
-											}
-
-											if (!currentOrderId) throw new Error('Geen orderId beschikbaar om aankoop te plaatsen.');
-
-											await orderProduct(currentOrderId, current.id, qty);
+											if (!clockId) throw new Error('Geen klokId beschikbaar om aankoop te plaatsen.');
+											await createOrder({
+												veilingKlokId: clockId,
+												productItemId: current.id,
+												quantity: qty,
+											});
 
 											const nextStock = Math.max(0, currentStock - qty);
 											setProducts((prev) => prev.map((p, i) => (i === productIndex ? { ...p, stock: nextStock } : p)));

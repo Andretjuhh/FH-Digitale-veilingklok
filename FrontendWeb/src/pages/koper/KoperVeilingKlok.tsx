@@ -9,11 +9,7 @@ import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
 import {VeilingBodNotification, VeilingKlokStateNotification, VeilingProductChangedNotification} from '../../declarations/models/VeilingNotifications';
 import {useVeilingKlokSignalR} from '../../hooks/useVeilingKlokSignalR';
 import {delay, formatDate, formatEur, getNormalizedVeilingKlokStatus} from '../../utils/standards';
-<<<<<<< HEAD
-import {getKwekerAveragePrice, getKwekerPriceHistory, getLatestPrices, getOverallAveragePrice, getVeilingKlok} from '../../controllers/server/koper';
-=======
-import {createOrder, getVeilingKlok} from '../../controllers/server/koper';
->>>>>>> main
+import {createOrder, getKwekerAveragePrice, getKwekerPriceHistory, getLatestPrices, getOverallAveragePrice, getVeilingKlok} from '../../controllers/server/koper';
 import {isHttpError} from '../../declarations/types/HttpError';
 import Page from '../../components/nav/Page';
 import Button from '../../components/buttons/Button';
