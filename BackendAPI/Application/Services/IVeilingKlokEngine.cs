@@ -15,6 +15,7 @@ public interface IVeilingKlokEngine
     public Task StopVeilingAsync(Guid klokId);
     public Task PlaceVeilingBidAsync(Guid klokId, Guid productId, DateTimeOffset placedAt, int quantity);
     public Task ChangeVeilingProductAsync(Guid klokId, Guid newProductId);
+    public Task<decimal> GetCurrentVeilingPriceAsync(Guid klokId, Guid productId, DateTimeOffset placedAt);
 
     public string GetConnectionGroupName(Guid klokId);
     public string GetRegionConnectionGroupName(string country, string region);
