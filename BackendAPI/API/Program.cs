@@ -100,40 +100,6 @@ app.MapHub<VeilingHub>("/hubs/veiling-klok").RequireCors("AllowFrontend");
 // Map development endpoints (seeder, testing utilities, etc.)
 app.MapDevelopmentEndpoints();
 
-// #region Home Page Routing
-//
-// // Restored the simple root endpoint.
-// app.MapGet(
-//         "/",
-//         async context =>
-//         {
-//             // Define the relative path to the HTML file in the new 'Html' folder
-//             const string filePath = "wwwroot/landingPage.html";
-//
-//             // Determine the full path relative to the application's Content Root Path
-//             var fullPath = Path.Combine(app.Environment.ContentRootPath, filePath);
-//
-//             if (File.Exists(fullPath))
-//             {
-//                 // Read the HTML content from the file
-//                 var htmlContent = await File.ReadAllTextAsync(fullPath);
-//
-//                 context.Response.ContentType = "text/html";
-//                 await context.Response.WriteAsync(htmlContent);
-//             }
-//             else
-//             {
-//                 // Fallback error message if the file is not found
-//                 context.Response.StatusCode = 404;
-//                 await context.Response.WriteAsync(
-//                     $"Error 404: Landing page file not found at {fullPath}"
-//                 );
-//             }
-//         }
-//     )
-//     .ExcludeFromDescription(); // Exclude this endpoint from the Swagger documentation
-//
-// #endregion
 
 app.Run();
 
