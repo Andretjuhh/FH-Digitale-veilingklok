@@ -21,9 +21,7 @@ builder.Services.AddCors(options =>
         {
             policy
                 .WithOrigins(
-                    "http://localhost:3000",
-                    "http://localhost:5219",
-                    "https://*.azurewebsites.net"
+                    builder.Configuration.GetConnectionString("FrontendURL")!
                 )
                 .AllowAnyHeader()
                 .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
