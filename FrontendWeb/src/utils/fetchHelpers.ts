@@ -1,4 +1,5 @@
 // Internal exports
+import i18n from 'i18next';
 import config from '../constant/application';
 import { HttpError } from '../declarations/types/HttpError';
 import { ProcessError } from '../declarations/types/ProcessError';
@@ -28,7 +29,7 @@ export async function appFetch(request: RequestInfo | URL, options: RequestInit 
 					Accept: 'application/json',
 					// ...(auth ? {Authorization: `Bearer ${auth?.accessToken}`} : {}),
 				},
-		  }
+			}
 		: {};
 
 	// Merge with user options
@@ -106,7 +107,7 @@ export async function handleResponse<GeneticResponse = any, GeneticError = any>(
 	throw new HttpError({
 		code: 'FETCH_REQUEST_ERROR',
 		statusCode: requestResponse.status,
-		message: typeof fetchError === 'object' && fetchError !== null && 'message' in fetchError ? (fetchError.message as string) : `Fetch request failed with status ${requestResponse.status}: ${requestResponse.statusText}`,
+		message: typeof fetchError === 'object' && fetchError !== null && 'message' in fetchError ? i18n.t(fetchError.message as any, { lng: window.application.languageCode || i18n.language }) : (fetchError as string),
 		details: typeof fetchError === 'object' && fetchError !== null && 'details' in fetchError ? (fetchError.details as GeneticError) : fetchError,
 		expose: false,
 	});
