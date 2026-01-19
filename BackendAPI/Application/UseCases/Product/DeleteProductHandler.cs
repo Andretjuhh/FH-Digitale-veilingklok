@@ -1,5 +1,6 @@
 using Application.Common.Exceptions;
 using Application.Repositories;
+using Application.Services;
 using MediatR;
 
 namespace Application.UseCases.Product;
