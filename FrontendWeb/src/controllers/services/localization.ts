@@ -255,7 +255,6 @@ export const resources = {
 			loaded_orders: 'Bestellingen succesvol geladen',
 			failed_load_orders: 'Fout bij het laden van bestellingen',
 			client_name: 'Klantnaam',
-			product_name: 'Productnaam',
 			kweker_name: 'Kwekernaam',
 			actions: 'Acties',
 
