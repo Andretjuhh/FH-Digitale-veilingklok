@@ -98,40 +98,42 @@ function VeilingmeesterManageHome() {
 	return (
 		<Page enableHeader className="vm-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
 			<main className="vm-products-page-ctn">
-				<section className="page-title-section">
-					<h1>
+				<section className="page-title-section" aria-labelledby="meester-home-title meester-home-subtitle">
+					<h1 id="meester-home-title">
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
-					<h2>
+					<h2 id="meester-home-subtitle">
 						{t('manage_auction_txt')}
 					</h2>
 				</section>
 
-				<section className={'products-page-stats'}>
+				<section className={'products-page-stats'} aria-label={t('aria_meester_stats')}>
 					<MeesterStats/>
 				</section>
 
-				<DataTable<VeilingKlokOutputDto>
-					isLazy
-					enableSearch={false}
-					loading={paginatedVeilingenState.type == 'loading'}
-					data={paginatedVeilingen?.data || []}
-					itemsPerPage={20}
-					totalItems={paginatedVeilingen?.totalCount || 0}
-					getItemKey={item => item.id}
-					onFetchData={handleFetchVeilingen}
-					onCellClick={(item) => navigate(`/veilingmeester/veilingen-beheren/${item.id}`)}
+				<section aria-label={t('aria_meester_auction_list')}>
+					<DataTable<VeilingKlokOutputDto>
+						isLazy
+						enableSearch={false}
+						loading={paginatedVeilingenState.type == 'loading'}
+						data={paginatedVeilingen?.data || []}
+						itemsPerPage={20}
+						totalItems={paginatedVeilingen?.totalCount || 0}
+						getItemKey={item => item.id}
+						onFetchData={handleFetchVeilingen}
+						onCellClick={(item) => navigate(`/veilingmeester/veilingen-beheren/${item.id}`)}
 
-					title={t('recent_auctionclocks')}
-					icon={<i className="bi bi-clock-fill"></i>}
-					columns={klokColumns}
-					filterGroups={
-						<>
+						title={t('recent_auctionclocks')}
+						icon={<i className="bi bi-clock-fill"></i>}
+						columns={klokColumns}
+						filterGroups={
+							<>
 
-						</>
-					}
-					emptyText={t('no_veilingen_planned')}
-				/>
+							</>
+						}
+						emptyText={t('no_veilingen_planned')}
+					/>
+				</section>
 
 				{openCreateModal && (
 					<div className="modal-overlay" onClick={() => setOpenCreateModal(false)}>

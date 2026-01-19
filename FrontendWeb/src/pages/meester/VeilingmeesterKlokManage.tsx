@@ -216,11 +216,11 @@ function VeilingmeesterKlokManage() {
 			<main className="vm-veiling-info-page-ctn">
 				{state.type === 'idle' && currentVeilingKlok && (
 					<>
-						<section className={'vm-veiling-info-left-panel'}>
+						<section className={'vm-veiling-info-left-panel'} aria-label={t('aria_meester_auction_clock_manage')}>
 							<div className={'vm-veiling-info-data'}>
 								<div className={'vm-veiling-info-header'}>
 									<Button className="modal-card-back-btn vm-veiling-info-btn" icon="bi-x" type="button" aria-label={t('aria_back_button')} onClick={onClose}/>
-									<h2 className={'vm-veiling-info-h1'}>
+									<h2 id="meester-klok-manage-title" className={'vm-veiling-info-h1'}>
 										<i className="bi bi-stopwatch-fill"></i>
 										{t('manage_veiling_klok')}
 									</h2>
@@ -362,7 +362,7 @@ function VeilingmeesterKlokManage() {
 							)}
 						</section>
 
-						<section className={'vm-veiling-info-right-panel'}>
+						<section className={'vm-veiling-info-right-panel'} aria-label={t('aria_meester_clock_products')}>
 							<div className={'vm-veiling-info-products'}>
 								<div className={'vm-veiling-info-header'}>
 									<h2 className={'vm-veiling-info-h2'}>

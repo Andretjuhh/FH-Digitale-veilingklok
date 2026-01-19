@@ -115,11 +115,11 @@ function VeilingmeesterKlokDetails() {
 				{
 					(state.type === 'idle' && currentVeilingKlok) && (
 						<>
-							<section className={'vm-veiling-info-left-panel'}>
+							<section className={'vm-veiling-info-left-panel'} aria-label={t('aria_meester_auction_details')}>
 								<div className={'vm-veiling-info-data'}>
 									<div className={'vm-veiling-info-header'}>
 										<Button className="modal-card-back-btn vm-veiling-info-btn" icon="bi-x" type="button" aria-label={t('aria_back_button')} onClick={onClose}/>
-										<h2 className={'vm-veiling-info-h1'}>
+										<h2 id="meester-veiling-details-title" className={'vm-veiling-info-h1'}>
 											<i className="bi bi-layers-fill"></i>
 											{t('auction_clock_details')}
 										</h2>
@@ -185,42 +185,46 @@ function VeilingmeesterKlokDetails() {
 								<>
 									{
 										currentVeilingKlok.status == "Scheduled" as any ?
-											<GridTable
-												isLazy
-												itemsPerPage={12}
-												data={paginatedProducts?.data || []}
-												loading={paginatedProductsState.type == 'loading'}
-												totalItems={paginatedProducts?.totalCount || 0}
-												onFetchData={handleFetchProducts}
+											<section aria-label={t('aria_meester_region_products')}>
+												<GridTable
+													isLazy
+													itemsPerPage={12}
+													data={paginatedProducts?.data || []}
+													loading={paginatedProductsState.type == 'loading'}
+													totalItems={paginatedProducts?.totalCount || 0}
+													onFetchData={handleFetchProducts}
 
-												title={t('region_flowers')}
-												icon={<i className="bi bi-bag-fill"></i>}
-												renderItem={(item, index) => (
-													<AddProductCard
-														added={currentVeilingKlok.products?.some(e => e.id == item.id)}
-														mode={'meester'}
-														product={item}
-														index={index}
-														veilingId={id}
-													/>)
-												}
-												emptyText={t('no_products')}
-											/>
+													title={t('region_flowers')}
+													icon={<i className="bi bi-bag-fill"></i>}
+													renderItem={(item, index) => (
+														<AddProductCard
+															added={currentVeilingKlok.products?.some(e => e.id == item.id)}
+															mode={'meester'}
+															product={item}
+															index={index}
+															veilingId={id}
+														/>)
+													}
+													emptyText={t('no_products')}
+												/>
+											</section>
 											:
-											<DataTable<OrderOutputDto>
-												data={currentVeilingOrders}
-												getItemKey={item => item.id}
+											<section aria-label={t('aria_meester_recent_orders')}>
+												<DataTable<OrderOutputDto>
+													data={currentVeilingOrders}
+													getItemKey={item => item.id}
 
-												title={t('recent_orders')}
-												icon={<i className="bi bi-cart4"></i>}
-												columns={orderColumn}
-												emptyText={t('no_orders')}
-											/>
+													title={t('recent_orders')}
+													icon={<i className="bi bi-cart4"></i>}
+													columns={orderColumn}
+													emptyText={t('no_orders')}
+												/>
+											</section>
 									}
 								</>
 							</section>
 
-							<section className={'vm-veiling-info-right-panel'}>
+							<section className={'vm-veiling-info-right-panel'} aria-label={t('aria_meester_clock_products')}>
 								<div className={'vm-veiling-info-products'}>
 									<div className={'vm-veiling-info-header'}>
 										<h2 className={'vm-veiling-info-h2'}>
