@@ -123,8 +123,15 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
             // Decrease the product stock
             product.DecreaseStock(dto.Quantity);
 
+            // If stock becomes 0, pause the auction clock
+            if (product.Stock == 0)
+            {
+                veilingKlok.UpdateStatus(VeilingKlokStatus.Paused);
+            }
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
+
             // Update the veiling klok engine with the placed bid
             await _veilingKlokEngine.PlaceVeilingBidAsync(
                 order.VeilingKlokId,
@@ -132,6 +139,12 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
                 placedAt,
                 dto.Quantity
             );
+
+            // If stock was 0, call the pause in engine too
+            if (product.Stock == 0)
+            {
+                await _veilingKlokEngine.PauseVeilingAsync(veilingKlok.Id);
+            }
 
             var updatedOrder =
                 await _orderRepository.GetWithProductsByIdAsync(order.Id)

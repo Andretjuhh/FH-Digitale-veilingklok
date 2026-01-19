@@ -40,9 +40,29 @@ public static class IdentityExtension
                             {
                                 if (problem.ProblemDetails.Detail == "LockedOut")
                                 {
-                                    var email = context
-                                        .HttpContext.Request.Form["email"]
-                                        .ToString();
+                                    string? email = null;
+
+                                    if (context.HttpContext.Request.HasFormContentType)
+                                    {
+                                        email = context
+                                            .HttpContext.Request.Form["email"]
+                                            .ToString();
+                                    }
+                                    else if (context.Arguments.FirstOrDefault() is { } loginRequest)
+                                    {
+                                        // Try to get Email property via reflection (for JSON requests)
+                                        email = loginRequest
+                                            .GetType()
+                                            .GetProperty("Email")
+                                            ?.GetValue(loginRequest)
+                                            ?.ToString();
+                                    }
+
+                                    if (string.IsNullOrEmpty(email))
+                                    {
+                                        throw CustomException.AccountLocked();
+                                    }
+
                                     // We need to resolve UserManager to check if it's actually deleted
                                     var userManager =
                                         context.HttpContext.RequestServices.GetRequiredService<

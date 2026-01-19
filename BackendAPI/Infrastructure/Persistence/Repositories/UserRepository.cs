@@ -48,7 +48,6 @@ public class UserRepository : IUserRepository
         if (softDelete)
         {
             account.SoftDelete();
-            account.LockoutEnd = DateTimeOffset.MaxValue; // Prevent logging in
             _dbContext.Users.Update(account);
         }
         else
@@ -114,21 +113,6 @@ public class UserRepository : IUserRepository
             // 6. Finally, remove the account itself
             _dbContext.Users.Remove(account);
         }
-    }
-
-    public async Task ReactivateAccountAsync(Guid id)
-    {
-        var account = await _dbContext.Users.FirstOrDefaultAsync(a => a.Id == id);
-        if (account == null)
-            return;
-
-        // Only reactivate if account is actually soft deleted
-        if (!account.DeletedAt.HasValue)
-            return;
-
-        // Reset DeletedAt to null to reactivate
-        typeof(Account).GetProperty(nameof(Account.DeletedAt))?.SetValue(account, null);
-        _dbContext.Users.Update(account);
     }
 
     public async Task<List<string>> GetCountryRegionsAsync(string country)

@@ -47,7 +47,10 @@ public class ProductRepository : IProductRepository
 
     public async Task<IEnumerable<Product>> GetAllByIds(List<Guid> productIds)
     {
-        return await _dbContext.Products.Where(p => productIds.Contains(p.Id)).ToListAsync();
+        var products = await _dbContext
+            .Products.Where(p => productIds.Contains(p.Id))
+            .ToListAsync();
+        return products.OrderBy(p => productIds.IndexOf(p.Id));
     }
 
     public async Task<IEnumerable<Product>> GetAllByVeilingKlokIdAsync(Guid veilingKlokId)
@@ -145,17 +148,19 @@ public class ProductRepository : IProductRepository
             .Where(x => ids.Contains(x.product.Id))
             .ToListAsync();
 
-        return results.Select(r =>
-            (
-                r.product,
-                new KwekerInfo(
-                    r.kweker.Id,
-                    r.kweker.CompanyName,
-                    r.kweker.PhoneNumber ?? "",
-                    r.kweker.Email ?? ""
+        return results
+            .OrderBy(r => ids.IndexOf(r.product.Id))
+            .Select(r =>
+                (
+                    r.product,
+                    new KwekerInfo(
+                        r.kweker.Id,
+                        r.kweker.CompanyName,
+                        r.kweker.PhoneNumber ?? "",
+                        r.kweker.Email ?? ""
+                    )
                 )
-            )
-        );
+            );
     }
 
     public async Task<

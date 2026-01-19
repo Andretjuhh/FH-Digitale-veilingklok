@@ -29,8 +29,9 @@ public sealed class GetVeilingKlokProductsHandler
     )
     {
         // Verify VeilingKlok exists
-        var veilingKlok = await _veilingKlokRepository.GetByIdAsync(request.KlokId)
-                          ?? throw RepositoryException.NotFoundVeilingKlok();
+        var veilingKlok =
+            await _veilingKlokRepository.GetByIdAsync(request.KlokId)
+            ?? throw RepositoryException.NotFoundVeilingKlok();
 
         // Get products associated with the VeilingKlok (ordered by position)
         var productIds = veilingKlok.GetOrderedProductIds();
@@ -39,7 +40,9 @@ public sealed class GetVeilingKlokProductsHandler
             return new List<ProductOutputDto>();
 
         // Get products with kweker info
-        var productsWithKweker = await _productRepository.GetAllByIdsWithKwekerInfoAsync(productIds);
+        var productsWithKweker = await _productRepository.GetAllByIdsWithKwekerInfoAsync(
+            productIds
+        );
 
         // Map to output DTOs
         return productsWithKweker

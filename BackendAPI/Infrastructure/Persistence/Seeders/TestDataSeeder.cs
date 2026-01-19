@@ -531,6 +531,7 @@ public class TestDataSeeder : ITestDataSeeder
     {
         var veilingklokken = new List<VeilingKlok>();
         var random = new Random(46);
+        var activeRegions = new HashSet<string>();
 
         // Create veilingklokken to allow for more variety and order spread
         for (var i = 0; i < VeilingKlokCount; i++)
@@ -561,12 +562,39 @@ public class TestDataSeeder : ITestDataSeeder
             }
             else if (statusRoll < 0.6)
             {
-                veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
+                // Only allow one active (Started/Paused) per region
+                if (!activeRegions.Contains(veilingKlok.RegionOrState))
+                {
+                    veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
+                    activeRegions.Add(veilingKlok.RegionOrState);
+                }
+                else
+                {
+                    // Status should have been active, but region already has one.
+                    // Set to Ended with a random past date instead.
+                    veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
+                    veilingKlok.UpdateStatus(VeilingKlokStatus.Ended);
+
+                    var pastDate = DateTimeOffset.UtcNow.AddDays(-random.Next(1, 30));
+                    typeof(VeilingKlok)
+                        .GetProperty("StartedAt")
+                        ?.SetValue(veilingKlok, pastDate.AddMinutes(-30));
+                    typeof(VeilingKlok).GetProperty("EndedAt")?.SetValue(veilingKlok, pastDate);
+                    veilingKlok.ScheduledAt = pastDate.AddDays(-1);
+                }
             }
             else
             {
+                // Set to Ended with a random past date
                 veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
                 veilingKlok.UpdateStatus(VeilingKlokStatus.Ended);
+
+                var pastDate = DateTimeOffset.UtcNow.AddDays(-random.Next(1, 30));
+                typeof(VeilingKlok)
+                    .GetProperty("StartedAt")
+                    ?.SetValue(veilingKlok, pastDate.AddMinutes(-30));
+                typeof(VeilingKlok).GetProperty("EndedAt")?.SetValue(veilingKlok, pastDate);
+                veilingKlok.ScheduledAt = pastDate.AddDays(-1);
             }
         }
 

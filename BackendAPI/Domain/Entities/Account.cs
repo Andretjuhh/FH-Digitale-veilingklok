@@ -11,18 +11,21 @@ namespace Domain.Entities;
 [Table("Account")]
 public class Account : IdentityUser<Guid>
 {
-    [Column("created_at")] public DateTimeOffset CreatedAt { get; init; }
+    [Column("created_at")]
+    public DateTimeOffset CreatedAt { get; init; }
 
-    [Column("deleted_at")] public DateTimeOffset? DeletedAt { get; private set; }
+    [Column("deleted_at")]
+    public DateTimeOffset? DeletedAt { get; private set; }
 
-    [Column("row_version")] [Timestamp] public ulong RowVersion { get; private set; }
+    [Column("row_version")]
+    [Timestamp]
+    public ulong RowVersion { get; private set; }
 
-    [Column("account_type")] public AccountType AccountType { get; init; } = AccountType.Koper;
+    [Column("account_type")]
+    public AccountType AccountType { get; init; } = AccountType.Koper;
 
 #nullable disable
-    public Account()
-    {
-    }
+    public Account() { }
 
     protected Account(AccountType accountType)
     {
@@ -41,5 +44,12 @@ public class Account : IdentityUser<Guid>
     public void SoftDelete()
     {
         DeletedAt = DateTimeOffset.UtcNow;
+        LockoutEnd = DateTimeOffset.MaxValue;
+    }
+
+    public void Reactivate()
+    {
+        DeletedAt = null;
+        LockoutEnd = null;
     }
 }

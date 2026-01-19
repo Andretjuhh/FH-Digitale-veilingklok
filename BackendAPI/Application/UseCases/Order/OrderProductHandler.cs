@@ -24,18 +24,21 @@ public sealed class OrderProductHandler
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOrderRepository _orderRepository;
     private readonly IProductRepository _productRepository;
+    private readonly IVeilingKlokRepository _veilingKlokRepository;
     private readonly IVeilingKlokEngine _veilingKlokEngine;
 
     public OrderProductHandler(
         IUnitOfWork unitOfWork,
         IOrderRepository orderRepository,
         IProductRepository productRepository,
+        IVeilingKlokRepository veilingKlokRepository,
         IVeilingKlokEngine veilingKlokEngine
     )
     {
         _unitOfWork = unitOfWork;
         _orderRepository = orderRepository;
         _productRepository = productRepository;
+        _veilingKlokRepository = veilingKlokRepository;
         _veilingKlokEngine = veilingKlokEngine;
     }
 
@@ -51,12 +54,17 @@ public sealed class OrderProductHandler
         {
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             var (order, klokStatus) =
-                await _orderRepository.GetWithKlokStatusByIdAsync(request.OrderId, request.KoperId) ??
-                throw RepositoryException.NotFoundOrder();
+                await _orderRepository.GetWithKlokStatusByIdAsync(request.OrderId, request.KoperId)
+                ?? throw RepositoryException.NotFoundOrder();
+
+            var veilingKlok =
+                await _veilingKlokRepository.GetByIdAsync(order.VeilingKlokId)
+                ?? throw RepositoryException.NotFoundVeilingKlok();
 
             // Get the product and its kweker info
-            var (product, info) = await _productRepository.GetByIdWithKwekerIdAsync(request.ProductId) ??
-                                  throw RepositoryException.NotFoundProduct();
+            var (product, info) =
+                await _productRepository.GetByIdWithKwekerIdAsync(request.ProductId)
+                ?? throw RepositoryException.NotFoundProduct();
 
             // Ensure the veiling klok is running
             if (!_veilingKlokEngine.IsVeillingRunning(order.VeilingKlokId))
@@ -80,16 +88,18 @@ public sealed class OrderProductHandler
                 orderPlacedAt
             );
 
-            var orderItem = new OrderItem(
-                currentPrice,
-                request.Quantity,
-                product,
-                order.Id
-            );
+            var orderItem = new OrderItem(currentPrice, request.Quantity, product, order.Id);
             order.AddItem(orderItem);
             product.DecreaseStock(request.Quantity);
 
+            // If stock becomes 0, pause the auction clock
+            if (product.Stock == 0)
+            {
+                veilingKlok.UpdateStatus(VeilingKlokStatus.Paused);
+            }
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.CommitAsync(cancellationToken);
 
             // Update the veiling klok engine with the new bid after saving the transaction
             await _veilingKlokEngine.PlaceVeilingBidAsync(
@@ -99,11 +109,20 @@ public sealed class OrderProductHandler
                 request.Quantity
             );
 
-            await _unitOfWork.CommitAsync(cancellationToken);
+            // If stock was 0, call the pause in engine too
+            if (product.Stock == 0)
+            {
+                await _veilingKlokEngine.PauseVeilingAsync(veilingKlok.Id);
+            }
 
             return OrderMapper.ItemOrder.ToOutputDto(
                 orderItem,
-                new OrderItemProduct(product.Name, product.Description, product.ImageUrl, info.CompanyName)
+                new OrderItemProduct(
+                    product.Name,
+                    product.Description,
+                    product.ImageUrl,
+                    info.CompanyName
+                )
             );
         }
         catch (Exception)
