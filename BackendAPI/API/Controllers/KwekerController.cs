@@ -174,6 +174,15 @@ public class KwekerController : ControllerBase
         return HttpSuccess<ProductDetailsOutputDto>.Ok(result, "Product updated successfully");
     }
 
+    [HttpPost("product/{productId}/delete")]
+    public async Task<IActionResult> DeleteProduct(Guid productId)
+    {
+        var (kwekerId, _) = GetUserClaim.GetInfo(User);
+        var command = new DeleteProductCommand(productId, kwekerId);
+        await _mediator.Send(command);
+        return HttpSuccess<string>.NoContent("Product deleted successfully");
+    }
+
     [HttpGet("products")]
     public async Task<IActionResult> GetProducts(
         [FromQuery] string? nameFilter,

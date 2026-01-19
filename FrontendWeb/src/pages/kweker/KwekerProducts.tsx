@@ -12,12 +12,14 @@ import {OnFetchHandlerParams} from "../../components/layout/Table";
 import {getProducts} from "../../controllers/server/kweker";
 import Button from "../../components/buttons/Button";
 import Modal from "../../components/elements/Modal";
+import ComponentState from "../../components/elements/ComponentState";
 
 function KwekerProducts() {
 	const {t, account} = useRootContext();
 
 	// State for Create/Edit Product Modal
 	const [paginatedProductsState, setPaginatedProductsState] = useComponentStateReducer();
+	const [productState, setProductState] = useComponentStateReducer();
 	const [paginatedProducts, setPaginatedProducts] = useState<PaginatedOutputDto<ProductOutputDto>>();
 	const [openCreateEditModal, setOpenCreateEditModal] = useState<{ visible: boolean; product?: ProductOutputDto }>({visible: false});
 
@@ -111,6 +113,9 @@ function KwekerProducts() {
 					<CreateEditProduct product={openCreateEditModal.product} onClose={() => setOpenCreateEditModal({visible: false})}/>
 				</Modal>
 
+				<Modal>
+					<ComponentState state={productState}/>
+				</Modal>
 			</main>
 		</Page>
 	);

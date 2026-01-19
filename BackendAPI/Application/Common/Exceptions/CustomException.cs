@@ -169,6 +169,15 @@ public class CustomException : ProcessException
         );
     }
 
+    public static CustomException CannotDeleteProductWithOrders()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.CANNOT_DELETE_PRODUCT_WITH_ORDERS",
+            "Cannot delete a product that has existing orders."
+        );
+    }
+
     public static CustomException ProductNotLinkedToVeilingKlok()
     {
         return new CustomException(

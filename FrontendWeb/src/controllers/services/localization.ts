@@ -678,6 +678,7 @@ export const resources = {
 
 			'VEILINGKLOK.NOT_FOUND': 'Veilingklok niet gevonden.',
 
+			"CUSTOM.CANNOT_DELETE_PRODUCT_WITH_ORDERS": 'Kan product niet verwijderen met bestaande bestellingen.',
 			'CUSTOM.EXISTING_TRANSACTION': 'Er is al een transactie in behandeling.',
 			'CUSTOM.ALREADY_ACTIVE_VEILING_IN_REGION': 'Er is al een actieve veiling in deze regio.',
 			'CUSTOM.JWT_CONFIG_MISSING': 'Interne serverfout: JWT configuratie ontbreekt.',

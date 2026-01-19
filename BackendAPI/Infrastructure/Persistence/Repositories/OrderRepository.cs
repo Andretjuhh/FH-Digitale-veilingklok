@@ -133,6 +133,11 @@ public class OrderRepository : IOrderRepository
             .FirstOrDefaultAsync();
     }
 
+    public async Task<bool> HasOrdersAsync(Guid productId)
+    {
+        return await _dbContext.OrderItems.AnyAsync(oi => oi.ProductId == productId);
+    }
+
     #region Complex Queries
 
     public async Task<(Order order, VeilingKlokStatus klokStatus)?> GetWithKlokStatusByIdAsync(

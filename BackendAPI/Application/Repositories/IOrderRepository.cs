@@ -43,6 +43,8 @@ public interface IOrderRepository
 
     Task<Order?> FindOrderAsync(Guid koperId, Guid veilingKlokId, Guid? productId);
 
+    Task<bool> HasOrdersAsync(Guid productId);
+
     Task<IEnumerable<Order>> GetAllByKoperIdAsync(Guid koperId);
     Task<IEnumerable<Order>> GetAllByIdsAsync(List<Guid> orderIds);
 
