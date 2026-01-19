@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import {initReactI18next, useTranslation} from 'react-i18next';
+import { initReactI18next, useTranslation } from 'react-i18next';
 
 export const resources = {
 	nl: {
@@ -173,6 +173,9 @@ export const resources = {
 			kweker_welcome: 'Welkom, {{firstName}} {{lastName}}!',
 			kweker_desc: 'Welkom op de dashboard pagina! Bekijk hier uw producten!',
 			kweker_products_description: 'Beheer uw producten en voorraden efficiënt',
+			confirm_delete_product_warning: 'Weet u zeker dat u dit product wilt verwijderen? Dit kan niet ongedaan worden gemaakt.',
+			error_fetching_products: 'Er is een fout opgetreden bij het ophalen van de producten.',
+			error_deleting_product: 'Er is een fout opgetreden bij het verwijderen van het product.',
 			koper_products_description: 'Bekijk hier alle aangeboden bloemen!',
 			kweker_orders_description: 'Overzicht en beheer van uw bestellingen',
 			kweker_section_products: 'Producten',
@@ -678,7 +681,7 @@ export const resources = {
 
 			'VEILINGKLOK.NOT_FOUND': 'Veilingklok niet gevonden.',
 
-			"CUSTOM.CANNOT_DELETE_PRODUCT_WITH_ORDERS": 'Kan product niet verwijderen met bestaande bestellingen.',
+			'CUSTOM.CANNOT_DELETE_PRODUCT_WITH_ORDERS': 'Kan product niet verwijderen met bestaande bestellingen.',
 			'CUSTOM.EXISTING_TRANSACTION': 'Er is al een transactie in behandeling.',
 			'CUSTOM.ALREADY_ACTIVE_VEILING_IN_REGION': 'Er is al een actieve veiling in deze regio.',
 			'CUSTOM.JWT_CONFIG_MISSING': 'Interne serverfout: JWT configuratie ontbreekt.',
@@ -794,11 +797,11 @@ i18n
 		lng: 'nl', // if you're using a language detector, do not define the lng option
 		fallbackLng: 'nl',
 		debug: false,
-		interpolation: {escapeValue: false},
+		interpolation: { escapeValue: false },
 	})
 	.then(null);
 
 type LocalizationResources = (typeof resources)['nl']; //keyof typeof resources['nl']['translation'];
 type LocalizationTexts = keyof (typeof resources)['nl']['translation'];
 type SupportedLanguages = keyof typeof resources;
-export {useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages};
+export { useTranslation, LocalizationTexts, LocalizationResources, SupportedLanguages };

@@ -29,8 +29,9 @@ public sealed class DeleteProductHandler : IRequestHandler<DeleteProductCommand>
         {
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
-            var product = await _productRepository.GetByIdAsync(request.ProductId, request.KwekerId)
-                          ?? throw RepositoryException.NotFoundProduct();
+            var product =
+                await _productRepository.GetByIdAsync(request.ProductId, request.KwekerId)
+                ?? throw RepositoryException.NotFoundProduct();
 
             // Check if product is attached to a veiling klok
             if (product.VeilingKlokId.HasValue)

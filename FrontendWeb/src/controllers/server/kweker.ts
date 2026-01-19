@@ -1,22 +1,22 @@
-import {fetchResponse} from '../../utils/fetchHelpers';
-import {HttpSuccess} from '../../declarations/types/HttpSuccess';
-import {CreateKwekerDTO} from '../../declarations/dtos/input/CreateKwekerDTO';
-import {UpdateKwekerDTO} from '../../declarations/dtos/input/UpdateKwekerDTO';
-import {CreateProductDTO} from '../../declarations/dtos/input/CreateProductDTO';
-import {UpdateProductDTO} from '../../declarations/dtos/input/UpdateProductDTO';
-import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
-import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
-import {OrderOutputDto} from '../../declarations/dtos/output/OrderOutputDto';
-import {OrderKwekerOutputDto} from '../../declarations/dtos/output/OrderKwekerOutputDto';
-import {ProductDetailsOutputDto} from '../../declarations/dtos/output/ProductDetailsOutputDto';
-import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
-import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
-import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
-import {KwekerStatsOutputDto} from '../../declarations/dtos/output/KwekerStatsOutputDto';
-import {KwekerProductStatsOutputDto} from '../../declarations/dtos/output/KwekerProductStatsOutputDto';
-import {KwekerOrderStatsOutputDto} from '../../declarations/dtos/output/KwekerOrderStatsOutputDto';
-import {OrderStatus} from '../../declarations/enums/OrderStatus';
-import {getOrderStatusString} from '../../utils/standards';
+import { fetchResponse } from '../../utils/fetchHelpers';
+import { HttpSuccess } from '../../declarations/types/HttpSuccess';
+import { CreateKwekerDTO } from '../../declarations/dtos/input/CreateKwekerDTO';
+import { UpdateKwekerDTO } from '../../declarations/dtos/input/UpdateKwekerDTO';
+import { CreateProductDTO } from '../../declarations/dtos/input/CreateProductDTO';
+import { UpdateProductDTO } from '../../declarations/dtos/input/UpdateProductDTO';
+import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
+import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
+import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
+import { OrderKwekerOutputDto } from '../../declarations/dtos/output/OrderKwekerOutputDto';
+import { ProductDetailsOutputDto } from '../../declarations/dtos/output/ProductDetailsOutputDto';
+import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
+import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import { KwekerStatsOutputDto } from '../../declarations/dtos/output/KwekerStatsOutputDto';
+import { KwekerProductStatsOutputDto } from '../../declarations/dtos/output/KwekerProductStatsOutputDto';
+import { KwekerOrderStatsOutputDto } from '../../declarations/dtos/output/KwekerOrderStatsOutputDto';
+import { OrderStatus } from '../../declarations/enums/OrderStatus';
+import { getOrderStatusString } from '../../utils/standards';
 
 // Create kweker account (POST /api/account/kweker/create)
 export async function createKwekerAccount(account: CreateKwekerDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -111,6 +111,13 @@ export async function getProducts(nameFilter?: string, regionFilter?: string, ma
 	params.append('pageSize', pageSize.toString());
 
 	return fetchResponse<HttpSuccess<PaginatedOutputDto<ProductOutputDto>>>(`/api/account/kweker/products?${params.toString()}`);
+}
+
+// Delete product (POST /api/account/kweker/product/{productId}/delete)
+export async function deleteProduct(productId: string): Promise<HttpSuccess<string>> {
+	return fetchResponse<HttpSuccess<string>>(`/api/account/kweker/product/${productId}/delete`, {
+		method: 'POST',
+	});
 }
 
 // Get veilingklok (GET /api/account/kweker/veilingklok/{klokId})
