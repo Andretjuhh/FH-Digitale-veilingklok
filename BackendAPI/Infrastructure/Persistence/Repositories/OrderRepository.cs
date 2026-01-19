@@ -16,6 +16,65 @@ public class OrderRepository : IOrderRepository
         _dbContext = dbContext;
     }
 
+    public async Task<(
+        Order Order,
+        List<OrderProductInfo> Products,
+        KoperInfo Koper
+    )?> GetOrderDetailsAsync(Guid orderId)
+    {
+        var query =
+            from order in _dbContext.Orders.AsNoTracking()
+            from orderItem in order.OrderItems
+            join product in _dbContext.Products.AsNoTracking()
+                on orderItem.ProductId equals product.Id
+            join kweker in _dbContext.Kwekers.AsNoTracking() on product.KwekerId equals kweker.Id
+            join koper in _dbContext.Kopers.AsNoTracking() on order.KoperId equals koper.Id
+            where order.Id == orderId
+            select new
+            {
+                Order = order,
+                OrderItem = orderItem,
+                Product = product,
+                Kweker = kweker,
+                Koper = koper,
+                KoperAddress = koper.Adresses.FirstOrDefault(),
+            };
+
+        var results = await query
+            .Select(x => new
+            {
+                x.Order,
+                ProductInfo = new OrderProductInfo(
+                    x.Product.Id,
+                    x.Product.Name,
+                    x.Product.Description,
+                    x.Product.ImageUrl,
+                    x.OrderItem.PriceAtPurchase,
+                    x.OrderItem.ProductMinimumPrice,
+                    x.Kweker.CompanyName,
+                    x.Kweker.Id,
+                    x.OrderItem.Quantity
+                ),
+                Koper = new KoperInfo(
+                    x.Koper.Id,
+                    x.Koper.Email ?? "",
+                    x.Koper.FirstName,
+                    x.Koper.LastName,
+                    x.Koper.Telephone,
+                    x.KoperAddress ?? new Address("", "", "", "", "")
+                ),
+            })
+            .ToListAsync();
+
+        if (!results.Any())
+            return null;
+
+        var first = results.First();
+        var products = results.Select(x => x.ProductInfo).ToList();
+
+        return (first.Order, products, first.Koper);
+    }
+
     public async Task AddAsync(Order order)
     {
         await _dbContext.Orders.AddAsync(order);
@@ -62,16 +121,21 @@ public class OrderRepository : IOrderRepository
             .ToListAsync();
     }
 
-    public async Task<Order?> FindOrderAsync(Guid koperId, Guid veilingKlokId, Guid productId)
+    public async Task<Order?> FindOrderAsync(Guid koperId, Guid veilingKlokId, Guid? productId)
     {
         return await _dbContext
             .Orders.Include(o => o.OrderItems)
             .Where(o =>
                 o.KoperId == koperId
                 && o.VeilingKlokId == veilingKlokId
-                && o.OrderItems.Any(oi => oi.ProductId == productId)
+                && (!productId.HasValue || o.OrderItems.Any(oi => oi.ProductId == productId))
             )
             .FirstOrDefaultAsync();
+    }
+
+    public async Task<bool> HasOrdersAsync(Guid productId)
+    {
+        return await _dbContext.OrderItems.AnyAsync(oi => oi.ProductId == productId);
     }
 
     #region Complex Queries
@@ -100,23 +164,22 @@ public class OrderRepository : IOrderRepository
         Guid id
     )
     {
-        var order = await _dbContext
-            .Orders.Include(o => o.OrderItems)
-            .FirstOrDefaultAsync(o => o.Id == id);
+        var order = await _dbContext.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == id);
 
         if (order == null)
             return null;
 
         var products = await _dbContext
-            .OrderItems.Where(oi => oi.OrderId == id)
+            .OrderItems.AsNoTracking()
+            .Where(oi => oi.OrderId == id)
             .Join(
-                _dbContext.Products,
+                _dbContext.Products.AsNoTracking(),
                 oi => oi.ProductId,
                 p => p.Id,
                 (oi, p) => new { OrderItem = oi, Product = p }
             )
             .Join(
-                _dbContext.Kwekers,
+                _dbContext.Kwekers.AsNoTracking(),
                 x => x.Product.KwekerId,
                 k => k.Id,
                 (x, k) =>
@@ -128,6 +191,7 @@ public class OrderRepository : IOrderRepository
                         x.OrderItem.PriceAtPurchase,
                         x.OrderItem.ProductMinimumPrice,
                         k.CompanyName,
+                        k.Id,
                         x.OrderItem.Quantity
                     )
             )
@@ -142,22 +206,23 @@ public class OrderRepository : IOrderRepository
     )
     {
         var order = await _dbContext
-            .Orders.Include(o => o.OrderItems)
+            .Orders.AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == id && o.KoperId == koperId);
 
         if (order == null)
             return null;
 
         var products = await _dbContext
-            .OrderItems.Where(oi => oi.OrderId == id)
+            .OrderItems.AsNoTracking()
+            .Where(oi => oi.OrderId == id)
             .Join(
-                _dbContext.Products,
+                _dbContext.Products.AsNoTracking(),
                 oi => oi.ProductId,
                 p => p.Id,
                 (oi, p) => new { OrderItem = oi, Product = p }
             )
             .Join(
-                _dbContext.Kwekers,
+                _dbContext.Kwekers.AsNoTracking(),
                 x => x.Product.KwekerId,
                 k => k.Id,
                 (x, k) =>
@@ -169,6 +234,7 @@ public class OrderRepository : IOrderRepository
                         x.OrderItem.PriceAtPurchase,
                         x.OrderItem.ProductMinimumPrice,
                         k.CompanyName,
+                        k.Id,
                         x.OrderItem.Quantity
                     )
             )
@@ -177,7 +243,10 @@ public class OrderRepository : IOrderRepository
         return (order, products);
     }
 
-    public async Task<(IEnumerable<Order> Items, int TotalCount)> GetAllWithFilterAsync(
+    public async Task<(
+        IEnumerable<(Order order, List<OrderProductInfo> products)> Items,
+        int TotalCount
+    )> GetAllWithFilterAsync(
         OrderStatus? statusFilter,
         DateTime? beforeDate,
         DateTime? afterDate,
@@ -209,18 +278,59 @@ public class OrderRepository : IOrderRepository
             query = query.Where(o => o.OrderItems.Any(oi => oi.ProductId == productId.Value));
 
         var totalCount = await query.CountAsync();
-        var items = await query
-            .Include(o => o.OrderItems)
+        var orders = await query
+            .AsNoTracking()
+            .OrderByDescending(o => o.CreatedAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
+
+        var orderIds = orders.Select(o => o.Id).ToList();
+
+        var productsFlat = await _dbContext
+            .OrderItems.AsNoTracking()
+            .Where(oi => orderIds.Contains(oi.OrderId))
+            .Join(
+                _dbContext.Products.AsNoTracking(),
+                oi => oi.ProductId,
+                p => p.Id,
+                (oi, p) => new { OrderItem = oi, Product = p }
+            )
+            .Join(
+                _dbContext.Kwekers.AsNoTracking(),
+                x => x.Product.KwekerId,
+                k => k.Id,
+                (x, k) =>
+                    new
+                    {
+                        x.OrderItem.OrderId,
+                        ProductInfo = new OrderProductInfo(
+                            x.Product.Id,
+                            x.Product.Name,
+                            x.Product.Description,
+                            x.Product.ImageUrl,
+                            x.OrderItem.PriceAtPurchase,
+                            x.OrderItem.ProductMinimumPrice,
+                            k.CompanyName,
+                            k.Id,
+                            x.OrderItem.Quantity
+                        ),
+                    }
+            )
+            .ToListAsync();
+
+        var items = orders
+            .Select(o =>
+                (o, productsFlat.Where(p => p.OrderId == o.Id).Select(p => p.ProductInfo).ToList())
+            )
+            .ToList();
 
         return (items, totalCount);
     }
 
     public async Task<(
         Order Order,
-        OrderProductInfo OProductInfo,
+        List<OrderProductInfo> Products,
         KoperInfo Koper
     )?> GetKwekerOrderAsync(Guid orderId, Guid kwekerId)
     {
@@ -241,11 +351,11 @@ public class OrderRepository : IOrderRepository
                 KoperAddress = koper.Adresses.FirstOrDefault(),
             };
 
-        var result = await query
+        var results = await query
             .Select(x => new
             {
                 x.Order,
-                Product = new OrderProductInfo(
+                ProductInfo = new OrderProductInfo(
                     x.Product.Id,
                     x.Product.Name,
                     x.Product.Description,
@@ -253,27 +363,96 @@ public class OrderRepository : IOrderRepository
                     x.OrderItem.PriceAtPurchase,
                     x.OrderItem.ProductMinimumPrice,
                     x.Kweker.CompanyName,
+                    x.Kweker.Id,
                     x.OrderItem.Quantity
                 ),
                 Koper = new KoperInfo(
                     x.Koper.Id,
-                    x.Koper.Email,
+                    x.Koper.Email ?? "",
                     x.Koper.FirstName,
                     x.Koper.LastName,
                     x.Koper.Telephone,
                     x.KoperAddress ?? new Address("", "", "", "", "")
                 ),
             })
-            .FirstOrDefaultAsync();
+            .ToListAsync();
 
-        if (result == null)
+        if (!results.Any())
             return null;
 
-        return (result.Order, result.Product, result.Koper);
+        var first = results.First();
+        var products = results.Select(x => x.ProductInfo).ToList();
+
+        return (first.Order, products, first.Koper);
     }
 
     public async Task<(
-        IEnumerable<(Order Order, OrderProductInfo Product, KoperInfo Koper)> Items,
+        Order Order,
+        List<OrderProductInfo> Products,
+        KwekerInfo Kweker,
+        KoperInfo Koper
+    )?> GetKoperOrderAsync(Guid orderId, Guid koperId)
+    {
+        var query =
+            from order in _dbContext.Orders
+            from orderItem in order.OrderItems
+            join product in _dbContext.Products on orderItem.ProductId equals product.Id
+            join kweker in _dbContext.Kwekers on product.KwekerId equals kweker.Id
+            join koper in _dbContext.Kopers on order.KoperId equals koper.Id
+            where order.Id == orderId && order.KoperId == koperId
+            select new
+            {
+                Order = order,
+                OrderItem = orderItem,
+                Product = product,
+                Kweker = kweker,
+                Koper = koper,
+                KoperAddress = koper.Adresses.FirstOrDefault(),
+            };
+
+        var results = await query
+            .Select(x => new
+            {
+                x.Order,
+                ProductInfo = new OrderProductInfo(
+                    x.Product.Id,
+                    x.Product.Name,
+                    x.Product.Description,
+                    x.Product.ImageUrl,
+                    x.OrderItem.PriceAtPurchase,
+                    x.OrderItem.ProductMinimumPrice,
+                    x.Kweker.CompanyName,
+                    x.Kweker.Id,
+                    x.OrderItem.Quantity
+                ),
+                Kweker = new KwekerInfo(
+                    x.Kweker.Id,
+                    x.Kweker.CompanyName,
+                    x.Kweker.PhoneNumber ?? "",
+                    x.Kweker.Email ?? ""
+                ),
+                Koper = new KoperInfo(
+                    x.Koper.Id,
+                    x.Koper.Email ?? "",
+                    x.Koper.FirstName,
+                    x.Koper.LastName,
+                    x.Koper.Telephone,
+                    x.KoperAddress ?? new Address("", "", "", "", "")
+                ),
+            })
+            .ToListAsync();
+
+        if (!results.Any())
+            return null;
+
+        var first = results.First();
+        var products = results.Select(x => x.ProductInfo).ToList();
+
+        return (first.Order, products, first.Kweker, first.Koper);
+    }
+
+    public async Task<(
+        IEnumerable<(Order Order, List<OrderProductInfo> Products, KoperInfo Koper)> Items,
         int TotalCount
     )> GetAllKwekerWithFilterAsync(
         string? ProductNameFilter,
@@ -287,58 +466,76 @@ public class OrderRepository : IOrderRepository
         int pageSize
     )
     {
-        // Build the base query
-        var baseQuery =
-            from order in _dbContext.Orders
-            from orderItem in order.OrderItems
-            join product in _dbContext.Products on orderItem.ProductId equals product.Id
-            join kweker in _dbContext.Kwekers on product.KwekerId equals kweker.Id
-            join koper in _dbContext.Kopers on order.KoperId equals koper.Id
-            where kweker.Id == kwekerId
+        // 1. Base Query of relevant items
+        var query =
+            from o in _dbContext.Orders.AsNoTracking()
+            from oi in o.OrderItems
+            join p in _dbContext.Products.AsNoTracking() on oi.ProductId equals p.Id
+            join kw in _dbContext.Kwekers.AsNoTracking() on p.KwekerId equals kw.Id
+            join k in _dbContext.Kopers.AsNoTracking() on o.KoperId equals k.Id
+            where kw.Id == kwekerId
             select new
             {
-                Order = order,
-                OrderItem = orderItem,
-                Product = product,
-                Kweker = kweker,
-                Koper = koper,
-                KoperAddress = koper.Adresses.FirstOrDefault(),
+                Order = o,
+                Product = p,
+                Koper = k,
+                Kweker = kw,
             };
 
-        // Apply filters
+        // 2. Filters
         if (statusFilter.HasValue)
-            baseQuery = baseQuery.Where(x => x.Order.Status == statusFilter.Value);
-
+            query = query.Where(x => x.Order.Status == statusFilter.Value);
         if (!string.IsNullOrEmpty(ProductNameFilter))
-            baseQuery = baseQuery.Where(x => x.Product.Name.Contains(ProductNameFilter));
-
+            query = query.Where(x => x.Product.Name.Contains(ProductNameFilter));
         if (!string.IsNullOrEmpty(KoperNameFilter))
-            baseQuery = baseQuery.Where(x =>
+            query = query.Where(x =>
                 (x.Koper.FirstName + " " + x.Koper.LastName).Contains(KoperNameFilter)
             );
-
         if (beforeDate.HasValue)
-            baseQuery = baseQuery.Where(x => x.Order.CreatedAt <= beforeDate.Value);
-
+            query = query.Where(x => x.Order.CreatedAt <= beforeDate.Value);
         if (afterDate.HasValue)
-            baseQuery = baseQuery.Where(x => x.Order.CreatedAt >= afterDate.Value);
-
+            query = query.Where(x => x.Order.CreatedAt >= afterDate.Value);
         if (productId.HasValue)
-            baseQuery = baseQuery.Where(x => x.Product.Id == productId.Value);
+            query = query.Where(x => x.Product.Id == productId.Value);
 
-        // Get total count for pagination
-        var totalCount = await baseQuery.Select(x => x.Order.Id).CountAsync();
+        // 3. Get Paged Order IDs
+        var orderQuery = query.Select(x => x.Order).Distinct();
 
-        // Get the actual data with pagination
-        var results = await baseQuery
-            .OrderByDescending(x => x.Order.CreatedAt) // PRIMARY sort
-            .ThenBy(x => x.Product.Name) // SECONDARY sort
+        var totalCount = await orderQuery.CountAsync();
+
+        var pagedOrdersIds = await orderQuery
+            .OrderByDescending(x => x.CreatedAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
+            .Select(x => x.Id)
+            .ToListAsync();
+
+        if (!pagedOrdersIds.Any())
+            return (new List<(Order, List<OrderProductInfo>, KoperInfo)>(), totalCount);
+
+        // 4. Fetch Data for these orders
+        var resultQuery =
+            from o in _dbContext.Orders.AsNoTracking()
+            from oi in o.OrderItems
+            join p in _dbContext.Products.AsNoTracking() on oi.ProductId equals p.Id
+            join kw in _dbContext.Kwekers.AsNoTracking() on p.KwekerId equals kw.Id
+            join k in _dbContext.Kopers.AsNoTracking() on o.KoperId equals k.Id
+            where pagedOrdersIds.Contains(o.Id) && kw.Id == kwekerId
+            select new
+            {
+                Order = o,
+                Product = p,
+                OrderItem = oi,
+                Kweker = kw,
+                Koper = k,
+                KoperAddress = k.Adresses.FirstOrDefault(),
+            };
+
+        var flatResults = await resultQuery
             .Select(x => new
             {
                 x.Order,
-                Product = new OrderProductInfo(
+                ProductInfo = new OrderProductInfo(
                     x.Product.Id,
                     x.Product.Name,
                     x.Product.Description,
@@ -346,11 +543,12 @@ public class OrderRepository : IOrderRepository
                     x.OrderItem.PriceAtPurchase,
                     x.OrderItem.ProductMinimumPrice,
                     x.Kweker.CompanyName,
+                    x.Kweker.Id,
                     x.OrderItem.Quantity
                 ),
                 Koper = new KoperInfo(
                     x.Koper.Id,
-                    x.Koper.Email,
+                    x.Koper.Email ?? "",
                     x.Koper.FirstName,
                     x.Koper.LastName,
                     x.Koper.Telephone,
@@ -359,8 +557,17 @@ public class OrderRepository : IOrderRepository
             })
             .ToListAsync();
 
-        var mappedResults = results.Select(x => (x.Order, x.Product, x.Koper));
-        return (mappedResults, totalCount);
+        var groupedResults = flatResults
+            .GroupBy(x => x.Order.Id)
+            .Select(g =>
+                (
+                    g.First().Order,
+                    g.Select(x => x.ProductInfo).ToList(),
+                    g.First().Koper // Koper second
+                )
+            );
+
+        return (groupedResults, totalCount);
     }
 
     #endregion

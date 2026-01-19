@@ -169,6 +169,15 @@ public class CustomException : ProcessException
         );
     }
 
+    public static CustomException CannotDeleteProductWithOrders()
+    {
+        return new CustomException(
+            StatusCodes.Status400BadRequest,
+            "CUSTOM.CANNOT_DELETE_PRODUCT_WITH_ORDERS",
+            "Cannot delete a product that has existing orders."
+        );
+    }
+
     public static CustomException ProductNotLinkedToVeilingKlok()
     {
         return new CustomException(
@@ -182,6 +191,15 @@ public class CustomException : ProcessException
         return new CustomException(
             StatusCodes.Status400BadRequest,
             "CUSTOM.PRODUCT_ALREADY_IN_VEILING_KLOK"
+        );
+    }
+
+    public static CustomException AccountDeactivated()
+    {
+        return new CustomException(
+            StatusCodes.Status401Unauthorized,
+            "CUSTOM.ACCOUNT_DEACTIVATED",
+            "This account has been deactivated."
         );
     }
 }

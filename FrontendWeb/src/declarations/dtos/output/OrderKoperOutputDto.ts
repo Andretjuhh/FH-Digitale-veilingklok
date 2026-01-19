@@ -1,15 +1,17 @@
-// OrderKwekerOutput.ts
+// OrderKwekerOutputDto.ts
 import {OrderStatus} from '../../enums/OrderStatus';
-import {ProductOutputDto} from './ProductOutputDto';
 import {KoperInfoOutputDto} from './KoperInfoOutputDto';
+import {KwekerInfoOutputDto} from './KwekerInfoOutputDto';
+import {OrderProductOutputDto} from './OrderProductOutputDto';
 
-export interface OrderKwekerOutput {
+export interface OrderKoperOutputDto {
 	id: string;
 	createdAt: string;
 	status: OrderStatus;
 	closedAt: string | null;
 	quantity: number;
 	totalPrice: number;
-	product: ProductOutputDto;
+	products: OrderProductOutputDto[];
 	koperInfo: KoperInfoOutputDto;
+	kwekerInfo: KwekerInfoOutputDto;
 }

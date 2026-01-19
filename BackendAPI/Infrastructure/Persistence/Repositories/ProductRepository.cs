@@ -1,9 +1,9 @@
+using System.Data;
 using Application.Common.Models;
 using Application.Repositories;
 using Domain.Entities;
 using Infrastructure.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
 
 namespace Infrastructure.Persistence.Repositories;
 
@@ -47,7 +47,10 @@ public class ProductRepository : IProductRepository
 
     public async Task<IEnumerable<Product>> GetAllByIds(List<Guid> productIds)
     {
-        return await _dbContext.Products.Where(p => productIds.Contains(p.Id)).ToListAsync();
+        var products = await _dbContext
+            .Products.Where(p => productIds.Contains(p.Id))
+            .ToListAsync();
+        return products.OrderBy(p => productIds.IndexOf(p.Id));
     }
 
     public async Task<IEnumerable<Product>> GetAllByVeilingKlokIdAsync(Guid veilingKlokId)
@@ -76,8 +79,9 @@ public class ProductRepository : IProductRepository
     )
     {
         var result = await _dbContext
-            .Products.Join(
-                _dbContext.Kwekers,
+            .Products.AsNoTracking()
+            .Join(
+                _dbContext.Kwekers.AsNoTracking(),
                 product => product.KwekerId,
                 kweker => kweker.Id,
                 (product, kweker) => new { product, kweker }
@@ -88,7 +92,15 @@ public class ProductRepository : IProductRepository
         if (result == null)
             return null;
 
-        return (result.product, new KwekerInfo(result.kweker.Id, result.kweker.CompanyName));
+        return (
+            result.product,
+            new KwekerInfo(
+                result.kweker.Id,
+                result.kweker.CompanyName,
+                result.kweker.PhoneNumber ?? "",
+                result.kweker.Email ?? ""
+            )
+        );
     }
 
     public async Task<(Product Product, KwekerInfo Kweker)?> GetByIdWithKwekerIdAsync(
@@ -97,8 +109,9 @@ public class ProductRepository : IProductRepository
     )
     {
         var result = await _dbContext
-            .Products.Join(
-                _dbContext.Kwekers,
+            .Products.AsNoTracking()
+            .Join(
+                _dbContext.Kwekers.AsNoTracking(),
                 product => product.KwekerId,
                 kweker => kweker.Id,
                 (product, kweker) => new { product, kweker }
@@ -109,7 +122,15 @@ public class ProductRepository : IProductRepository
         if (result == null)
             return null;
 
-        return (result.product, new KwekerInfo(result.kweker.Id, result.kweker.CompanyName));
+        return (
+            result.product,
+            new KwekerInfo(
+                result.kweker.Id,
+                result.kweker.CompanyName,
+                result.kweker.PhoneNumber ?? "",
+                result.kweker.Email ?? ""
+            )
+        );
     }
 
     public async Task<
@@ -117,8 +138,9 @@ public class ProductRepository : IProductRepository
     > GetAllByIdsWithKwekerInfoAsync(List<Guid> ids)
     {
         var results = await _dbContext
-            .Products.Join(
-                _dbContext.Kwekers,
+            .Products.AsNoTracking()
+            .Join(
+                _dbContext.Kwekers.AsNoTracking(),
                 product => product.KwekerId,
                 kweker => kweker.Id,
                 (product, kweker) => new { product, kweker }
@@ -126,14 +148,29 @@ public class ProductRepository : IProductRepository
             .Where(x => ids.Contains(x.product.Id))
             .ToListAsync();
 
-        return results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
+        return results
+            .OrderBy(r => ids.IndexOf(r.product.Id))
+            .Select(r =>
+                (
+                    r.product,
+                    new KwekerInfo(
+                        r.kweker.Id,
+                        r.kweker.CompanyName,
+                        r.kweker.PhoneNumber ?? "",
+                        r.kweker.Email ?? ""
+                    )
+                )
+            );
     }
 
-    public async Task<IEnumerable<(Product Product, KwekerInfo Kweker)>> GetAllByVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId)
+    public async Task<
+        IEnumerable<(Product Product, KwekerInfo Kweker)>
+    > GetAllByVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId)
     {
         var results = await _dbContext
-            .Products.Join(
-                _dbContext.Kwekers,
+            .Products.AsNoTracking()
+            .Join(
+                _dbContext.Kwekers.AsNoTracking(),
                 product => product.KwekerId,
                 kweker => kweker.Id,
                 (product, kweker) => new { product, kweker }
@@ -141,30 +178,59 @@ public class ProductRepository : IProductRepository
             .Where(x => x.product.VeilingKlokId == veilingKlokId)
             .ToListAsync();
 
-        return results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
+        return results.Select(r =>
+            (
+                r.product,
+                new KwekerInfo(
+                    r.kweker.Id,
+                    r.kweker.CompanyName,
+                    r.kweker.PhoneNumber ?? "",
+                    r.kweker.Email ?? ""
+                )
+            )
+        );
     }
 
-    public async Task<IEnumerable<(Product Product, KwekerInfo Kweker)>> GetAllByOrderItemsVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId)
+    public async Task<
+        IEnumerable<(Product Product, KwekerInfo Kweker)>
+    > GetAllByOrderItemsVeilingKlokIdWithKwekerInfoAsync(Guid veilingKlokId)
     {
         var results = await _dbContext
-            .OrderItems.Where(oi => oi.VeilingKlokId == veilingKlokId)
+            .OrderItems.AsNoTracking()
+            .Where(oi => oi.VeilingKlokId == veilingKlokId)
             .Select(oi => oi.ProductId)
             .Distinct()
-            .Join(_dbContext.Products, productId => productId, product => product.Id, (_, product) => product)
             .Join(
-                _dbContext.Kwekers,
+                _dbContext.Products.AsNoTracking(),
+                productId => productId,
+                product => product.Id,
+                (_, product) => product
+            )
+            .Join(
+                _dbContext.Kwekers.AsNoTracking(),
                 product => product.KwekerId,
                 kweker => kweker.Id,
                 (product, kweker) => new { product, kweker }
             )
             .ToListAsync();
 
-        return results.Select(r => (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName)));
+        return results.Select(r =>
+            (
+                r.product,
+                new KwekerInfo(
+                    r.kweker.Id,
+                    r.kweker.CompanyName,
+                    r.kweker.PhoneNumber ?? "",
+                    r.kweker.Email ?? ""
+                )
+            )
+        );
     }
 
     public async Task<List<PriceHistoryItem>> GetLatestPricesByKwekerAsync(Guid kwekerId, int limit)
     {
-        const string sql = @"
+        const string sql =
+            @"
 SELECT TOP (@limit)
     p.id AS product_id,
     p.name AS product_name,
@@ -178,16 +244,16 @@ JOIN Kweker k ON p.kweker_id = k.id
 WHERE p.kweker_id = @kwekerId
 ORDER BY oi.created_at DESC;";
 
-        return await ExecutePriceHistoryQueryAsync(sql, new Dictionary<string, object>
-        {
-            ["@limit"] = limit,
-            ["@kwekerId"] = kwekerId
-        });
+        return await ExecutePriceHistoryQueryAsync(
+            sql,
+            new Dictionary<string, object> { ["@limit"] = limit, ["@kwekerId"] = kwekerId }
+        );
     }
 
     public async Task<List<PriceHistoryItem>> GetLatestPricesAsync(int limit)
     {
-        const string sql = @"
+        const string sql =
+            @"
 SELECT TOP (@limit)
     p.id AS product_id,
     p.name AS product_name,
@@ -200,15 +266,16 @@ JOIN Product p ON oi.product_id = p.id
 JOIN Kweker k ON p.kweker_id = k.id
 ORDER BY oi.created_at DESC;";
 
-        return await ExecutePriceHistoryQueryAsync(sql, new Dictionary<string, object>
-        {
-            ["@limit"] = limit
-        });
+        return await ExecutePriceHistoryQueryAsync(
+            sql,
+            new Dictionary<string, object> { ["@limit"] = limit }
+        );
     }
 
     public async Task<KwekerPriceAverage?> GetAveragePriceByKwekerAsync(Guid kwekerId, int? limit)
     {
-        var sql = @"
+        var sql =
+            @"
 SELECT
     k.id AS kweker_id,
     k.company_name AS kweker_name,
@@ -220,14 +287,12 @@ JOIN Kweker k ON p.kweker_id = k.id
 WHERE p.kweker_id = @kwekerId
 GROUP BY k.id, k.company_name;";
 
-        var parameters = new Dictionary<string, object>
-        {
-            ["@kwekerId"] = kwekerId
-        };
+        var parameters = new Dictionary<string, object> { ["@kwekerId"] = kwekerId };
 
         if (limit.HasValue && limit.Value > 0)
         {
-            sql = @"
+            sql =
+                @"
 WITH Recent AS (
     SELECT TOP (@limit)
         oi.price_at_purchase AS price_at_purchase
@@ -252,7 +317,8 @@ GROUP BY k.id, k.company_name;";
 
     public async Task<(decimal AveragePrice, int SampleCount)> GetAveragePriceAllAsync()
     {
-        const string sql = @"
+        const string sql =
+            @"
 SELECT
     AVG(CAST(oi.price_at_purchase AS decimal(18,2))) AS avg_price,
     COUNT(1) AS sample_count
@@ -308,14 +374,16 @@ FROM OrderItem oi;";
             await using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                results.Add(new PriceHistoryItem(
-                    reader.GetGuid(0),
-                    reader.GetString(1),
-                    reader.GetGuid(2),
-                    reader.GetString(3),
-                    reader.GetDecimal(4),
-                    reader.GetFieldValue<DateTimeOffset>(5)
-                ));
+                results.Add(
+                    new PriceHistoryItem(
+                        reader.GetGuid(0),
+                        reader.GetString(1),
+                        reader.GetGuid(2),
+                        reader.GetString(3),
+                        reader.GetDecimal(4),
+                        reader.GetFieldValue<DateTimeOffset>(5)
+                    )
+                );
             }
 
             return results;
@@ -419,7 +487,15 @@ FROM OrderItem oi;";
             .ToListAsync();
 
         var items = results.Select(r =>
-            (r.product, new KwekerInfo(r.kweker.Id, r.kweker.CompanyName))
+            (
+                r.product,
+                new KwekerInfo(
+                    r.kweker.Id,
+                    r.kweker.CompanyName,
+                    r.kweker.PhoneNumber ?? "",
+                    r.kweker.Email ?? ""
+                )
+            )
         );
 
         return (items, totalCount);

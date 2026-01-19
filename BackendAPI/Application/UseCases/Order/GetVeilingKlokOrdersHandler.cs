@@ -35,11 +35,12 @@ public sealed class GetVeilingKlokOrdersHandler
     )
     {
         // Verify VeilingKlok exists
-        _ = await _veilingKlokRepository.GetByIdAsync(request.KlokId)
+        _ =
+            await _veilingKlokRepository.GetByIdAsync(request.KlokId)
             ?? throw RepositoryException.NotFoundVeilingKlok();
 
         // Get all orders for this VeilingKlok with filters (no pagination)
-        var (orders, _) = await _orderRepository.GetAllWithFilterAsync(
+        var (items, _) = await _orderRepository.GetAllWithFilterAsync(
             request.StatusFilter,
             request.BeforeDate,
             request.AfterDate,
@@ -50,6 +51,6 @@ public sealed class GetVeilingKlokOrdersHandler
             int.MaxValue // pageSize - get all records
         );
 
-        return orders.Select(OrderMapper.ToOutputDto).ToList();
+        return items.Select(x => OrderMapper.ToOutputDto(x.order, x.products)).ToList();
     }
 }

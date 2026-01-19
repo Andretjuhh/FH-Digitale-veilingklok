@@ -1,5 +1,5 @@
-// OrderItemOutputDto.ts
-export interface OrderItemOutputDto {
+// OrderProductOutputDto.ts
+export interface OrderProductOutputDto {
 	productId: string;
 	productName: string;
 	productDescription: string;
@@ -7,5 +7,6 @@ export interface OrderItemOutputDto {
 	companyName: string;
 	quantity: number;
 	priceAtPurchase: number;
+	minimalPrice?: number;
 	orderedAt: string;
 }

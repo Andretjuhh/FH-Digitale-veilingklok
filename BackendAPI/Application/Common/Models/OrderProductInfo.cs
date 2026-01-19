@@ -8,5 +8,6 @@ public record OrderProductInfo(
     decimal PriceAtPurchase,
     decimal ProductMinimumPrice,
     string CompanyName,
+    Guid KwekerId,
     int Quantity
 );

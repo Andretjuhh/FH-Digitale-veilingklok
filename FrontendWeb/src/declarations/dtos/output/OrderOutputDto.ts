@@ -8,4 +8,9 @@ export interface OrderOutputDto {
 	closedAt?: string;
 	totalAmount: number;
 	totalItems: number;
+	productId: string;
+	productName: string;
+	productDescription: string;
+	productImageUrl: string;
+	companyName: string;
 }

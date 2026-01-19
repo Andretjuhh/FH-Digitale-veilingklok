@@ -82,7 +82,7 @@ public class KwekerController : ControllerBase
         var (kwekerId, _) = GetUserClaim.GetInfo(User);
         var query = new GetKwekerOrderCommand(orderId, kwekerId);
         var result = await _mediator.Send(query);
-        return HttpSuccess<OrderKwekerOutput>.Ok(result);
+        return HttpSuccess<OrderKwekerOutputDto>.Ok(result);
     }
 
     [HttpGet("orders")]
@@ -110,7 +110,7 @@ public class KwekerController : ControllerBase
             pageSize
         );
         var result = await _mediator.Send(command);
-        return HttpSuccess<PaginatedOutputDto<OrderKwekerOutput>>.Ok(result);
+        return HttpSuccess<PaginatedOutputDto<OrderKwekerOutputDto>>.Ok(result);
     }
 
     [HttpPost("order/{orderId}/status")]
@@ -172,6 +172,15 @@ public class KwekerController : ControllerBase
         var command = new UpdateProductCommand(productId, product, kwekerId);
         var result = await _mediator.Send(command);
         return HttpSuccess<ProductDetailsOutputDto>.Ok(result, "Product updated successfully");
+    }
+
+    [HttpPost("product/{productId}/delete")]
+    public async Task<IActionResult> DeleteProduct(Guid productId)
+    {
+        var (kwekerId, _) = GetUserClaim.GetInfo(User);
+        var command = new DeleteProductCommand(productId, kwekerId);
+        await _mediator.Send(command);
+        return HttpSuccess<string>.NoContent("Product deleted successfully");
     }
 
     [HttpGet("products")]

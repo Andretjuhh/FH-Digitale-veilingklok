@@ -110,9 +110,9 @@ public class KoperController : ControllerBase
     public async Task<IActionResult> GetOrder(Guid orderId)
     {
         var (accountId, _) = GetUserClaim.GetInfo(User);
-        var query = new GetOrderCommand(orderId, accountId);
+        var query = new GetKoperOrderCommand(orderId, accountId);
         var result = await _mediator.Send(query);
-        return HttpSuccess<OrderDetailsOutputDto>.Ok(result);
+        return HttpSuccess<OrderKoperOutputDto>.Ok(result);
     }
 
     [HttpGet("orders")]
@@ -147,7 +147,7 @@ public class KoperController : ControllerBase
         var (accountId, _) = GetUserClaim.GetInfo(User);
         var command = new CreateOrderProductCommand(accountId, orderId, productId, quantity);
         var result = await _mediator.Send(command);
-        return HttpSuccess<OrderItemOutputDto>.Ok(result, "Product ordered successfully");
+        return HttpSuccess<OrderProductOutputDto>.Ok(result, "Product ordered successfully");
     }
 
     [HttpGet("product/{productId}")]
@@ -219,5 +219,43 @@ public class KoperController : ControllerBase
         );
         var result = await _mediator.Send(query);
         return HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>.Ok(result);
+    }
+
+    [HttpGet("product/overall-average-price")]
+    public async Task<IActionResult> GetOverallAveragePrice()
+    {
+        var query = new GetOverallAveragePriceQuery();
+        var result = await _mediator.Send(query);
+        return HttpSuccess<OverallAveragePriceOutputDto>.Ok(result);
+    }
+
+    [HttpGet("product/latest-prices")]
+    public async Task<IActionResult> GetLatestPrices([FromQuery] int limit = 10)
+    {
+        var query = new GetLatestPricesQuery(limit);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<List<PriceHistoryItemOutputDto>>.Ok(result);
+    }
+
+    [HttpGet("kweker/{kwekerId}/price-history")]
+    public async Task<IActionResult> GetKwekerPriceHistory(
+        Guid kwekerId,
+        [FromQuery] int limit = 10
+    )
+    {
+        var query = new GetKwekerPriceHistoryQuery(kwekerId, limit);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<List<PriceHistoryItemOutputDto>>.Ok(result);
+    }
+
+    [HttpGet("kweker/{kwekerId}/average-price")]
+    public async Task<IActionResult> GetKwekerAveragePrice(
+        Guid kwekerId,
+        [FromQuery] int? limit = null
+    )
+    {
+        var query = new GetKwekerAveragePriceQuery(kwekerId, limit);
+        var result = await _mediator.Send(query);
+        return HttpSuccess<KwekerAveragePriceOutputDto>.Ok(result);
     }
 }

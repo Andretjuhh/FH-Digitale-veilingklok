@@ -38,12 +38,15 @@ public sealed class UpdateOrderStatusHandler
         {
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
-            var order = await _orderRepository.GetByIdAsync(request.OrderId)
-                        ?? throw RepositoryException.NotFoundOrder();
+            var orderWithProducts =
+                await _orderRepository.GetWithProductsByIdAsync(request.OrderId)
+                ?? throw RepositoryException.NotFoundOrder();
+            var order = orderWithProducts.order;
 
             // Retrieve associated VeilingKlok to validate status change
-            var klok = await _veilingKlokRepository.GetByIdAsync(order.VeilingKlokId)
-                       ?? throw RepositoryException.NotFoundOrder();
+            var klok =
+                await _veilingKlokRepository.GetByIdAsync(order.VeilingKlokId)
+                ?? throw RepositoryException.NotFoundOrder();
 
             // Only allow status change if Klok is not actively running (Started or Paused)
             if (klok.Status == VeilingKlokStatus.Started || klok.Status == VeilingKlokStatus.Paused)
@@ -55,7 +58,7 @@ public sealed class UpdateOrderStatusHandler
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            return OrderMapper.ToOutputDto(order);
+            return OrderMapper.ToOutputDto(order, orderWithProducts.products);
         }
         catch (Exception)
         {

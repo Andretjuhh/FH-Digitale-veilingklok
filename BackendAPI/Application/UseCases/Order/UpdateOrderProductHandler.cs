@@ -45,7 +45,10 @@ public sealed class UpdateOrderProductHandler
                 ?? throw RepositoryException.NotFoundOrder();
 
             // Retrieve the status of the associated VeilingKlok
-            var veilingKlokStatus = await _veilingKlokRepository.GetStatusAsync(order.VeilingKlokId, cancellationToken);
+            var veilingKlokStatus = await _veilingKlokRepository.GetStatusAsync(
+                order.VeilingKlokId,
+                cancellationToken
+            );
 
             // If a clock is running you cannot change the quantity of an order item
             if (veilingKlokStatus < VeilingKlokStatus.Ended)
@@ -75,7 +78,11 @@ public sealed class UpdateOrderProductHandler
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            return OrderMapper.ToOutputDto(order);
+            var updatedOrder =
+                await _orderRepository.GetWithProductsByIdAsync(order.Id)
+                ?? throw RepositoryException.NotFoundOrder();
+
+            return OrderMapper.ToOutputDto(updatedOrder.order, updatedOrder.products);
         }
         catch (Exception)
         {

@@ -391,7 +391,7 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         return KlokViewers.TryGetValue(klokId, out var viewers) ? viewers.Count : 0;
     }
 
-    public Task AddSocketConnection(string connectionId, Guid klokId, Guid userId)
+    public async Task AddSocketConnection(string connectionId, Guid klokId, Guid userId)
     {
         // Add the connection mapping
         KlokConnections[connectionId] = (klokId, userId);
@@ -400,11 +400,10 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         var viewers = KlokViewers.GetOrAdd(klokId, _ => new ConcurrentDictionary<Guid, byte>());
         viewers[userId] = 0; // value is irrelevant
 
-        _notifier.NotifyViewerCountChanged(GetConnectionGroupName(klokId), GetViewerCount(klokId));
-        return Task.CompletedTask;
+        await _notifier.NotifyViewerCountChanged(GetConnectionGroupName(klokId), GetViewerCount(klokId));
     }
 
-    public Task RemoveSocketConnection(string connectionId, Guid klokId, Guid userId)
+    public async Task RemoveSocketConnection(string connectionId, Guid klokId, Guid userId)
     {
         // Remove user from viewers set (thread-safe)
         KlokConnections.TryRemove(connectionId, out _);
@@ -421,8 +420,7 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
                 KlokViewers.TryRemove(KeyValuePair.Create(klokId, viewers));
         }
 
-        _notifier.NotifyViewerCountChanged(GetConnectionGroupName(klokId), GetViewerCount(klokId));
-        return Task.CompletedTask;
+        await _notifier.NotifyViewerCountChanged(GetConnectionGroupName(klokId), GetViewerCount(klokId));
     }
 
     private async Task DisconnectAllKlokConnections(Guid klokId)
@@ -458,7 +456,7 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
                 klokId
             );
 
-        _notifier.NotifyViewerCountChanged(GetConnectionGroupName(klokId), GetViewerCount(klokId));
+        await _notifier.NotifyViewerCountChanged(GetConnectionGroupName(klokId), GetViewerCount(klokId));
     }
 
     #endregion

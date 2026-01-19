@@ -56,7 +56,6 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
                 await _veilingKlokRepository.GetByIdAsync(dto.VeilingKlokId)
                 ?? throw RepositoryException.NotFoundVeilingKlok();
 
-
             // Only allow orders when the auction clock is started and running ( meaning a running timer)
             if (!_veilingKlokEngine.IsVeillingRunning(veilingKlok.Id))
                 throw CustomException.InvalidVeilingKlokStatus();
@@ -65,8 +64,9 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
                 throw RepositoryException.NotFoundProduct();
 
             // Get the product from the DTO
-            var product = await _productRepository.GetByIdAsync(dto.ProductItemId)
-                          ?? throw RepositoryException.NotFoundProduct();
+            var product =
+                await _productRepository.GetByIdAsync(dto.ProductItemId)
+                ?? throw RepositoryException.NotFoundProduct();
 
             // Check if there's enough stock
             if (product.Stock < dto.Quantity)
@@ -99,7 +99,7 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
             {
                 order = new Domain.Entities.Order(request.KoperId)
                 {
-                    VeilingKlokId = veilingKlok.Id
+                    VeilingKlokId = veilingKlok.Id,
                 };
                 await _orderRepository.AddAsync(order);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -123,8 +123,15 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
             // Decrease the product stock
             product.DecreaseStock(dto.Quantity);
 
+            // If stock becomes 0, pause the auction clock
+            if (product.Stock == 0)
+            {
+                veilingKlok.UpdateStatus(VeilingKlokStatus.Paused);
+            }
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
+
             // Update the veiling klok engine with the placed bid
             await _veilingKlokEngine.PlaceVeilingBidAsync(
                 order.VeilingKlokId,
@@ -132,7 +139,18 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
                 placedAt,
                 dto.Quantity
             );
-            return OrderMapper.ToOutputDto(order);
+
+            // If stock was 0, call the pause in engine too
+            if (product.Stock == 0)
+            {
+                await _veilingKlokEngine.PauseVeilingAsync(veilingKlok.Id);
+            }
+
+            var updatedOrder =
+                await _orderRepository.GetWithProductsByIdAsync(order.Id)
+                ?? throw RepositoryException.NotFoundOrder();
+
+            return OrderMapper.ToOutputDto(updatedOrder.order, updatedOrder.products);
         }
         catch (Exception)
         {

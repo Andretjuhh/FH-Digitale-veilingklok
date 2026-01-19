@@ -41,12 +41,12 @@ public sealed class CreateProductHandler
                 Description = dto.Description,
                 ImageUrl = dto.ImageBase64,
                 Dimension = dto.Dimension,
-                KwekerId = request.KwekerId
+                KwekerId = request.KwekerId,
             };
             await _productRepository.AddAsync(newProduct);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _unitOfWork.CommitAsync(cancellationToken);
-            return ProductMapper.ToOutputDto(newProduct, new KwekerInfo(Guid.Empty, ""));
+            return ProductMapper.ToOutputDto(newProduct, new KwekerInfo(Guid.Empty, "", "", ""));
         }
         catch (Exception)
         {

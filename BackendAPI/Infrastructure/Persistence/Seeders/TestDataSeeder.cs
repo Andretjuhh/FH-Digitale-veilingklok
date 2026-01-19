@@ -264,7 +264,6 @@ public class TestDataSeeder : ITestDataSeeder
         await Exec("Veilingklok");
 
         // 3. Delete Identity Tables (Children of Account)
-        await Exec("RefreshToken");
         await Exec("AspNetUserClaims");
         await Exec("AspNetUserLogins");
         await Exec("AspNetUserRoles");
@@ -277,10 +276,8 @@ public class TestDataSeeder : ITestDataSeeder
 
         // 5. Delete Address (References Account, referenced by Koper/Kweker)
         await Exec("Adresses"); // Check correct spelling
-        await Exec("Addresses"); // Check common spelling
 
         // 6. Delete Account (Root)
-        await Exec("Account");
         await Exec("AspNetUsers"); // Fallback
 
         // 7. Last resort cleanup for Roles if used
@@ -307,7 +304,9 @@ public class TestDataSeeder : ITestDataSeeder
                 if (!result.Succeeded)
                 {
                     var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    throw new InvalidOperationException($"Failed to create role '{role}': {errors}");
+                    throw new InvalidOperationException(
+                        $"Failed to create role '{role}': {errors}"
+                    );
                 }
             }
         }
@@ -465,14 +464,21 @@ public class TestDataSeeder : ITestDataSeeder
             if (!createResult.Succeeded)
             {
                 var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"Failed to create veilingmeester user: {errors}");
+                throw new InvalidOperationException(
+                    $"Failed to create veilingmeester user: {errors}"
+                );
             }
 
-            var roleResult = await _userManager.AddToRoleAsync(veilingmeester, nameof(AccountType.Veilingmeester));
+            var roleResult = await _userManager.AddToRoleAsync(
+                veilingmeester,
+                nameof(AccountType.Veilingmeester)
+            );
             if (!roleResult.Succeeded)
             {
                 var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"Failed to assign veilingmeester role: {errors}");
+                throw new InvalidOperationException(
+                    $"Failed to assign veilingmeester role: {errors}"
+                );
             }
             veilingmeesters.Add(veilingmeester);
         }
@@ -525,6 +531,7 @@ public class TestDataSeeder : ITestDataSeeder
     {
         var veilingklokken = new List<VeilingKlok>();
         var random = new Random(46);
+        var activeRegions = new HashSet<string>();
 
         // Create veilingklokken to allow for more variety and order spread
         for (var i = 0; i < VeilingKlokCount; i++)
@@ -555,12 +562,39 @@ public class TestDataSeeder : ITestDataSeeder
             }
             else if (statusRoll < 0.6)
             {
-                veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
+                // Only allow one active (Started/Paused) per region
+                if (!activeRegions.Contains(veilingKlok.RegionOrState))
+                {
+                    veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
+                    activeRegions.Add(veilingKlok.RegionOrState);
+                }
+                else
+                {
+                    // Status should have been active, but region already has one.
+                    // Set to Ended with a random past date instead.
+                    veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
+                    veilingKlok.UpdateStatus(VeilingKlokStatus.Ended);
+
+                    var pastDate = DateTimeOffset.UtcNow.AddDays(-random.Next(1, 30));
+                    typeof(VeilingKlok)
+                        .GetProperty("StartedAt")
+                        ?.SetValue(veilingKlok, pastDate.AddMinutes(-30));
+                    typeof(VeilingKlok).GetProperty("EndedAt")?.SetValue(veilingKlok, pastDate);
+                    veilingKlok.ScheduledAt = pastDate.AddDays(-1);
+                }
             }
             else
             {
+                // Set to Ended with a random past date
                 veilingKlok.UpdateStatus(VeilingKlokStatus.Started);
                 veilingKlok.UpdateStatus(VeilingKlokStatus.Ended);
+
+                var pastDate = DateTimeOffset.UtcNow.AddDays(-random.Next(1, 30));
+                typeof(VeilingKlok)
+                    .GetProperty("StartedAt")
+                    ?.SetValue(veilingKlok, pastDate.AddMinutes(-30));
+                typeof(VeilingKlok).GetProperty("EndedAt")?.SetValue(veilingKlok, pastDate);
+                veilingKlok.ScheduledAt = pastDate.AddDays(-1);
             }
         }
 
@@ -577,8 +611,6 @@ public class TestDataSeeder : ITestDataSeeder
             if (random.NextDouble() > 0.1)
             {
                 var productCount = random.Next(10, 25);
-                var lowestPrice = decimal.MaxValue;
-                var highestPrice = decimal.MinValue;
 
                 for (
                     var j = 0;
@@ -653,7 +685,7 @@ public class TestDataSeeder : ITestDataSeeder
         // Group products by VeilingKlok for faster lookup
         var productsByVeilingKlok = products
             .Where(p => p.VeilingKlokId.HasValue)
-            .GroupBy(p => p.VeilingKlokId.Value)
+            .GroupBy(p => p.VeilingKlokId!.Value)
             .ToDictionary(g => g.Key, g => g.ToList());
 
         var attempts = 0;
@@ -683,35 +715,27 @@ public class TestDataSeeder : ITestDataSeeder
 
             var order = new Order(koper.Id) { VeilingKlokId = veilingKlok.Id };
 
-            // Add 1-4 order items (reduced from 1-5 for faster processing)
-            var itemCount = random.Next(1, 5);
-            var selectedProducts = availableProducts
-                .OrderBy(x => random.Next())
-                .Take(itemCount)
-                .ToList();
-
+            // Ensure structure matches CreateOrderHandler logic: One Order per Product
+            // "Check if an order exists for this VeilingKlok + Koper + Product combination"
+            var product = availableProducts[random.Next(availableProducts.Count)];
             var orderItemsData = new List<(Product product, int quantity, decimal unitPrice)>();
 
-            foreach (var product in selectedProducts)
+            var quantity = random.Next(1, 10);
+
+            // Determine the unit price
+            decimal unitPrice;
+            if (product.AuctionPrice.HasValue)
             {
-                var quantity = random.Next(1, 10);
-
-                // Determine the unit price
-                decimal unitPrice;
-                if (product.AuctionPrice.HasValue)
-                {
-                    unitPrice = product.AuctionPrice.Value;
-                }
-                else
-                {
-                    unitPrice =
-                        product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
-                    product.UpdateAuctionPrice(unitPrice);
-                }
-
-                orderItemsData.Add((product, quantity, unitPrice));
-                soldProductIds.Add(product.Id);
+                unitPrice = product.AuctionPrice.Value;
             }
+            else
+            {
+                unitPrice = product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
+                product.UpdateAuctionPrice(unitPrice);
+            }
+
+            orderItemsData.Add((product, quantity, unitPrice));
+            soldProductIds.Add(product.Id);
 
             // Determine desired Order Status (but don't apply yet - need to add items first)
             var desiredStatus = OrderStatus.Open;

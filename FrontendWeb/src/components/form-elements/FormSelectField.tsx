@@ -1,4 +1,6 @@
-import React, {useEffect, useRef} from 'react';
+import React, { useEffect, useRef } from 'react';
+import { joinClsx } from '../../utils/classPrefixer';
+import clsx from 'clsx';
 
 // Types
 interface FormSelectFieldProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'className'> {
@@ -14,7 +16,7 @@ interface FormSelectFieldProps extends Omit<React.SelectHTMLAttributes<HTMLSelec
 
 // FormSelectField Component
 const FormSelectField = React.forwardRef<HTMLSelectElement, FormSelectFieldProps>((props, ref) => {
-	const {id, icon, isError, label, error, mainClassName, className, options, ...selectProps} = props;
+	const { id, icon, isError, label, error, mainClassName, className, options, ...selectProps } = props;
 	const iconRef = useRef<HTMLElement>(null);
 	const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -28,15 +30,15 @@ const FormSelectField = React.forwardRef<HTMLSelectElement, FormSelectFieldProps
 	}, [icon]);
 
 	return (
-		<div className={mainClassName}>
-			<label htmlFor={id} className="input-field-label">
+		<div className={clsx(mainClassName, joinClsx(className, 'ptn'))}>
+			<label htmlFor={id} className={clsx('input-field-label', joinClsx(className, 'input'))}>
 				{label}
 			</label>
 
-			<div ref={wrapperRef} className="input-field-wrapper">
-				{icon && <i ref={iconRef} className={`input-field-icon bi bi-${icon}`}/>}
-				<select id={id} ref={ref} className="select-field" {...selectProps}>
-					{options?.map(option => (
+			<div ref={wrapperRef} className={clsx('input-field-wrapper', joinClsx(className, 'wrapper'))}>
+				{icon && <i ref={iconRef} className={clsx('input-field-icon bi', `bi-${icon}`, joinClsx(className, 'icon'))} />}
+				<select id={id} ref={ref} className={clsx('select-field', joinClsx(className, 'select-field'))} {...selectProps}>
+					{options?.map((option) => (
 						<option key={option.value} value={option.value}>
 							{option.label}
 						</option>
@@ -44,7 +46,7 @@ const FormSelectField = React.forwardRef<HTMLSelectElement, FormSelectFieldProps
 				</select>
 			</div>
 
-			{isError && error && <div className="input-field-error-feedback">{error}</div>}
+			{isError && error && <div className={clsx('input-field-error-feedback', joinClsx(className, 'error-feedback'))}>{error}</div>}
 		</div>
 	);
 });

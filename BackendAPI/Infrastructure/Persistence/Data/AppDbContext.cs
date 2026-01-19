@@ -18,7 +18,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<VeilingKlok> Veilingklokken { get; set; }
     public DbSet<VeilingKlokProduct> VeilingKlokProducts { get; set; }
     public DbSet<Product> Products { get; set; }
-    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -57,11 +56,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             .Property(vk => vk.CreatedAt)
             .HasDefaultValueSql("SYSDATETIMEOFFSET()");
 
-        modelBuilder
-            .Entity<RefreshToken>()
-            .Property(rt => rt.CreatedAt)
-            .HasDefaultValueSql("SYSDATETIMEOFFSET()");
-
         // Account RowVersion - IdentityUser has ConcurrencyStamp, but we kept RowVersion in Account.cs
         modelBuilder.Entity<Account>().Property(p => p.RowVersion).IsRowVersion();
         modelBuilder.Entity<Order>().Property(p => p.RowVersion).IsRowVersion();
@@ -77,20 +71,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         modelBuilder.Entity<Account>().UseTptMappingStrategy();
 
         // Map Identity Tables to clean names if desired, but sticking to defaults for Identity tables is standard.
-        // Account table is already mapped via [Table("Account")] in entity.
-
-        // RefreshToken Configuration
-        modelBuilder.Entity<RefreshToken>().HasIndex(rt => rt.Jti);
-        modelBuilder.Entity<RefreshToken>().HasIndex(rt => rt.AccountId);
-
-        // Account -> RefreshTokens (Cascade Delete)
-        // Configure from Account side to properly use the navigation property
-        modelBuilder
-            .Entity<Account>()
-            .HasMany(a => a.RefreshTokens)
-            .WithOne()
-            .HasForeignKey(rt => rt.AccountId)
-            .OnDelete(DeleteBehavior.Cascade);
 
         #endregion
 
@@ -191,6 +171,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         modelBuilder.Entity<Product>().HasIndex(p => p.Name);
         modelBuilder.Entity<Product>().HasIndex(p => p.Region);
         modelBuilder.Entity<Product>().HasIndex(p => p.AuctionPrice);
+        modelBuilder.Entity<Product>().HasIndex(p => p.KwekerId);
+        modelBuilder.Entity<Product>().HasIndex(p => p.VeilingKlokId);
+
+        // VeilingKlok Indexes
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.Status);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.ScheduledAt);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.StartedAt);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.EndedAt);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.VeilingmeesterId);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.RegionOrState);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.Country);
 
         // Decimal precision for Product prices
         modelBuilder.Entity<Product>().Property(p => p.AuctionPrice).HasPrecision(18, 2);
@@ -248,6 +239,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         #endregion
 
         #region ORDER MANAGEMENT
+
+        // Indexes for performance optimization
+        modelBuilder.Entity<Order>().HasIndex(o => o.KoperId);
+        modelBuilder.Entity<Order>().HasIndex(o => o.CreatedAt);
+        modelBuilder.Entity<Order>().HasIndex(o => o.Status);
+        modelBuilder.Entity<Order>().HasIndex(o => o.VeilingKlokId);
+        modelBuilder.Entity<OrderItem>().HasIndex(oi => oi.OrderId);
+        modelBuilder.Entity<OrderItem>().HasIndex(oi => oi.ProductId);
 
         // Order -> OrderItems (Cascade Delete)
         modelBuilder

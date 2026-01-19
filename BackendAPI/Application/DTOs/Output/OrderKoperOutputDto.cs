@@ -1,8 +1,10 @@
-﻿using Domain.Enums;
+﻿using Application.Common.Models;
+using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.DTOs.Output;
 
-public class OrderKwekerOutput
+public class OrderKoperOutputDto
 {
     public required Guid Id { get; set; }
     public required DateTimeOffset CreatedAt { get; set; }
@@ -10,6 +12,7 @@ public class OrderKwekerOutput
     public required DateTimeOffset? ClosedAt { get; set; }
     public required int Quantity { get; set; }
     public required decimal TotalPrice { get; set; }
-    public required ProductOutputDto Product { get; set; }
-    public required KoperInfoOutputDto KoperInfo { get; set; }
+    public required List<OrderProductOutputDto> Products { get; set; }
+    public required KwekerInfo KwekerInfo { get; set; }
+    public required KoperInfo KoperInfo { get; set; }
 }

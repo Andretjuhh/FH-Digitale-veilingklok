@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Button from '../../buttons/Button';
 import FormInputField from '../../form-elements/FormInputField';
 import FormLink from '../../buttons/FormLink';
@@ -13,12 +13,14 @@ import { CreateMeesterDTO } from '../../../declarations/dtos/input/CreateMeester
 import { createKoperAccount } from '../../../controllers/server/koper';
 import { createKwekerAccount } from '../../../controllers/server/kweker';
 import { createVeilingmeesterAccount } from '../../../controllers/server/veilingmeester';
+import { getRegions } from '../../../controllers/server/account';
 import { LayoutGroup, motion } from 'framer-motion';
 import { Spring } from '../../../constant/animation';
 import { useComponentStateReducer } from '../../../hooks/useComponentStateReducer';
 import { delay } from '../../../utils/standards';
 import { isHttpError } from '../../../declarations/types/HttpError';
 import ComponentState from '../../elements/ComponentState';
+import FormSelectField from '../../form-elements/FormSelectField';
 
 function RegisterContent() {
 	const { t, navigate, authenticateAccount } = useRootContext();
@@ -34,6 +36,25 @@ function RegisterContent() {
 	const [step, setStep] = useState(1);
 	const [selectedAccountType, setAccountType] = useState<AccountType>(AccountType.Koper);
 
+	const [regions, setRegions] = useState<{ value: string; label: string }[]>([]);
+	const [loadingRegions, setLoadingRegions] = useState(false);
+
+	const initializeRegions = useCallback(async () => {
+		try {
+			setLoadingRegions(true);
+			const response = await getRegions();
+			setRegions([{ value: '', label: t('select_region') }, ...response.data!.map((region) => ({ value: region, label: region }))]);
+		} catch (error) {
+			console.error('Failed to load regions:', error);
+		} finally {
+			setLoadingRegions(false);
+		}
+	}, [t]);
+
+	useEffect(() => {
+		initializeRegions();
+	}, [initializeRegions]);
+
 	const totalSteps = RegisterSteps[selectedAccountType].length;
 	const currentFields = RegisterSteps[selectedAccountType][step - 1];
 
@@ -44,19 +65,46 @@ function RegisterContent() {
 			const name = field.label;
 			const isRequired = field.required;
 			const errorMsg = errors[name]?.message as string | undefined;
+
+			const commonProps = {
+				id: name,
+				label: isRequired ? `${t(field.label)} *` : t(field.label),
+				placeholder: field.placeholder || '',
+				className: 'input-field',
+				error: errorMsg,
+				isError: !!errorMsg,
+			};
+
+			if (field.type === 'select') {
+				let options: { value: string; label: string }[] = [];
+				if (name === 'region') {
+					options = regions;
+				} else if (field.options) {
+					// @ts-ignore
+					options = field.options.map((opt) => ({ value: opt, label: t(opt) }));
+				}
+
+				return (
+					<FormSelectField
+						key={key}
+						icon={field.icon}
+						options={options}
+						{...commonProps}
+						disabled={name === 'region' && loadingRegions}
+						{...register(name, {
+							required: isRequired ? `${t(field.label)} ${t('is')} ${t('required')}` : false,
+						})}
+					/>
+				);
+			}
+
 			return (
 				<FormInputField
 					key={key}
-					id={name}
+					{...commonProps}
 					icon={field.icon}
-					label={isRequired ? `${t(field.label)} *` : t(field.label)}
-					placeholder={field.placeholder || ''}
-					type={field.type === 'select' ? 'text' : field.type}
-					className="input-field"
-					aria-label={t(field.label)}
+					type={field.type}
 					autoComplete={field.type === 'password' ? 'new-password' : 'off'}
-					error={errorMsg}
-					isError={!!errorMsg}
 					{...register(name, {
 						required: isRequired ? `${t(field.label)} ${t('is')} ${t('required')}` : false,
 						...(name === 'email' && {
@@ -69,7 +117,7 @@ function RegisterContent() {
 				/>
 			);
 		},
-		[errors, register, selectedAccountType, step, t]
+		[errors, register, t, regions, loadingRegions],
 	);
 
 	// Validate current step fields before going next
@@ -158,7 +206,7 @@ function RegisterContent() {
 				updateState({ type: 'idle', message: '' });
 			}
 		},
-		[navigate, selectedAccountType, authenticateAccount]
+		[navigate, selectedAccountType, authenticateAccount],
 	);
 
 	return (
@@ -232,7 +280,7 @@ function RegisterContent() {
 									</div>
 								) : (
 									renderField(item.field, `field-${item.field.label}`)
-								)
+								),
 							)}
 
 							{/* Navigation Buttons */}

@@ -161,28 +161,6 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RefreshToken",
-                columns: table => new
-                {
-                    token_id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    jti = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    account_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    expires_at = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    created_at = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
-                    revoked_at = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RefreshToken", x => x.token_id);
-                    table.ForeignKey(
-                        name: "FK_RefreshToken_AspNetUsers_account_id",
-                        column: x => x.account_id,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Veilingmeester",
                 columns: table => new
                 {
@@ -515,9 +493,19 @@ namespace Infrastructure.Migrations
                 filter: "[kvk_nmr] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Order_created_at",
+                table: "Order",
+                column: "created_at");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Order_koper_id",
                 table: "Order",
                 column: "koper_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Order_status",
+                table: "Order",
+                column: "status");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Order_veilingklok_id",
@@ -570,14 +558,34 @@ namespace Infrastructure.Migrations
                 column: "veilingklok_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshToken_account_id",
-                table: "RefreshToken",
-                column: "account_id");
+                name: "IX_Veilingklok_country",
+                table: "Veilingklok",
+                column: "country");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshToken_jti",
-                table: "RefreshToken",
-                column: "jti");
+                name: "IX_Veilingklok_ended_at",
+                table: "Veilingklok",
+                column: "ended_at");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Veilingklok_scheduled_at",
+                table: "Veilingklok",
+                column: "scheduled_at");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Veilingklok_started_at",
+                table: "Veilingklok",
+                column: "started_at");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Veilingklok_state_or_province",
+                table: "Veilingklok",
+                column: "state_or_province");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Veilingklok_status",
+                table: "Veilingklok",
+                column: "status");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Veilingklok_veilingmeester_id",
@@ -634,9 +642,6 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "OrderItem");
-
-            migrationBuilder.DropTable(
-                name: "RefreshToken");
 
             migrationBuilder.DropTable(
                 name: "VeilingKlokProduct");

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260115061655_InitialCreate")]
+    [Migration("20260119203245_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -208,7 +208,11 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedAt");
+
                     b.HasIndex("KoperId");
+
+                    b.HasIndex("Status");
 
                     b.HasIndex("VeilingKlokId");
 
@@ -368,43 +372,6 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
-                {
-                    b.Property<string>("Token")
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("token_id");
-
-                    b.Property<Guid>("AccountId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("account_id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("expires_at");
-
-                    b.Property<Guid>("Jti")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("jti");
-
-                    b.Property<DateTimeOffset?>("RevokedAt")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("revoked_at");
-
-                    b.HasKey("Token");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("Jti");
-
-                    b.ToTable("RefreshToken");
-                });
-
             modelBuilder.Entity("Domain.Entities.VeilingKlok", b =>
                 {
                     b.Property<Guid>("Id")
@@ -479,6 +446,18 @@ namespace Infrastructure.Migrations
                         .HasColumnName("veilingmeester_id");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Country");
+
+                    b.HasIndex("EndedAt");
+
+                    b.HasIndex("RegionOrState");
+
+                    b.HasIndex("ScheduledAt");
+
+                    b.HasIndex("StartedAt");
+
+                    b.HasIndex("Status");
 
                     b.HasIndex("VeilingmeesterId");
 
@@ -821,15 +800,6 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
                 });
 
-            modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
-                {
-                    b.HasOne("Domain.Entities.Account", null)
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Domain.Entities.VeilingKlok", b =>
                 {
                     b.HasOne("Domain.Entities.Veilingmeester", null)
@@ -942,11 +912,6 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("Domain.Entities.Veilingmeester", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Entities.Account", b =>
-                {
-                    b.Navigation("RefreshTokens");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>

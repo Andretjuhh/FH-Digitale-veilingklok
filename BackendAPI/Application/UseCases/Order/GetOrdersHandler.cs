@@ -43,7 +43,7 @@ public sealed class GetOrdersHandler
 
         return new PaginatedOutputDto<OrderOutputDto>
         {
-            Data = items.Select(OrderMapper.ToOutputDto).ToList(),
+            Data = items.Select(x => OrderMapper.ToOutputDto(x.order, x.products)).ToList(),
             TotalCount = totalCount,
             Page = request.PageNumber,
             Limit = request.PageSize,

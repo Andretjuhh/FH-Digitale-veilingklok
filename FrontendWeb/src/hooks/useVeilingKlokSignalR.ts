@@ -1,7 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import * as signalR from '@microsoft/signalr';
-import { AuctionClockRef } from '../components/elements/AuctionClock';
-import { RegionVeilingStartedNotification, VeilingBodNotification, VeilingKlokStateNotification, VeilingPriceTickNotification, VeilingProductChangedNotification, VeilingProductWaitingNotification } from '../declarations/models/VeilingNotifications';
+import {AuctionClockRef} from '../components/elements/AuctionClock';
+import {
+	RegionVeilingStartedNotification,
+	VeilingBodNotification,
+	VeilingKlokStateNotification,
+	VeilingPriceTickNotification,
+	VeilingProductChangedNotification,
+	VeilingProductWaitingNotification
+} from '../declarations/models/VeilingNotifications';
 import config from '../constant/application';
 
 interface UseVeilingKlokSignalRProps {
@@ -22,7 +29,21 @@ interface UseVeilingKlokSignalRProps {
 }
 
 export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
-	const { hubUrl = config.KLOK_HUB_URL, country = 'NL', region, clockRef, onVeilingStarted, onVeilingEnded, onBidPlaced, onProductChanged, onAuctionEnded, onViewerCountChanged, onKlokUpdated, onPriceTick, onProductWaitingForNext } = props;
+	const {
+		hubUrl = config.KLOK_HUB_URL,
+		country = 'NL',
+		region,
+		clockRef,
+		onVeilingStarted,
+		onVeilingEnded,
+		onBidPlaced,
+		onProductChanged,
+		onAuctionEnded,
+		onViewerCountChanged,
+		onKlokUpdated,
+		onPriceTick,
+		onProductWaitingForNext
+	} = props;
 
 	const connectionRef = useRef<signalR.HubConnection | null>(null);
 	const [klokConnectionStatus, setKlokConnectionStatus] = useState<signalR.HubConnectionState>(signalR.HubConnectionState.Disconnected);
@@ -77,6 +98,7 @@ export function useVeilingKlokSignalR(props: UseVeilingKlokSignalRProps) {
 			console.log('Auction ended');
 			clockRef.current?.reset();
 			onAuctionEnded?.();
+			onVeilingEnded?.();
 		});
 
 		connection.on('VeilingViewerCountChanged', (count: number) => {

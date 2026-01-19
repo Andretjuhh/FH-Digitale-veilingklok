@@ -78,13 +78,11 @@ public sealed class UpdateVeilingKlokStatusHandler : IRequestHandler<UpdateVeili
                 // The history is preserved in VeilingKlokProduct table
                 var products = await _productRepository.GetAllByVeilingKlokIdAsync(veilingKlok.Id);
                 foreach (var product in products)
-                {
                     if (product.VeilingKlokId == veilingKlok.Id)
                     {
                         product.RemoveVeilingKlok();
                         _productRepository.Update(product);
                     }
-                }
             }
 
             _veilingKlokRepository.Update(veilingKlok);

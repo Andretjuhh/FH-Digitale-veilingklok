@@ -123,6 +123,12 @@ public class KwekerControllerTests
             Status = OrderStatus.Open,
             TotalAmount = 10,
             TotalItems = 1,
+            ClosedAt = null,
+            ProductId = Guid.NewGuid(),
+            ProductName = "Product",
+            ProductDescription = "Desc",
+            ProductImageUrl = "Img",
+            CompanyName = "Test Company",
         };
         mediator.RegisterResponse<UpdateOrderProductCommand, OrderOutputDto>(orderResult);
 
@@ -140,7 +146,7 @@ public class KwekerControllerTests
     {
         var mediator = new FakeMediator();
         var kwekerId = Guid.NewGuid();
-        var details = new OrderKwekerOutput
+        var details = new OrderKwekerOutputDto
         {
             Id = Guid.NewGuid(),
             CreatedAt = DateTimeOffset.UtcNow,
@@ -148,20 +154,20 @@ public class KwekerControllerTests
             ClosedAt = null,
             Quantity = 2,
             TotalPrice = 20.0m,
-            Product = new ProductOutputDto
+            Products = new List<OrderProductOutputDto>
             {
-                Id = Guid.NewGuid(),
-                Name = "Test Product",
-                Description = "Test",
-                ImageUrl = "test.jpg",
-                AuctionedPrice = 15.0m,
-                MinimumPrice = 10.0m,
-                AuctionedAt = null,
-                Region = null,
-                Dimension = "S",
-                Stock = 10,
-                CompanyName = "Test Company",
-                AuctionPlanned = false,
+                new()
+                {
+                    ProductId = Guid.NewGuid(),
+                    ProductName = "Test Product",
+                    ProductDescription = "Test",
+                    ProductImageUrl = "test.jpg",
+                    MinimalPrice = 10.0m,
+                    PriceAtPurchase = 15.0m,
+                    CompanyName = "Test Company",
+                    Quantity = 2,
+                    OrderedAt = DateTimeOffset.UtcNow,
+                },
             },
             KoperInfo = new KoperInfoOutputDto
             {
@@ -180,14 +186,14 @@ public class KwekerControllerTests
                 },
             },
         };
-        mediator.RegisterResponse<GetKwekerOrderCommand, OrderKwekerOutput>(details);
+        mediator.RegisterResponse<GetKwekerOrderCommand, OrderKwekerOutputDto>(details);
 
         var controller = CreateController(mediator);
         SetUser(controller, kwekerId);
 
         var result = await controller.GetOrder(Guid.NewGuid());
 
-        var success = Assert.IsType<HttpSuccess<OrderKwekerOutput>>(result);
+        var success = Assert.IsType<HttpSuccess<OrderKwekerOutputDto>>(result);
         Assert.Equal(StatusCodes.Status200OK, success.StatusCode);
     }
 

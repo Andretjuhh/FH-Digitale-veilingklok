@@ -13,19 +13,8 @@ import Page from '../../components/nav/Page';
 import { KoperStats } from '../../components/sections/koper/KoperStats';
 import Modal from '../../components/elements/Modal';
 import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
-
-// Placeholder for OrderDetails until a Koper specific one is created
-const OrderDetailsStub = ({ order }: { order: OrderOutputDto }) => (
-	<div className="modal-card">
-		<div className="p-4">
-			<h3>Order Details</h3>
-			<p>Order ID: {order.id}</p>
-			<p>Status: {order.status}</p>
-			<p>Total Items: {order.totalItems}</p>
-			<p>Total Amount: {formatEur(order.totalAmount)}</p>
-		</div>
-	</div>
-);
+import KoperOrderDetails from '../../components/sections/koper/KoperOrderDetails';
+import { ClientAvatar } from '../../components/elements/ClientAvatar';
 
 function KoperOrders() {
 	const { t, account } = useRootContext();
@@ -40,14 +29,23 @@ function KoperOrders() {
 	const orderColumns: Column<OrderOutputDto>[] = useMemo(
 		() => [
 			{
-				key: 'id',
-				label: 'Order ID',
+				key: 'productName',
+				label: t('product_name'),
 				sortable: true,
-				render: (item) => (
-					<span className="font-medium" title={item.id}>
-						{item.id.substring(0, 8)}...
-					</span>
-				),
+				render: (item) => <span className="font-medium">{item.productName}</span>,
+			},
+			{
+				key: 'companyName',
+				label: t('kweker_name'),
+				sortable: true,
+				render: (item) => {
+					return (
+						<div className="flex items-center">
+							<ClientAvatar name={item.companyName} />
+							<span className="font-medium">{item.companyName}</span>
+						</div>
+					);
+				},
 			},
 			{
 				key: 'status',
@@ -69,14 +67,14 @@ function KoperOrders() {
 			},
 			{
 				key: 'createdAt',
-				label: 'Ordered At',
+				label: t('order_datum'),
 				sortable: true,
 				render: (item) => <span>{new Date(item.createdAt).toLocaleDateString()}</span>,
 			},
 
 			{
 				key: 'action',
-				label: 'Action',
+				label: t('actions'),
 				render: (item) => (
 					<div className={'app-table-actions-row-btns'}>
 						<Button
@@ -88,23 +86,12 @@ function KoperOrders() {
 								showOrder(true);
 							}}
 						/>
-						{/* Edit button removed as Koper assumes read-only mostly or specific actions */}
-						{/*
-						<Button
-							className={'app-table-action-btn'}
-							icon={'bi-pen-fill'}
-							onClick={() => {
-								setSelectedOrder(item);
-								showOrder(true, true);
-							}}
-						/>
-						*/}
-						<Button className={'app-table-action-btn'} icon={'bi-download'} aria-label={t('aria_download_order_pdf')} onClick={() => generateOrderPDF(item)} />
+						<Button className={'app-table-action-btn'} icon={'bi-download'} onClick={() => generateOrderPDF(item)} aria-label={t('aria_download_order_pdf')} />
 					</div>
 				),
 			},
 		],
-		[t]
+		[t],
 	);
 
 	const handleFetchOrders = useCallback(async (params: OnFetchHandlerParams) => {
@@ -123,7 +110,7 @@ function KoperOrders() {
 	const generateOrderPDF = useCallback(async (order: OrderOutputDto) => {
 		try {
 			// PDF generation logic here
-			// For now, this is a stub as OrderDetails is not fully implemented for Koper
+			// For now, this is a stub as KwekerOrderDetails is not fully implemented for Koper
 			console.log('Generating PDF for order', order.id);
 			setGeneratingPdf(true);
 			setSelectedOrder(order);
@@ -187,6 +174,10 @@ function KoperOrders() {
 					totalItems={paginatedOrders?.totalCount || 0}
 					getItemKey={(item) => item.id}
 					onFetchData={handleFetchOrders}
+					onCellClick={(item) => {
+						setSelectedOrder(item);
+						showOrder(true);
+					}}
 					title={t('recent_orders')}
 					icon={<i className="bi bi-cart4"></i>}
 					filterGroups={
@@ -200,14 +191,14 @@ function KoperOrders() {
 				/>
 
 				<Modal enabled={showOrderModal.visible && selectedOrder != null} onClose={() => showOrder(false)}>
-					{selectedOrder && <OrderDetailsStub order={selectedOrder} />}
+					{selectedOrder && <KoperOrderDetails orderId={selectedOrder.id} onClose={() => showOrder(false)} />}
 				</Modal>
 
 				{/* Hidden container for PDF generation */}
 				<div style={{ position: 'absolute', left: '-9999px', top: 0, width: '210mm' }}>
 					{generatingPdf && selectedOrder && (
 						<div ref={pdfRef} style={{ padding: '20px', background: 'white' }}>
-							<OrderDetailsStub order={selectedOrder} />
+							{selectedOrder && <KoperOrderDetails orderId={selectedOrder.id} onClose={() => showOrder(false)} />}
 						</div>
 					)}
 				</div>

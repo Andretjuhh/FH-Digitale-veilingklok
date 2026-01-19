@@ -32,6 +32,7 @@ public class AccountController : ControllerBase
         _signInManager = signInManager;
     }
 
+    [AllowAnonymous]
     [HttpGet("country/region")]
     public async Task<IActionResult> GetRegions()
     {
@@ -68,11 +69,9 @@ public class AccountController : ControllerBase
     {
         var user = await _userManager.GetUserAsync(User);
         if (user != null)
-        {
             // Identity doesn't strictly have "revoke devices" same as refresh tokens list unless we implement it.
             // But we can update SecurityStamp to invalidate all cookies/tokens.
             await _userManager.UpdateSecurityStampAsync(user);
-        }
         return HttpSuccess<string>.NoContent("All devices revoked successfully");
     }
 }

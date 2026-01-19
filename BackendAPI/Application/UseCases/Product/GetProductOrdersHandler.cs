@@ -37,9 +37,10 @@ public sealed class GetProductOrdersHandler
         CancellationToken cancellationToken
     )
     {
-        var product = await _productRepository.GetByIdAsync(request.ProductId, request.KwekerId) ??
-                      throw RepositoryException.NotFoundProduct();
-        var (orders, totalCount) = await _orderRepository.GetAllWithFilterAsync(
+        var product =
+            await _productRepository.GetByIdAsync(request.ProductId, request.KwekerId)
+            ?? throw RepositoryException.NotFoundProduct();
+        var (items, totalCount) = await _orderRepository.GetAllWithFilterAsync(
             request.StatusFilter,
             request.BeforeDate,
             request.AfterDate,
@@ -50,13 +51,12 @@ public sealed class GetProductOrdersHandler
             request.PageSize
         );
 
-
         return new PaginatedOutputDto<OrderOutputDto>
         {
-            Data = orders.Select(OrderMapper.ToOutputDto).ToList(),
+            Data = items.Select(x => OrderMapper.ToOutputDto(x.order, x.products)).ToList(),
             TotalCount = totalCount,
             Page = request.PageNumber,
-            Limit = request.PageSize
+            Limit = request.PageSize,
         };
     }
 }

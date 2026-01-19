@@ -24,10 +24,6 @@ public class Account : IdentityUser<Guid>
     [Column("account_type")]
     public AccountType AccountType { get; init; } = AccountType.Koper;
 
-    // RefreshTokens Relationshiop  User have many RefreshTokens
-    private readonly List<RefreshToken> IRTokens = new();
-    public IReadOnlyCollection<RefreshToken> RefreshTokens => IRTokens;
-
 #nullable disable
     public Account() { }
 
@@ -45,33 +41,15 @@ public class Account : IdentityUser<Guid>
         AccountType = accountType;
     }
 
-    public void AddRefreshToken(RefreshToken token)
-    {
-        IRTokens.Add(token);
-    }
-
-    public void UpdateRefreshToken(RefreshToken oldToken, RefreshToken newToken)
-    {
-        // Replace old refresh token with new one
-        IRTokens.Remove(oldToken);
-        IRTokens.Add(newToken);
-    }
-
-    public void RemoveRefreshToken(string token)
-    {
-        var existingToken = IRTokens.FirstOrDefault(rt => rt.Token == token);
-        if (existingToken != null)
-            IRTokens.Remove(existingToken);
-    }
-
-    public void RevokeAllRefreshTokens()
-    {
-        // Delete all existing refresh tokens
-        IRTokens.Clear();
-    }
-
     public void SoftDelete()
     {
         DeletedAt = DateTimeOffset.UtcNow;
+        LockoutEnd = DateTimeOffset.MaxValue;
+    }
+
+    public void Reactivate()
+    {
+        DeletedAt = null;
+        LockoutEnd = null;
     }
 }
