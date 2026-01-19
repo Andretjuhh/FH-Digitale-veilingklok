@@ -23,51 +23,6 @@ public sealed class UpdateVeilingKlokStatusHandler : IRequestHandler<UpdateVeili
         IProductRepository productRepository,
         IVeilingKlokEngine veilingKlokEngine
     )
-    {
-        _unitOfWork = unitOfWork;
-        _productRepository = productRepository;
-        _veilingKlokRepository = veilingKlokRepository;
-        _veilingKlokEngine = veilingKlokEngine;
-    }
-
-    public async Task Handle(
-        UpdateVeilingKlokStatusCommand request,
-        CancellationToken cancellationToken
-    )
-    {
-        try
-        {
-            await _unitOfWork.BeginTransactionAsync(cancellationToken);
-            var veilingKlok =
-                await _veilingKlokRepository.GetByIdAsync(request.Id)
-                ?? throw RepositoryException.NotFoundVeilingKlok();
-
-            var isRunning = _veilingKlokEngine.IsVeillingRunning(veilingKlok.Id);
-            if (isRunning && request.Status == VeilingKlokStatus.Started)
-                throw CustomException.CannotChangeRunningVeilingKlok();
-
-            veilingKlok.UpdateStatus(request.Status);
-
-            if (request.Status == VeilingKlokStatus.Started)
-            {
-                // Check if there is any active klok state in theat region status thats between started and paused
-                var hasActiveVeiling = await _veilingKlokRepository.HasActiveVeilingInRegionAsync(
-                    veilingKlok.RegionOrState,
-                    veilingKlok.Country,
-                    veilingKlok.Id,
-                    cancellationToken
-                );
-
-                if (hasActiveVeiling)
-                    throw CustomException.AlreadyActiveVeilingInRegion();
-
-                var productIds = veilingKlok.GetOrderedProductIds();
-                var products = await _productRepository.GetAllByIds(productIds);
-                await _veilingKlokEngine.AddActiveVeilingKlokAsync(veilingKlok, products.ToList());
-                await _veilingKlokEngine.StartVeilingAsync(veilingKlok.Id);
-            }
-            else if (request.Status == VeilingKlokStatus.Paused)
-            {
                 await _veilingKlokEngine.PauseVeilingAsync(veilingKlok.Id);
             }
             else if (request.Status == VeilingKlokStatus.Ended)
