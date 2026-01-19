@@ -82,6 +82,7 @@ function KoperOrders() {
 						<Button
 							className={'app-table-action-btn'}
 							icon={'bi-file-earmark-text-fill'}
+							aria-label={t('aria_view_order_details')}
 							onClick={() => {
 								setSelectedOrder(item);
 								showOrder(true);
@@ -98,7 +99,7 @@ function KoperOrders() {
 							}}
 						/>
 						*/}
-						<Button className={'app-table-action-btn'} icon={'bi-download'} onClick={() => generateOrderPDF(item)} />
+						<Button className={'app-table-action-btn'} icon={'bi-download'} aria-label={t('aria_download_order_pdf')} onClick={() => generateOrderPDF(item)} />
 					</div>
 				),
 			},
@@ -169,11 +170,11 @@ function KoperOrders() {
 	return (
 		<Page enableHeader className="kweker-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
 			<main className="kweker-products-page-ctn">
-				<section className="page-title-section">
-					<h1>
+				<section className="page-title-section" aria-labelledby="koper-orders-title koper-orders-subtitle">
+					<h1 id="koper-orders-title">
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
-					<h2>{t('kweker_orders_description')}</h2>
+					<h2 id="koper-orders-subtitle">{t('kweker_orders_description')}</h2>
 				</section>
 
 				<KoperStats />
@@ -190,8 +191,8 @@ function KoperOrders() {
 					icon={<i className="bi bi-cart4"></i>}
 					filterGroups={
 						<>
-							<Button icon="bi-chevron-down" className="app-table-filter-btn" label={'All Status'} />
-							<Button icon="bi-chevron-down" className="app-table-filter-btn" label={'More Filters'} />
+							<Button icon="bi-chevron-down" className="app-table-filter-btn" label={'All Status'} aria-label={t('aria_filter_all_status')} />
+							<Button icon="bi-chevron-down" className="app-table-filter-btn" label={'More Filters'} aria-label={t('aria_filter_more')} />
 						</>
 					}
 					columns={orderColumns}

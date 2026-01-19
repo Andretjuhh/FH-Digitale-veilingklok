@@ -7,11 +7,11 @@ function AppWhatIsFlori() {
 	const {t} = useRootContext();
 
 	return (
-		<section id={'what-is-flori-clock'} className={'app-what-is'}>
+		<section id={'what-is-flori-clock'} className={'app-what-is'} aria-labelledby="app-what-is-title">
 			<div className={'app-what-is-info-ctn'}>
-				<h2 className={'app-what-is-title'}>{t('what_is_flori_clock')}</h2>
+				<h2 id="app-what-is-title" className={'app-what-is-title'}>{t('what_is_flori_clock')}</h2>
 				<span className={'app-what-is-txt'}>{t('what_is_flori_clock_description')}</span>
-				<Button className={'app-home-s-btn app-what-is-btn'} label={t('contact_us')}/>
+				<Button className={'app-home-s-btn app-what-is-btn'} label={t('contact_us')} aria-label={t('aria_what_is_contact')}/>
 			</div>
 			<div className={'app-what-is-steps-ctn'}>
 				<WhatIsCard title={t('buyer')} description={t('what_do_buyer')} icon={'bi-flower2'}/>

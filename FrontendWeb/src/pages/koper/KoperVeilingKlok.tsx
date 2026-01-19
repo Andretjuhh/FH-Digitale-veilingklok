@@ -216,11 +216,11 @@ function KoperVeilingKlok() {
 			<main className="vm-veiling-info-page-ctn">
 				{state.type === 'idle' && currentVeilingKlok && (
 					<>
-						<section className={'vm-veiling-info-left-panel'}>
+						<section className={'vm-veiling-info-left-panel'} aria-labelledby="koper-veiling-klok-title">
 							<div className={'vm-veiling-info-data'}>
 								<div className={'vm-veiling-info-header'}>
 									<Button className="modal-card-back-btn vm-veiling-info-btn" icon="bi-x" type="button" aria-label={t('aria_back_button')} onClick={onClose}/>
-									<h2 className={'vm-veiling-info-h1'}>
+									<h2 id="koper-veiling-klok-title" className={'vm-veiling-info-h1'}>
 										<i className="bi bi-stopwatch-fill"></i>
 										{t('manage_veiling_klok')}
 									</h2>
@@ -288,16 +288,16 @@ function KoperVeilingKlok() {
 															{t('quantity')}
 														</label>
 														<div className={'vm-veiling-buy-actions-selector'}>
-															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-dash'} onClick={decreaseQuantity}/>
+															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-dash'} aria-label={t('aria_decrease_quantity')} onClick={decreaseQuantity}/>
 															<input id="quantity" type="number" className="vm-veiling-buy-actions-selector-input input-clean-number"
 															       defaultValue={quantity} min={1} step={1} value={quantity}
 															       onChange={(e) => setQuantity(parseInt(e.target.value, 10))}/>
-															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-plus'} onClick={increaseQuantity}/>
+															<Button className={'vm-veiling-buy-actions-btn'} icon={'bi-plus'} aria-label={t('aria_increase_quantity')} onClick={increaseQuantity}/>
 														</div>
 													</div>
 												</div>
 												<Button className={'vm-veiling-buy-action-btn'} label={t('place_bid')} onClick={placeBid}/>
-												<Button className={'vm-veiling-buy-action-btn btn-outline'} label="Prijshistorie" onClick={openHistory}/>
+												<Button className={'vm-veiling-buy-action-btn btn-outline'} label="Prijshistorie" aria-label={t('aria_price_history')} onClick={openHistory}/>
 											</div>
 										</div>
 									</div>
@@ -383,10 +383,10 @@ function KoperVeilingKlok() {
 							)}
 						</section>
 
-						<section className={'vm-veiling-info-right-panel'}>
+						<section className={'vm-veiling-info-right-panel'} aria-labelledby="koper-veiling-products-title">
 							<div className={'vm-veiling-info-products'}>
 								<div className={'vm-veiling-info-header'}>
-									<h2 className={'vm-veiling-info-h2'}>
+									<h2 id="koper-veiling-products-title" className={'vm-veiling-info-h2'}>
 										<i className="bi bi-list-nested"></i>
 										{t('auction_products')}
 									</h2>
@@ -412,9 +412,9 @@ function KoperVeilingKlok() {
 					<ComponentStateCard state={actionState}/>
 				</Modal>
 				<Modal enabled={showHistoryModal} onClose={() => setShowHistoryModal(false)}>
-					<div className="modal">
+					<div className="modal" role="dialog" aria-modal="true" aria-labelledby="koper-veiling-history-title">
 						<div className="modal-header">
-							<h3>Prijshistorie</h3>
+							<h3 id="koper-veiling-history-title">Prijshistorie</h3>
 							<button className="modal-close" onClick={() => setShowHistoryModal(false)} aria-label="Sluiten">
 								?
 							</button>

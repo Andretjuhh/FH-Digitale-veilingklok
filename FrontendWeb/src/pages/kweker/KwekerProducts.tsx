@@ -42,18 +42,18 @@ function KwekerProducts() {
 	return (
 		<Page enableHeader className="kweker-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
 			<main className="kweker-products-page-ctn">
-				<section className="page-title-section">
-					<h1>
+				<section className="page-title-section" aria-labelledby="kweker-products-title kweker-products-subtitle">
+					<h1 id="kweker-products-title">
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
-					<h2>
+					<h2 id="kweker-products-subtitle">
 						{t('kweker_products_description')}
 					</h2>
 				</section>
 
-				<section className={'products-page-stats'}>
+				<section className={'products-page-stats'} aria-label={t('aria_kweker_products_stats')}>
 					<KwekerProductStats/>
-					<div className="products-page-action-card">
+					<div className="products-page-action-card" aria-label={t('aria_kweker_products_actions')}>
 						<div className="products-page-action-card-title">
 					        <span>
 						         <i className={'bi bi-bag-plus-fill'}/>
@@ -68,40 +68,43 @@ function KwekerProducts() {
 							icon={'bi bi-plus-circle-fill'}
 							onClick={() => setOpenCreateEditModal({visible: true})}
 							label={t('create_product')}
+							aria-label={t('aria_kweker_create_product')}
 						/>
 					</div>
 				</section>
 
-				<GridTable
-					isLazy
-					itemsPerPage={12}
-					data={paginatedProducts?.data || []}
-					loading={paginatedProductsState.type == 'loading'}
-					totalItems={paginatedProducts?.totalCount || 0}
-					onFetchData={handleFetchProducts}
+				<section aria-label={t('aria_kweker_products_list')}>
+					<GridTable
+						isLazy
+						itemsPerPage={12}
+						data={paginatedProducts?.data || []}
+						loading={paginatedProductsState.type == 'loading'}
+						totalItems={paginatedProducts?.totalCount || 0}
+						onFetchData={handleFetchProducts}
 
-					title={t('your_products')}
-					icon={<i className="bi bi-bag-fill"></i>}
-					renderItem={(item, index) => (
-						<ProductCard
-							isKoper={false}
-							product={item}
-							index={index}
-							onAction={
-								(action, product) => {
-									if (action == 'edit') {
-										setOpenCreateEditModal({visible: true, product: product});
-									} else if (action == 'set_pricing') {
-										console.log('Set pricing for product', product);
-									} else if (action == 'delete') {
-										console.log('Delete product', product);
+						title={t('your_products')}
+						icon={<i className="bi bi-bag-fill"></i>}
+						renderItem={(item, index) => (
+							<ProductCard
+								isKoper={false}
+								product={item}
+								index={index}
+								onAction={
+									(action, product) => {
+										if (action == 'edit') {
+											setOpenCreateEditModal({visible: true, product: product});
+										} else if (action == 'set_pricing') {
+											console.log('Set pricing for product', product);
+										} else if (action == 'delete') {
+											console.log('Delete product', product);
+										}
 									}
 								}
-							}
-						/>)
-					}
-					emptyText={t('no_orders')}
-				/>
+							/>)
+						}
+						emptyText={t('no_orders')}
+					/>
+				</section>
 
 
 				<Modal enabled={openCreateEditModal.visible} onClose={() => setOpenCreateEditModal({visible: false})}>

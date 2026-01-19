@@ -43,18 +43,18 @@ function VeilingmeesterProducts() {
 	return (
 		<Page enableHeader className="vm-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
 			<main className="vm-products-page-ctn">
-				<section className="page-title-section">
-					<h1>
+				<section className="page-title-section" aria-labelledby="meester-products-title meester-products-subtitle">
+					<h1 id="meester-products-title">
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
-					<h2>
+					<h2 id="meester-products-subtitle">
 						{t('manage_product_price_txt')}
 					</h2>
 				</section>
-				<section className={'products-page-stats'}>
+				<section className={'products-page-stats'} aria-label={t('aria_meester_products_stats')}>
 					<MeesterProductStats/>
 
-					<div className="products-page-action-card">
+					<div className="products-page-action-card" aria-label={t('aria_meester_action_card')}>
 						<div className="products-page-action-card-title">
 					        <span>
 						         <i className={'bi bi-clock-fill'}/>
@@ -68,39 +68,42 @@ function VeilingmeesterProducts() {
 							className={'products-page-action-card-btn'}
 							icon={'bi bi-plus-circle-fill'}
 							label={t('schedule_veilingklok')}
+							aria-label={t('aria_meester_schedule_auction')}
 						/>
 					</div>
 				</section>
-				<GridTable
-					isLazy
-					itemsPerPage={12}
-					data={paginatedProducts?.data || []}
-					loading={paginatedProductsState.type == 'loading'}
-					totalItems={paginatedProducts?.totalCount || 0}
-					onFetchData={handleFetchProducts}
+				<section aria-label={t('aria_meester_products_list')}>
+					<GridTable
+						isLazy
+						itemsPerPage={12}
+						data={paginatedProducts?.data || []}
+						loading={paginatedProductsState.type == 'loading'}
+						totalItems={paginatedProducts?.totalCount || 0}
+						onFetchData={handleFetchProducts}
 
-					title={t('region_flowers')}
-					icon={<i className="bi bi-bag-fill"></i>}
-					renderItem={(item, index) => (
-						<ProductCard
-							mode={'meester'}
-							product={item}
-							index={index}
-							onAction={
-								(action, product) => {
-									if (action == 'edit') {
-										openPricingModal({visible: true, product: product});
-									} else if (action == 'set_pricing') {
-										openPricingModal({visible: true, product: product});
-									} else if (action == 'delete') {
-										console.log('Delete product', product);
+						title={t('region_flowers')}
+						icon={<i className="bi bi-bag-fill"></i>}
+						renderItem={(item, index) => (
+							<ProductCard
+								mode={'meester'}
+								product={item}
+								index={index}
+								onAction={
+									(action, product) => {
+										if (action == 'edit') {
+											openPricingModal({visible: true, product: product});
+										} else if (action == 'set_pricing') {
+											openPricingModal({visible: true, product: product});
+										} else if (action == 'delete') {
+											console.log('Delete product', product);
+										}
 									}
 								}
-							}
-						/>)
-					}
-					emptyText={t('no_orders')}
-				/>
+							/>)
+						}
+						emptyText={t('no_orders')}
+					/>
+				</section>
 
 				{(openCreateEditModal.visible && openCreateEditModal.product) && (
 					<div className="modal-overlay" onClick={() => openPricingModal({visible: false})}>

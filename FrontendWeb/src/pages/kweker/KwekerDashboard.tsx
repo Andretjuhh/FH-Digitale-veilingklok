@@ -16,16 +16,20 @@ function KwekerDashboard() {
 	return (
 		<Page enableHeader className="kweker-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
 			<main className="kweker-products-page-ctn">
-				<section className="page-title-section">
-					<h1>
+				<section className="page-title-section" aria-labelledby="kweker-dashboard-title kweker-dashboard-subtitle">
+					<h1 id="kweker-dashboard-title">
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
-					<p className="page-subtitle">{t('kweker_desc')}</p>
+					<p id="kweker-dashboard-subtitle" className="page-subtitle">{t('kweker_desc')}</p>
 				</section>
 
-				<KwekerDashboardStats/>
+				<section aria-label={t('aria_kweker_dashboard_stats')}>
+					<KwekerDashboardStats/>
+				</section>
 
-				<RevenueChart/>
+				<section aria-label={t('aria_kweker_revenue_chart')}>
+					<RevenueChart/>
+				</section>
 			</main>
 		</Page>
 	);

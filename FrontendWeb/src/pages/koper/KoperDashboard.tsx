@@ -214,7 +214,7 @@ function UserDashboard() {
 		return (
 			<Page enableHeader className="user-dashboard">
 				<div className="flex items-center justify-center h-64">
-					<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-main"></div>
+					<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-main" role="status" aria-label={t('aria_loading')}></div>
 				</div>
 			</Page>
 		);
@@ -225,7 +225,7 @@ function UserDashboard() {
 			<Page enableHeader className="user-dashboard">
 				<div className="flex flex-col items-center justify-center h-64">
 					<p className="text-gray-500 mb-4">{t('no_products_available')}</p>
-					<Button label={t('refresh')} onClick={initializeProducts} />
+					<Button label={t('refresh')} aria-label={t('refresh')} onClick={initializeProducts} />
 				</div>
 			</Page>
 		);
@@ -235,11 +235,11 @@ function UserDashboard() {
 
 	return (
 		<Page enableHeader className="user-dashboard">
-			<section className="user-hero">
+			<section className="user-hero" aria-labelledby="koper-dashboard-title koper-dashboard-sub">
 				<div className="user-hero-head">
 					<div>
-						<h1 className="user-hero-title">{t('koper_dashboard')}</h1>
-						<p className="user-hero-sub">{t('koper_dashboard_sub')}</p>
+						<h1 id="koper-dashboard-title" className="user-hero-title">{t('koper_dashboard')}</h1>
+						<p id="koper-dashboard-sub" className="user-hero-sub">{t('koper_dashboard_sub')}</p>
 					</div>
 				</div>
 			</section>
@@ -254,7 +254,7 @@ function UserDashboard() {
 							onError={() => setImgSrc((prev) => (prev.endsWith('.svg') ? '/pictures/kweker.png' : '/pictures/roses.svg'))}
 							alt={t('koper_product_image_alt')}
 						/>
-						<div className="product-info">
+						<div className="product-info" aria-label={t('aria_product_details')}>
 							<div className="prod-row">
 								<span className="prod-label">{t('koper_supplier')}</span>
 								<span className="prod-val">{current.companyName}</span>
@@ -290,11 +290,12 @@ function UserDashboard() {
 
 						<div className="stock-text">{t('koper_stock', { count: currentStock })}</div>
 
-						<div className="user-actions">
-							<div className="buy-controls">
+							<div className="user-actions">
+								<div className="buy-controls">
 									<Button
 										className="user-action-btn !bg-primary-main buy-full"
 										label={`${t('koper_buy')} (${qty})`}
+										aria-label={`${t('koper_buy')} (${qty})`}
 										onClick={async () => {
 										if (qty <= 0 || !current) return;
 										setPaused(true);
@@ -339,6 +340,7 @@ function UserDashboard() {
 									<Button
 										className="qty-max-btn btn-outline"
 										label="Prijshistorie"
+										aria-label={t('aria_price_history')}
 										onClick={() => {
 											setShowHistoryModal(true);
 											loadHistory();
@@ -350,8 +352,8 @@ function UserDashboard() {
 					</div>
 
 					{/* Right side: compacte wachtrij */}
-					<aside className="upcoming-side">
-						<h4 className="upcoming-side-title">{t('koper_upcoming')}</h4>
+					<aside className="upcoming-side" aria-labelledby="koper-upcoming-title">
+						<h4 id="koper-upcoming-title" className="upcoming-side-title">{t('koper_upcoming')}</h4>
 						<ul className="upcoming-side-list">
 							{upcoming.map((p, i) => (
 								<li
@@ -360,6 +362,7 @@ function UserDashboard() {
 									onClick={() => setSelectedUpcoming(p)}
 									role="button"
 									tabIndex={0}
+									aria-label={`${p.name} ${t('koper_upcoming_badge')}`}
 									onKeyDown={(e) => {
 										if (e.key === 'Enter' || e.key === ' ') {
 											e.preventDefault();
@@ -386,13 +389,13 @@ function UserDashboard() {
 							))}
 						</ul>
 						<div className="price-history-block">
-							<h4 className="upcoming-side-title">Laatste 10 prijzen (kweker)</h4>
+							<h4 id="koper-kweker-history-title" className="upcoming-side-title">Laatste 10 prijzen (kweker)</h4>
 							{historyLoading ? (
 								<div className="text-gray-500">Laden...</div>
 							) : kwekerHistory.length === 0 ? (
 								<div className="text-gray-500">Geen data</div>
 							) : (
-								<ul className="upcoming-side-list">
+								<ul className="upcoming-side-list" aria-labelledby="koper-kweker-history-title">
 									{kwekerHistory.map((item) => (
 										<li className="upcoming-side-item" key={`${item.productId}-${item.purchasedAt}`}>
 											<div className="upcoming-side-info">
@@ -410,13 +413,13 @@ function UserDashboard() {
 							</div>
 						</div>
 						<div className="price-history-block">
-							<h4 className="upcoming-side-title">Laatste 10 prijzen (alle kwekers)</h4>
+							<h4 id="koper-all-history-title" className="upcoming-side-title">Laatste 10 prijzen (alle kwekers)</h4>
 							{historyLoading ? (
 								<div className="text-gray-500">Laden...</div>
 							) : allHistory.length === 0 ? (
 								<div className="text-gray-500">Geen data</div>
 							) : (
-								<ul className="upcoming-side-list">
+								<ul className="upcoming-side-list" aria-labelledby="koper-all-history-title">
 									{allHistory.map((item) => (
 										<li className="upcoming-side-item" key={`${item.productId}-${item.purchasedAt}-all`}>
 											<div className="upcoming-side-info">
@@ -434,59 +437,59 @@ function UserDashboard() {
 			</section>
 
 			<footer className="app-footer">
-				<div className="user-footer-col">
-					<h4 className="user-footer-title">{t('koper_footer_about_title')}</h4>
+				<div className="user-footer-col" aria-labelledby="koper-footer-about-title">
+					<h4 id="koper-footer-about-title" className="user-footer-title">{t('koper_footer_about_title')}</h4>
 					<p className="user-footer-line">{t('koper_footer_about_line1')}</p>
 					<p className="user-footer-line">{t('koper_footer_about_line2')}</p>
 				</div>
-				<div className="user-footer-col">
-					<h4 className="user-footer-title">{t('koper_footer_product_title')}</h4>
+				<div className="user-footer-col" aria-labelledby="koper-footer-product-title">
+					<h4 id="koper-footer-product-title" className="user-footer-title">{t('koper_footer_product_title')}</h4>
 					<ul className="user-footer-list">
 						<li>
-							<a href="#">{t('koper_footer_live')}</a>
+							<a href="#" aria-label={t('koper_footer_live')}>{t('koper_footer_live')}</a>
 						</li>
 						<li>
-							<a href="#">{t('koper_footer_history')}</a>
+							<a href="#" aria-label={t('koper_footer_history')}>{t('koper_footer_history')}</a>
 						</li>
 						<li>
-							<a href="#">{t('koper_footer_favorites')}</a>
+							<a href="#" aria-label={t('koper_footer_favorites')}>{t('koper_footer_favorites')}</a>
 						</li>
 					</ul>
 				</div>
-				<div className="user-footer-col">
-					<h4 className="user-footer-title">{t('koper_footer_resources_title')}</h4>
+				<div className="user-footer-col" aria-labelledby="koper-footer-resources-title">
+					<h4 id="koper-footer-resources-title" className="user-footer-title">{t('koper_footer_resources_title')}</h4>
 					<ul className="user-footer-list">
 						<li>
-							<a href="#">{t('koper_footer_docs')}</a>
+							<a href="#" aria-label={t('koper_footer_docs')}>{t('koper_footer_docs')}</a>
 						</li>
 						<li>
-							<a href="#">{t('koper_footer_faq')}</a>
+							<a href="#" aria-label={t('koper_footer_faq')}>{t('koper_footer_faq')}</a>
 						</li>
 						<li>
-							<a href="#">{t('koper_footer_status')}</a>
+							<a href="#" aria-label={t('koper_footer_status')}>{t('koper_footer_status')}</a>
 						</li>
 					</ul>
 				</div>
-				<div className="user-footer-col">
-					<h4 className="user-footer-title">{t('koper_footer_contact_title')}</h4>
+				<div className="user-footer-col" aria-labelledby="koper-footer-contact-title">
+					<h4 id="koper-footer-contact-title" className="user-footer-title">{t('koper_footer_contact_title')}</h4>
 					<ul className="user-footer-list">
 						<li>
-							<a href="#">{t('koper_footer_support')}</a>
+							<a href="#" aria-label={t('koper_footer_support')}>{t('koper_footer_support')}</a>
 						</li>
 						<li>
-							<a href="#">{t('koper_footer_form')}</a>
+							<a href="#" aria-label={t('koper_footer_form')}>{t('koper_footer_form')}</a>
 						</li>
 						<li>
-							<a href="#">{t('koper_footer_locations')}</a>
+							<a href="#" aria-label={t('koper_footer_locations')}>{t('koper_footer_locations')}</a>
 						</li>
 					</ul>
 				</div>
 			</footer>
 			{showHistoryModal && (
 				<div className="modal-overlay" onClick={() => setShowHistoryModal(false)}>
-					<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+					<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="koper-history-modal-title">
 						<div className="modal-header">
-							<h3>Prijshistorie</h3>
+							<h3 id="koper-history-modal-title">Prijshistorie</h3>
 							<button className="modal-close" onClick={() => setShowHistoryModal(false)} aria-label="Sluiten">
 								?
 							</button>
@@ -533,9 +536,9 @@ function UserDashboard() {
 			)}
 			{selectedUpcoming && (
 				<div className="modal-overlay" onClick={() => setSelectedUpcoming(null)}>
-					<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+					<div className="modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="koper-upcoming-modal-title">
 						<div className="modal-header">
-							<h3>{selectedUpcoming.name}</h3>
+							<h3 id="koper-upcoming-modal-title">{selectedUpcoming.name}</h3>
 							<button className="modal-close" onClick={() => setSelectedUpcoming(null)} aria-label="Sluiten">
 								?
 							</button>

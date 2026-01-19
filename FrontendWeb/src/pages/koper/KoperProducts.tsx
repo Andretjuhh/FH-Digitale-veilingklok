@@ -38,34 +38,36 @@ function KoperProducts() {
 	return (
 		<Page enableHeader className="kweker-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
 			<main className="kweker-products-page-ctn">
-				<section className="page-title-section">
-					<h1>
+				<section className="page-title-section" aria-labelledby="koper-products-title koper-products-subtitle">
+					<h1 id="koper-products-title">
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
-					<h2>
+					<h2 id="koper-products-subtitle">
 						{t('koper_products_description')}
 					</h2>
 				</section>
 
-				<GridTable
-					isLazy
-					itemsPerPage={12}
-					data={paginatedProducts?.data || []}
-					loading={paginatedProductsState.type == 'loading'}
-					totalItems={paginatedProducts?.totalCount || 0}
-					onFetchData={handleFetchProducts}
+				<section aria-label={t('available_flowers')}>
+					<GridTable
+						isLazy
+						itemsPerPage={12}
+						data={paginatedProducts?.data || []}
+						loading={paginatedProductsState.type == 'loading'}
+						totalItems={paginatedProducts?.totalCount || 0}
+						onFetchData={handleFetchProducts}
 
-					title={t('available_flowers')}
-					icon={<i className="bi bi-bag-fill"></i>}
-					renderItem={(item, index) => (
-						<ProductCard
-							isKoper={true}
-							product={item}
-							index={index}
-						/>)
-					}
-					emptyText={t('no_orders')}
-				/>
+						title={t('available_flowers')}
+						icon={<i className="bi bi-bag-fill"></i>}
+						renderItem={(item, index) => (
+							<ProductCard
+								isKoper={true}
+								product={item}
+								index={index}
+							/>)
+						}
+						emptyText={t('no_orders')}
+					/>
+				</section>
 
 			</main>
 		</Page>

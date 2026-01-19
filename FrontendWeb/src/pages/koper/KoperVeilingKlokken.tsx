@@ -96,16 +96,16 @@ function KoperVeilingKlokken() {
 	return (
 		<Page enableHeader className="vm-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
 			<main className="vm-products-page-ctn">
-				<section className="page-title-section">
-					<h1>
+				<section className="page-title-section" aria-labelledby="koper-veilingen-title koper-veilingen-subtitle">
+					<h1 id="koper-veilingen-title">
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
-					<h2>
+					<h2 id="koper-veilingen-subtitle">
 						{t('join_auction_clock_txt')}
 					</h2>
 				</section>
 
-				<section className={'products-page-stats'}>
+				<section className={'products-page-stats'} aria-label={t('aria_veiling_stats')}>
 					<KoperVeilingStats/>
 				</section>
 
