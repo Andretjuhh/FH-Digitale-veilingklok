@@ -307,7 +307,9 @@ public class TestDataSeeder : ITestDataSeeder
                 if (!result.Succeeded)
                 {
                     var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    throw new InvalidOperationException($"Failed to create role '{role}': {errors}");
+                    throw new InvalidOperationException(
+                        $"Failed to create role '{role}': {errors}"
+                    );
                 }
             }
         }
@@ -465,14 +467,21 @@ public class TestDataSeeder : ITestDataSeeder
             if (!createResult.Succeeded)
             {
                 var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"Failed to create veilingmeester user: {errors}");
+                throw new InvalidOperationException(
+                    $"Failed to create veilingmeester user: {errors}"
+                );
             }
 
-            var roleResult = await _userManager.AddToRoleAsync(veilingmeester, nameof(AccountType.Veilingmeester));
+            var roleResult = await _userManager.AddToRoleAsync(
+                veilingmeester,
+                nameof(AccountType.Veilingmeester)
+            );
             if (!roleResult.Succeeded)
             {
                 var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"Failed to assign veilingmeester role: {errors}");
+                throw new InvalidOperationException(
+                    $"Failed to assign veilingmeester role: {errors}"
+                );
             }
             veilingmeesters.Add(veilingmeester);
         }
@@ -577,8 +586,6 @@ public class TestDataSeeder : ITestDataSeeder
             if (random.NextDouble() > 0.1)
             {
                 var productCount = random.Next(10, 25);
-                var lowestPrice = decimal.MaxValue;
-                var highestPrice = decimal.MinValue;
 
                 for (
                     var j = 0;
@@ -653,7 +660,7 @@ public class TestDataSeeder : ITestDataSeeder
         // Group products by VeilingKlok for faster lookup
         var productsByVeilingKlok = products
             .Where(p => p.VeilingKlokId.HasValue)
-            .GroupBy(p => p.VeilingKlokId.Value)
+            .GroupBy(p => p.VeilingKlokId!.Value)
             .ToDictionary(g => g.Key, g => g.ToList());
 
         var attempts = 0;
@@ -683,35 +690,27 @@ public class TestDataSeeder : ITestDataSeeder
 
             var order = new Order(koper.Id) { VeilingKlokId = veilingKlok.Id };
 
-            // Add 1-4 order items (reduced from 1-5 for faster processing)
-            var itemCount = random.Next(1, 5);
-            var selectedProducts = availableProducts
-                .OrderBy(x => random.Next())
-                .Take(itemCount)
-                .ToList();
-
+            // Ensure structure matches CreateOrderHandler logic: One Order per Product
+            // "Check if an order exists for this VeilingKlok + Koper + Product combination"
+            var product = availableProducts[random.Next(availableProducts.Count)];
             var orderItemsData = new List<(Product product, int quantity, decimal unitPrice)>();
 
-            foreach (var product in selectedProducts)
+            var quantity = random.Next(1, 10);
+
+            // Determine the unit price
+            decimal unitPrice;
+            if (product.AuctionPrice.HasValue)
             {
-                var quantity = random.Next(1, 10);
-
-                // Determine the unit price
-                decimal unitPrice;
-                if (product.AuctionPrice.HasValue)
-                {
-                    unitPrice = product.AuctionPrice.Value;
-                }
-                else
-                {
-                    unitPrice =
-                        product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
-                    product.UpdateAuctionPrice(unitPrice);
-                }
-
-                orderItemsData.Add((product, quantity, unitPrice));
-                soldProductIds.Add(product.Id);
+                unitPrice = product.AuctionPrice.Value;
             }
+            else
+            {
+                unitPrice = product.MinimumPrice * (1 + (decimal)(random.NextDouble() * 0.4 + 0.1));
+                product.UpdateAuctionPrice(unitPrice);
+            }
+
+            orderItemsData.Add((product, quantity, unitPrice));
+            soldProductIds.Add(product.Id);
 
             // Determine desired Order Status (but don't apply yet - need to add items first)
             var desiredStatus = OrderStatus.Open;

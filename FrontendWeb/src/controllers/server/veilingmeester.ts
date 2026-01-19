@@ -13,6 +13,7 @@ import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutput
 import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
 import {MeesterStatsOutputDto} from '../../declarations/dtos/output/MeesterStatsOutputDto';
+import {OrderKwekerOutputDto} from '../../declarations/dtos/output/OrderKwekerOutputDto';
 
 // Create veilingmeester account (POST /api/account/meester/create)
 export async function createVeilingmeesterAccount(account: CreateMeesterDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -45,8 +46,8 @@ export async function updateOrderProduct(orderId: string, productItemId: string,
 }
 
 // Get order (GET /api/account/meester/order/{orderId})
-export async function getOrder(orderId: string): Promise<HttpSuccess<OrderOutputDto>> {
-	return fetchResponse<HttpSuccess<OrderOutputDto>>(`/api/account/meester/order/${orderId}`);
+export async function getOrder(orderId: string): Promise<HttpSuccess<OrderKwekerOutputDto>> {
+	return fetchResponse<HttpSuccess<OrderKwekerOutputDto>>(`/api/account/meester/order/${orderId}`);
 }
 
 // Update order status (PUT /api/account/meester/order/{orderId}/status?status=)

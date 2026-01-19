@@ -90,10 +90,9 @@ public class MeesterController : ControllerBase
     [HttpGet("order/{orderId}")]
     public async Task<IActionResult> GetOrder(Guid orderId)
     {
-        var (accountId, _) = GetUserClaim.GetInfo(User);
-        var query = new GetOrderCommand(orderId, accountId);
+        var query = new GetMeesterOrderCommand(orderId);
         var result = await _mediator.Send(query);
-        return HttpSuccess<OrderDetailsOutputDto>.Ok(result);
+        return HttpSuccess<OrderKwekerOutputDto>.Ok(result);
     }
 
     [HttpPost("order/{orderId}/status")]

@@ -82,7 +82,7 @@ public class KwekerController : ControllerBase
         var (kwekerId, _) = GetUserClaim.GetInfo(User);
         var query = new GetKwekerOrderCommand(orderId, kwekerId);
         var result = await _mediator.Send(query);
-        return HttpSuccess<OrderKwekerOutput>.Ok(result);
+        return HttpSuccess<OrderKwekerOutputDto>.Ok(result);
     }
 
     [HttpGet("orders")]
@@ -110,7 +110,7 @@ public class KwekerController : ControllerBase
             pageSize
         );
         var result = await _mediator.Send(command);
-        return HttpSuccess<PaginatedOutputDto<OrderKwekerOutput>>.Ok(result);
+        return HttpSuccess<PaginatedOutputDto<OrderKwekerOutputDto>>.Ok(result);
     }
 
     [HttpPost("order/{orderId}/status")]

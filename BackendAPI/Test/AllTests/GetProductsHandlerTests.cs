@@ -13,7 +13,7 @@ internal sealed class FakeProductRepository : IProductRepository
 
     public FakeProductRepository()
     {
-        var kweker = new KwekerInfo(Guid.NewGuid(), "TestKweker");
+        var kweker = new KwekerInfo(Guid.NewGuid(), "TestKweker", "123", "test@test.com");
 
         _items.Add(
             (
@@ -23,7 +23,7 @@ internal sealed class FakeProductRepository : IProductRepository
                     Description = "Rode rozen",
                     ImageUrl = "image1",
                     Dimension = "M",
-                    KwekerId = kweker.Id
+                    KwekerId = kweker.Id,
                 },
                 kweker
             )
@@ -37,22 +37,19 @@ internal sealed class FakeProductRepository : IProductRepository
                     Description = "Gele tulpen",
                     ImageUrl = "image2",
                     Dimension = "S",
-                    KwekerId = kweker.Id
+                    KwekerId = kweker.Id,
                 },
                 kweker
             )
         );
     }
 
-
     public Task AddAsync(Product product)
     {
         return Task.CompletedTask;
     }
 
-    public void Update(Product product)
-    {
-    }
+    public void Update(Product product) { }
 
     public Task DeleteAsync(Guid productId)
     {
@@ -116,7 +113,7 @@ internal sealed class FakeProductRepository : IProductRepository
     public Task<(
         IEnumerable<(Product Product, KwekerInfo Kweker)> Items,
         int TotalCount
-        )> GetAllWithFilterAsync(
+    )> GetAllWithFilterAsync(
         string? nameFilter,
         string? regionFilter,
         decimal? maxPrice,
@@ -170,10 +167,7 @@ public class GetProductsHandlerTests
         var query = new GetProductsQuery(null, null, null, null, null, 1, 10);
 
         // Act
-        var result = await handler.Handle(
-            query,
-            CancellationToken.None
-        );
+        var result = await handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.Equal(2, result.TotalCount);
@@ -188,10 +182,7 @@ public class GetProductsHandlerTests
         var handler = new GetProductsHandler(repo);
         var query = new GetProductsQuery("Rozen", null, null, null, null, 1, 10);
 
-        var result = await handler.Handle(
-            query,
-            CancellationToken.None
-        );
+        var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.Equal(1, result.TotalCount);
         Assert.Single(result.Data);
@@ -205,10 +196,7 @@ public class GetProductsHandlerTests
         var handler = new GetProductsHandler(repo);
         var query = new GetProductsQuery("Onbekend", null, null, null, null, 1, 10);
 
-        var result = await handler.Handle(
-            query,
-            CancellationToken.None
-        );
+        var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.Equal(0, result.TotalCount);
         Assert.Empty(result.Data);
@@ -221,10 +209,7 @@ public class GetProductsHandlerTests
         var handler = new GetProductsHandler(repo);
         var query = new GetProductsQuery(null, null, null, null, null, 2, 5);
 
-        var result = await handler.Handle(
-            query,
-            CancellationToken.None
-        );
+        var result = await handler.Handle(query, CancellationToken.None);
 
         Assert.Equal(2, result.Page);
         Assert.Equal(5, result.Limit);

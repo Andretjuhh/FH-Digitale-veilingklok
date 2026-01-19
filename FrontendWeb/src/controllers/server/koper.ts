@@ -1,24 +1,24 @@
-import {fetchResponse} from '../../utils/fetchHelpers';
-import {HttpSuccess} from '../../declarations/types/HttpSuccess';
-import {CreateKoperDTO} from '../../declarations/dtos/input/CreateKoperDTO';
-import {UpdateKoperDTO} from '../../declarations/dtos/input/UpdateKoperDTO';
-import {AddressInputDTO} from '../../declarations/dtos/input/AddressInputDTO';
-import {CreateOrderDTO} from '../../declarations/dtos/input/CreateOrderDTO';
-import {AddressOutputDto} from '../../declarations/dtos/output/AddressOutputDto';
-import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
-import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
-import {OrderOutputDto} from '../../declarations/dtos/output/OrderOutputDto';
-import {OrderDetailsOutputDto} from '../../declarations/dtos/output/OrderDetailsOutputDto';
-import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
-import {OrderItemOutputDto} from '../../declarations/dtos/output/OrderItemOutputDto';
-import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
-import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
-import {PriceHistoryItemOutputDto} from '../../declarations/dtos/output/PriceHistoryItemOutputDto';
-import {KwekerAveragePriceOutputDto} from '../../declarations/dtos/output/KwekerAveragePriceOutputDto';
-import {OverallAveragePriceOutputDto} from '../../declarations/dtos/output/OverallAveragePriceOutputDto';
-import {VeilingKlokStatus} from "../../declarations/enums/VeilingKlokStatus";
-import {KoperStatsOutputDto} from '../../declarations/dtos/output/KoperStatsOutputDto';
-import {KoperVeilingStatsOutputDto} from '../../declarations/dtos/output/KoperVeilingStatsOutputDto';
+import { fetchResponse } from '../../utils/fetchHelpers';
+import { HttpSuccess } from '../../declarations/types/HttpSuccess';
+import { CreateKoperDTO } from '../../declarations/dtos/input/CreateKoperDTO';
+import { UpdateKoperDTO } from '../../declarations/dtos/input/UpdateKoperDTO';
+import { AddressInputDTO } from '../../declarations/dtos/input/AddressInputDTO';
+import { CreateOrderDTO } from '../../declarations/dtos/input/CreateOrderDTO';
+import { AddressOutputDto } from '../../declarations/dtos/output/AddressOutputDto';
+import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
+import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
+import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
+import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
+import { OrderProductOutputDto } from '../../declarations/dtos/output/OrderProductOutputDto';
+import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import { PriceHistoryItemOutputDto } from '../../declarations/dtos/output/PriceHistoryItemOutputDto';
+import { KwekerAveragePriceOutputDto } from '../../declarations/dtos/output/KwekerAveragePriceOutputDto';
+import { OverallAveragePriceOutputDto } from '../../declarations/dtos/output/OverallAveragePriceOutputDto';
+import { VeilingKlokStatus } from '../../declarations/enums/VeilingKlokStatus';
+import { KoperStatsOutputDto } from '../../declarations/dtos/output/KoperStatsOutputDto';
+import { KoperVeilingStatsOutputDto } from '../../declarations/dtos/output/KoperVeilingStatsOutputDto';
+import { OrderKoperOutputDto } from '../../declarations/dtos/output/OrderKoperOutputDto';
 
 // Create koper account (POST /api/account/koper/create)
 export async function createKoperAccount(account: CreateKoperDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -74,8 +74,8 @@ export async function createOrder(order: CreateOrderDTO): Promise<HttpSuccess<Or
 }
 
 // Get order (GET /api/account/koper/order/{orderId})
-export async function getOrder(orderId: string): Promise<HttpSuccess<OrderDetailsOutputDto>> {
-	return fetchResponse<HttpSuccess<OrderDetailsOutputDto>>(`/api/account/koper/order/${orderId}`);
+export async function getOrder(orderId: string): Promise<HttpSuccess<OrderKoperOutputDto>> {
+	return fetchResponse<HttpSuccess<OrderKoperOutputDto>>(`/api/account/koper/order/${orderId}`);
 }
 
 // Get orders (GET /api/account/koper/orders)
@@ -91,8 +91,8 @@ export async function getOrders(status?: string, beforeDate?: string, afterDate?
 }
 
 // Order product (POST /api/account/koper/order/{orderId}/product)
-export async function orderProduct(orderId: string, productId: string, quantity: number): Promise<HttpSuccess<OrderItemOutputDto>> {
-	return fetchResponse<HttpSuccess<OrderItemOutputDto>>(`/api/account/koper/order/${orderId}/product?productId=${productId}&quantity=${quantity}`, {
+export async function orderProduct(orderId: string, productId: string, quantity: number): Promise<HttpSuccess<OrderProductOutputDto>> {
+	return fetchResponse<HttpSuccess<OrderProductOutputDto>>(`/api/account/koper/order/${orderId}/product?productId=${productId}&quantity=${quantity}`, {
 		method: 'POST',
 	});
 }
@@ -115,27 +115,27 @@ export async function getProducts(nameFilter?: string, regionFilter?: string, ma
 	return fetchResponse<HttpSuccess<PaginatedOutputDto<ProductOutputDto>>>(`/api/account/koper/products?${params.toString()}`);
 }
 
-// Get kweker price history (GET /api/account/koper/prices/kweker/{kwekerId})
+// Get kweker price history (GET /api/account/koper/kweker/{kwekerId}/price-history)
 export async function getKwekerPriceHistory(kwekerId: string, limit: number = 10): Promise<HttpSuccess<PriceHistoryItemOutputDto[]>> {
-	return fetchResponse<HttpSuccess<PriceHistoryItemOutputDto[]>>(`/api/account/koper/prices/kweker/${kwekerId}?limit=${limit}`);
+	return fetchResponse<HttpSuccess<PriceHistoryItemOutputDto[]>>(`/api/account/koper/kweker/${kwekerId}/price-history?limit=${limit}`);
 }
 
-// Get kweker average price (GET /api/account/koper/prices/kweker/{kwekerId}/average)
+// Get kweker average price (GET /api/account/koper/kweker/{kwekerId}/average-price)
 export async function getKwekerAveragePrice(kwekerId: string, limit?: number): Promise<HttpSuccess<KwekerAveragePriceOutputDto>> {
 	const params = new URLSearchParams();
 	if (limit !== undefined) params.append('limit', limit.toString());
 	const query = params.toString();
-	return fetchResponse<HttpSuccess<KwekerAveragePriceOutputDto>>(`/api/account/koper/prices/kweker/${kwekerId}/average${query ? `?${query}` : ''}`);
+	return fetchResponse<HttpSuccess<KwekerAveragePriceOutputDto>>(`/api/account/koper/kweker/${kwekerId}/average-price${query ? `?${query}` : ''}`);
 }
 
-// Get latest prices (GET /api/account/koper/prices/latest)
+// Get latest prices (GET /api/account/koper/product/latest-prices)
 export async function getLatestPrices(limit: number = 10): Promise<HttpSuccess<PriceHistoryItemOutputDto[]>> {
-	return fetchResponse<HttpSuccess<PriceHistoryItemOutputDto[]>>(`/api/account/koper/prices/latest?limit=${limit}`);
+	return fetchResponse<HttpSuccess<PriceHistoryItemOutputDto[]>>(`/api/account/koper/product/latest-prices?limit=${limit}`);
 }
 
-// Get overall average price (GET /api/account/koper/prices/average)
+// Get overall average price (GET /api/account/koper/product/overall-average-price)
 export async function getOverallAveragePrice(): Promise<HttpSuccess<OverallAveragePriceOutputDto>> {
-	return fetchResponse<HttpSuccess<OverallAveragePriceOutputDto>>('/api/account/koper/prices/average');
+	return fetchResponse<HttpSuccess<OverallAveragePriceOutputDto>>('/api/account/koper/product/overall-average-price');
 }
 
 // Get veilingklok (GET /api/account/koper/veilingklok/{klokId})
@@ -160,4 +160,3 @@ export async function getVeilingKlokken(statusFilter?: VeilingKlokStatus, region
 
 	return fetchResponse<HttpSuccess<PaginatedOutputDto<VeilingKlokOutputDto>>>(`/api/account/koper/veilingklokken?${params.toString()}`);
 }
-

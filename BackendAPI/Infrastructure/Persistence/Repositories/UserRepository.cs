@@ -48,17 +48,12 @@ public class UserRepository : IUserRepository
         if (softDelete)
         {
             account.SoftDelete();
+            account.LockoutEnd = DateTimeOffset.MaxValue; // Prevent logging in
             _dbContext.Users.Update(account);
         }
         else
         {
             // Hard delete: remove all related entities first in the correct order
-
-            // 1. Remove refresh tokens (should cascade, but doing explicitly to be safe)
-            if (account.RefreshTokens.Any())
-            {
-                _dbContext.RefreshTokens.RemoveRange(account.RefreshTokens);
-            }
 
             // 2. If this is a Veilingmeester, remove all VeilingKlok entities
             var veilingKlokken = await _dbContext
@@ -66,9 +61,7 @@ public class UserRepository : IUserRepository
                 .ToListAsync();
 
             if (veilingKlokken.Any())
-            {
                 _dbContext.Veilingklokken.RemoveRange(veilingKlokken);
-            }
 
             // 3. If this is a Kweker, remove all products (and their related data)
             var products = await _dbContext.Products.Where(p => p.KwekerId == id).ToListAsync();
@@ -82,9 +75,7 @@ public class UserRepository : IUserRepository
                     .ToListAsync();
 
                 if (orderItems.Any())
-                {
                     _dbContext.OrderItems.RemoveRange(orderItems);
-                }
 
                 // Then remove the products themselves
                 _dbContext.Products.RemoveRange(products);
@@ -99,12 +90,9 @@ public class UserRepository : IUserRepository
             if (orders.Any())
             {
                 foreach (var order in orders)
-                {
                     if (order.OrderItems.Any())
-                    {
                         _dbContext.OrderItems.RemoveRange(order.OrderItems);
-                    }
-                }
+
                 _dbContext.Orders.RemoveRange(orders);
             }
 
@@ -121,9 +109,7 @@ public class UserRepository : IUserRepository
             var addresses = await _dbContext.Addresses.Where(a => a.AccountId == id).ToListAsync();
 
             if (addresses.Any())
-            {
                 _dbContext.Addresses.RemoveRange(addresses);
-            }
 
             // 6. Finally, remove the account itself
             _dbContext.Users.Remove(account);

@@ -1,6 +1,6 @@
-﻿using Application.DTOs.Output;
+﻿using Application.Common.Mappers;
+using Application.DTOs.Output;
 using Application.Repositories;
-using Application.Common.Mappers;
 using Domain.Enums;
 using MediatR;
 
@@ -15,22 +15,23 @@ public sealed record GetKwekerOrdersCommand(
     DateTime? AfterDate = null,
     Guid? ProductId = null,
     int PageNumber = 1,
-    int PageSize = 10)
-    : IRequest<PaginatedOutputDto<OrderKwekerOutput>>;
+    int PageSize = 10
+) : IRequest<PaginatedOutputDto<OrderKwekerOutputDto>>;
 
-public class GetKwekerOrdersHandler : IRequestHandler<GetKwekerOrdersCommand, PaginatedOutputDto<OrderKwekerOutput>>
+public class GetKwekerOrdersHandler
+    : IRequestHandler<GetKwekerOrdersCommand, PaginatedOutputDto<OrderKwekerOutputDto>>
 {
     private readonly IOrderRepository _orderRepository;
-
 
     public GetKwekerOrdersHandler(IOrderRepository orderRepository)
     {
         _orderRepository = orderRepository;
     }
 
-    public async Task<PaginatedOutputDto<OrderKwekerOutput>> Handle(
+    public async Task<PaginatedOutputDto<OrderKwekerOutputDto>> Handle(
         GetKwekerOrdersCommand request,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         // Use the optimized repository method with filters
         var (orderData, totalCount) = await _orderRepository.GetAllKwekerWithFilterAsync(
@@ -42,14 +43,13 @@ public class GetKwekerOrdersHandler : IRequestHandler<GetKwekerOrdersCommand, Pa
             request.ProductId,
             request.KwekerId,
             request.PageNumber,
-            request.PageSize);
+            request.PageSize
+        );
 
         // Map the results using the optimized mapper
-        var result = orderData
-            .Select(OrderMapper.KwekerOrders.ToOutputDto)
-            .ToList();
+        var result = orderData.Select(x => OrderMapper.KwekerOrders.ToOutputDto(x)).ToList();
 
-        return new PaginatedOutputDto<OrderKwekerOutput>
+        return new PaginatedOutputDto<OrderKwekerOutputDto>
         {
             Page = request.PageNumber,
             Limit = request.PageSize,

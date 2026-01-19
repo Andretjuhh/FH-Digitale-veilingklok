@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Infrastructure.Persistence.Data;
 using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,8 @@ public static class AuthenticationExtension
 {
     public static IServiceCollection AddAuthenticationSecurity(
         this IServiceCollection services,
-        IConfiguration configuration
+        IConfiguration configuration,
+        bool isDevelopment
     )
     {
         services.AddAuthorization();
@@ -21,6 +23,15 @@ public static class AuthenticationExtension
             .AddIdentityApiEndpoints<Account>()
             .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<AppDbContext>();
+
+        if (isDevelopment)
+        {
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
+        }
 
         return services;
     }

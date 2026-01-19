@@ -14,4 +14,5 @@ public class ProductOutputDto
     public required int Stock { get; set; }
     public required string CompanyName { get; set; }
     public required bool AuctionPlanned { get; set; }
+    public required string KwekerId { get; set; }
 }

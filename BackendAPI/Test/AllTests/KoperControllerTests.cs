@@ -1,12 +1,14 @@
 using System.Security.Claims;
 using API.Controllers;
 using API.Models;
+using Application.Common.Models;
 using Application.DTOs.Input;
 using Application.DTOs.Output;
 using Application.UseCases.Account;
 using Application.UseCases.Order;
 using Application.UseCases.Product;
 using Application.UseCases.VeilingKlok;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -45,14 +47,14 @@ public class KoperControllerTests
     {
         var mediator = new FakeMediator();
         var koperId = Guid.NewGuid();
-        var koper = new global::Domain.Entities.Koper("koper@example.com")
+        var koper = new Koper("koper@example.com")
         {
             Id = koperId,
             FirstName = "First",
             LastName = "Last",
             Telephone = "1234567890",
         };
-        mediator.RegisterResponse<CreateKoperCommand, global::Domain.Entities.Koper>(koper);
+        mediator.RegisterResponse<CreateKoperCommand, Koper>(koper);
 
         var controller = CreateController(mediator);
 
@@ -192,6 +194,12 @@ public class KoperControllerTests
             Status = OrderStatus.Open,
             TotalAmount = 10,
             TotalItems = 1,
+            ClosedAt = null,
+            ProductId = Guid.NewGuid(),
+            ProductName = "Product",
+            ProductDescription = "Desc",
+            ProductImageUrl = "Img",
+            CompanyName = "Test Company",
         };
         mediator.RegisterResponse<CreateOrderCommand, OrderOutputDto>(orderResult);
 
@@ -212,16 +220,26 @@ public class KoperControllerTests
     public async Task GetOrder_WithKoperClaims_ReturnsOrderDetailsInHttpSuccess()
     {
         var mediator = new FakeMediator();
-        var details = new OrderDetailsOutputDto
+        var details = new OrderKoperOutputDto
         {
             Id = Guid.NewGuid(),
+            ClosedAt = null,
             CreatedAt = DateTimeOffset.UtcNow,
             Status = OrderStatus.Open,
-            TotalAmount = 20,
-            TotalItems = 2,
-            Products = new List<OrderItemOutputDto>(),
+            TotalPrice = 20,
+            Quantity = 2,
+            Products = new List<OrderProductOutputDto>(),
+            KwekerInfo = new KwekerInfo(Guid.NewGuid(), "Test Company", "123", "test@test.com"),
+            KoperInfo = new KoperInfo(
+                Guid.NewGuid(),
+                "a@b.c",
+                "F",
+                "L",
+                "123",
+                new Address("S", "1", "Z", "C", "C")
+            ),
         };
-        mediator.RegisterResponse<GetOrderCommand, OrderDetailsOutputDto>(details);
+        mediator.RegisterResponse<GetKoperOrderCommand, OrderKoperOutputDto>(details);
 
         var controller = CreateController(mediator);
         var accountId = Guid.NewGuid();
@@ -229,7 +247,7 @@ public class KoperControllerTests
 
         var result = await controller.GetOrder(Guid.NewGuid());
 
-        var success = Assert.IsType<HttpSuccess<OrderDetailsOutputDto>>(result);
+        var success = Assert.IsType<HttpSuccess<OrderKoperOutputDto>>(result);
         Assert.Equal(StatusCodes.Status200OK, success.StatusCode);
     }
 
@@ -260,7 +278,7 @@ public class KoperControllerTests
     public async Task OrderProduct_WithKoperClaims_ReturnsCreatedOrderItemInHttpSuccess()
     {
         var mediator = new FakeMediator();
-        var item = new OrderItemOutputDto
+        var item = new OrderProductOutputDto
         {
             ProductId = Guid.NewGuid(),
             ProductName = "Product",
@@ -270,8 +288,9 @@ public class KoperControllerTests
             Quantity = 1,
             PriceAtPurchase = 10,
             OrderedAt = DateTimeOffset.UtcNow,
+            MinimalPrice = null,
         };
-        mediator.RegisterResponse<CreateOrderProductCommand, OrderItemOutputDto>(item);
+        mediator.RegisterResponse<CreateOrderProductCommand, OrderProductOutputDto>(item);
 
         var controller = CreateController(mediator);
         var accountId = Guid.NewGuid();
@@ -279,7 +298,7 @@ public class KoperControllerTests
 
         var result = await controller.OrderProduct(Guid.NewGuid(), Guid.NewGuid(), 1);
 
-        var success = Assert.IsType<HttpSuccess<OrderItemOutputDto>>(result);
+        var success = Assert.IsType<HttpSuccess<OrderProductOutputDto>>(result);
         Assert.Equal(StatusCodes.Status200OK, success.StatusCode);
         Assert.Equal("Product ordered successfully", success.Message);
     }
@@ -302,6 +321,7 @@ public class KoperControllerTests
             Stock = 10,
             CompanyName = "Company",
             AuctionPlanned = false,
+            KwekerId = Guid.NewGuid().ToString(),
         };
         mediator.RegisterResponse<GetProductCommand, ProductOutputDto>(product);
 

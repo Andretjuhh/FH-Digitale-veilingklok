@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {useRootContext} from '../../contexts/RootContext';
 import {getOrders, getProducts} from '../../../controllers/server/kweker';
-import {OrderKwekerOutput} from '../../../declarations/dtos/output/OrderKwekerOutput';
+import {OrderKwekerOutputDto} from '../../../declarations/dtos/output/OrderKwekerOutputDto';
 import {ProductOutputDto} from '../../../declarations/dtos/output/ProductOutputDto';
 import {OrderStatus} from '../../../declarations/enums/OrderStatus';
 
 export function RecentOrdersSection() {
 	const {t} = useRootContext();
-	const [orders, setOrders] = useState<OrderKwekerOutput[]>([]);
+	const [orders, setOrders] = useState<OrderKwekerOutputDto[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
@@ -29,14 +29,14 @@ export function RecentOrdersSection() {
 
 	const getOrderStatusBadge = (status: OrderStatus) => {
 		const statusMap = {
-			[OrderStatus.Open]: { class: 'badge-info', text: 'Open' },
-			[OrderStatus.Processing]: { class: 'badge-warning', text: 'In behandeling' },
-			[OrderStatus.Processed]: { class: 'badge-success', text: 'Verwerkt' },
-			[OrderStatus.Delivered]: { class: 'badge-success', text: 'Geleverd' },
-			[OrderStatus.Cancelled]: { class: 'badge-danger', text: 'Geannuleerd' },
-			[OrderStatus.Returned]: { class: 'badge-warning', text: 'Geretourneerd' },
+			[OrderStatus.Open]: {class: 'badge-info', text: 'Open'},
+			[OrderStatus.Processing]: {class: 'badge-warning', text: 'In behandeling'},
+			[OrderStatus.Processed]: {class: 'badge-success', text: 'Verwerkt'},
+			[OrderStatus.Delivered]: {class: 'badge-success', text: 'Geleverd'},
+			[OrderStatus.Cancelled]: {class: 'badge-danger', text: 'Geannuleerd'},
+			[OrderStatus.Returned]: {class: 'badge-warning', text: 'Geretourneerd'},
 		};
-		return statusMap[status] || { class: 'badge-secondary', text: 'Onbekend' };
+		return statusMap[status] || {class: 'badge-secondary', text: 'Onbekend'};
 	};
 
 	if (loading) {
@@ -56,7 +56,7 @@ export function RecentOrdersSection() {
 					Alle bestellingen <i className="bi bi-arrow-right"></i>
 				</a>
 			</div>
-			
+
 			{orders.length === 0 ? (
 				<div className="empty-state">
 					<i className="bi bi-inbox" style={{fontSize: '3rem', opacity: 0.3}}></i>
@@ -68,7 +68,7 @@ export function RecentOrdersSection() {
 						<div key={order.id} className="order-card">
 							<div className="order-header">
 								<div className="order-info">
-									<h3 className="order-product-name">{order.product.name}</h3>
+									<h3 className="order-product-name">{order.products[0].productName}</h3>
 									<p className="order-buyer">
 										<i className="bi bi-person"></i> {order.koperInfo.firstName} {order.koperInfo.lastName}
 									</p>
@@ -152,8 +152,8 @@ export function ProductsOverviewSection() {
 					{products.map((product) => (
 						<div key={product.id} className="product-card">
 							<div className="product-image-wrapper">
-								<img 
-									src={product.imageUrl || '/pictures/placeholder.jpg'} 
+								<img
+									src={product.imageUrl || '/pictures/placeholder.jpg'}
 									alt={product.name}
 									className="product-image"
 								/>

@@ -16,10 +16,10 @@ public sealed record CreateOrderProductCommand(
     Guid OrderId,
     Guid ProductId,
     int Quantity
-) : IRequest<OrderItemOutputDto>;
+) : IRequest<OrderProductOutputDto>;
 
 public sealed class OrderProductHandler
-    : IRequestHandler<CreateOrderProductCommand, OrderItemOutputDto>
+    : IRequestHandler<CreateOrderProductCommand, OrderProductOutputDto>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOrderRepository _orderRepository;
@@ -39,7 +39,7 @@ public sealed class OrderProductHandler
         _veilingKlokEngine = veilingKlokEngine;
     }
 
-    public async Task<OrderItemOutputDto> Handle(
+    public async Task<OrderProductOutputDto> Handle(
         CreateOrderProductCommand request,
         CancellationToken cancellationToken
     )

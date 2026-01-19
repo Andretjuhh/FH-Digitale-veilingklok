@@ -1,22 +1,22 @@
-import { fetchResponse } from '../../utils/fetchHelpers';
-import { HttpSuccess } from '../../declarations/types/HttpSuccess';
-import { CreateKwekerDTO } from '../../declarations/dtos/input/CreateKwekerDTO';
-import { UpdateKwekerDTO } from '../../declarations/dtos/input/UpdateKwekerDTO';
-import { CreateProductDTO } from '../../declarations/dtos/input/CreateProductDTO';
-import { UpdateProductDTO } from '../../declarations/dtos/input/UpdateProductDTO';
-import { AuthOutputDto } from '../../declarations/dtos/output/AuthOutputDto';
-import { AccountOutputDto } from '../../declarations/dtos/output/AccountOutputDto';
-import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
-import { OrderKwekerOutput } from '../../declarations/dtos/output/OrderKwekerOutput';
-import { ProductDetailsOutputDto } from '../../declarations/dtos/output/ProductDetailsOutputDto';
-import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
-import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
-import { VeilingKlokOutputDto } from '../../declarations/dtos/output/VeilingKlokOutputDto';
-import { KwekerStatsOutputDto } from '../../declarations/dtos/output/KwekerStatsOutputDto';
-import { KwekerProductStatsOutputDto } from '../../declarations/dtos/output/KwekerProductStatsOutputDto';
-import { KwekerOrderStatsOutputDto } from '../../declarations/dtos/output/KwekerOrderStatsOutputDto';
-import { OrderStatus } from '../../declarations/enums/OrderStatus';
-import { getOrderStatusString } from '../../utils/standards';
+import {fetchResponse} from '../../utils/fetchHelpers';
+import {HttpSuccess} from '../../declarations/types/HttpSuccess';
+import {CreateKwekerDTO} from '../../declarations/dtos/input/CreateKwekerDTO';
+import {UpdateKwekerDTO} from '../../declarations/dtos/input/UpdateKwekerDTO';
+import {CreateProductDTO} from '../../declarations/dtos/input/CreateProductDTO';
+import {UpdateProductDTO} from '../../declarations/dtos/input/UpdateProductDTO';
+import {AuthOutputDto} from '../../declarations/dtos/output/AuthOutputDto';
+import {AccountOutputDto} from '../../declarations/dtos/output/AccountOutputDto';
+import {OrderOutputDto} from '../../declarations/dtos/output/OrderOutputDto';
+import {OrderKwekerOutputDto} from '../../declarations/dtos/output/OrderKwekerOutputDto';
+import {ProductDetailsOutputDto} from '../../declarations/dtos/output/ProductDetailsOutputDto';
+import {PaginatedOutputDto} from '../../declarations/dtos/output/PaginatedOutputDto';
+import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
+import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
+import {KwekerStatsOutputDto} from '../../declarations/dtos/output/KwekerStatsOutputDto';
+import {KwekerProductStatsOutputDto} from '../../declarations/dtos/output/KwekerProductStatsOutputDto';
+import {KwekerOrderStatsOutputDto} from '../../declarations/dtos/output/KwekerOrderStatsOutputDto';
+import {OrderStatus} from '../../declarations/enums/OrderStatus';
+import {getOrderStatusString} from '../../utils/standards';
 
 // Create kweker account (POST /api/account/kweker/create)
 export async function createKwekerAccount(account: CreateKwekerDTO): Promise<HttpSuccess<AuthOutputDto>> {
@@ -42,12 +42,12 @@ export async function updateOrderProduct(orderId: string, productItemId: string,
 }
 
 // Get order (GET /api/account/kweker/order/{orderId})
-export async function getOrder(orderId: string): Promise<HttpSuccess<OrderKwekerOutput>> {
-	return fetchResponse<HttpSuccess<OrderKwekerOutput>>(`/api/account/kweker/order/${orderId}`);
+export async function getOrder(orderId: string): Promise<HttpSuccess<OrderKwekerOutputDto>> {
+	return fetchResponse<HttpSuccess<OrderKwekerOutputDto>>(`/api/account/kweker/order/${orderId}`);
 }
 
 // Get orders (GET /api/account/kweker/orders)
-export async function getOrders(productNameFilter?: string, koperNameFilter?: string, statusFilter?: string, beforeDate?: string, afterDate?: string, productId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<OrderKwekerOutput>>> {
+export async function getOrders(productNameFilter?: string, koperNameFilter?: string, statusFilter?: string, beforeDate?: string, afterDate?: string, productId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<OrderKwekerOutputDto>>> {
 	const params = new URLSearchParams();
 	if (productNameFilter) params.append('productNameFilter', productNameFilter);
 	if (koperNameFilter) params.append('koperNameFilter', koperNameFilter);
@@ -58,7 +58,7 @@ export async function getOrders(productNameFilter?: string, koperNameFilter?: st
 	params.append('pageNumber', pageNumber.toString());
 	params.append('pageSize', pageSize.toString());
 
-	return fetchResponse<HttpSuccess<PaginatedOutputDto<OrderKwekerOutput>>>(`/api/account/kweker/orders?${params.toString()}`);
+	return fetchResponse<HttpSuccess<PaginatedOutputDto<OrderKwekerOutputDto>>>(`/api/account/kweker/orders?${params.toString()}`);
 }
 
 // Update order status (PUT /api/account/kweker/order/{orderId}/status?status=)

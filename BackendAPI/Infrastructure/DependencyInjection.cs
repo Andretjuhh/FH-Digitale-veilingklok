@@ -1,16 +1,12 @@
-using System.Text;
-using System.Text.Json.Serialization;
-using Application.Common.Exceptions;
-using Application.Repositories;
 using Application.Services;
-using Domain.Interfaces;
 using Infrastructure.Extensions;
 using Infrastructure.Persistence.Data;
-using Infrastructure.Persistence.Repositories;
 using Infrastructure.Persistence.Seeders;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Infrastructure;
 
@@ -18,12 +14,13 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration
+        IConfiguration configuration,
+        IWebHostEnvironment environment
     )
     {
         // This makes HttpContext available throughout your application's request pipeline.
         services.AddHttpContextAccessor();
-        services.AddAuthenticationSecurity(configuration);
+        services.AddAuthenticationSecurity(configuration, environment.IsDevelopment());
 
         // Get app.json configurations
         services.AddScoped<IUnitOfWork, UnitOfWork>();

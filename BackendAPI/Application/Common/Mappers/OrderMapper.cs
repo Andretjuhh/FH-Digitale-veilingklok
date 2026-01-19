@@ -6,91 +6,56 @@ using Domain.Entities;
 
 namespace Application.Common.Mappers;
 
-public class OrderMapper : IBaseMapper<Order, OrderOutputDto>
+public class OrderMapper : IBaseMapper<Order, List<OrderProductInfo>, OrderOutputDto>
 {
-    public static Expression<Func<Order, OrderOutputDto>> EntityDto =>
-        entity => new OrderOutputDto
-        {
-            Id = entity.Id,
-            CreatedAt = entity.CreatedAt,
-            Status = entity.Status,
-            ClosedAt = entity.ClosedAt,
-            TotalAmount = entity.OrderItems.Sum(oi => oi.Quantity * oi.PriceAtPurchase),
-            TotalItems = entity.OrderItems.Sum(oi => oi.Quantity)
-        };
+    public static Expression<Func<Order, List<OrderProductInfo>, OrderOutputDto>> EntityDto =>
+        (entity, products) =>
+            new OrderOutputDto
+            {
+                Id = entity.Id,
+                CreatedAt = entity.CreatedAt,
+                Status = entity.Status,
+                ClosedAt = entity.ClosedAt,
+                TotalAmount = products.Sum(oi => oi.Quantity * oi.PriceAtPurchase),
+                TotalItems = products.Sum(oi => oi.Quantity),
+                ProductId = products.Select(oi => oi.ProductId).FirstOrDefault(),
+                ProductName =
+                    products.Select(oi => oi.ProductName).FirstOrDefault() ?? string.Empty,
+                ProductDescription =
+                    products.Select(oi => oi.ProductDescription).FirstOrDefault() ?? string.Empty,
+                ProductImageUrl =
+                    products.Select(oi => oi.ProductImageUrl).FirstOrDefault() ?? string.Empty,
+                CompanyName =
+                    products.Select(oi => oi.CompanyName).FirstOrDefault() ?? string.Empty,
+            };
 
-    public static OrderOutputDto ToOutputDto(Order entity)
+    public static OrderOutputDto ToOutputDto(Order entity, List<OrderProductInfo> products)
     {
+        var firstItem = products.FirstOrDefault();
+
         return new OrderOutputDto
         {
             Id = entity.Id,
             CreatedAt = entity.CreatedAt,
             Status = entity.Status,
             ClosedAt = entity.ClosedAt,
-            TotalAmount = entity.OrderItems.Sum(oi => oi.Quantity * oi.PriceAtPurchase),
-            TotalItems = entity.OrderItems.Sum(oi => oi.Quantity)
+            TotalAmount = products.Sum(oi => oi.Quantity * oi.PriceAtPurchase),
+            TotalItems = products.Sum(oi => oi.Quantity),
+            ProductId = firstItem?.ProductId ?? Guid.Empty,
+            ProductName = firstItem?.ProductName ?? string.Empty,
+            ProductDescription = firstItem?.ProductDescription ?? string.Empty,
+            ProductImageUrl = firstItem?.ProductImageUrl ?? string.Empty,
+            CompanyName = firstItem?.CompanyName ?? string.Empty,
         };
     }
 
-    public class ExtraDetails : IBaseMapper<Order, List<OrderProductInfo>, OrderDetailsOutputDto>
+    public class ItemOrder : IBaseMapper<OrderItem, OrderItemProduct, OrderProductOutputDto>
     {
-        public static Expression<Func<Order, List<OrderProductInfo>, OrderDetailsOutputDto>> EntityDto =>
-            (entity, products) =>
-                new OrderDetailsOutputDto
-                {
-                    Id = entity.Id,
-                    CreatedAt = entity.CreatedAt,
-                    Status = entity.Status,
-                    ClosedAt = entity.ClosedAt,
-                    TotalAmount = entity.OrderItems.Sum(oi => oi.Quantity * oi.PriceAtPurchase),
-                    TotalItems = entity.OrderItems.Sum(oi => oi.Quantity),
-                    Products = products
-                        .Select(p => new OrderItemOutputDto
-                        {
-                            ProductId = p.ProductId,
-                            ProductName = p.ProductName,
-                            ProductDescription = p.ProductDescription,
-                            ProductImageUrl = p.ProductImageUrl,
-                            CompanyName = p.CompanyName,
-                            Quantity = p.Quantity,
-                            PriceAtPurchase = p.PriceAtPurchase,
-                            OrderedAt = entity.CreatedAt
-                        })
-                        .ToList()
-                };
-
-        public static OrderDetailsOutputDto ToOutputDto(Order entity, List<OrderProductInfo> products)
-        {
-            return new OrderDetailsOutputDto
-            {
-                Id = entity.Id,
-                CreatedAt = entity.CreatedAt,
-                Status = entity.Status,
-                ClosedAt = entity.ClosedAt,
-                TotalAmount = entity.OrderItems.Sum(oi => oi.Quantity * oi.PriceAtPurchase),
-                TotalItems = entity.OrderItems.Sum(oi => oi.Quantity),
-                Products = products
-                    .Select(p => new OrderItemOutputDto
-                    {
-                        ProductId = p.ProductId,
-                        ProductName = p.ProductName,
-                        ProductDescription = p.ProductDescription,
-                        ProductImageUrl = p.ProductImageUrl,
-                        CompanyName = p.CompanyName,
-                        Quantity = p.Quantity,
-                        PriceAtPurchase = p.PriceAtPurchase,
-                        OrderedAt = entity.CreatedAt
-                    })
-                    .ToList()
-            };
-        }
-    }
-
-    public class ItemOrder : IBaseMapper<OrderItem, OrderItemProduct, OrderItemOutputDto>
-    {
-        public static Expression<Func<OrderItem, OrderItemProduct, OrderItemOutputDto>> EntityDto =>
+        public static Expression<
+            Func<OrderItem, OrderItemProduct, OrderProductOutputDto>
+        > EntityDto =>
             (entity, product) =>
-                new OrderItemOutputDto
+                new OrderProductOutputDto
                 {
                     ProductId = entity.ProductId,
                     ProductName = product.ProductName,
@@ -99,12 +64,13 @@ public class OrderMapper : IBaseMapper<Order, OrderOutputDto>
                     Quantity = entity.Quantity,
                     PriceAtPurchase = entity.PriceAtPurchase,
                     OrderedAt = entity.CreatedAt,
-                    CompanyName = product.CompanyName
+                    CompanyName = product.CompanyName,
+                    MinimalPrice = null,
                 };
 
-        public static OrderItemOutputDto ToOutputDto(OrderItem entity, OrderItemProduct product)
+        public static OrderProductOutputDto ToOutputDto(OrderItem entity, OrderItemProduct product)
         {
-            return new OrderItemOutputDto
+            return new OrderProductOutputDto
             {
                 ProductId = entity.ProductId,
                 ProductName = product.ProductName,
@@ -113,76 +79,122 @@ public class OrderMapper : IBaseMapper<Order, OrderOutputDto>
                 Quantity = entity.Quantity,
                 PriceAtPurchase = entity.PriceAtPurchase,
                 OrderedAt = entity.CreatedAt,
-                CompanyName = product.CompanyName
+                CompanyName = product.CompanyName,
+                MinimalPrice = null,
             };
         }
     }
 
-    public class OrderKwekerDetails : IBaseMapper<Order, (ProductOutputDto Product, KoperInfoOutputDto KoperInfo),
-        OrderKwekerOutput>
+    public class KwekerOrders
+        : IBaseMapper<
+            (Order Order, List<OrderProductInfo> Products, KoperInfo Koper),
+            OrderKwekerOutputDto
+        >
     {
-        public static
-            Expression<Func<Order, (ProductOutputDto Product, KoperInfoOutputDto KoperInfo), OrderKwekerOutput>>
-            EntityDto =>
-            (entity, data) =>
-                new OrderKwekerOutput
-                {
-                    Id = entity.Id,
-                    CreatedAt = entity.CreatedAt,
-                    Status = entity.Status,
-                    ClosedAt = entity.ClosedAt,
-                    Quantity = entity.OrderItems.Sum(oi => oi.Quantity),
-                    TotalPrice = entity.OrderItems.Sum(oi => oi.Quantity * oi.PriceAtPurchase),
-                    Product = data.Product,
-                    KoperInfo = data.KoperInfo
-                };
+        public static Expression<
+            Func<
+                (Order Order, List<OrderProductInfo> Products, KoperInfo Koper),
+                OrderKwekerOutputDto
+            >
+        > EntityDto => data => ToOutputDto(data);
 
-        public static OrderKwekerOutput ToOutputDto(Order entity,
-            (ProductOutputDto Product, KoperInfoOutputDto KoperInfo) data)
+        public static OrderKwekerOutputDto ToOutputDto(
+            (Order Order, List<OrderProductInfo> Products, KoperInfo Koper) data
+        )
         {
-            return new OrderKwekerOutput
-            {
-                Id = entity.Id,
-                CreatedAt = entity.CreatedAt,
-                Status = entity.Status,
-                ClosedAt = entity.ClosedAt,
-                Quantity = entity.OrderItems.Sum(oi => oi.Quantity),
-                TotalPrice = entity.OrderItems.Sum(oi => oi.Quantity * oi.PriceAtPurchase),
-                Product = data.Product,
-                KoperInfo = data.KoperInfo
-            };
-        }
-    }
-
-    public class KwekerOrders : IBaseMapper<(Order Order, OrderProductInfo OProductInfo, KoperInfo Koper),
-        OrderKwekerOutput>
-    {
-        public static Expression<Func<(Order Order, OrderProductInfo OProductInfo, KoperInfo Koper), OrderKwekerOutput>>
-            EntityDto =>
-            data => new OrderKwekerOutput
+            return new OrderKwekerOutputDto
             {
                 Id = data.Order.Id,
                 CreatedAt = data.Order.CreatedAt,
                 Status = data.Order.Status,
                 ClosedAt = data.Order.ClosedAt,
-                Quantity = data.OProductInfo.Quantity,
-                TotalPrice = data.OProductInfo.PriceAtPurchase * data.OProductInfo.Quantity,
-                Product = ProductMapper.FromOrderInfo.EntityDto.Compile()(data.OProductInfo),
-                KoperInfo = KoperMapper.Info.EntityDto.Compile()(data.Koper)
+                Quantity = data.Products.Sum(l => l.Quantity),
+                TotalPrice = data.Products.Sum(l => l.PriceAtPurchase * l.Quantity),
+                Products = data
+                    .Products.Select(l => new OrderProductOutputDto
+                    {
+                        ProductId = l.ProductId,
+                        ProductName = l.ProductName,
+                        ProductDescription = l.ProductDescription,
+                        ProductImageUrl = l.ProductImageUrl,
+                        CompanyName = l.CompanyName,
+                        MinimalPrice = l.ProductMinimumPrice,
+                        Quantity = l.Quantity,
+                        PriceAtPurchase = l.PriceAtPurchase,
+                        OrderedAt = data.Order.CreatedAt,
+                    })
+                    .ToList(),
+                KoperInfo = KoperMapper.Info.ToOutputDto(data.Koper),
             };
+        }
+    }
 
-        public static OrderKwekerOutput ToOutputDto((Order Order, OrderProductInfo OProductInfo, KoperInfo Koper) data)
-        {
-            return new OrderKwekerOutput
+    public class KoperOrders
+        : IBaseMapper<
+            (Order Order, List<OrderProductInfo> Products, KwekerInfo Kweker, KoperInfo Koper),
+            OrderKoperOutputDto
+        >
+    {
+        public static Expression<
+            Func<
+                (Order Order, List<OrderProductInfo> Products, KwekerInfo Kweker, KoperInfo Koper),
+                OrderKoperOutputDto
+            >
+        > EntityDto =>
+            data => new OrderKoperOutputDto
             {
                 Id = data.Order.Id,
                 CreatedAt = data.Order.CreatedAt,
                 Status = data.Order.Status,
                 ClosedAt = data.Order.ClosedAt,
-                Quantity = data.OProductInfo.Quantity,
-                TotalPrice = data.OProductInfo.PriceAtPurchase * data.OProductInfo.Quantity,
-                Product = ProductMapper.FromOrderInfo.ToOutputDto(data.OProductInfo),
-                KoperInfo = KoperMapper.Info.ToOutputDto(data.Koper)
+                Quantity = data.Products.Sum(l => l.Quantity),
+                TotalPrice = data.Products.Sum(l => l.Quantity * l.PriceAtPurchase),
+                Products = data
+                    .Products.Select(l => new OrderProductOutputDto
+                    {
+                        ProductId = l.ProductId,
+                        ProductName = l.ProductName,
+                        ProductDescription = l.ProductDescription,
+                        ProductImageUrl = l.ProductImageUrl,
+                        CompanyName = l.CompanyName,
+                        MinimalPrice = null, // Hidden for Koper
+                        Quantity = l.Quantity,
+                        PriceAtPurchase = l.PriceAtPurchase,
+                        OrderedAt = data.Order.CreatedAt,
+                    })
+                    .ToList(),
+                KwekerInfo = data.Kweker,
+                KoperInfo = data.Koper,
+            };
+
+        public static OrderKoperOutputDto ToOutputDto(
+            (Order Order, List<OrderProductInfo> Products, KwekerInfo Kweker, KoperInfo Koper) data
+        )
+        {
+            return new OrderKoperOutputDto
+            {
+                Id = data.Order.Id,
+                CreatedAt = data.Order.CreatedAt,
+                Status = data.Order.Status,
+                ClosedAt = data.Order.ClosedAt,
+                Quantity = data.Products.Sum(l => l.Quantity),
+                TotalPrice = data.Products.Sum(l => l.Quantity * l.PriceAtPurchase),
+                Products = data
+                    .Products.Select(l => new OrderProductOutputDto
+                    {
+                        ProductId = l.ProductId,
+                        ProductName = l.ProductName,
+                        ProductDescription = l.ProductDescription,
+                        ProductImageUrl = l.ProductImageUrl,
+                        CompanyName = l.CompanyName,
+                        MinimalPrice = null, // Hidden for Koper
+                        Quantity = l.Quantity,
+                        PriceAtPurchase = l.PriceAtPurchase,
+                        OrderedAt = data.Order.CreatedAt,
+                    })
+                    .ToList(),
+                KwekerInfo = data.Kweker,
+                KoperInfo = data.Koper,
             };
         }
     }

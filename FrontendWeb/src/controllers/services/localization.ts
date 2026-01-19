@@ -249,6 +249,11 @@ export const resources = {
 			order_datum: 'Order datum',
 			total_value: 'Total waarde',
 			no_products: 'Geen product gevonden',
+			deliver_adres: 'Afleveradres',
+			ordered_products: 'Geplaatste veilingen',
+			loading_orders: 'Bestellingen laden...',
+			loaded_orders: 'Bestellingen succesvol geladen',
+			failed_load_orders: 'Fout bij het laden van bestellingen',
 
 			// ===== VEILINGMEESTER DASHBOARD =====
 			total_veilingklokken: 'Totaal aantal veilingklokken',
@@ -378,6 +383,8 @@ export const resources = {
 			placing_auction: 'Veiling plaatsen...',
 			auction_placed: 'Veiling succesvol geplaatst',
 			auction_place_error: 'Fout bij het plaatsen van de veiling',
+			kweker_informations: 'Kwekergegevens',
+			client_informations: 'Klantgegevens',
 
 			// ===== CLOCK DISPLAY =====
 			munt: 'Munt',

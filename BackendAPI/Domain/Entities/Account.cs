@@ -11,25 +11,18 @@ namespace Domain.Entities;
 [Table("Account")]
 public class Account : IdentityUser<Guid>
 {
-    [Column("created_at")]
-    public DateTimeOffset CreatedAt { get; init; }
+    [Column("created_at")] public DateTimeOffset CreatedAt { get; init; }
 
-    [Column("deleted_at")]
-    public DateTimeOffset? DeletedAt { get; private set; }
+    [Column("deleted_at")] public DateTimeOffset? DeletedAt { get; private set; }
 
-    [Column("row_version")]
-    [Timestamp]
-    public ulong RowVersion { get; private set; }
+    [Column("row_version")] [Timestamp] public ulong RowVersion { get; private set; }
 
-    [Column("account_type")]
-    public AccountType AccountType { get; init; } = AccountType.Koper;
-
-    // RefreshTokens Relationshiop  User have many RefreshTokens
-    private readonly List<RefreshToken> IRTokens = new();
-    public IReadOnlyCollection<RefreshToken> RefreshTokens => IRTokens;
+    [Column("account_type")] public AccountType AccountType { get; init; } = AccountType.Koper;
 
 #nullable disable
-    public Account() { }
+    public Account()
+    {
+    }
 
     protected Account(AccountType accountType)
     {
@@ -43,31 +36,6 @@ public class Account : IdentityUser<Guid>
         Email = email;
         UserName = email;
         AccountType = accountType;
-    }
-
-    public void AddRefreshToken(RefreshToken token)
-    {
-        IRTokens.Add(token);
-    }
-
-    public void UpdateRefreshToken(RefreshToken oldToken, RefreshToken newToken)
-    {
-        // Replace old refresh token with new one
-        IRTokens.Remove(oldToken);
-        IRTokens.Add(newToken);
-    }
-
-    public void RemoveRefreshToken(string token)
-    {
-        var existingToken = IRTokens.FirstOrDefault(rt => rt.Token == token);
-        if (existingToken != null)
-            IRTokens.Remove(existingToken);
-    }
-
-    public void RevokeAllRefreshTokens()
-    {
-        // Delete all existing refresh tokens
-        IRTokens.Clear();
     }
 
     public void SoftDelete()

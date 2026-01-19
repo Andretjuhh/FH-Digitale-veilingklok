@@ -7,9 +7,9 @@ using MediatR;
 
 namespace Application.UseCases.Order;
 
-public sealed record GetKwekerOrderCommand(Guid OrderId, Guid KwekerId) : IRequest<OrderKwekerOutput>;
+public sealed record GetKwekerOrderCommand(Guid OrderId, Guid KwekerId) : IRequest<OrderKwekerOutputDto>;
 
-public class GetKwekerOrderHandler : IRequestHandler<GetKwekerOrderCommand, OrderKwekerOutput>
+public class GetKwekerOrderHandler : IRequestHandler<GetKwekerOrderCommand, OrderKwekerOutputDto>
 {
     private readonly IOrderRepository _orderRepository;
 
@@ -18,7 +18,7 @@ public class GetKwekerOrderHandler : IRequestHandler<GetKwekerOrderCommand, Orde
         _orderRepository = orderRepository;
     }
 
-    public async Task<OrderKwekerOutput> Handle(
+    public async Task<OrderKwekerOutputDto> Handle(
         GetKwekerOrderCommand request,
         CancellationToken cancellationToken)
     {

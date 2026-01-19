@@ -16,10 +16,13 @@ public class GetKoperStatsHandler : IRequestHandler<GetKoperStatsCommand, KoperS
         _orderRepository = orderRepository;
     }
 
-    public async Task<KoperStatsOutputDto> Handle(GetKoperStatsCommand request, CancellationToken cancellationToken)
+    public async Task<KoperStatsOutputDto> Handle(
+        GetKoperStatsCommand request,
+        CancellationToken cancellationToken
+    )
     {
         // Get all orders for this koper
-        var (allOrders, totalCount) = await _orderRepository.GetAllWithFilterAsync(
+        var (items, totalCount) = await _orderRepository.GetAllWithFilterAsync(
             statusFilter: null,
             beforeDate: null,
             afterDate: null,
@@ -30,11 +33,26 @@ public class GetKoperStatsHandler : IRequestHandler<GetKoperStatsCommand, KoperS
             pageSize: int.MaxValue
         );
 
-        var ordersList = allOrders.ToList();
+        if (totalCount == 0)
+        {
+            return new KoperStatsOutputDto
+            {
+                TotalOrders = 0,
+                PendingOrders = 0,
+                CompletedOrders = 0,
+                CanceledOrders = 0,
+            };
+        }
+
+        var ordersList = items.Select(x => x.order).ToList();
 
         // Count orders by status
-        var pendingOrders = ordersList.Count(o => o.Status == OrderStatus.Open || o.Status == OrderStatus.Processing);
-        var completedOrders = ordersList.Count(o => o.Status == OrderStatus.Delivered || o.Status == OrderStatus.Processed);
+        var pendingOrders = ordersList.Count(o =>
+            o.Status == OrderStatus.Open || o.Status == OrderStatus.Processing
+        );
+        var completedOrders = ordersList.Count(o =>
+            o.Status == OrderStatus.Delivered || o.Status == OrderStatus.Processed
+        );
         var canceledOrders = ordersList.Count(o => o.Status == OrderStatus.Cancelled);
 
         return new KoperStatsOutputDto
@@ -42,7 +60,7 @@ public class GetKoperStatsHandler : IRequestHandler<GetKoperStatsCommand, KoperS
             TotalOrders = totalCount,
             PendingOrders = pendingOrders,
             CompletedOrders = completedOrders,
-            CanceledOrders = canceledOrders
+            CanceledOrders = canceledOrders,
         };
     }
 }

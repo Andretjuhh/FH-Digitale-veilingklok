@@ -1,12 +1,14 @@
 using System.Security.Claims;
 using API.Controllers;
 using API.Models;
+using Application.Common.Models;
 using Application.DTOs.Input;
 using Application.DTOs.Output;
 using Application.UseCases.Account;
 using Application.UseCases.Order;
 using Application.UseCases.Product;
 using Application.UseCases.VeilingKlok;
+using Domain.Entities;
 using Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -45,16 +47,14 @@ public class MeesterControllerTests
     {
         var mediator = new FakeMediator();
         var meesterId = Guid.NewGuid();
-        var meester = new global::Domain.Entities.Veilingmeester("meester@example.com")
+        var meester = new Veilingmeester("meester@example.com")
         {
             Id = meesterId,
             CountryCode = "NL",
             Region = "Region",
             AuthorisatieCode = "AUTH",
         };
-        mediator.RegisterResponse<CreateMeesterCommand, global::Domain.Entities.Veilingmeester>(
-            meester
-        );
+        mediator.RegisterResponse<CreateMeesterCommand, Veilingmeester>(meester);
 
         var controller = CreateController(mediator);
 
@@ -119,6 +119,12 @@ public class MeesterControllerTests
             Status = OrderStatus.Open,
             TotalAmount = 10,
             TotalItems = 1,
+            ClosedAt = null,
+            ProductId = Guid.NewGuid(),
+            ProductName = "Product",
+            ProductDescription = "Desc",
+            ProductImageUrl = "Img",
+            CompanyName = "Test Company",
         };
         mediator.RegisterResponse<UpdateOrderProductCommand, OrderOutputDto>(orderResult);
 
@@ -135,16 +141,33 @@ public class MeesterControllerTests
     public async Task GetOrder_WithVeilingmeesterClaims_ReturnsOrderDetailsInHttpSuccess()
     {
         var mediator = new FakeMediator();
-        var details = new OrderDetailsOutputDto
+        var details = new OrderKwekerOutputDto
         {
             Id = Guid.NewGuid(),
+            ClosedAt = null,
             CreatedAt = DateTimeOffset.UtcNow,
             Status = OrderStatus.Open,
-            TotalAmount = 20,
-            TotalItems = 2,
-            Products = new List<OrderItemOutputDto>(),
+            TotalPrice = 20,
+            Quantity = 2,
+            Products = new List<OrderProductOutputDto>(),
+            KoperInfo = new KoperInfoOutputDto
+            {
+                Email = "a@b.c",
+                FirstName = "F",
+                LastName = "L",
+                Telephone = "123",
+                Address = new AddressOutputDto
+                {
+                    Id = 1,
+                    Street = "S",
+                    City = "C",
+                    RegionOrState = "R",
+                    PostalCode = "Z",
+                    Country = "C",
+                },
+            },
         };
-        mediator.RegisterResponse<GetOrderCommand, OrderDetailsOutputDto>(details);
+        mediator.RegisterResponse<GetMeesterOrderCommand, OrderKwekerOutputDto>(details);
 
         var controller = CreateController(mediator);
         var accountId = Guid.NewGuid();
@@ -152,7 +175,7 @@ public class MeesterControllerTests
 
         var result = await controller.GetOrder(Guid.NewGuid());
 
-        var success = Assert.IsType<HttpSuccess<OrderDetailsOutputDto>>(result);
+        var success = Assert.IsType<HttpSuccess<OrderKwekerOutputDto>>(result);
         Assert.Equal(StatusCodes.Status200OK, success.StatusCode);
     }
 

@@ -184,4 +184,13 @@ public class CustomException : ProcessException
             "CUSTOM.PRODUCT_ALREADY_IN_VEILING_KLOK"
         );
     }
+
+    public static CustomException AccountDeactivated()
+    {
+        return new CustomException(
+            StatusCodes.Status401Unauthorized,
+            "CUSTOM.ACCOUNT_DEACTIVATED",
+            "This account has been deactivated."
+        );
+    }
 }
