@@ -50,6 +50,17 @@ public sealed class UpdateVeilingKlokStatusHandler : IRequestHandler<UpdateVeili
 
             if (request.Status == VeilingKlokStatus.Started)
             {
+                // Check if there is any active klok state in theat region status thats between started and paused
+                var hasActiveVeiling = await _veilingKlokRepository.HasActiveVeilingInRegionAsync(
+                    veilingKlok.RegionOrState,
+                    veilingKlok.Country,
+                    veilingKlok.Id,
+                    cancellationToken
+                );
+
+                if (hasActiveVeiling)
+                    throw CustomException.AlreadyActiveVeilingInRegion();
+
                 var productIds = veilingKlok.GetOrderedProductIds();
                 var products = await _productRepository.GetAllByIds(productIds);
                 await _veilingKlokEngine.AddActiveVeilingKlokAsync(veilingKlok, products.ToList());

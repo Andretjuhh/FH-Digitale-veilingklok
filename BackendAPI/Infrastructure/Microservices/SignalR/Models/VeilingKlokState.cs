@@ -75,7 +75,7 @@ public class VeilingKlokState
         CurrentProductIndex = productIndex;
         VeilingStartTime = DateTimeOffset.UtcNow;
         VeilingEndTime = VeilingStartTime.AddSeconds(VeilingDurationSeconds);
-        CurrentPrice = GetCurrentPriceByDate(VeilingStartTime);
+        CurrentPrice = GetTickedProductPrice(VeilingStartTime);
         TotalRounds++;
     }
 
@@ -86,7 +86,7 @@ public class VeilingKlokState
     }
 
     // Calculate the current price based on the elapsed time
-    public decimal GetCurrentPriceByDate(DateTimeOffset date)
+    public decimal GetTickedProductPrice(DateTimeOffset date)
     {
         if (date >= VeilingEndTime)
             return GetCurrentProduct().LowestPrice;
@@ -109,7 +109,7 @@ public class VeilingKlokState
     // This method is being called by a ticker hosted server service
     public void Tick()
     {
-        CurrentPrice = GetCurrentPriceByDate(DateTimeOffset.UtcNow);
+        CurrentPrice = GetTickedProductPrice(DateTimeOffset.UtcNow);
         GetCurrentProduct().CurrentPrice = CurrentPrice;
     }
 }

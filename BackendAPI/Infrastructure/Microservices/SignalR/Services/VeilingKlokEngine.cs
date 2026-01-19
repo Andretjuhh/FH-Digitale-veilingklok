@@ -218,7 +218,7 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
     {
         var state = _activeVeilingClocks[klokId];
         var productState = state.GetCurrentProduct();
-        var bidPrice = state.GetCurrentPriceByDate(placedAt);
+        var bidPrice = state.GetTickedProductPrice(placedAt);
 
         // Update product state
         if (quantity > productState.RemainingStock)
@@ -232,14 +232,14 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
     }
 
     // Get the current veiling price for a product
-    public Task<decimal> GetCurrentVeilingPriceAsync(
+    public Task<decimal> GetCurrentProdctTickedPriceAsync(
         Guid klokId,
         Guid productId,
         DateTimeOffset placedAt
     )
     {
         var state = _activeVeilingClocks[klokId];
-        var bidPrice = state.GetCurrentPriceByDate(placedAt);
+        var bidPrice = state.GetTickedProductPrice(placedAt);
         return Task.FromResult(bidPrice);
     }
 
@@ -276,12 +276,12 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         );
     }
 
-    public decimal GetCurrentPrice(Guid klokId, DateTimeOffset atTime)
+    public decimal GetKlokCurrentTickedPrice(Guid klokId, DateTimeOffset atTime)
     {
         if (!_activeVeilingClocks.TryGetValue(klokId, out var state))
             throw CustomException.InvalidOperation();
 
-        return state.GetCurrentPriceByDate(atTime);
+        return state.GetTickedProductPrice(atTime);
     }
 
     #endregion
@@ -400,7 +400,7 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
         var viewers = KlokViewers.GetOrAdd(klokId, _ => new ConcurrentDictionary<Guid, byte>());
         viewers[userId] = 0; // value is irrelevant
 
-        _notifier.NotifyViewerCountChanged(GetConnectionGroupName(klokId), viewers.Count);
+        _notifier.NotifyViewerCountChanged(GetConnectionGroupName(klokId), GetViewerCount(klokId));
         return Task.CompletedTask;
     }
 
@@ -419,10 +419,9 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
                 // Note: In high-concurrency, another user might join right here.
                 // We use the overload that ensures we only remove it if it's still empty.
                 KlokViewers.TryRemove(KeyValuePair.Create(klokId, viewers));
-
-            _notifier.NotifyViewerCountChanged(GetConnectionGroupName(klokId), viewers.Count);
         }
 
+        _notifier.NotifyViewerCountChanged(GetConnectionGroupName(klokId), GetViewerCount(klokId));
         return Task.CompletedTask;
     }
 
@@ -458,6 +457,8 @@ public class VeilingKlokEngine : IVeilingKlokEngine, IHostedService
                 viewers.Count,
                 klokId
             );
+
+        _notifier.NotifyViewerCountChanged(GetConnectionGroupName(klokId), GetViewerCount(klokId));
     }
 
     #endregion

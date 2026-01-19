@@ -21,9 +21,7 @@ builder.Services.AddCors(options =>
         {
             policy
                 .WithOrigins(
-                    "http://localhost:3000",
-                    "http://localhost:5219",
-                    "https://yourdomain.com"
+                    builder.Configuration.GetConnectionString("FrontendURL")!
                 )
                 .AllowAnyHeader()
                 .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
@@ -54,8 +52,7 @@ app.MapControllers();
 app.MapGroup("/api/account")
     .MapIdentityApi<Domain.Entities.Account>()
     .RequireCors("AllowFrontend")
-    .AddEndpointFilter(
-        async (context, next) =>
+    .AddEndpointFilter(async (context, next) =>
         {
             var result = await next(context);
 
@@ -101,39 +98,6 @@ app.MapHub<VeilingHub>("/hubs/veiling-klok").RequireCors("AllowFrontend");
 // Map development endpoints (seeder, testing utilities, etc.)
 app.MapDevelopmentEndpoints();
 
-#region Home Page Routing
-
-// Restored the simple root endpoint.
-app.MapGet(
-        "/",
-        async context =>
-        {
-            // Define the relative path to the HTML file in the new 'Html' folder
-            const string filePath = "wwwroot/landingPage.html";
-
-            // Determine the full path relative to the application's Content Root Path
-            var fullPath = Path.Combine(app.Environment.ContentRootPath, filePath);
-
-            if (File.Exists(fullPath))
-            {
-                // Read the HTML content from the file
-                var htmlContent = await File.ReadAllTextAsync(fullPath);
-
-                context.Response.ContentType = "text/html";
-                await context.Response.WriteAsync(htmlContent);
-            }
-            else
-            {
-                // Fallback error message if the file is not found
-                context.Response.StatusCode = 404;
-                await context.Response.WriteAsync(
-                    $"Error 404: Landing page file not found at {fullPath}"
-                );
-            }
-        }
-    )
-    .ExcludeFromDescription(); // Exclude this endpoint from the Swagger documentation
-#endregion
 
 app.Run();
 

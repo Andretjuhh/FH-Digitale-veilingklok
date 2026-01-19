@@ -31,6 +31,7 @@ function VeilingmeesterKlokManage() {
 	const [clockWaitingProduct, setClockWaitingProduct] = useState<boolean>(true);
 	const [currentVeilingKlok, setCurrentVeilingKlok] = useState<VeilingKlokOutputDto>();
 	const [currentProduct, setCurrentProduct] = useState<ProductOutputDto>();
+	const [liveViews, setLiveViews] = useState<number>(0);
 
 	console.log({clockWaitingProduct, clockRunning: !clockWaitingProduct});
 
@@ -90,10 +91,7 @@ function VeilingmeesterKlokManage() {
 		setClockWaitingProduct(false);
 	}, []);
 	const handleLiveViewsUpdate = useCallback((liveViews: number) => {
-		setCurrentVeilingKlok((prev) => {
-			if (!prev) return prev;
-			return {...prev, peakedLiveViews: liveViews};
-		});
+		setLiveViews(liveViews);
 	}, []);
 	const handleClockUpdate = useCallback((state: VeilingKlokStateNotification) => {
 		setCurrentVeilingKlok((prev) => {
@@ -112,7 +110,7 @@ function VeilingmeesterKlokManage() {
 		onProductWaitingForNext: handleWaitingForProduct,
 		onPriceTick: handleTick,
 		onViewerCountChanged: handleLiveViewsUpdate,
-		onKlokUpdated: handleClockUpdate
+		onKlokUpdated: handleClockUpdate,
 	});
 
 	useEffect(() => {
@@ -251,7 +249,7 @@ function VeilingmeesterKlokManage() {
 												<div className={'vm-veiling-info-status'}>
 													<span className={`app-table-status-badge bg-blue-100 text-blue-800 text-[1.2rem]`}>
 														<i className="app-table-status-icon bi-eye-fill text-blue-800"/>
-														{currentVeilingKlok.peakedLiveViews}
+														{liveViews}
 													</span>
 												</div>
 											</div>

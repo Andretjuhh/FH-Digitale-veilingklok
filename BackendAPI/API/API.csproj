@@ -3,7 +3,11 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<PublishSingleFile>false</PublishSingleFile>
+		<PublishReadyToRun>false</PublishReadyToRun>
+		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 	</PropertyGroup>
+
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
@@ -16,5 +20,9 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Application\Application.csproj"/>
 		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<_ContentIncludedByDefault Remove="wwwroot\landingPage.html"/>
 	</ItemGroup>
 </Project>

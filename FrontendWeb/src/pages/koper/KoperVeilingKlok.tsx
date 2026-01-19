@@ -6,7 +6,12 @@ import {useComponentStateReducer} from '../../hooks/useComponentStateReducer';
 import {VeilingKlokOutputDto} from '../../declarations/dtos/output/VeilingKlokOutputDto';
 import {ProductOutputDto} from '../../declarations/dtos/output/ProductOutputDto';
 import {VeilingKlokStatus} from '../../declarations/enums/VeilingKlokStatus';
-import {VeilingBodNotification, VeilingKlokStateNotification, VeilingProductChangedNotification} from '../../declarations/models/VeilingNotifications';
+import {
+	VeilingBodNotification,
+	VeilingKlokStateNotification,
+	VeilingPriceTickNotification,
+	VeilingProductChangedNotification
+} from '../../declarations/models/VeilingNotifications';
 import {useVeilingKlokSignalR} from '../../hooks/useVeilingKlokSignalR';
 import {delay, formatDate, formatEur, getNormalizedVeilingKlokStatus} from '../../utils/standards';
 import {createOrder, getKwekerAveragePrice, getKwekerPriceHistory, getLatestPrices, getOverallAveragePrice, getVeilingKlok} from '../../controllers/server/koper';
@@ -35,6 +40,8 @@ function KoperVeilingKlok() {
 	const [currentVeilingKlok, setCurrentVeilingKlok] = useState<VeilingKlokOutputDto>();
 	const [currentProduct, setCurrentProduct] = useState<ProductOutputDto>();
 	const [quantity, setQuantity] = useState(0); // always set to max when product changed
+	const [currentPrice, setCurrentPrice] = useState(0);
+
 	const [showHistoryModal, setShowHistoryModal] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(false);
 	const [kwekerHistory, setKwekerHistory] = useState<PriceHistoryItemOutputDto[]>([]);
@@ -96,8 +103,9 @@ function KoperVeilingKlok() {
 	const handleWaitingForProduct = useCallback(() => {
 		setClockWaitingProduct(true);
 	}, []);
-	const handleTick = useCallback(() => {
+	const handleTick = useCallback((state: VeilingPriceTickNotification) => {
 		setClockWaitingProduct(false);
+		setCurrentPrice(state.currentPrice);
 	}, []);
 	const handleLiveViewsUpdate = useCallback((liveViews: number) => {
 		setCurrentVeilingKlok((prev) => {
@@ -117,12 +125,7 @@ function KoperVeilingKlok() {
 		if (!kwekerId) return;
 		setHistoryLoading(true);
 		try {
-			const [kwekerHistoryResp, kwekerAvgResp, allHistoryResp, overallAvgResp] = await Promise.all([
-				getKwekerPriceHistory(kwekerId, 10),
-				getKwekerAveragePrice(kwekerId),
-				getLatestPrices(10),
-				getOverallAveragePrice(),
-			]);
+			const [kwekerHistoryResp, kwekerAvgResp, allHistoryResp, overallAvgResp] = await Promise.all([getKwekerPriceHistory(kwekerId, 10), getKwekerAveragePrice(kwekerId), getLatestPrices(10), getOverallAveragePrice()]);
 			setKwekerHistory(kwekerHistoryResp.data ?? []);
 			setKwekerAverage(kwekerAvgResp.data ?? null);
 			setAllHistory(allHistoryResp.data ?? []);
@@ -145,7 +148,7 @@ function KoperVeilingKlok() {
 		onProductWaitingForNext: handleWaitingForProduct,
 		onPriceTick: handleTick,
 		onViewerCountChanged: handleLiveViewsUpdate,
-		onKlokUpdated: handleClockUpdate
+		onKlokUpdated: handleClockUpdate,
 	});
 
 	useEffect(() => {
@@ -188,7 +191,6 @@ function KoperVeilingKlok() {
 				quantity: quantity,
 			});
 			updateActionState({type: 'succeed', message: t('auction_placed')});
-
 		} catch (e: any) {
 			if (isHttpError(e) && e.message) updateActionState({type: 'error', message: e.message});
 			else updateActionState({type: 'error', message: t('auction_place_error')});
@@ -226,15 +228,15 @@ function KoperVeilingKlok() {
 									<div className={'!ml-auto flex flex-row gap-4'}>
 										<div className={'vm-veiling-info-status'}>
 											<span className={clsx(`app-table-status-badge text-[0.875rem] bg-blue-300`)}>
-											<i className="app-table-status-icon bi-geo-alt-fill"/>
+												<i className="app-table-status-icon bi-geo-alt-fill"/>
 												{currentVeilingKlok.regionOrState}
 											</span>
 										</div>
 										<div className={'vm-veiling-info-status'}>
 											<span className={clsx(`app-table-status-badge text-[0.875rem]`, 'app-table-status-' + klokSignalR.klokConnectionStatus.toLowerCase())}>
-											<i className="app-table-status-icon bi-wifi"/>
+												<i className="app-table-status-icon bi-wifi"/>
 												{t(klokSignalR.klokConnectionStatus as any)}
-										</span>
+											</span>
 										</div>
 									</div>
 								</div>
@@ -277,7 +279,7 @@ function KoperVeilingKlok() {
 														</h2>
 														<span className={'vm-veiling-buy-actions-header-h2'}>
 															{t('total_price')}
-															<p className={'vm-veiling-buy-price'}>{formatEur((currentProduct?.auctionedPrice || 0) * quantity)}</p>
+															<p className={'vm-veiling-buy-price'}>{formatEur(currentPrice * quantity)}</p>
 														</span>
 													</div>
 
@@ -432,9 +434,7 @@ function KoperVeilingKlok() {
 									))}
 								</ul>
 							)}
-							<p className="text-gray-500">
-								Gemiddelde prijs (kweker): {kwekerAverage ? formatEur(kwekerAverage.averagePrice) : '-'}
-							</p>
+							<p className="text-gray-500">Gemiddelde prijs (kweker): {kwekerAverage ? formatEur(kwekerAverage.averagePrice) : '-'}</p>
 
 							<h4 className="mt-4">Laatste 10 prijzen (alle kwekers)</h4>
 							{historyLoading ? (
@@ -450,9 +450,7 @@ function KoperVeilingKlok() {
 									))}
 								</ul>
 							)}
-							<p className="text-gray-500">
-								Gemiddelde prijs (alle orders): {overallAverage ? formatEur(overallAverage.averagePrice) : '-'}
-							</p>
+							<p className="text-gray-500">Gemiddelde prijs (alle orders): {overallAverage ? formatEur(overallAverage.averagePrice) : '-'}</p>
 						</div>
 					</div>
 				</Modal>

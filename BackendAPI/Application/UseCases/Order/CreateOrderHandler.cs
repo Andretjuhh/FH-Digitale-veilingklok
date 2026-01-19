@@ -73,7 +73,7 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Ord
                 throw CustomException.InsufficientStock();
 
             // Get the current price from the veiling klok engine at the time of order placement
-            var currentPrice = await _veilingKlokEngine.GetCurrentVeilingPriceAsync(
+            var currentPrice = await _veilingKlokEngine.GetCurrentProdctTickedPriceAsync(
                 dto.VeilingKlokId,
                 dto.ProductItemId,
                 placedAt

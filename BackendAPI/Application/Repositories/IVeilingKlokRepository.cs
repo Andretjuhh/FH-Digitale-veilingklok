@@ -14,7 +14,16 @@ public interface IVeilingKlokRepository
     void Delete(VeilingKlok veilingKlok);
 
     Task<IEnumerable<VeilingKlok>> GetAllByMeesterIdAsync(Guid meesterId);
-    Task<IEnumerable<VeilingKlok>> GetAllByStatusAsync(VeilingKlokStatus status, CancellationToken ct);
+    Task<IEnumerable<VeilingKlok>> GetAllByStatusAsync(
+        VeilingKlokStatus status,
+        CancellationToken ct
+    );
+    Task<bool> HasActiveVeilingInRegionAsync(
+        string region,
+        string country,
+        Guid excludeVeilingId,
+        CancellationToken ct = default
+    );
 
     Task<(IEnumerable<VeilingKlok> Items, int TotalCount)> GetAllWithFilterAsync(
         VeilingKlokStatus? statusFilter,
@@ -25,7 +34,10 @@ public interface IVeilingKlokRepository
         int pageSize
     );
 
-    Task<(IEnumerable<(VeilingKlok VeilingKlok, int BidCount)> Items, int TotalCount)> GetAllWithFilterAndBidsAsync(
+    Task<(
+        IEnumerable<(VeilingKlok VeilingKlok, int BidCount)> Items,
+        int TotalCount
+    )> GetAllWithFilterAndBidsAsync(
         VeilingKlokStatus? statusFilter,
         string? region,
         DateTime? scheduledAfter,
@@ -39,5 +51,7 @@ public interface IVeilingKlokRepository
         int pageSize
     );
 
-    Task<IEnumerable<(VeilingKlok VeilingKlok, int BidCount)>> GetAllByMeesterIdWithBidsCountAsync(Guid meesterId);
+    Task<IEnumerable<(VeilingKlok VeilingKlok, int BidCount)>> GetAllByMeesterIdWithBidsCountAsync(
+        Guid meesterId
+    );
 }

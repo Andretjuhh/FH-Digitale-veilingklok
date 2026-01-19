@@ -10,9 +10,6 @@ public static class DevelopmentEndpointsExtension
     /// </summary>
     public static WebApplication MapDevelopmentEndpoints(this WebApplication app)
     {
-        if (!app.Environment.IsDevelopment())
-            return app;
-
         app.MapGet(
                 "/api/dev/seed-test-data",
                 async (ITestDataSeeder seeder) =>
