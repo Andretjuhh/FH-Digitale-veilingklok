@@ -7,7 +7,7 @@
       "launchBrowser": false,
       "applicationUrl": "http://localhost:5219",
       "environmentVariables": {
-        "FrontendURL": "",
+        "FrontendURL": "https://floriclock-app-ehafbphchgfua5eh.germanywestcentral-01.azurewebsites.net",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
