@@ -19,30 +19,30 @@ function AppHome() {
 	};
 
 	return (
-		<section id={'home'} className={'app-home'}>
+		<section id={'home'} className={'app-home'} aria-labelledby="app-home-title">
 			<ButterflyParticles />
 			<div className={'app-home-ctn'}>
 				<div className={'app-home-row z-10'}>
 					<div className={'app-home-ex'}>
-						<h1 className={'app-home-title'}>{t('welcome_title')}</h1>
+						<h1 id="app-home-title" className={'app-home-title'}>{t('welcome_title')}</h1>
 						<h2 className={'app-home-description'}>{t('welcome_description')}</h2>
 						<div className={'app-home-cta'}>
 							<span className={'app-home-cta-text'}>{t('welcome_cta_text')}</span>
 							<div className={'app-home-cta-btns'}>
 								{!loggedIn ? (
 									<>
-										<Button className={'app-home-p-btn'} label={t('get_Started')} icon={'bi-person-plus-fill'} onClick={() => navigate('/register')} />
-										<Button className="app-home-s-btn" label={t('login')} onClick={() => navigate('/login')} />
+										<Button className={'app-home-p-btn'} label={t('get_Started')} icon={'bi-person-plus-fill'} aria-label={t('aria_home_register')} onClick={() => navigate('/register')} />
+										<Button className="app-home-s-btn" label={t('login')} aria-label={t('aria_home_login')} onClick={() => navigate('/login')} />
 									</>
 								) : (
-									<Button className="app-home-s-btn" label={t('dashboard')} onClick={handleNavigateToDashboard} />
+									<Button className="app-home-s-btn" label={t('dashboard')} aria-label={t('aria_home_dashboard')} onClick={handleNavigateToDashboard} />
 								)}
 							</div>
 						</div>
 					</div>
 				</div>
 				<div className={'app-home-row'}>
-					<img className={'app-home-img'} src={'/pictures/kweker.png'} alt={'kweker'} />
+					<img className={'app-home-img'} src={'/pictures/kweker.png'} alt={t('aria_home_image_alt')} />
 				</div>
 			</div>
 			<div className={'app-home-round-bt'} />

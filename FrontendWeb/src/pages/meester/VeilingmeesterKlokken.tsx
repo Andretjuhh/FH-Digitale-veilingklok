@@ -103,6 +103,7 @@ function VeilingmeesterVeilingBeheren() {
 							<Button
 								className={'app-table-actions-row-dlt-btn'}
 								icon={'bi-trash-fill'}
+								aria-label={t('aria_meester_delete_auction')}
 								onClick={(e) => {
 									e.stopPropagation();
 									console.log(`Delete veilingklok ${item.id}`);
@@ -118,40 +119,43 @@ function VeilingmeesterVeilingBeheren() {
 	return (
 		<Page enableHeader className="vm-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
 			<main className="vm-products-page-ctn">
-				<section className="page-title-section">
-					<h1>
+				<section className="page-title-section" aria-labelledby="meester-klokken-title meester-klokken-subtitle">
+					<h1 id="meester-klokken-title">
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
-					<h2>
+					<h2 id="meester-klokken-subtitle">
 						{t('manage_auction_txt')}
 					</h2>
 				</section>
 
-				<DataTable<VeilingKlokOutputDto>
-					isLazy
-					enableSearch={false}
-					loading={paginatedVeilingenState.type == 'loading'}
-					data={paginatedVeilingen?.data || []}
-					itemsPerPage={20}
-					totalItems={paginatedVeilingen?.totalCount || 0}
-					getItemKey={item => item.id}
-					onFetchData={handleFetchVeilingen}
-					onCellClick={(item) => navigate(`/veilingmeester/veilingen/${item.id}`)}
+				<section aria-label={t('aria_meester_auction_list')}>
+					<DataTable<VeilingKlokOutputDto>
+						isLazy
+						enableSearch={false}
+						loading={paginatedVeilingenState.type == 'loading'}
+						data={paginatedVeilingen?.data || []}
+						itemsPerPage={20}
+						totalItems={paginatedVeilingen?.totalCount || 0}
+						getItemKey={item => item.id}
+						onFetchData={handleFetchVeilingen}
+						onCellClick={(item) => navigate(`/veilingmeester/veilingen/${item.id}`)}
 
-					title={t('recent_auctionclocks')}
-					icon={<i className="bi bi-clock-fill"></i>}
-					columns={klokColumns}
-					filterGroups={
-						<>
-							<Button
-								icon={'bi-calendar-plus-fill'}
-								label={t('schedule_veilingklok')}
-								onClick={() => setOpenCreateModal(true)}
-							/>
-						</>
-					}
-					emptyText={t('no_veilingen_planned')}
-				/>
+						title={t('recent_auctionclocks')}
+						icon={<i className="bi bi-clock-fill"></i>}
+						columns={klokColumns}
+						filterGroups={
+							<>
+								<Button
+									icon={'bi-calendar-plus-fill'}
+									label={t('schedule_veilingklok')}
+									aria-label={t('aria_meester_schedule_auction')}
+									onClick={() => setOpenCreateModal(true)}
+								/>
+							</>
+						}
+						emptyText={t('no_veilingen_planned')}
+					/>
+				</section>
 
 				{openCreateModal && (
 					<div className="modal-overlay" onClick={() => setOpenCreateModal(false)}>
