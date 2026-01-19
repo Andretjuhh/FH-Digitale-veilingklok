@@ -174,6 +174,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         modelBuilder.Entity<Product>().HasIndex(p => p.KwekerId);
         modelBuilder.Entity<Product>().HasIndex(p => p.VeilingKlokId);
 
+        // VeilingKlok Indexes
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.Status);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.ScheduledAt);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.StartedAt);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.EndedAt);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.VeilingmeesterId);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.RegionOrState);
+        modelBuilder.Entity<VeilingKlok>().HasIndex(vk => vk.Country);
+
         // Decimal precision for Product prices
         modelBuilder.Entity<Product>().Property(p => p.AuctionPrice).HasPrecision(18, 2);
         modelBuilder.Entity<Product>().Property(p => p.MinimumPrice).HasPrecision(18, 2);

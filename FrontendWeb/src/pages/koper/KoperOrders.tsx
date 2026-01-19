@@ -14,6 +14,7 @@ import { KoperStats } from '../../components/sections/koper/KoperStats';
 import Modal from '../../components/elements/Modal';
 import { OrderOutputDto } from '../../declarations/dtos/output/OrderOutputDto';
 import KoperOrderDetails from '../../components/sections/koper/KoperOrderDetails';
+import { ClientAvatar } from '../../components/elements/ClientAvatar';
 
 function KoperOrders() {
 	const { t, account } = useRootContext();
@@ -28,14 +29,23 @@ function KoperOrders() {
 	const orderColumns: Column<OrderOutputDto>[] = useMemo(
 		() => [
 			{
-				key: 'id',
-				label: 'Order ID',
+				key: 'productName',
+				label: t('product_name'),
 				sortable: true,
-				render: (item) => (
-					<span className="font-medium" title={item.id}>
-						{item.id.substring(0, 8)}...
-					</span>
-				),
+				render: (item) => <span className="font-medium">{item.productName}</span>,
+			},
+			{
+				key: 'companyName',
+				label: t('kweker_name'),
+				sortable: true,
+				render: (item) => {
+					return (
+						<div className="flex items-center">
+							<ClientAvatar name={item.companyName} />
+							<span className="font-medium">{item.companyName}</span>
+						</div>
+					);
+				},
 			},
 			{
 				key: 'status',
@@ -57,14 +67,14 @@ function KoperOrders() {
 			},
 			{
 				key: 'createdAt',
-				label: 'Ordered At',
+				label: t('order_datum'),
 				sortable: true,
 				render: (item) => <span>{new Date(item.createdAt).toLocaleDateString()}</span>,
 			},
 
 			{
 				key: 'action',
-				label: 'Action',
+				label: t('actions'),
 				render: (item) => (
 					<div className={'app-table-actions-row-btns'}>
 						<Button

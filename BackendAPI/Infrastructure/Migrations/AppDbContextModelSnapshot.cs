@@ -444,6 +444,18 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Country");
+
+                    b.HasIndex("EndedAt");
+
+                    b.HasIndex("RegionOrState");
+
+                    b.HasIndex("ScheduledAt");
+
+                    b.HasIndex("StartedAt");
+
+                    b.HasIndex("Status");
+
                     b.HasIndex("VeilingmeesterId");
 
                     b.ToTable("Veilingklok");

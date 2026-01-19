@@ -30,13 +30,14 @@ function KwekerOrders() {
 		() => [
 			{
 				key: 'productName',
-				label: 'Product',
+				label: t('product_name'),
+
 				sortable: true,
 				render: (item) => <span className="font-medium">{item.products[0].productName}</span>,
 			},
 			{
 				key: 'clientName',
-				label: 'Client Name',
+				label: t('client_name'),
 				sortable: true,
 				render: (item) => {
 					const fullName = `${item.koperInfo.firstName} ${item.koperInfo.lastName}`;
@@ -50,13 +51,13 @@ function KwekerOrders() {
 			},
 			{
 				key: 'status',
-				label: 'Order Status',
+				label: t('order_status'),
 				sortable: true,
 				render: (item) => <StatusBadge status={item.status} />,
 			},
 			{
 				key: 'totalPrice',
-				label: 'Total Price',
+				label: t('total_value'),
 				sortable: true,
 				render: (item) => {
 					return <span className="font-semibold">{formatEur(item.totalPrice || 0)}</span>;
@@ -64,14 +65,14 @@ function KwekerOrders() {
 			},
 			{
 				key: 'createdAt',
-				label: 'Ordered At',
+				label: t('order_datum'),
 				sortable: true,
 				render: (item) => <span>{new Date(item.createdAt).toLocaleDateString()}</span>,
 			},
 
 			{
 				key: 'action',
-				label: 'Action',
+				label: t('actions'),
 				render: (item) => (
 					<div className={'app-table-actions-row-btns'}>
 						<Button

@@ -264,7 +264,6 @@ public class TestDataSeeder : ITestDataSeeder
         await Exec("Veilingklok");
 
         // 3. Delete Identity Tables (Children of Account)
-        await Exec("RefreshToken");
         await Exec("AspNetUserClaims");
         await Exec("AspNetUserLogins");
         await Exec("AspNetUserRoles");
@@ -277,10 +276,8 @@ public class TestDataSeeder : ITestDataSeeder
 
         // 5. Delete Address (References Account, referenced by Koper/Kweker)
         await Exec("Adresses"); // Check correct spelling
-        await Exec("Addresses"); // Check common spelling
 
         // 6. Delete Account (Root)
-        await Exec("Account");
         await Exec("AspNetUsers"); // Fallback
 
         // 7. Last resort cleanup for Roles if used

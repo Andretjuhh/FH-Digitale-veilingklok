@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260119201554_InitialCreate")]
+    [Migration("20260119203245_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -446,6 +446,18 @@ namespace Infrastructure.Migrations
                         .HasColumnName("veilingmeester_id");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Country");
+
+                    b.HasIndex("EndedAt");
+
+                    b.HasIndex("RegionOrState");
+
+                    b.HasIndex("ScheduledAt");
+
+                    b.HasIndex("StartedAt");
+
+                    b.HasIndex("Status");
 
                     b.HasIndex("VeilingmeesterId");
 

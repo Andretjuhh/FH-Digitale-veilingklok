@@ -558,6 +558,36 @@ namespace Infrastructure.Migrations
                 column: "veilingklok_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Veilingklok_country",
+                table: "Veilingklok",
+                column: "country");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Veilingklok_ended_at",
+                table: "Veilingklok",
+                column: "ended_at");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Veilingklok_scheduled_at",
+                table: "Veilingklok",
+                column: "scheduled_at");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Veilingklok_started_at",
+                table: "Veilingklok",
+                column: "started_at");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Veilingklok_state_or_province",
+                table: "Veilingklok",
+                column: "state_or_province");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Veilingklok_status",
+                table: "Veilingklok",
+                column: "status");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Veilingklok_veilingmeester_id",
                 table: "Veilingklok",
                 column: "veilingmeester_id");
