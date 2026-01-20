@@ -6,8 +6,8 @@ import Page from '../../components/nav/Page';
 
 function Privacy() {
 	return (
-		<Page enableHeader enableFooter className="legal-page">
-			<div className="legal-page__content">
+		<Page enableHeader enableFooter className="legal-page" enableHeaderAnimation={false} headerClassName="header-normal-sticky">
+			<main className="legal-page__content">
 				<h1>Privacyverklaring</h1>
 				<p>
 					In deze verklaring leggen we uit welke persoonsgegevens we gebruiken,
@@ -46,7 +46,7 @@ function Privacy() {
 				<p>
 					Vragen over privacy? Neem contact op via support@floriclock.example.
 				</p>
-			</div>
+			</main>
 		</Page>
 	);
 }

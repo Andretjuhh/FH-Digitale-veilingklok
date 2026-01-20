@@ -6,8 +6,8 @@ import Page from '../../components/nav/Page';
 
 function CookieDeclaration() {
 	return (
-		<Page enableHeader enableFooter className="legal-page">
-			<div className="legal-page__content">
+		<Page enableHeader enableFooter className="legal-page" enableHeaderAnimation={false} headerClassName="header-normal-sticky">
+			<main className="legal-page__content">
 				<h1>Cookieverklaring</h1>
 				<p>
 					Wij gebruiken cookies en vergelijkbare technieken om de website
@@ -36,7 +36,7 @@ function CookieDeclaration() {
 				<p>
 					Vragen over cookies? Neem contact op via support@floriclock.example.
 				</p>
-			</div>
+			</main>
 		</Page>
 	);
 }
