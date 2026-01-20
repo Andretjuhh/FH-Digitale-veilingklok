@@ -79,7 +79,8 @@ function KwekerOrders() {
 							className={'app-table-action-btn'}
 							icon={'bi-file-earmark-text-fill'}
 							aria-label={t('aria_view_order_details')}
-							onClick={() => {
+							onClick={(e) => {
+								e.stopPropagation();
 								setSelectedOrder(item);
 								showOrder(true);
 							}}
@@ -88,7 +89,8 @@ function KwekerOrders() {
 							className={'app-table-action-btn'}
 							icon={'bi-pen-fill'}
 							aria-label={t('aria_kweker_order_edit')}
-							onClick={() => {
+							onClick={(e) => {
+								e.stopPropagation();
 								setSelectedOrder(item);
 								showOrder(true, true);
 							}}
