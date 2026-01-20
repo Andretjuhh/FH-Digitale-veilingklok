@@ -5,6 +5,7 @@ import clsx from 'clsx';
 // Internal imports
 import AppHeader from '../nav/AppHeader';
 import AppFooter from '../nav/AppFooter';
+import CookieBanner from '../consent/CookieBanner';
 
 type PageProps = {
 	enableHeader?: boolean;
@@ -30,6 +31,7 @@ function Page(props: PageProps) {
 		<article ref={pageRef} className={clsx('app-page', className)} {...restProps}>
 			{enableHeader && <AppHeader className={headerClassName} slideAnimation={enableHeaderAnimation}/>}
 			{children}
+			<CookieBanner />
 			{enableFooter && <AppFooter/>}
 		</article>
 	);

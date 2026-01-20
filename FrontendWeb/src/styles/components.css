@@ -658,6 +658,45 @@
     text-decoration: underline;
 }
 
+.cookie-banner {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 2000;
+    background: #111;
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    padding: 1rem 1.25rem;
+}
+
+.cookie-banner__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.cookie-banner__actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.cookie-banner__link {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.cookie-banner__button {
+    background: #fff;
+    color: #111;
+    border: 0;
+    border-radius: 8px;
+    padding: 0.5rem 0.9rem;
+    cursor: pointer;
+}
+
 @media (max-width: 1024px) {
     .user-card {
         grid-template-columns: 1fr;
