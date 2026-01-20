@@ -12,6 +12,8 @@ import Home from './pages/general/Home';
 import Login from './pages/general/Login';
 import Register from './pages/general/Register';
 import Settings from './pages/general/Settings';
+import Privacy from './pages/general/Privacy';
+import CookieDeclaration from './pages/general/CookieDeclaration';
 
 // Veilingmeester Pages
 import VeilingmeesterKlokManage from './pages/meester/VeilingmeesterKlokManage';
@@ -48,6 +50,8 @@ function App() {
 					{/*Authentication Routes*/}
 					<Route path="/login" element={<Login />} />
 					<Route path="/register" element={<Register />} />
+					<Route path="/cookies" element={<CookieDeclaration />} />
+					<Route path="/privacy" element={<Privacy />} />
 					<Route
 						path="/settings"
 						element={

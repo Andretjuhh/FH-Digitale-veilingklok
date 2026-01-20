@@ -217,6 +217,41 @@
 
 /*#endregion*/
 
+/*#region Legal Pages */
+.legal-page {
+    min-height: 100vh;
+    padding: calc(var(--top-pd) * 2) var(--side-pd);
+}
+
+.legal-page__content {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    gap: 1rem;
+}
+
+.legal-page__content h1 {
+    font-size: var(--h2-size);
+}
+
+.legal-page__content h2 {
+    font-size: var(--span1-size);
+    margin-top: 0.5rem;
+}
+
+.legal-page__content p,
+.legal-page__content li {
+    font-size: var(--span3-size);
+    line-height: 1.6;
+}
+
+.legal-page__content ul {
+    display: grid;
+    gap: 0.4rem;
+    padding-left: 1.2rem;
+}
+/*#endregion */
+
 /*#region Default Page Styles*/
 .home-page {
     height: unset !important;
