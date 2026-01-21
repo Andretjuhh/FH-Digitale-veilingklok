@@ -49,5 +49,3 @@ app.Run();
 //  dotnet ef migrations remove --project Infrastructure --startup-project API
 //  dotnet ef migrations add InitialCreate --project Infrastructure --startup-project API
 //  dotnet ef database update --project Infrastructure --startup-project API
-
-// dotnet ef migrations remove RemoveTokensDB --project Infrastructure --startup-project API

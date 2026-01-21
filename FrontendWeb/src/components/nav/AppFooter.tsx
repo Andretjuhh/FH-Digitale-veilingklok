@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function AppFooter() {
 	return (
@@ -67,6 +68,7 @@ export default function AppFooter() {
 					<li><a href="#">Documentatie</a></li>
 					<li><a href="#">Veelgestelde vragen</a></li>
 					<li><a href="#">Status</a></li>
+					<li><Link to="/privacy">Privacyverklaring</Link></li>
 				</ul>
 			</div>
 			<div className="user-footer-col">
