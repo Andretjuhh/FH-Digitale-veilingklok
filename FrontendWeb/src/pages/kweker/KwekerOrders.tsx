@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Page from '../../components/nav/Page';
 import { useRootContext } from '../../components/contexts/RootContext';
 import { KwekerOrderStats } from '../../components/sections/kweker/KwekerStats';
@@ -15,6 +15,8 @@ import { getOrders } from '../../controllers/server/kweker';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import Modal from '../../components/elements/Modal';
+import TableFilterDropdown from '../../components/buttons/TableFilterDropdown';
+import { OrderStatus } from '../../declarations/enums/OrderStatus';
 
 function KwekerOrders() {
 	const { t, account } = useRootContext();
@@ -25,6 +27,7 @@ function KwekerOrders() {
 	const [selectedOrder, setSelectedOrder] = useState<OrderKwekerOutputDto | null>(null);
 	const [generatingPdf, setGeneratingPdf] = useState(false);
 	const [showOrderModal, setShowOrderModal] = useState({ visible: false, editMode: false });
+	const [statusFilter, setStatusFilter] = useState<OrderStatus | undefined>(undefined);
 
 	const orderColumns: Column<OrderKwekerOutputDto>[] = useMemo(
 		() => [
@@ -95,7 +98,12 @@ function KwekerOrders() {
 								showOrder(true, true);
 							}}
 						/>
-						<Button className={'app-table-action-btn'} icon={'bi-download'} aria-label={t('aria_download_order_pdf')} onClick={() => generateOrderPDF(item)} />
+						<Button
+							className={'app-table-action-btn'}
+							icon={'bi-download'}
+							aria-label={t('aria_download_order_pdf')}
+							onClick={() => generateOrderPDF(item)}
+						/>
 					</div>
 				),
 			},
@@ -103,16 +111,28 @@ function KwekerOrders() {
 		[t],
 	);
 
-	const handleFetchOrders = useCallback(async (params: OnFetchHandlerParams) => {
-		try {
-			setPaginatedOrdersState({ type: 'loading' });
-			const orderResponse = await getOrders(params.searchTerm, undefined, undefined, undefined, undefined, undefined, params.page, params.pageSize);
-			if (orderResponse.data) setPaginatedOrders(orderResponse.data);
-			setPaginatedOrdersState({ type: 'succeed' });
-		} catch (err) {
-			console.error('Failed to fetch orders', err);
-		}
-	}, []);
+	const handleFetchOrders = useCallback(
+		async (params: OnFetchHandlerParams) => {
+			try {
+				setPaginatedOrdersState({ type: 'loading' });
+				const orderResponse = await getOrders(
+					params.searchTerm,
+					undefined,
+					statusFilter,
+					undefined,
+					undefined,
+					undefined,
+					params.page,
+					params.pageSize,
+				);
+				if (orderResponse.data) setPaginatedOrders(orderResponse.data);
+				setPaginatedOrdersState({ type: 'succeed' });
+			} catch (err) {
+				console.error('Failed to fetch orders', err);
+			}
+		},
+		[statusFilter],
+	);
 	const showOrder = useCallback((open: boolean, editMode: boolean = false) => {
 		setShowOrderModal({ visible: open, editMode });
 	}, []);
@@ -172,6 +192,7 @@ function KwekerOrders() {
 				<KwekerOrderStats />
 
 				<DataTable<OrderKwekerOutputDto>
+					key={`kweker-orders-table-${statusFilter || 'all'}`} // Force remount on filter change
 					isLazy
 					loading={paginatedOrdersState.type == 'loading'}
 					data={paginatedOrders?.data || []}
@@ -187,7 +208,19 @@ function KwekerOrders() {
 					icon={<i className="bi bi-cart4"></i>}
 					filterGroups={
 						<>
-							<Button icon="bi-chevron-down" className="app-table-filter-btn" label={'All Status'} aria-label={t('aria_filter_all_status')} />
+							<TableFilterDropdown
+								menuItems={[
+									{ id: undefined, label: t('all_statuses') },
+									{ id: 'Open', label: t('open') },
+									{ id: OrderStatus.Processing, label: t('processing') },
+									{ id: OrderStatus.Processed, label: t('processed') },
+									{ id: OrderStatus.Delivered, label: t('delivered') },
+									{ id: OrderStatus.Cancelled, label: t('cancelled') },
+									{ id: OrderStatus.Returned, label: t('returned') },
+								]}
+								selectedItemId={statusFilter}
+								onSelectItem={(e) => setStatusFilter(e as OrderStatus | undefined)}
+							/>
 							<Button icon="bi-chevron-down" className="app-table-filter-btn" label={'More Filters'} aria-label={t('aria_filter_more')} />
 						</>
 					}

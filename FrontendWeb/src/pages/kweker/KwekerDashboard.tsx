@@ -2,16 +2,15 @@
 import React from 'react';
 
 // Internal import
-import {useRootContext} from '../../components/contexts/RootContext';
+import { useRootContext } from '../../components/contexts/RootContext';
 
 // Components
-import {KwekerDashboardStats} from '../../components/sections/kweker/KwekerStats';
-import {RevenueChart} from '../../components/sections/kweker/RevenueChart';
+import { KwekerDashboardStats } from '../../components/sections/kweker/KwekerStats';
+import { RevenueChart } from '../../components/sections/kweker/RevenueChart';
 import Page from '../../components/nav/Page';
 
-
 function KwekerDashboard() {
-	const {t, account} = useRootContext();
+	const { t, account } = useRootContext();
 
 	return (
 		<Page enableHeader className="kweker-products-page" enableHeaderAnimation={false} headerClassName={'header-normal-sticky'}>
@@ -20,15 +19,15 @@ function KwekerDashboard() {
 					<h1 id="kweker-dashboard-title">
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
-					<p id="kweker-dashboard-subtitle" className="page-subtitle">{t('kweker_desc')}</p>
+					<p id="kweker-dashboard-subtitle" className="page-subtitle">
+						{t('kweker_desc')}
+					</p>
 				</section>
 
-				<section aria-label={t('aria_kweker_dashboard_stats')}>
-					<KwekerDashboardStats/>
-				</section>
+				<KwekerDashboardStats aria-label={t('aria_kweker_dashboard_stats')} />
 
 				<section aria-label={t('aria_kweker_revenue_chart')}>
-					<RevenueChart/>
+					<RevenueChart />
 				</section>
 			</main>
 		</Page>

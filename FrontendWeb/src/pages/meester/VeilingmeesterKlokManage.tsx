@@ -17,7 +17,11 @@ import ClockProductCard from '../../components/cards/ClockProductCard';
 import clsx from 'clsx';
 import { useVeilingKlokSignalR } from '../../hooks/useVeilingKlokSignalR';
 import Modal from '../../components/elements/Modal';
-import { VeilingBodNotification, VeilingKlokStateNotification, VeilingProductChangedNotification } from '../../declarations/models/VeilingNotifications';
+import {
+	VeilingBodNotification,
+	VeilingKlokStateNotification,
+	VeilingProductChangedNotification,
+} from '../../declarations/models/VeilingNotifications';
 
 function VeilingmeesterKlokManage() {
 	const { klokId: id } = useParams<{ klokId: string }>();
@@ -219,14 +223,25 @@ function VeilingmeesterKlokManage() {
 						<section className={'vm-veiling-info-left-panel'} aria-label={t('aria_meester_auction_clock_manage')}>
 							<div className={'vm-veiling-info-data'}>
 								<div className={'vm-veiling-info-header'}>
-									<Button className="modal-card-back-btn vm-veiling-info-btn" icon="bi-x" type="button" aria-label={t('aria_back_button')} onClick={onClose} />
+									<Button
+										className="modal-card-back-btn vm-veiling-info-btn"
+										icon="bi-x"
+										type="button"
+										aria-label={t('aria_back_button')}
+										onClick={onClose}
+									/>
 									<h2 id="meester-klok-manage-title" className={'vm-veiling-info-h1'}>
 										<i className="bi bi-stopwatch-fill"></i>
 										{t('manage_veiling_klok')}
 									</h2>
 
 									<div className={'vm-veiling-info-status !ml-auto'}>
-										<span className={clsx(`app-table-status-badge text-[0.875rem]`, 'app-table-status-' + klokSignalR.klokConnectionStatus.toLowerCase())}>
+										<span
+											className={clsx(
+												`app-table-status-badge text-[0.875rem]`,
+												'app-table-status-' + klokSignalR.klokConnectionStatus.toLowerCase(),
+											)}
+										>
 											<i className="app-table-status-icon bi-wifi" />
 											{t(klokSignalR.klokConnectionStatus as any)}
 										</span>
@@ -260,17 +275,44 @@ function VeilingmeesterKlokManage() {
 												</div>
 											</div>
 
-											{getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! === VeilingKlokStatus.Scheduled && <Button className={'vm-veiling-info-klok-action-primary-btn start'} label={t('start_veiling_klok')} icon="bi-play-fill" onClick={startVeilingKlok} />}
-
-											{getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! === VeilingKlokStatus.Started && <Button className={'vm-veiling-info-klok-action-primary-btn pause'} label={t('pause_veiling_klok')} icon="bi-pause-fill" onClick={pauseVeilingKlok} />}
-
-											{getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! == VeilingKlokStatus.Paused && <Button className={'vm-veiling-info-klok-action-primary-btn resume'} label={t('resume_veiling_klok')} icon="bi-play-fill" onClick={resumeVeilingKlok} />}
-
-											{getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! !== VeilingKlokStatus.Ended && getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! > VeilingKlokStatus.Scheduled && (
-												<>
-													<Button className={'vm-veiling-info-klok-action-secondary-btn end'} label={t('stop_veiling_klok')} icon="bi-stop-fill" onClick={stopVeilingKlok} />
-												</>
+											{getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! === VeilingKlokStatus.Scheduled && (
+												<Button
+													className={'vm-veiling-info-klok-action-primary-btn start'}
+													label={t('start_veiling_klok')}
+													icon="bi-play-fill"
+													onClick={startVeilingKlok}
+												/>
 											)}
+
+											{getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! === VeilingKlokStatus.Started && (
+												<Button
+													className={'vm-veiling-info-klok-action-primary-btn pause'}
+													label={t('pause_veiling_klok')}
+													icon="bi-pause-fill"
+													onClick={pauseVeilingKlok}
+												/>
+											)}
+
+											{getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! == VeilingKlokStatus.Paused && (
+												<Button
+													className={'vm-veiling-info-klok-action-primary-btn resume'}
+													label={t('resume_veiling_klok')}
+													icon="bi-play-fill"
+													onClick={resumeVeilingKlok}
+												/>
+											)}
+
+											{getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! !== VeilingKlokStatus.Ended &&
+												getNormalizedVeilingKlokStatus(currentVeilingKlok.status)! > VeilingKlokStatus.Scheduled && (
+													<>
+														<Button
+															className={'vm-veiling-info-klok-action-secondary-btn end'}
+															label={t('stop_veiling_klok')}
+															icon="bi-stop-fill"
+															onClick={stopVeilingKlok}
+														/>
+													</>
+												)}
 										</div>
 									</div>
 
@@ -323,7 +365,9 @@ function VeilingmeesterKlokManage() {
 											<div className={'vm-veiling-klok-product-field'}>
 												<div className={'vm-veiling-klok-product-field-label'}>{t('start_price')}:</div>
 												<div className={'vm-veiling-klok-product-field-box'}>
-													<span className="vm-veiling-klok-product-field-value text-primary-600">{formatEur(currentProduct.auctionedPrice ?? 0)}</span>
+													<span className="vm-veiling-klok-product-field-value text-primary-600">
+														{formatEur(currentProduct.auctionedPrice ?? 0)}
+													</span>
 												</div>
 											</div>
 
@@ -368,7 +412,14 @@ function VeilingmeesterKlokManage() {
 								<div className={'vm-veiling-info-products-scroll custom-scroll'}>
 									<div className={'vm-veiling-info-products-list'}>
 										{currentVeilingKlok?.products.map((product, index) => (
-											<ClockProductCard key={index} product={product} isSelected={currentVeilingKlok.currentProductIndex === index} status={getNormalizedVeilingKlokStatus(currentVeilingKlok.status)!} clockRunning={!clockWaitingProduct} onStartAuctionClick={() => startProductVeiling(product.id)} />
+											<ClockProductCard
+												key={index}
+												product={product}
+												isSelected={currentVeilingKlok.currentProductIndex === index}
+												status={getNormalizedVeilingKlokStatus(currentVeilingKlok.status)!}
+												clockRunning={!clockWaitingProduct}
+												onStartAuctionClick={() => startProductVeiling(product.id)}
+											/>
 										))}
 									</div>
 								</div>

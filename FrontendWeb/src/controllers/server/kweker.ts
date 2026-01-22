@@ -47,11 +47,20 @@ export async function getOrder(orderId: string): Promise<HttpSuccess<OrderKweker
 }
 
 // Get orders (GET /api/account/kweker/orders)
-export async function getOrders(productNameFilter?: string, koperNameFilter?: string, statusFilter?: string, beforeDate?: string, afterDate?: string, productId?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<OrderKwekerOutputDto>>> {
+export async function getOrders(
+	productNameFilter?: string,
+	koperNameFilter?: string,
+	statusFilter?: OrderStatus,
+	beforeDate?: string,
+	afterDate?: string,
+	productId?: string,
+	pageNumber: number = 1,
+	pageSize: number = 10,
+): Promise<HttpSuccess<PaginatedOutputDto<OrderKwekerOutputDto>>> {
 	const params = new URLSearchParams();
 	if (productNameFilter) params.append('productNameFilter', productNameFilter);
 	if (koperNameFilter) params.append('koperNameFilter', koperNameFilter);
-	if (statusFilter) params.append('statusFilter', statusFilter);
+	if (statusFilter) params.append('statusFilter', getOrderStatusString(statusFilter));
 	if (beforeDate) params.append('beforeDate', beforeDate);
 	if (afterDate) params.append('afterDate', afterDate);
 	if (productId) params.append('productId', productId);
@@ -82,7 +91,14 @@ export async function getProductDetails(productId: string): Promise<HttpSuccess<
 }
 
 // Get product orders (GET /api/account/kweker/product/{productId}/orders)
-export async function getProductOrders(productId: string, statusFilter?: string, beforeDate?: string, afterDate?: string, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<OrderOutputDto>>> {
+export async function getProductOrders(
+	productId: string,
+	statusFilter?: string,
+	beforeDate?: string,
+	afterDate?: string,
+	pageNumber: number = 1,
+	pageSize: number = 10,
+): Promise<HttpSuccess<PaginatedOutputDto<OrderOutputDto>>> {
 	const params = new URLSearchParams();
 	if (statusFilter) params.append('statusFilter', statusFilter);
 	if (beforeDate) params.append('beforeDate', beforeDate);
@@ -90,7 +106,9 @@ export async function getProductOrders(productId: string, statusFilter?: string,
 	params.append('pageNumber', pageNumber.toString());
 	params.append('pageSize', pageSize.toString());
 
-	return fetchResponse<HttpSuccess<PaginatedOutputDto<OrderOutputDto>>>(`/api/account/kweker/product/${productId}/orders?${params.toString()}`);
+	return fetchResponse<HttpSuccess<PaginatedOutputDto<OrderOutputDto>>>(
+		`/api/account/kweker/product/${productId}/orders?${params.toString()}`,
+	);
 }
 
 // Update product (PUT /api/account/kweker/product/{productId})
@@ -102,7 +120,13 @@ export async function updateProduct(productId: string, product: UpdateProductDTO
 }
 
 // Get products (GET /api/account/kweker/products)
-export async function getProducts(nameFilter?: string, regionFilter?: string, maxPrice?: number, pageNumber: number = 1, pageSize: number = 10): Promise<HttpSuccess<PaginatedOutputDto<ProductOutputDto>>> {
+export async function getProducts(
+	nameFilter?: string,
+	regionFilter?: string,
+	maxPrice?: number,
+	pageNumber: number = 1,
+	pageSize: number = 10,
+): Promise<HttpSuccess<PaginatedOutputDto<ProductOutputDto>>> {
 	const params = new URLSearchParams();
 	if (nameFilter) params.append('nameFilter', nameFilter);
 	if (maxPrice) params.append('maxPrice', maxPrice.toString());

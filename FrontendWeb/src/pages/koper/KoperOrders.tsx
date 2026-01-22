@@ -86,7 +86,12 @@ function KoperOrders() {
 								showOrder(true);
 							}}
 						/>
-						<Button className={'app-table-action-btn'} icon={'bi-download'} onClick={() => generateOrderPDF(item)} aria-label={t('aria_download_order_pdf')} />
+						<Button
+							className={'app-table-action-btn'}
+							icon={'bi-download'}
+							onClick={() => generateOrderPDF(item)}
+							aria-label={t('aria_download_order_pdf')}
+						/>
 					</div>
 				),
 			},
@@ -182,7 +187,12 @@ function KoperOrders() {
 					icon={<i className="bi bi-cart4"></i>}
 					filterGroups={
 						<>
-							<Button icon="bi-chevron-down" className="app-table-filter-btn" label={'All Status'} aria-label={t('aria_filter_all_status')} />
+							<Button
+								icon="bi-chevron-down"
+								className="app-table-filter-btn"
+								label={'All Status'}
+								aria-label={t('aria_filter_all_status')}
+							/>
 							<Button icon="bi-chevron-down" className="app-table-filter-btn" label={'More Filters'} aria-label={t('aria_filter_more')} />
 						</>
 					}

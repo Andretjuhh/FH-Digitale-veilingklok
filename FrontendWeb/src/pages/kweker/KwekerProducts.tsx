@@ -77,7 +77,7 @@ function KwekerProducts() {
 				</section>
 
 				<section className={'products-page-stats'} aria-label={t('aria_kweker_products_stats')}>
-					<KwekerProductStats />
+					<KwekerProductStats aria-label={t('aria_kweker_products_stats')} />
 					<div className="products-page-action-card" aria-label={t('aria_kweker_products_actions')}>
 						<div className="products-page-action-card-title">
 							<span>
@@ -86,39 +86,44 @@ function KwekerProducts() {
 							<p className="products-page-action-card-txt">{t('products')}</p>
 						</div>
 
-						<Button className={'products-page-action-card-btn'} icon={'bi bi-plus-circle-fill'} onClick={() => setOpenCreateEditModal({ visible: true })} label={t('create_product')} aria-label={t('aria_kweker_create_product')} />
+						<Button
+							className={'products-page-action-card-btn'}
+							icon={'bi bi-plus-circle-fill'}
+							onClick={() => setOpenCreateEditModal({ visible: true })}
+							label={t('create_product')}
+							aria-label={t('aria_kweker_create_product')}
+						/>
 					</div>
 				</section>
 
-				<section aria-label={t('aria_kweker_products_list')}>
-					<GridTable
-						isLazy
-						itemsPerPage={12}
-						data={paginatedProducts?.data || []}
-						loading={paginatedProductsState.type == 'loading'}
-						totalItems={paginatedProducts?.totalCount || 0}
-						onFetchData={handleFetchProducts}
-						title={t('your_products')}
-						icon={<i className="bi bi-bag-fill"></i>}
-						renderItem={(item, index) => (
-							<ProductCard
-								isKoper={false}
-								product={item}
-								index={index}
-								onAction={(action, product) => {
-									if (action == 'edit') {
-										setOpenCreateEditModal({ visible: true, product: product });
-									} else if (action == 'set_pricing') {
-										console.log('Set pricing for product', product);
-									} else if (action == 'delete') {
-										handleDeleteProduct(product);
-									}
-								}}
-							/>
-						)}
-						emptyText={t('no_orders')}
-					/>
-				</section>
+				<GridTable
+					isLazy
+					itemsPerPage={12}
+					data={paginatedProducts?.data || []}
+					loading={paginatedProductsState.type == 'loading'}
+					totalItems={paginatedProducts?.totalCount || 0}
+					onFetchData={handleFetchProducts}
+					title={t('your_products')}
+					icon={<i className="bi bi-bag-fill"></i>}
+					renderItem={(item, index) => (
+						<ProductCard
+							isKoper={false}
+							product={item}
+							index={index}
+							onAction={(action, product) => {
+								if (action == 'edit') {
+									setOpenCreateEditModal({ visible: true, product: product });
+								} else if (action == 'set_pricing') {
+									console.log('Set pricing for product', product);
+								} else if (action == 'delete') {
+									handleDeleteProduct(product);
+								}
+							}}
+						/>
+					)}
+					emptyText={t('no_orders')}
+					aria-label={t('aria_kweker_products_list')}
+				/>
 
 				<Modal enabled={openCreateEditModal.visible} onClose={() => setOpenCreateEditModal({ visible: false })}>
 					<CreateEditProduct product={openCreateEditModal.product} onClose={() => setOpenCreateEditModal({ visible: false })} />

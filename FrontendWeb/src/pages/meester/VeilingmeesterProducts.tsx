@@ -1,43 +1,34 @@
-import React, {useCallback, useState} from 'react';
-import {useRootContext} from "../../components/contexts/RootContext";
-import {useComponentStateReducer} from "../../hooks/useComponentStateReducer";
-import {PaginatedOutputDto} from "../../declarations/dtos/output/PaginatedOutputDto";
-import {ProductOutputDto} from "../../declarations/dtos/output/ProductOutputDto";
-import {OnFetchHandlerParams} from "../../components/layout/Table";
-import {getProducts} from "../../controllers/server/veilingmeester";
-import Page from "../../components/nav/Page";
-import {MeesterProductStats} from "../../components/sections/meester/MeesterStats";
-import Button from "../../components/buttons/Button";
-import GridTable from "../../components/layout/GridTable";
-import ProductCard from "../../components/cards/ProductCard";
-import SetProductVeilingPrice from "../../components/sections/veiling-dashboard/SetProductVeilingPrice";
+import React, { useCallback, useState } from 'react';
+import { useRootContext } from '../../components/contexts/RootContext';
+import { useComponentStateReducer } from '../../hooks/useComponentStateReducer';
+import { PaginatedOutputDto } from '../../declarations/dtos/output/PaginatedOutputDto';
+import { ProductOutputDto } from '../../declarations/dtos/output/ProductOutputDto';
+import { OnFetchHandlerParams } from '../../components/layout/Table';
+import { getProducts } from '../../controllers/server/veilingmeester';
+import Page from '../../components/nav/Page';
+import { MeesterProductStats } from '../../components/sections/meester/MeesterStats';
+import Button from '../../components/buttons/Button';
+import GridTable from '../../components/layout/GridTable';
+import ProductCard from '../../components/cards/ProductCard';
+import SetProductVeilingPrice from '../../components/sections/veiling-dashboard/SetProductVeilingPrice';
 
 function VeilingmeesterProducts() {
-	const {t, account} = useRootContext();
+	const { t, account } = useRootContext();
 
 	// State for Create/Edit Product Modal
 	const [paginatedProductsState, setPaginatedProductsState] = useComponentStateReducer();
 	const [paginatedProducts, setPaginatedProducts] = useState<PaginatedOutputDto<ProductOutputDto>>();
-	const [openCreateEditModal, openPricingModal] = useState<{ visible: boolean; product?: ProductOutputDto }>({visible: false});
+	const [openCreateEditModal, openPricingModal] = useState<{ visible: boolean; product?: ProductOutputDto }>({ visible: false });
 
 	const handleFetchProducts = useCallback(async (params: OnFetchHandlerParams) => {
 		try {
-			setPaginatedProductsState({type: 'loading'});
-			const response = await getProducts(
-				params.searchTerm,
-				account?.region,
-				undefined,
-				undefined,
-				undefined,
-				params.page,
-				params.pageSize
-			);
+			setPaginatedProductsState({ type: 'loading' });
+			const response = await getProducts(params.searchTerm, account?.region, undefined, undefined, undefined, params.page, params.pageSize);
 			if (response.data) setPaginatedProducts(response.data);
-			setPaginatedProductsState({type: 'succeed'});
+			setPaginatedProductsState({ type: 'succeed' });
 		} catch (err) {
 			console.error('Failed to fetch orders', err);
 		}
-
 	}, []);
 
 	return (
@@ -47,21 +38,18 @@ function VeilingmeesterProducts() {
 					<h1 id="meester-products-title">
 						{t('welcome')}, {account?.firstName} {account?.lastName}
 					</h1>
-					<h2 id="meester-products-subtitle">
-						{t('manage_product_price_txt')}
-					</h2>
+					<h2 id="meester-products-subtitle">{t('manage_product_price_txt')}</h2>
 				</section>
+
 				<section className={'products-page-stats'} aria-label={t('aria_meester_products_stats')}>
-					<MeesterProductStats/>
+					<MeesterProductStats aria-label={t('aria_meester_products_stats')} />
 
 					<div className="products-page-action-card" aria-label={t('aria_meester_action_card')}>
 						<div className="products-page-action-card-title">
-					        <span>
-						         <i className={'bi bi-clock-fill'}/>
-			                </span>
-							<p className="products-page-action-card-txt">
-								{t('veilingklok')}
-							</p>
+							<span>
+								<i className={'bi bi-clock-fill'} />
+							</span>
+							<p className="products-page-action-card-txt">{t('veilingklok')}</p>
 						</div>
 
 						<Button
@@ -72,6 +60,7 @@ function VeilingmeesterProducts() {
 						/>
 					</div>
 				</section>
+
 				<section aria-label={t('aria_meester_products_list')}>
 					<GridTable
 						isLazy
@@ -80,7 +69,6 @@ function VeilingmeesterProducts() {
 						loading={paginatedProductsState.type == 'loading'}
 						totalItems={paginatedProducts?.totalCount || 0}
 						onFetchData={handleFetchProducts}
-
 						title={t('region_flowers')}
 						icon={<i className="bi bi-bag-fill"></i>}
 						renderItem={(item, index) => (
@@ -88,26 +76,24 @@ function VeilingmeesterProducts() {
 								mode={'meester'}
 								product={item}
 								index={index}
-								onAction={
-									(action, product) => {
-										if (action == 'edit') {
-											openPricingModal({visible: true, product: product});
-										} else if (action == 'set_pricing') {
-											openPricingModal({visible: true, product: product});
-										} else if (action == 'delete') {
-											console.log('Delete product', product);
-										}
+								onAction={(action, product) => {
+									if (action == 'edit') {
+										openPricingModal({ visible: true, product: product });
+									} else if (action == 'set_pricing') {
+										openPricingModal({ visible: true, product: product });
+									} else if (action == 'delete') {
+										console.log('Delete product', product);
 									}
-								}
-							/>)
-						}
+								}}
+							/>
+						)}
 						emptyText={t('no_orders')}
 					/>
 				</section>
 
-				{(openCreateEditModal.visible && openCreateEditModal.product) && (
-					<div className="modal-overlay" onClick={() => openPricingModal({visible: false})}>
-						<SetProductVeilingPrice product={openCreateEditModal.product} onClose={() => openPricingModal({visible: false})}/>
+				{openCreateEditModal.visible && openCreateEditModal.product && (
+					<div className="modal-overlay" onClick={() => openPricingModal({ visible: false })}>
+						<SetProductVeilingPrice product={openCreateEditModal.product} onClose={() => openPricingModal({ visible: false })} />
 					</div>
 				)}
 			</main>
